@@ -62,6 +62,13 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
     }
   });
 
+  // Get environment configuration (API keys, etc.)
+  app.get("/api/config", (req, res) => {
+    res.json({
+      mapboxAccessToken: process.env.MAPBOX_ACCESS_TOKEN || ''
+    });
+  });
+
   // Get all features
   app.get("/api/features", async (req, res) => {
     try {

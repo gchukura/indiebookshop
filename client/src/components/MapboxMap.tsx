@@ -33,33 +33,46 @@ const MapboxMap = ({ bookstores, onSelectBookstore }: MapboxMapProps) => {
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
     
-    try {
-      // Log token info for debugging (masked for security)
-      console.log("MAPBOX_ACCESS_TOKEN exists:", !!MAPBOX_ACCESS_TOKEN);
-      
-      // Use the access token - we know it exists from the check_secrets tool
-      mapboxgl.accessToken = "pk.eyJ1IjoiajAzdmUiLCJhIjoiY2x1eHR2cWI0MWdxZDJrcnloemVvMTZ6diJ9.Gm1E5rwDzc1cp8dRDYnUeQ";
-      
-      const map = new mapboxgl.Map({
-        container: mapContainerRef.current,
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: [-98.5795, 39.8283], // Center of US
-        zoom: 3,
-        interactive: true
-      });
+    const initializeMap = async () => {
+      try {
+        // Fetch the access token from the API
+        const configResponse = await fetch('/api/config');
+        const config = await configResponse.json();
+        const accessToken = config.mapboxAccessToken;
+        
+        console.log("Access token received from API:", !!accessToken);
+        
+        if (!accessToken) {
+          console.error('No Mapbox access token available');
+          return;
+        }
+        
+        // Use the access token from the server
+        mapboxgl.accessToken = accessToken;
+        
+        const map = new mapboxgl.Map({
+          container: mapContainerRef.current,
+          style: 'mapbox://styles/mapbox/streets-v12',
+          center: [-98.5795, 39.8283], // Center of US
+          zoom: 3,
+          interactive: true
+        });
 
-      map.on('load', () => {
-        setMapLoaded(true);
-        console.log("Mapbox map loaded successfully");
-      });
+        map.on('load', () => {
+          setMapLoaded(true);
+          console.log("Mapbox map loaded successfully");
+        });
 
-      // Add navigation controls
-      map.addControl(new mapboxgl.NavigationControl());
+        // Add navigation controls
+        map.addControl(new mapboxgl.NavigationControl());
 
-      mapRef.current = map;
-    } catch (error) {
-      console.error('Error initializing Mapbox map:', error);
-    }
+        mapRef.current = map;
+      } catch (error) {
+        console.error('Error initializing Mapbox map:', error);
+      }
+    };
+    
+    initializeMap();
 
     // Cleanup on unmount
     return () => {
