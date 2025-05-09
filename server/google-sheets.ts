@@ -15,7 +15,7 @@ const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1Qa3AW5Zmu0X4yT3fXjmoU62
 // Default configuration
 const DEFAULT_CONFIG: SheetsConfig = {
   spreadsheetId: SPREADSHEET_ID,
-  bookstoreRange: 'Bookstores!A2:N', // Assumes headers are in row 1
+  bookstoreRange: 'Bookstores!A2:O', // Added an additional column for 'live' field
   featuresRange: 'Features!A2:B',    // Assumes headers are in row 1
   eventsRange: 'Events!A2:F'         // Assumes headers are in row 1
 };
@@ -124,6 +124,18 @@ export class GoogleSheetsService {
           } catch (e) {
             console.error(`Error parsing featureIds for bookstore ${id}:`, e);
           }
+          
+          // Parse live status (default to true if not provided)
+          let live = true;
+          try {
+            if (row[14] !== undefined) {
+              // Convert various string formats to boolean
+              const liveStr = String(row[14]).trim().toLowerCase();
+              live = liveStr === 'yes' || liveStr === 'true' || liveStr === '1';
+            }
+          } catch (e) {
+            console.error(`Error parsing live status for bookstore ${id}:`, e);
+          }
 
           return {
             id,
@@ -140,6 +152,7 @@ export class GoogleSheetsService {
             latitude,
             longitude,
             featureIds,
+            live,
           };
         } catch (error) {
           console.error(`Error processing bookstore row ${index}:`, error);

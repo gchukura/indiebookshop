@@ -91,33 +91,45 @@ export class MemStorage implements IStorage {
 
   // Bookstore methods
   async getBookstores(): Promise<Bookstore[]> {
-    return Array.from(this.bookstores.values());
+    return Array.from(this.bookstores.values()).filter(
+      (bookstore) => bookstore.live !== false // Show all bookstores except those explicitly marked as not live
+    );
   }
 
   async getBookstore(id: number): Promise<Bookstore | undefined> {
-    return this.bookstores.get(id);
+    const bookstore = this.bookstores.get(id);
+    // Individual bookstore can be viewed even if not live (for admin/preview purposes)
+    return bookstore;
   }
 
   async getBookstoresByState(state: string): Promise<Bookstore[]> {
     return Array.from(this.bookstores.values()).filter(
-      (bookstore) => bookstore.state.toLowerCase() === state.toLowerCase()
+      (bookstore) => 
+        bookstore.live !== false && // Only show live bookstores
+        bookstore.state.toLowerCase() === state.toLowerCase()
     );
   }
 
   async getBookstoresByCity(city: string): Promise<Bookstore[]> {
     return Array.from(this.bookstores.values()).filter(
-      (bookstore) => bookstore.city.toLowerCase() === city.toLowerCase()
+      (bookstore) => 
+        bookstore.live !== false && // Only show live bookstores
+        bookstore.city.toLowerCase() === city.toLowerCase()
     );
   }
 
   async getBookstoresByFeatures(featureIds: number[]): Promise<Bookstore[]> {
     return Array.from(this.bookstores.values()).filter(
-      (bookstore) => bookstore.featureIds.some(id => featureIds.includes(id))
+      (bookstore) => 
+        bookstore.live !== false && // Only show live bookstores
+        bookstore.featureIds && bookstore.featureIds.some(id => featureIds.includes(id))
     );
   }
 
   async getFilteredBookstores(filters: { state?: string, city?: string, featureIds?: number[] }): Promise<Bookstore[]> {
-    let filteredBookstores = Array.from(this.bookstores.values());
+    let filteredBookstores = Array.from(this.bookstores.values()).filter(
+      (bookstore) => bookstore.live !== false // Only show live bookstores
+    );
     
     if (filters.state) {
       filteredBookstores = filteredBookstores.filter(
@@ -222,7 +234,8 @@ export class MemStorage implements IStorage {
         },
         latitude: "37.7982",
         longitude: "-122.4067",
-        featureIds: [1, 3, 6]
+        featureIds: [1, 3, 6],
+        live: true
       },
       {
         name: "Powell's Books",
@@ -245,7 +258,8 @@ export class MemStorage implements IStorage {
         },
         latitude: "45.5232",
         longitude: "-122.6819",
-        featureIds: [2, 3, 4]
+        featureIds: [2, 3, 4],
+        live: true
       },
       {
         name: "The Strand Bookstore",

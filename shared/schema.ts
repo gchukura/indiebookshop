@@ -29,6 +29,7 @@ export const bookstores = pgTable("bookstores", {
   latitude: text("latitude"),
   longitude: text("longitude"),
   featureIds: integer("feature_ids").array().default([]),
+  live: boolean("live").default(true),
 });
 
 export const events = pgTable("events", {
