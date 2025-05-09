@@ -282,7 +282,8 @@ export class MemStorage implements IStorage {
         },
         latitude: "40.7336",
         longitude: "-73.9908",
-        featureIds: [1, 4, 7]
+        featureIds: [1, 4, 7],
+        live: true
       },
       {
         name: "Book People",
@@ -305,7 +306,8 @@ export class MemStorage implements IStorage {
         },
         latitude: "30.2752",
         longitude: "-97.7536",
-        featureIds: [1, 2, 5]
+        featureIds: [1, 2, 5],
+        live: true
       },
       {
         name: "Elliott Bay Book Company",
@@ -328,7 +330,8 @@ export class MemStorage implements IStorage {
         },
         latitude: "47.6142",
         longitude: "-122.3192",
-        featureIds: [1, 2, 3, 8]
+        featureIds: [1, 2, 3, 8],
+        live: true
       },
       {
         name: "Tattered Cover Book Store",
@@ -351,7 +354,24 @@ export class MemStorage implements IStorage {
         },
         latitude: "39.7404",
         longitude: "-104.9503",
-        featureIds: [2, 5, 8]
+        featureIds: [2, 5, 8],
+        live: true
+      },
+      {
+        name: "Inactive Bookstore Example",
+        street: "123 Test St",
+        city: "Test City",
+        state: "CA",
+        zip: "12345",
+        description: "This is an example of a bookstore that won't be displayed because it has live set to false.",
+        imageUrl: null,
+        website: null,
+        phone: null,
+        hours: null,
+        latitude: "37.7749",
+        longitude: "-122.4194",
+        featureIds: [1],
+        live: false
       }
     ];
 
