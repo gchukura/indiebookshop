@@ -109,24 +109,25 @@ export const BookstoreSubmissionForm = () => {
       };
 
       // Send submission to the API
-      const response = await apiRequest<{message: string}>("/api/bookstores/submit", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      const response = await apiRequest(
+        "POST",
+        "/api/bookstores/submit",
+        {
           submitterEmail: data.submitterEmail,
           submitterName: data.submitterName,
           isNewSubmission,
           existingBookstoreId: !isNewSubmission ? data.existingBookstoreId : undefined,
           bookstoreData,
-        }),
-      });
+        }
+      );
+
+      // Parse response to get message
+      const result = await response.json();
 
       // Show success message
       toast({
         title: "Submission Successful",
-        description: response.message || "Thank you for your submission! We'll review it shortly.",
+        description: result.message || "Thank you for your submission! We'll review it shortly.",
       });
 
       // Reset the form
@@ -456,7 +457,7 @@ export const BookstoreSubmissionForm = () => {
             <div className="space-y-2">
               <FormLabel>Features (optional)</FormLabel>
               <div className="grid grid-cols-2 gap-2">
-                {features.map((feature: Feature) => (
+                {Array.isArray(features) && features.map((feature) => (
                   <div
                     key={feature.id}
                     className={`border rounded p-2 cursor-pointer ${

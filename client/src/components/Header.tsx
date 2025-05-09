@@ -48,13 +48,12 @@ const Header = () => {
             </nav>
           </div>
           <div className="flex items-center space-x-3">
-            <div className="hidden md:block">
-              <Button className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">Sign In</Button>
-            </div>
-            <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white">
-              <span className="hidden md:inline">Add Your Bookstore</span>
-              <span className="md:hidden">Add Bookstore</span>
-            </Button>
+            <Link href="/submit">
+              <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white">
+                <span className="hidden md:inline">Add Your Bookstore</span>
+                <span className="md:hidden">Add Bookstore</span>
+              </Button>
+            </Link>
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="icon" className="text-gray-500 hover:text-[#5F4B32]">
@@ -96,9 +95,15 @@ const Header = () => {
                     Blog
                   </Link>
                   <hr />
-                  <Button className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white w-full" onClick={() => setIsMenuOpen(false)}>
-                    Sign In
-                  </Button>
+                  <Link 
+                    href="/submit" 
+                    className="w-full"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white w-full">
+                      Add Your Bookstore
+                    </Button>
+                  </Link>
                 </nav>
               </SheetContent>
             </Sheet>
