@@ -1,6 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { GoogleSheetsStorage } from './sheets-storage';
+import { storage } from './storage';
 
 const app = express();
 app.use(express.json());
@@ -36,8 +38,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Choose which storage implementation to use
+// Use Google Sheets by default, unless USE_MEM_STORAGE env var is set to 'true'
+const USE_GOOGLE_SHEETS = process.env.USE_MEM_STORAGE !== 'true';
+const storageImplementation = USE_GOOGLE_SHEETS ? new GoogleSheetsStorage() : storage;
+
 (async () => {
-  const server = await registerRoutes(app);
+  const server = await registerRoutes(app, storageImplementation);
+  
+  log(`Using ${USE_GOOGLE_SHEETS ? 'Google Sheets' : 'in-memory'} storage implementation`);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

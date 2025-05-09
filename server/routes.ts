@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage, IStorage } from "./storage";
 import { 
   bookstoreFiltersSchema,
   addToFavoritesSchema,
@@ -8,11 +8,11 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+export async function registerRoutes(app: Express, storageImpl: IStorage = storage): Promise<Server> {
   // Get all bookstores
   app.get("/api/bookstores", async (req, res) => {
     try {
-      const bookstores = await storage.getBookstores();
+      const bookstores = await storageImpl.getBookstores();
       res.json(bookstores);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch bookstores" });
@@ -27,7 +27,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid bookstore ID" });
       }
       
-      const bookstore = await storage.getBookstore(id);
+      const bookstore = await storageImpl.getBookstore(id);
       if (!bookstore) {
         return res.status(404).json({ message: "Bookstore not found" });
       }
@@ -47,7 +47,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         features: req.query.features ? (req.query.features as string).split(',').map(Number) : undefined
       });
       
-      const bookstores = await storage.getFilteredBookstores({
+      const bookstores = await storageImpl.getFilteredBookstores({
         state: validatedFilters.state,
         city: validatedFilters.city,
         featureIds: validatedFilters.features
@@ -65,7 +65,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all features
   app.get("/api/features", async (req, res) => {
     try {
-      const features = await storage.getFeatures();
+      const features = await storageImpl.getFeatures();
       res.json(features);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch features" });
@@ -80,7 +80,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid bookstore ID" });
       }
       
-      const events = await storage.getEventsByBookstore(bookstoreId);
+      const events = await storageImpl.getEventsByBookstore(bookstoreId);
       res.json(events);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch events" });
@@ -90,7 +90,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all states with bookstores
   app.get("/api/states", async (req, res) => {
     try {
-      const bookstores = await storage.getBookstores();
+      const bookstores = await storageImpl.getBookstores();
       const states = [...new Set(bookstores.map(bookstore => bookstore.state))].sort();
       res.json(states);
     } catch (error) {
@@ -102,7 +102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/states/:state/cities", async (req, res) => {
     try {
       const state = req.params.state;
-      const bookstores = await storage.getBookstoresByState(state);
+      const bookstores = await storageImpl.getBookstoresByState(state);
       const cities = [...new Set(bookstores.map(bookstore => bookstore.city))].sort();
       res.json(cities);
     } catch (error) {
@@ -115,12 +115,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userData = insertUserSchema.parse(req.body);
       
-      const existingUser = await storage.getUserByUsername(userData.username);
+      const existingUser = await storageImpl.getUserByUsername(userData.username);
       if (existingUser) {
         return res.status(409).json({ message: "Username already exists" });
       }
       
-      const newUser = await storage.createUser(userData);
+      const newUser = await storageImpl.createUser(userData);
       
       // Don't return the password in the response
       const { password, ...userWithoutPassword } = newUser;
@@ -138,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { username, password } = req.body;
       
-      const user = await storage.getUserByUsername(username);
+      const user = await storageImpl.getUserByUsername(username);
       if (!user || user.password !== password) {
         return res.status(401).json({ message: "Invalid username or password" });
       }
@@ -161,18 +161,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const { bookstoreId } = addToFavoritesSchema.parse(req.body);
       
-      const user = await storage.getUser(userId);
+      const user = await storageImpl.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
       
-      const bookstore = await storage.getBookstore(bookstoreId);
+      const bookstore = await storageImpl.getBookstore(bookstoreId);
       if (!bookstore) {
         return res.status(404).json({ message: "Bookstore not found" });
       }
       
-      const favorites = [...user.favorites, bookstoreId.toString()];
-      const updatedUser = await storage.updateUserFavorites(userId, favorites);
+      const favorites = user.favorites ? [...user.favorites, bookstoreId.toString()] : [bookstoreId.toString()];
+      const updatedUser = await storageImpl.updateUserFavorites(userId, favorites);
       
       if (!updatedUser) {
         return res.status(500).json({ message: "Failed to update favorites" });
@@ -199,13 +199,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid ID" });
       }
       
-      const user = await storage.getUser(userId);
+      const user = await storageImpl.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
       
-      const favorites = user.favorites.filter(id => id !== bookstoreId.toString());
-      const updatedUser = await storage.updateUserFavorites(userId, favorites);
+      const favorites = user.favorites ? user.favorites.filter(id => id !== bookstoreId.toString()) : [];
+      const updatedUser = await storageImpl.updateUserFavorites(userId, favorites);
       
       if (!updatedUser) {
         return res.status(500).json({ message: "Failed to update favorites" });
