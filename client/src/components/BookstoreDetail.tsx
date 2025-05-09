@@ -55,7 +55,7 @@ const BookstoreDetail = ({ bookstoreId, isOpen, onClose }: BookstoreDetailProps)
 
   // Get feature names for the bookstore
   const bookstoreFeatures = features?.filter(feature => 
-    bookstore?.featureIds.includes(feature.id)
+    bookstore?.featureIds && bookstore.featureIds.includes(feature.id)
   ) || [];
 
   return (

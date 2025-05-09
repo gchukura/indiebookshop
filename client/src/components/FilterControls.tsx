@@ -87,11 +87,13 @@ const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) 
                 <SelectContent>
                   <SelectItem value="all">All States</SelectItem>
                   {states && states.length > 0 ? (
-                    states.map((state) => (
-                      <SelectItem key={state} value={state}>
-                        {state}
-                      </SelectItem>
-                    ))
+                    states
+                      .filter(state => state && state.trim() !== "" && state !== "#ERROR!")
+                      .map((state) => (
+                        <SelectItem key={state} value={state}>
+                          {state}
+                        </SelectItem>
+                      ))
                   ) : null}
                 </SelectContent>
               </Select>
@@ -105,11 +107,13 @@ const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) 
                 <SelectContent>
                   <SelectItem value="all">All Cities</SelectItem>
                   {cities && cities.length > 0 ? (
-                    cities.map((city) => (
-                      <SelectItem key={city} value={city}>
-                        {city}
-                      </SelectItem>
-                    ))
+                    cities
+                      .filter(city => city && city.trim() !== "" && city !== "#ERROR!")
+                      .map((city) => (
+                        <SelectItem key={city} value={city}>
+                          {city}
+                        </SelectItem>
+                      ))
                   ) : null}
                 </SelectContent>
               </Select>

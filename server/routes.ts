@@ -91,7 +91,11 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   app.get("/api/states", async (req, res) => {
     try {
       const bookstores = await storageImpl.getBookstores();
-      const states = [...new Set(bookstores.map(bookstore => bookstore.state))].sort();
+      const states = [...new Set(
+        bookstores
+          .map(bookstore => bookstore.state)
+          .filter(state => state && state.trim() !== "" && state !== "#ERROR!")
+      )].sort();
       res.json(states);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch states" });
@@ -103,7 +107,11 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
     try {
       const state = req.params.state;
       const bookstores = await storageImpl.getBookstoresByState(state);
-      const cities = [...new Set(bookstores.map(bookstore => bookstore.city))].sort();
+      const cities = [...new Set(
+        bookstores
+          .map(bookstore => bookstore.city)
+          .filter(city => city && city.trim() !== "" && city !== "#ERROR!")
+      )].sort();
       res.json(cities);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch cities" });

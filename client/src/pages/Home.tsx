@@ -43,7 +43,7 @@ const Home = () => {
               {featuredBookstores.map((bookstore) => {
                 // Get feature names for this bookstore
                 const bookstoreFeatures = features?.filter(feature => 
-                  bookstore.featureIds.includes(feature.id)
+                  bookstore.featureIds && bookstore.featureIds.includes(feature.id)
                 ).slice(0, 3) || [];
                 
                 return (
