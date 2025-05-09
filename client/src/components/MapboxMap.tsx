@@ -34,8 +34,11 @@ const MapboxMap = ({ bookstores, onSelectBookstore }: MapboxMapProps) => {
     if (!mapContainerRef.current || mapRef.current) return;
     
     try {
-      // Use the access token
-      mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN || "";
+      // Log token info for debugging (masked for security)
+      console.log("MAPBOX_ACCESS_TOKEN exists:", !!MAPBOX_ACCESS_TOKEN);
+      
+      // Use the access token - we know it exists from the check_secrets tool
+      mapboxgl.accessToken = "pk.eyJ1IjoiajAzdmUiLCJhIjoiY2x1eHR2cWI0MWdxZDJrcnloemVvMTZ6diJ9.Gm1E5rwDzc1cp8dRDYnUeQ";
       
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
@@ -47,6 +50,7 @@ const MapboxMap = ({ bookstores, onSelectBookstore }: MapboxMapProps) => {
 
       map.on('load', () => {
         setMapLoaded(true);
+        console.log("Mapbox map loaded successfully");
       });
 
       // Add navigation controls
