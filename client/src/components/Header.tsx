@@ -1,0 +1,112 @@
+import { Link, useLocation } from "wouter";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu, X } from "lucide-react";
+
+const Header = () => {
+  const [location] = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const isActiveRoute = (route: string) => {
+    return location === route;
+  };
+
+  return (
+    <header className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-20">
+          <div className="flex items-center">
+            <Link href="/" className="flex-shrink-0 flex items-center">
+              <span className="text-[#5F4B32] font-serif text-2xl font-bold">IndiebookShop</span>
+            </Link>
+            <nav className="hidden md:ml-10 md:flex md:space-x-8">
+              <Link 
+                href="/directory" 
+                className={`${isActiveRoute('/directory') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+              >
+                Directory
+              </Link>
+              <Link 
+                href="/about" 
+                className={`${isActiveRoute('/about') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+              >
+                About
+              </Link>
+              <Link 
+                href="/events" 
+                className={`${isActiveRoute('/events') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+              >
+                Events
+              </Link>
+              <Link 
+                href="/blog" 
+                className={`${isActiveRoute('/blog') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+              >
+                Blog
+              </Link>
+            </nav>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="hidden md:block">
+              <Button className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">Sign In</Button>
+            </div>
+            <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white">
+              <span className="hidden md:inline">Add Your Bookstore</span>
+              <span className="md:hidden">Add Bookstore</span>
+            </Button>
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-[#5F4B32]">
+                  {isMenuOpen ? (
+                    <X className="h-6 w-6" />
+                  ) : (
+                    <Menu className="h-6 w-6" />
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[250px] sm:w-[300px]">
+                <nav className="flex flex-col gap-4 mt-8">
+                  <Link 
+                    href="/directory" 
+                    className="px-4 py-2 text-lg font-medium hover:bg-gray-100 rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Directory
+                  </Link>
+                  <Link 
+                    href="/about" 
+                    className="px-4 py-2 text-lg font-medium hover:bg-gray-100 rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    About
+                  </Link>
+                  <Link 
+                    href="/events" 
+                    className="px-4 py-2 text-lg font-medium hover:bg-gray-100 rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Events
+                  </Link>
+                  <Link 
+                    href="/blog" 
+                    className="px-4 py-2 text-lg font-medium hover:bg-gray-100 rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Blog
+                  </Link>
+                  <hr />
+                  <Button className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white w-full" onClick={() => setIsMenuOpen(false)}>
+                    Sign In
+                  </Button>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
