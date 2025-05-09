@@ -5,7 +5,7 @@ import Hero from "@/components/Hero";
 import FilterControls from "@/components/FilterControls";
 import BookstoreCard from "@/components/BookstoreCard";
 import BookstoreDetail from "@/components/BookstoreDetail";
-import GoogleMap from "@/components/GoogleMap";
+import MapboxMap from "@/components/MapboxMap";
 import { Button } from "@/components/ui/button";
 import { Bookstore } from "@shared/schema";
 import { useFilters } from "@/hooks/useFilters";
@@ -70,8 +70,8 @@ const Directory = () => {
         <div className="md:flex md:space-x-6">
           {/* Map Section */}
           <div id="map-section" className={`w-full ${view === "map" ? "md:w-1/2" : "md:hidden"}`}>
-            <div className="bg-white rounded-lg shadow-md overflow-hidden map-container relative">
-              <GoogleMap 
+            <div className="bg-white rounded-lg shadow-md overflow-hidden map-container relative" style={{ height: "600px" }}>
+              <MapboxMap 
                 bookstores={filteredBookstores} 
                 onSelectBookstore={handleShowDetails}
               />

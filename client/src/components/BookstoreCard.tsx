@@ -19,7 +19,7 @@ const BookstoreCard = ({ bookstore, showDetails }: BookstoreCardProps) => {
 
   // Get feature names for the bookstore
   const bookstoreFeatures = features?.filter(feature => 
-    bookstore.featureIds.includes(feature.id)
+    bookstore.featureIds?.includes(feature.id) || false
   ) || [];
 
   const toggleFavorite = (e: React.MouseEvent) => {
@@ -66,14 +66,12 @@ const BookstoreCard = ({ bookstore, showDetails }: BookstoreCardProps) => {
               </span>
             ))}
           </div>
-          <Link href={`/bookstore/${bookstore.id}`}>
-            <a 
-              className="inline-block text-[#2A6B7C] hover:text-[#E16D3D] font-medium text-sm"
-              onClick={handleViewDetails}
-            >
-              View Details <ArrowRight className="h-4 w-4 inline" />
-            </a>
-          </Link>
+          <button
+            className="inline-block text-[#2A6B7C] hover:text-[#E16D3D] font-medium text-sm bg-transparent border-none cursor-pointer"
+            onClick={handleViewDetails}
+          >
+            View Details <ArrowRight className="h-4 w-4 inline" />
+          </button>
         </div>
       </div>
     </div>

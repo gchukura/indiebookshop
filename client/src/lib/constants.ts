@@ -1,5 +1,5 @@
-// Google Maps API key - in a production app, this would be an environment variable
-export const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || "AIzaSyBNLrJhOMz6idD05pzwk17mcUoQcCyJbfc";
+// Mapbox access token from environment variables
+export const MAPBOX_ACCESS_TOKEN = import.meta.env.MAPBOX_ACCESS_TOKEN;
 
 // Color theme constants
 export const COLORS = {
