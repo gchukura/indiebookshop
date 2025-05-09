@@ -158,7 +158,8 @@ export class GoogleSheetsStorage implements IStorage {
   
   async getFilteredBookstores(filters: { state?: string, city?: string, featureIds?: number[] }): Promise<Bookstore[]> {
     await this.ensureInitialized();
-    let filteredBookstores = [...this.bookstores];
+    // Start with only live bookstores
+    let filteredBookstores = this.bookstores.filter(b => b.live !== false);
     
     if (filters.state) {
       filteredBookstores = filteredBookstores.filter(b => b.state === filters.state);
@@ -251,7 +252,8 @@ export class GoogleSheetsStorage implements IStorage {
         hours: { 'Monday': '9am-6pm', 'Tuesday': '9am-6pm', 'Wednesday': '9am-6pm', 'Thursday': '9am-6pm', 'Friday': '9am-8pm', 'Saturday': '10am-8pm', 'Sunday': '11am-5pm' },
         latitude: '45.5231',
         longitude: '-122.6765',
-        featureIds: [1, 4, 7, 8]
+        featureIds: [1, 4, 7, 8],
+        live: true
       },
       {
         id: 2,
@@ -267,7 +269,8 @@ export class GoogleSheetsStorage implements IStorage {
         hours: { 'Monday': 'Closed', 'Tuesday': '10am-7pm', 'Wednesday': '10am-7pm', 'Thursday': '10am-7pm', 'Friday': '10am-9pm', 'Saturday': '10am-9pm', 'Sunday': '12pm-6pm' },
         latitude: '47.6062',
         longitude: '-122.3321',
-        featureIds: [2, 3, 5]
+        featureIds: [2, 3, 5],
+        live: true
       },
       {
         id: 3,
@@ -283,7 +286,8 @@ export class GoogleSheetsStorage implements IStorage {
         hours: { 'Monday': '8am-8pm', 'Tuesday': '8am-8pm', 'Wednesday': '8am-8pm', 'Thursday': '8am-8pm', 'Friday': '8am-10pm', 'Saturday': '9am-10pm', 'Sunday': '9am-7pm' },
         latitude: '37.7749',
         longitude: '-122.4194',
-        featureIds: [1, 4, 5, 6, 7, 8]
+        featureIds: [1, 4, 5, 6, 7, 8],
+        live: false // This bookstore is not active
       },
       {
         id: 4,
@@ -299,7 +303,8 @@ export class GoogleSheetsStorage implements IStorage {
         hours: { 'Monday': '10am-7pm', 'Tuesday': '10am-7pm', 'Wednesday': '10am-7pm', 'Thursday': '10am-7pm', 'Friday': '10am-9pm', 'Saturday': '10am-9pm', 'Sunday': '12pm-6pm' },
         latitude: '30.2672',
         longitude: '-97.7431',
-        featureIds: [2, 5, 6, 7]
+        featureIds: [2, 5, 6, 7],
+        live: true
       },
       {
         id: 5,
@@ -315,7 +320,8 @@ export class GoogleSheetsStorage implements IStorage {
         hours: { 'Monday': '7am-7pm', 'Tuesday': '7am-7pm', 'Wednesday': '7am-7pm', 'Thursday': '7am-7pm', 'Friday': '7am-9pm', 'Saturday': '8am-9pm', 'Sunday': '8am-7pm' },
         latitude: '45.5234',
         longitude: '-122.6762',
-        featureIds: [1, 2, 4, 8]
+        featureIds: [1, 2, 4, 8],
+        live: true
       }
     ];
   }
