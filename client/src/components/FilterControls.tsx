@@ -98,7 +98,7 @@ const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) 
             </div>
             <div className="inline-flex items-center">
               <label htmlFor="city" className="mr-2 font-medium text-sm">City:</label>
-              <Select value={filters.city} onValueChange={handleCityChange} disabled={!filters.state}>
+              <Select value={filters.city || "all"} onValueChange={handleCityChange} disabled={!filters.state}>
                 <SelectTrigger className="w-32 border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
                   <SelectValue placeholder="All Cities" />
                 </SelectTrigger>
@@ -116,7 +116,7 @@ const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) 
             </div>
             <div className="inline-flex items-center">
               <label htmlFor="feature" className="mr-2 font-medium text-sm">Features:</label>
-              <Select value={filters.featureIds?.[0]?.toString() || ""} onValueChange={handleFeatureChange}>
+              <Select value={filters.featureIds?.length ? filters.featureIds[0].toString() : "all"} onValueChange={handleFeatureChange}>
                 <SelectTrigger className="w-32 border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
                   <SelectValue placeholder="All Features" />
                 </SelectTrigger>

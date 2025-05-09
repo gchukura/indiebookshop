@@ -49,21 +49,21 @@ const Footer = () => {
           <div>
             <h4 className="font-serif text-lg font-bold mb-4">Explore</h4>
             <ul className="space-y-2">
-              <li><Link href="/directory"><a className="text-white/80 hover:text-[#E16D3D]">Directory</a></Link></li>
-              <li><Link href="/directory?view=map"><a className="text-white/80 hover:text-[#E16D3D]">Map View</a></Link></li>
-              <li><Link href="/browse-by-state"><a className="text-white/80 hover:text-[#E16D3D]">Browse by State</a></Link></li>
-              <li><Link href="/featured"><a className="text-white/80 hover:text-[#E16D3D]">Featured Stores</a></Link></li>
-              <li><Link href="/events"><a className="text-white/80 hover:text-[#E16D3D]">Upcoming Events</a></Link></li>
+              <li><Link href="/directory" className="text-white/80 hover:text-[#E16D3D]">Directory</Link></li>
+              <li><Link href="/directory?view=map" className="text-white/80 hover:text-[#E16D3D]">Map View</Link></li>
+              <li><Link href="/browse-by-state" className="text-white/80 hover:text-[#E16D3D]">Browse by State</Link></li>
+              <li><Link href="/featured" className="text-white/80 hover:text-[#E16D3D]">Featured Stores</Link></li>
+              <li><Link href="/events" className="text-white/80 hover:text-[#E16D3D]">Upcoming Events</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-serif text-lg font-bold mb-4">For Bookstores</h4>
             <ul className="space-y-2">
-              <li><Link href="/add-bookstore"><a className="text-white/80 hover:text-[#E16D3D]">Add Your Bookstore</a></Link></li>
-              <li><Link href="/update-listing"><a className="text-white/80 hover:text-[#E16D3D]">Update Listing</a></Link></li>
-              <li><Link href="/advertising"><a className="text-white/80 hover:text-[#E16D3D]">Advertising</a></Link></li>
-              <li><Link href="/partnerships"><a className="text-white/80 hover:text-[#E16D3D]">Partnerships</a></Link></li>
-              <li><Link href="/resources"><a className="text-white/80 hover:text-[#E16D3D]">Resources</a></Link></li>
+              <li><Link href="/add-bookstore" className="text-white/80 hover:text-[#E16D3D]">Add Your Bookstore</Link></li>
+              <li><Link href="/update-listing" className="text-white/80 hover:text-[#E16D3D]">Update Listing</Link></li>
+              <li><Link href="/advertising" className="text-white/80 hover:text-[#E16D3D]">Advertising</Link></li>
+              <li><Link href="/partnerships" className="text-white/80 hover:text-[#E16D3D]">Partnerships</Link></li>
+              <li><Link href="/resources" className="text-white/80 hover:text-[#E16D3D]">Resources</Link></li>
             </ul>
           </div>
           <div>
@@ -89,9 +89,9 @@ const Footer = () => {
         <div className="border-t border-white/20 mt-8 pt-8 text-center text-white/60 text-sm">
           <p>&copy; {new Date().getFullYear()} IndiebookShop. All rights reserved.</p>
           <div className="mt-2 space-x-4">
-            <Link href="/privacy"><a className="hover:text-[#E16D3D]">Privacy Policy</a></Link>
-            <Link href="/terms"><a className="hover:text-[#E16D3D]">Terms of Service</a></Link>
-            <Link href="/contact"><a className="hover:text-[#E16D3D]">Contact Us</a></Link>
+            <Link href="/privacy" className="hover:text-[#E16D3D]">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-[#E16D3D]">Terms of Service</Link>
+            <Link href="/contact" className="hover:text-[#E16D3D]">Contact Us</Link>
           </div>
         </div>
       </div>

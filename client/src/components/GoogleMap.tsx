@@ -1,5 +1,22 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { Bookstore } from '@shared/schema';
+
+// Define Google Maps types to avoid TypeScript errors
+declare global {
+  interface Window {
+    google: {
+      maps: {
+        Map: any;
+        Marker: any;
+        LatLngBounds: any;
+        event: any;
+        Animation: {
+          DROP: any;
+        };
+      };
+    };
+  }
+}
 
 interface GoogleMapProps {
   bookstores: Bookstore[];
@@ -8,12 +25,31 @@ interface GoogleMapProps {
 
 const GoogleMap = ({ bookstores, onSelectBookstore }: GoogleMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  // Clean up markers
+  const clearMarkers = useCallback(() => {
+    if (markersRef.current && markersRef.current.length > 0) {
+      markersRef.current.forEach(marker => {
+        if (marker) {
+          try {
+            marker.setMap(null);
+          } catch (e) {
+            console.error('Error clearing marker:', e);
+          }
+        }
+      });
+      markersRef.current = [];
+    }
+  }, []);
 
   // Initialize map
   useEffect(() => {
-    if (mapRef.current && !map) {
+    if (!mapRef.current || mapInstanceRef.current || !window.google) return;
+    
+    try {
       const mapOptions = {
         center: { lat: 39.8283, lng: -98.5795 }, // Center of US
         zoom: 4,
@@ -28,38 +64,60 @@ const GoogleMap = ({ bookstores, onSelectBookstore }: GoogleMapProps) => {
         ]
       };
 
-      const newMap = new google.maps.Map(mapRef.current, mapOptions);
-      setMap(newMap);
+      mapInstanceRef.current = new window.google.maps.Map(mapRef.current, mapOptions);
+      setMapLoaded(true);
+    } catch (e) {
+      console.error('Error initializing map:', e);
     }
-  }, [mapRef, map]);
 
-  // Add markers for bookstores
+    // Cleanup when component unmounts
+    return () => {
+      clearMarkers();
+      mapInstanceRef.current = null;
+    };
+  }, [clearMarkers]);
+
+  // Update markers when bookstores change
   useEffect(() => {
-    if (map && bookstores.length > 0) {
-      // Clear existing markers
-      markers.forEach(marker => marker.setMap(null));
-      
+    if (!mapInstanceRef.current || !window.google) return;
+    
+    // Clear existing markers first
+    clearMarkers();
+    
+    // If no bookstores, just return after clearing
+    if (!bookstores.length) return;
+    
+    try {
       // Create bounds to fit all markers
-      const bounds = new google.maps.LatLngBounds();
+      const bounds = new window.google.maps.LatLngBounds();
+      const validBookstores = bookstores.filter(b => 
+        b.latitude && b.longitude && 
+        !isNaN(parseFloat(b.latitude)) && 
+        !isNaN(parseFloat(b.longitude))
+      );
       
-      // Add new markers
-      const newMarkers = bookstores
-        .filter(bookstore => bookstore.latitude && bookstore.longitude)
-        .map(bookstore => {
+      // Create new markers for filtered bookstores
+      const newMarkers = validBookstores.map(bookstore => {
+        try {
           const position = {
-            lat: parseFloat(bookstore.latitude!),
-            lng: parseFloat(bookstore.longitude!)
+            lat: parseFloat(bookstore.latitude || "0"),
+            lng: parseFloat(bookstore.longitude || "0")
           };
+          
+          // Skip invalid coordinates
+          if (isNaN(position.lat) || isNaN(position.lng)) {
+            return null;
+          }
           
           // Add position to bounds
           bounds.extend(position);
           
           // Create marker
-          const marker = new google.maps.Marker({
+          const marker = new window.google.maps.Marker({
             position,
-            map,
+            map: mapInstanceRef.current,
             title: bookstore.name,
-            animation: google.maps.Animation.DROP,
+            animation: window.google.maps.Animation.DROP,
             icon: {
               url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
             }
@@ -71,28 +129,41 @@ const GoogleMap = ({ bookstores, onSelectBookstore }: GoogleMapProps) => {
           });
           
           return marker;
-        });
+        } catch (e) {
+          console.error('Error creating marker:', e);
+          return null;
+        }
+      }).filter(Boolean); // Filter out null markers
       
-      setMarkers(newMarkers);
+      // Save references to the new markers
+      markersRef.current = newMarkers;
       
-      // Fit map to all markers if there are any
+      // Fit map to markers if there are any
       if (newMarkers.length > 0) {
-        map.fitBounds(bounds);
-        
-        // Don't zoom in too far
-        const listener = google.maps.event.addListener(map, 'idle', () => {
-          if (map.getZoom()! > 12) {
-            map.setZoom(12);
-          }
-          google.maps.event.removeListener(listener);
-        });
+        try {
+          mapInstanceRef.current.fitBounds(bounds);
+          
+          // Don't zoom in too far
+          const listener = window.google.maps.event.addListener(mapInstanceRef.current, 'idle', () => {
+            if (mapInstanceRef.current && mapInstanceRef.current.getZoom() > 12) {
+              mapInstanceRef.current.setZoom(12);
+            }
+            window.google.maps.event.removeListener(listener);
+          });
+        } catch (e) {
+          console.error('Error fitting bounds:', e);
+        }
       }
+    } catch (e) {
+      console.error('Error updating markers:', e);
     }
-  }, [map, bookstores, onSelectBookstore]);
+  }, [bookstores, onSelectBookstore, clearMarkers]);
 
   return (
-    <div ref={mapRef} className="w-full h-full rounded-lg overflow-hidden">
-      {(!map || bookstores.length === 0) && (
+    <div className="w-full h-full rounded-lg overflow-hidden relative">
+      <div ref={mapRef} className="w-full h-full" />
+      
+      {(!mapLoaded || bookstores.length === 0) && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-50">
           <div className="text-center p-4 bg-white rounded-md shadow-md">
             <div className="text-[#2A6B7C] text-4xl mb-2">📍</div>
