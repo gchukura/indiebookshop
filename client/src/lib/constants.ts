@@ -1,5 +1,4 @@
-// Mapbox access token from environment variables
-export const MAPBOX_ACCESS_TOKEN = import.meta.env.MAPBOX_ACCESS_TOKEN;
+// Map colors and styling constants are defined in COLORS below
 
 // Color theme constants
 export const COLORS = {

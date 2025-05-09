@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { MAPBOX_ACCESS_TOKEN, COLORS } from '@/lib/constants';
+import { COLORS } from '@/lib/constants';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -15,52 +15,84 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
 
   // Initialize map
   useEffect(() => {
+    // Don't initialize if map already exists or container doesn't exist
     if (!mapContainerRef.current || mapRef.current) return;
+    
+    // Don't initialize if coordinates are missing
     if (!latitude || !longitude) return;
     
+    // Parse coordinates from strings
     const lat = parseFloat(latitude);
-    const lng = parseFloat(longitude);
+    let lng = parseFloat(longitude);
     
+    // Don't initialize if coordinates are invalid
     if (isNaN(lat) || isNaN(lng)) return;
     
-    try {
-      mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN || "";
-      
-      const map = new mapboxgl.Map({
-        container: mapContainerRef.current,
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: [lng, lat],
-        zoom: 14,
-        interactive: true
-      });
-
-      map.on('load', () => {
-        setMapLoaded(true);
-      });
-
-      // Add navigation controls
-      map.addControl(new mapboxgl.NavigationControl());
-
-      // Add marker
-      const el = document.createElement('div');
-      el.className = 'marker';
-      el.style.backgroundColor = COLORS.secondary;
-      el.style.width = '24px';
-      el.style.height = '24px';
-      el.style.borderRadius = '50%';
-      el.style.cursor = 'pointer';
-      el.style.border = '2px solid white';
-      el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
-
-      new mapboxgl.Marker(el)
-        .setLngLat([lng, lat])
-        .addTo(map);
-
-      mapRef.current = map;
-    } catch (error) {
-      console.error('Error initializing Mapbox map:', error);
+    // Ensure western hemisphere coordinates are negative
+    if (lng > 0) {
+      lng = -lng;
+      console.log(`Fixed longitude for detail map to: ${lng}`);
     }
-
+    
+    // Create async function to fetch token and initialize map
+    const initMap = async () => {
+      try {
+        // Fetch the MapBox token from server
+        const response = await fetch('/api/config');
+        const config = await response.json();
+        const token = config.mapboxAccessToken;
+        
+        if (!token) {
+          console.error('No MapBox token available for detail map');
+          return;
+        }
+        
+        // Set the token
+        mapboxgl.accessToken = token;
+        
+        // Create the map
+        const mapInstance = new mapboxgl.Map({
+          container: mapContainerRef.current!,
+          style: 'mapbox://styles/mapbox/streets-v12',
+          center: [lng, lat],
+          zoom: 14,
+          interactive: true
+        });
+        
+        // Set up map event handlers
+        mapInstance.on('load', () => {
+          setMapLoaded(true);
+          console.log('Detail map loaded successfully');
+        });
+        
+        // Add navigation controls
+        mapInstance.addControl(new mapboxgl.NavigationControl());
+        
+        // Create custom marker
+        const markerElement = document.createElement('div');
+        markerElement.className = 'marker';
+        markerElement.style.backgroundColor = COLORS.secondary;
+        markerElement.style.width = '24px';
+        markerElement.style.height = '24px';
+        markerElement.style.borderRadius = '50%';
+        markerElement.style.border = '2px solid white';
+        markerElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+        
+        // Add marker to map
+        new mapboxgl.Marker(markerElement)
+          .setLngLat([lng, lat])
+          .addTo(mapInstance);
+        
+        // Store map reference
+        mapRef.current = mapInstance;
+      } catch (error) {
+        console.error('Error initializing detail map:', error);
+      }
+    };
+    
+    // Call the async initialization function
+    initMap();
+    
     // Cleanup on unmount
     return () => {
       if (mapRef.current) {
@@ -70,6 +102,7 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
     };
   }, [latitude, longitude]);
 
+  // If no coordinates are available, show a message
   if (!latitude || !longitude) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -81,6 +114,7 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
     );
   }
 
+  // Render the map container and loading state
   return (
     <div className="relative w-full h-full">
       <div ref={mapContainerRef} className="w-full h-full"></div>

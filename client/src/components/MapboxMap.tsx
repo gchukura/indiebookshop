@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { Bookstore } from '@shared/schema';
-import { MAPBOX_ACCESS_TOKEN, COLORS } from '@/lib/constants';
+import { COLORS } from '@/lib/constants';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -51,7 +51,7 @@ const MapboxMap = ({ bookstores, onSelectBookstore }: MapboxMapProps) => {
         mapboxgl.accessToken = accessToken;
         
         const map = new mapboxgl.Map({
-          container: mapContainerRef.current,
+          container: mapContainerRef.current!,
           style: 'mapbox://styles/mapbox/streets-v12',
           center: [-98.5795, 39.8283], // Center of US
           zoom: 3,
