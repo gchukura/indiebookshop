@@ -54,14 +54,19 @@ const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) 
   }, [citiesData]);
 
   const handleStateChange = (value: string) => {
-    updateFilters({ state: value, city: "" });
+    updateFilters({ state: value === "all" ? "" : value, city: "" });
   };
 
   const handleCityChange = (value: string) => {
-    updateFilters({ city: value });
+    updateFilters({ city: value === "all" ? "" : value });
   };
 
   const handleFeatureChange = (value: string) => {
+    if (value === "all") {
+      updateFilters({ featureIds: [] });
+      return;
+    }
+    
     const featureId = parseInt(value);
     updateFilters({ 
       featureIds: featureId ? [featureId] : [] 
@@ -75,17 +80,19 @@ const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) 
           <div className="flex space-x-4 items-center overflow-x-auto pb-3 md:pb-0 scrollbar-hide">
             <div className="inline-flex items-center">
               <label htmlFor="state" className="mr-2 font-medium text-sm">State:</label>
-              <Select value={filters.state} onValueChange={handleStateChange}>
+              <Select value={filters.state || "all"} onValueChange={handleStateChange}>
                 <SelectTrigger className="w-32 border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
                   <SelectValue placeholder="All States" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All States</SelectItem>
-                  {states.map((state) => (
-                    <SelectItem key={state} value={state}>
-                      {state}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="all">All States</SelectItem>
+                  {states && states.length > 0 ? (
+                    states.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))
+                  ) : null}
                 </SelectContent>
               </Select>
             </div>
@@ -96,12 +103,14 @@ const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) 
                   <SelectValue placeholder="All Cities" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Cities</SelectItem>
-                  {cities.map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="all">All Cities</SelectItem>
+                  {cities && cities.length > 0 ? (
+                    cities.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))
+                  ) : null}
                 </SelectContent>
               </Select>
             </div>
@@ -112,12 +121,14 @@ const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) 
                   <SelectValue placeholder="All Features" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Features</SelectItem>
-                  {featuresData?.map((feature) => (
-                    <SelectItem key={feature.id} value={feature.id.toString()}>
-                      {feature.name}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="all">All Features</SelectItem>
+                  {featuresData && featuresData.length > 0 ? (
+                    featuresData.map((feature) => (
+                      <SelectItem key={feature.id} value={feature.id.toString()}>
+                        {feature.name}
+                      </SelectItem>
+                    ))
+                  ) : null}
                 </SelectContent>
               </Select>
             </div>
