@@ -5,6 +5,7 @@ import { Bookstore, Feature, Event } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Heart, Share2, MapPin, Navigation } from 'lucide-react';
+import SingleLocationMap from '@/components/SingleLocationMap';
 
 const BookstoreDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,7 +38,7 @@ const BookstoreDetailPage = () => {
 
   // Get feature names for the bookstore
   const bookstoreFeatures = features?.filter(feature => 
-    bookstore?.featureIds.includes(feature.id)
+    bookstore?.featureIds?.includes(feature.id) || false
   ) || [];
 
   if (isLoadingBookstore) {
@@ -167,23 +168,10 @@ const BookstoreDetailPage = () => {
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h3 className="font-serif font-bold text-xl mb-4">Store Location</h3>
               <div className="bg-gray-200 h-64 rounded-md overflow-hidden">
-                {bookstore.latitude && bookstore.longitude ? (
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    style={{ border: 0 }}
-                    src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBNLrJhOMz6idD05pzwk17mcUoQcCyJbfc&q=${bookstore.latitude},${bookstore.longitude}`}
-                    allowFullScreen
-                  ></iframe>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center p-4">
-                      <MapPin className="h-10 w-10 text-[#2A6B7C] mx-auto mb-2" />
-                      <p className="text-sm">Location data not available</p>
-                    </div>
-                  </div>
-                )}
+                <SingleLocationMap 
+                  latitude={bookstore.latitude} 
+                  longitude={bookstore.longitude} 
+                />
               </div>
               <div className="mt-4">
                 <Button className="w-full bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white py-2 rounded-md font-medium">
