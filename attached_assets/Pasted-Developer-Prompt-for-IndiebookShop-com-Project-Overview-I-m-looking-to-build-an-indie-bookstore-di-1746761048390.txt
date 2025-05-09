@@ -1,0 +1,71 @@
+Developer Prompt for IndiebookShop.com
+Project Overview
+I'm looking to build an indie bookstore directory website called IndiebookShop.com. The website will serve as a comprehensive directory for independent bookstores across the United States, featuring an interactive map, detailed store profiles, event listings, and user engagement features.
+Core Requirements
+1.	Interactive Map & Directory 
+o	Display bookstore locations on an interactive map
+o	Allow filtering by location, categories, and store features
+o	Provide list view alternative for browsing
+2.	Bookstore Profiles 
+o	Detailed store information (address, contact, hours)
+o	Photo galleries
+o	Event listings
+o	Specialty/category tags
+3.	User Features 
+o	Account creation and login
+o	Save favorite bookstores
+o	Newsletter subscription
+4.	Admin Dashboard 
+o	Manage bookstore listings
+o	Moderate content
+o	Newsletter management
+Technical Stack
+•	Frontend: Next.js, React, Tailwind CSS (Shadcn UI optional)
+•	Backend: Google Sheets API for the bookstore database
+•	Hosting: Vercel
+•	Initial prototype: Replit
+Development Process
+I'm looking to start with building a prototype on Replit focused on the core frontend components. After validating the design and user experience, I'll need help integrating the Supabase backend and implementing the full feature set.
+Database Structure
+I have an existing database of bookstore information with the following fields:
+•	ID
+•	Name
+•	Street
+•	City
+•	State
+•	Zip
+•	Description
+•	Image URL
+•	Website
+•	Phone number
+The complete database schema is detailed in the technical specification document.
+Deliverables
+For the initial Replit prototype:
+1.	Homepage with directory-focused design
+2.	Interactive map component (basic version)
+3.	Bookstore listing page with filtering
+4.	Bookstore detail page template
+5.	Basic navigation and responsive design
+For the full implementation:
+1.	Complete frontend implementation
+2.	Google Sheets API integration for bookstore data
+3.	User authentication and account management
+4.	Admin dashboard
+5.	Newsletter signup functionality
+6.	SEO optimization including programmatic page generation
+Programmatic SEO Requirements
+The site should generate SEO-friendly pages for:
+•	Individual bookstore pages
+•	State-based directory pages
+•	City-based directory pages
+•	Category-based directory pages
+Timeline
+•	Initial Replit prototype: [Your timeline]
+•	Backend integration: [Your timeline]
+•	Full deployment: [Your timeline]
+Additional Information
+Please refer to the attached technical specification document for comprehensive details on all aspects of the project, including database schema, API endpoints, component architecture, and development phases.
+I'm not a developer myself, so I'm looking for someone who can take this specification and implement it with minimal technical guidance from me. I'm open to suggestions for improvements to the technical approach based on your expertise.
+Questions
+If you have questions about the requirements or need clarification on any aspect of the project, please don't hesitate to ask.
+
