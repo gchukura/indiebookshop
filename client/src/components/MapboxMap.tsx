@@ -85,8 +85,20 @@ const MapboxMap = ({ bookstores, onSelectBookstore }: MapboxMapProps) => {
 
     validBookstores.forEach(bookstore => {
       try {
-        const longitude = parseFloat(bookstore.longitude || '0');
-        const latitude = parseFloat(bookstore.latitude || '0');
+        // Parse coordinates from strings
+        let longitude = parseFloat(bookstore.longitude || '0');
+        let latitude = parseFloat(bookstore.latitude || '0');
+        
+        // Ensure US locations have negative longitudes (western hemisphere)
+        // This fixes any data entry issues where the negative sign was omitted
+        if (longitude > 0 && ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", 
+            "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", 
+            "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", 
+            "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", 
+            "WY", "DC"].includes(bookstore.state)) {
+          longitude = -longitude;
+          console.log(`Fixed longitude for ${bookstore.name} to: ${longitude}`);
+        }
 
         if (isNaN(longitude) || isNaN(latitude)) return;
 
