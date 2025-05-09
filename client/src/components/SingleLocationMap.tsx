@@ -23,16 +23,10 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
     
     // Parse coordinates from strings
     const lat = parseFloat(latitude);
-    let lng = parseFloat(longitude);
+    const lng = parseFloat(longitude);
     
     // Don't initialize if coordinates are invalid
     if (isNaN(lat) || isNaN(lng)) return;
-    
-    // Ensure western hemisphere coordinates are negative
-    if (lng > 0) {
-      lng = -lng;
-      console.log(`Fixed longitude for detail map to: ${lng}`);
-    }
     
     // Create async function to fetch token and initialize map
     const initMap = async () => {
