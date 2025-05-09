@@ -3,14 +3,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bookstore, Feature } from "@shared/schema";
 import { STATES } from "@/lib/constants";
 import { apiRequest } from "@/lib/queryClient";
@@ -60,7 +59,7 @@ export const BookstoreSubmissionForm = () => {
   const { toast } = useToast();
 
   // Fetch all features
-  const { data: features = [] } = useQuery({
+  const { data: features = [] } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
   });
 
@@ -110,8 +109,11 @@ export const BookstoreSubmissionForm = () => {
       };
 
       // Send submission to the API
-      const response = await apiRequest("/api/bookstores/submit", {
+      const response = await apiRequest<{message: string}>("/api/bookstores/submit", {
         method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           submitterEmail: data.submitterEmail,
           submitterName: data.submitterName,

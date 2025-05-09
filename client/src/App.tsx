@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Directory from "@/pages/Directory";
 import BookstoreDetailPage from "@/pages/BookstoreDetailPage";
+import SubmitBookstore from "@/pages/SubmitBookstore";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BookstoreProvider } from "@/context/BookstoreContext";
@@ -20,6 +21,7 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/directory" component={Directory} />
           <Route path="/bookstore/:id" component={BookstoreDetailPage} />
+          <Route path="/submit" component={SubmitBookstore} />
           {/* Fallback to 404 */}
           <Route component={NotFound} />
         </Switch>
