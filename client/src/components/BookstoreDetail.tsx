@@ -1,9 +1,10 @@
-import { useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Bookstore, Feature, Event } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { X, MapPin, Heart, Share2, Flag, Navigation } from "lucide-react";
+import SingleLocationMap from "./SingleLocationMap";
 
 interface BookstoreDetailProps {
   bookstoreId: number;
@@ -186,28 +187,28 @@ const BookstoreDetail = ({ bookstoreId, isOpen, onClose }: BookstoreDetailProps)
                   <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
                     <h3 className="font-serif font-bold text-xl mb-4">Store Location</h3>
                     <div className="bg-gray-200 h-52 rounded-md overflow-hidden">
-                      {bookstore.latitude && bookstore.longitude ? (
-                        <iframe
-                          width="100%"
-                          height="100%"
-                          frameBorder="0"
-                          style={{ border: 0 }}
-                          src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBNLrJhOMz6idD05pzwk17mcUoQcCyJbfc&q=${bookstore.latitude},${bookstore.longitude}`}
-                          allowFullScreen
-                        ></iframe>
-                      ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <div className="text-center p-4">
-                            <MapPin className="h-10 w-10 text-[#2A6B7C] mx-auto mb-2" />
-                            <p className="text-sm">Location data not available</p>
-                          </div>
-                        </div>
-                      )}
+                      <SingleLocationMap 
+                        latitude={bookstore.latitude} 
+                        longitude={bookstore.longitude} 
+                      />
                     </div>
                     <div className="mt-4">
-                      <Button className="w-full bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white py-2 rounded-md font-medium">
-                        <Navigation className="h-4 w-4 mr-2" /> Get Directions
-                      </Button>
+                      {bookstore.latitude && bookstore.longitude ? (
+                        <a 
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${bookstore.latitude},${bookstore.longitude}`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="block w-full"
+                        >
+                          <Button className="w-full bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white py-2 rounded-md font-medium">
+                            <Navigation className="h-4 w-4 mr-2" /> Get Directions
+                          </Button>
+                        </a>
+                      ) : (
+                        <Button disabled className="w-full bg-[#2A6B7C]/50 text-white py-2 rounded-md font-medium">
+                          <Navigation className="h-4 w-4 mr-2" /> Get Directions
+                        </Button>
+                      )}
                     </div>
                   </div>
                   
