@@ -45,8 +45,7 @@ const submissionFormSchema = z.object({
   website: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal("")),
   phone: z.string().optional(),
   hours: z.string().optional(),
-  latitude: z.string().optional(),
-  longitude: z.string().optional(),
+
   featureIds: z.array(z.number()).optional(),
   hasPhysicalStore: z.boolean().default(true),
 });
@@ -77,8 +76,7 @@ export const BookstoreSubmissionForm = () => {
     website: "",
     phone: "",
     hours: "",
-    latitude: "",
-    longitude: "",
+
     hasPhysicalStore: true,
   };
 
@@ -103,8 +101,7 @@ export const BookstoreSubmissionForm = () => {
         website: data.website || "",
         phone: data.phone || "",
         hours: data.hours || "",
-        latitude: data.hasPhysicalStore ? data.latitude : "",
-        longitude: data.hasPhysicalStore ? data.longitude : "",
+
         featureIds: selectedFeatures.join(","),
       };
 
@@ -359,34 +356,7 @@ export const BookstoreSubmissionForm = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="latitude"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Latitude (optional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. 40.7128" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="longitude"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Longitude (optional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. -74.0060" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+
               </>
             )}
 
