@@ -43,8 +43,17 @@ app.use((req, res, next) => {
 // Or USE_SAMPLE_DATA is 'true' to use the sample data in GoogleSheetsStorage
 const USE_GOOGLE_SHEETS = process.env.USE_MEM_STORAGE !== 'true';
 
-// Use sample data until we have a proper Google Sheets integration set up
-process.env.USE_SAMPLE_DATA = 'true';
+// USE_SAMPLE_DATA controls whether to use sample data or try to connect to Google Sheets
+// You can override this by setting the USE_SAMPLE_DATA environment variable
+process.env.USE_SAMPLE_DATA = process.env.USE_SAMPLE_DATA || 'true';
+
+// GOOGLE_SHEETS_ID environment variable can be used to specify the spreadsheet ID
+// If not provided, the default ID in google-sheets.ts will be used
+if (process.env.GOOGLE_SHEETS_ID) {
+  console.log(`Using Google Sheets ID from environment: ${process.env.GOOGLE_SHEETS_ID}`);
+} else {
+  console.log('Using default Google Sheets ID (set GOOGLE_SHEETS_ID env var to override)');
+}
 
 const storageImplementation = USE_GOOGLE_SHEETS ? new GoogleSheetsStorage() : storage;
 

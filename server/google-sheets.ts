@@ -8,9 +8,13 @@ interface SheetsConfig {
   eventsRange: string;
 }
 
-// Default configuration - you'll need to replace this with your actual spreadsheet ID
+// Get spreadsheet ID from environment variable or use default
+// You can set GOOGLE_SHEETS_ID as an environment variable in your Replit Secrets
+const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1Qa3AW5Zmu0X4yT3fXjmoU62Drqz0oMKRsXsm3a7JiQs';
+
+// Default configuration
 const DEFAULT_CONFIG: SheetsConfig = {
-  spreadsheetId: '1Qa3AW5Zmu0X4yT3fXjmoU62Drqz0oMKRsXsm3a7JiQs', // Replace with your Google Sheets ID
+  spreadsheetId: SPREADSHEET_ID,
   bookstoreRange: 'Bookstores!A2:N', // Assumes headers are in row 1
   featuresRange: 'Features!A2:B',    // Assumes headers are in row 1
   eventsRange: 'Events!A2:F'         // Assumes headers are in row 1
@@ -24,12 +28,41 @@ export class GoogleSheetsService {
     this.config = config;
     
     try {
-      // Just initialize the Sheets API with an API key for now
-      // For a real implementation, we would use a proper service account
-      this.sheets = google.sheets({
-        version: 'v4',
-        auth: 'AIzaSyC9gqxl8dSZ-DU9K6MspQFvGV8rjLKUFoI' // This is just a placeholder API key
-      });
+      // Check if credentials are available
+      if (process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) {
+        try {
+          // Parse credentials
+          const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS);
+          
+          // Create a JWT auth client using service account credentials
+          const auth = new google.auth.JWT({
+            email: credentials.client_email,
+            key: credentials.private_key,
+            scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
+          });
+          
+          // Create Google Sheets client
+          this.sheets = google.sheets({ version: 'v4', auth });
+          
+          console.log('Google Sheets service initialized with service account credentials');
+        } catch (credError) {
+          console.error('Error parsing credentials, using API key as fallback:', credError);
+          
+          // Fallback to API key
+          this.sheets = google.sheets({
+            version: 'v4',
+            auth: 'AIzaSyC9gqxl8dSZ-DU9K6MspQFvGV8rjLKUFoI' // Placeholder API key
+          });
+        }
+      } else {
+        console.warn('No Google service account credentials found, using API key');
+        
+        // Use API key if no credentials
+        this.sheets = google.sheets({
+          version: 'v4',
+          auth: 'AIzaSyC9gqxl8dSZ-DU9K6MspQFvGV8rjLKUFoI' // Placeholder API key
+        });
+      }
       
       console.log('Google Sheets service initialized');
     } catch (error) {
