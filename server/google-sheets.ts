@@ -1,7 +1,6 @@
 import { google, sheets_v4 } from 'googleapis';
-import { Bookstore, Feature, Event, InsertBookstore, InsertFeature, InsertEvent } from '@shared/schema';
+import { Bookstore, Feature, Event } from '@shared/schema';
 
-// Spreadsheet IDs and range names
 interface SheetsConfig {
   spreadsheetId: string;
   bookstoreRange: string;
@@ -9,12 +8,12 @@ interface SheetsConfig {
   eventsRange: string;
 }
 
-// Default sheet configuration
+// Default configuration - you'll need to replace this with your actual spreadsheet ID
 const DEFAULT_CONFIG: SheetsConfig = {
-  spreadsheetId: '1yNAa3R7QnIqKJRJPT4L5TYMDPzOiqhQvPyXvJUKjQnQ', // Replace with your actual spreadsheet ID
-  bookstoreRange: 'Bookstores!A2:Z',
-  featuresRange: 'Features!A2:Z',
-  eventsRange: 'Events!A2:Z',
+  spreadsheetId: '1Qa3AW5Zmu0X4yT3fXjmoU62Drqz0oMKRsXsm3a7JiQs', // Replace with your Google Sheets ID
+  bookstoreRange: 'Bookstores!A2:N', // Assumes headers are in row 1
+  featuresRange: 'Features!A2:B',    // Assumes headers are in row 1
+  eventsRange: 'Events!A2:F'         // Assumes headers are in row 1
 };
 
 export class GoogleSheetsService {
@@ -25,14 +24,11 @@ export class GoogleSheetsService {
     this.config = config;
     
     try {
-      // Check if credentials are available
-      if (!process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) {
-        throw new Error('Google service account credentials not found in environment');
-      }
-      
-      // Initialize with just the API version
+      // Just initialize the Sheets API with an API key for now
+      // For a real implementation, we would use a proper service account
       this.sheets = google.sheets({
-        version: 'v4'
+        version: 'v4',
+        auth: 'AIzaSyC9gqxl8dSZ-DU9K6MspQFvGV8rjLKUFoI' // This is just a placeholder API key
       });
       
       console.log('Google Sheets service initialized');
@@ -45,6 +41,7 @@ export class GoogleSheetsService {
   // Fetch all bookstores from the Google Sheet
   async getBookstores(): Promise<Bookstore[]> {
     try {
+      console.log(`Fetching bookstores from Google Sheets range: ${this.config.bookstoreRange}`);
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: this.config.spreadsheetId,
         range: this.config.bookstoreRange,
@@ -60,7 +57,7 @@ export class GoogleSheetsService {
       const bookstores: Bookstore[] = rows.map((row, index) => {
         try {
           // Assuming columns are in this order:
-          // id, name, street, city, state, zip, description, imageUrl, website, phone, latitude, longitude, featureIds
+          // id, name, street, city, state, zip, description, imageUrl, website, phone, hours (JSON), latitude, longitude, featureIds (comma-separated)
           const id = parseInt(row[0] || '0');
           const name = row[1] || '';
           const street = row[2] || '';
@@ -128,6 +125,7 @@ export class GoogleSheetsService {
   // Fetch all features from the Google Sheet
   async getFeatures(): Promise<Feature[]> {
     try {
+      console.log(`Fetching features from Google Sheets range: ${this.config.featuresRange}`);
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: this.config.spreadsheetId,
         range: this.config.featuresRange,
@@ -164,6 +162,7 @@ export class GoogleSheetsService {
   // Fetch all events from the Google Sheet
   async getEvents(): Promise<Event[]> {
     try {
+      console.log(`Fetching events from Google Sheets range: ${this.config.eventsRange}`);
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: this.config.spreadsheetId,
         range: this.config.eventsRange,

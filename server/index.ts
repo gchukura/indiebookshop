@@ -40,7 +40,12 @@ app.use((req, res, next) => {
 
 // Choose which storage implementation to use
 // Use Google Sheets by default, unless USE_MEM_STORAGE env var is set to 'true'
+// Or USE_SAMPLE_DATA is 'true' to use the sample data in GoogleSheetsStorage
 const USE_GOOGLE_SHEETS = process.env.USE_MEM_STORAGE !== 'true';
+
+// Use sample data until we have a proper Google Sheets integration set up
+process.env.USE_SAMPLE_DATA = 'true';
+
 const storageImplementation = USE_GOOGLE_SHEETS ? new GoogleSheetsStorage() : storage;
 
 (async () => {

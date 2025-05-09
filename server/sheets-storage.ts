@@ -1,5 +1,6 @@
 import { IStorage } from './storage';
 import { Bookstore, Feature, Event, InsertBookstore, InsertFeature, InsertEvent, User, InsertUser } from '@shared/schema';
+import { googleSheetsService } from './google-sheets';
 
 export class GoogleSheetsStorage implements IStorage {
   private bookstores: Bookstore[] = [];
@@ -25,15 +26,44 @@ export class GoogleSheetsStorage implements IStorage {
   }
   
   private async loadData() {
-    console.log('Loading sample data (Google Sheets integration not fully implemented yet)...');
+    // Check if we should use sample data
+    const useSampleData = process.env.USE_SAMPLE_DATA === 'true';
     
-    try {
-      // For now, we'll just use some sample data
+    if (useSampleData) {
+      console.log('Using sample data (as configured by USE_SAMPLE_DATA)');
       this.initializeFeatures();
       this.initializeBookstores();
       this.initializeEvents();
-      
       console.log(`Loaded ${this.bookstores.length} bookstores, ${this.features.length} features, and ${this.events.length} events from sample data`);
+      return;
+    }
+    
+    console.log('Attempting to load data from Google Sheets...');
+    
+    try {
+      try {
+        // Try to load data from Google Sheets
+        const [bookstores, features, events] = await Promise.all([
+          googleSheetsService.getBookstores(),
+          googleSheetsService.getFeatures(),
+          googleSheetsService.getEvents()
+        ]);
+        
+        this.bookstores = bookstores;
+        this.features = features;
+        this.events = events;
+        
+        console.log(`Successfully loaded ${this.bookstores.length} bookstores, ${this.features.length} features, and ${this.events.length} events from Google Sheets`);
+      } catch (googleError) {
+        console.error('Error loading from Google Sheets, falling back to sample data:', googleError);
+        
+        // Fallback to sample data if Google Sheets fails
+        this.initializeFeatures();
+        this.initializeBookstores();
+        this.initializeEvents();
+        
+        console.log(`Loaded ${this.bookstores.length} bookstores, ${this.features.length} features, and ${this.events.length} events from sample data`);
+      }
     } catch (error) {
       console.error('Error loading data:', error);
       throw error;
