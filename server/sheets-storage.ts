@@ -120,10 +120,11 @@ export class GoogleSheetsStorage implements IStorage {
     return user;
   }
   
-  // Bookstore operations - from sample data for now
+  // Bookstore operations - filter for live bookstores
   async getBookstores(): Promise<Bookstore[]> {
     await this.ensureInitialized();
-    return this.bookstores;
+    // Only return bookstores where live is not explicitly set to false
+    return this.bookstores.filter(b => b.live !== false);
   }
   
   async getBookstore(id: number): Promise<Bookstore | undefined> {
@@ -133,18 +134,25 @@ export class GoogleSheetsStorage implements IStorage {
   
   async getBookstoresByState(state: string): Promise<Bookstore[]> {
     await this.ensureInitialized();
-    return this.bookstores.filter(b => b.state === state);
+    return this.bookstores.filter(b => 
+      b.live !== false && 
+      b.state === state
+    );
   }
   
   async getBookstoresByCity(city: string): Promise<Bookstore[]> {
     await this.ensureInitialized();
-    return this.bookstores.filter(b => b.city === city);
+    return this.bookstores.filter(b => 
+      b.live !== false && 
+      b.city === city
+    );
   }
   
   async getBookstoresByFeatures(featureIds: number[]): Promise<Bookstore[]> {
     await this.ensureInitialized();
     return this.bookstores.filter(bookstore => 
-      bookstore.featureIds?.some(id => featureIds.includes(id)) || false
+      bookstore.live !== false &&
+      (bookstore.featureIds?.some(id => featureIds.includes(id)) || false)
     );
   }
   
