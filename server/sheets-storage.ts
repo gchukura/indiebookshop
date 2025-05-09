@@ -50,10 +50,24 @@ export class GoogleSheetsStorage implements IStorage {
         ]);
         
         this.bookstores = bookstores;
-        this.features = features;
-        this.events = events;
         
-        console.log(`Successfully loaded ${this.bookstores.length} bookstores, ${this.features.length} features, and ${this.events.length} events from Google Sheets`);
+        // If no features found, initialize with sample features
+        if (features.length === 0) {
+          console.log('No features found in Google Sheets, using sample features');
+          this.initializeFeatures();
+        } else {
+          this.features = features;
+        }
+        
+        // If no events found, initialize with sample events if needed
+        if (events.length === 0) {
+          console.log('No events found in Google Sheets, using sample events');
+          this.initializeEvents();
+        } else {
+          this.events = events;
+        }
+        
+        console.log(`Successfully loaded ${this.bookstores.length} bookstores, ${this.features.length} features, and ${this.events.length} events (with supplements from sample data if needed)`);
       } catch (googleError) {
         console.error('Error loading from Google Sheets, falling back to sample data:', googleError);
         
