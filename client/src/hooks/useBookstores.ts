@@ -33,11 +33,29 @@ export const useBookstores = (filters: UseBookstoresFilters = {}) => {
   
   // Determine if we should use filtered endpoint
   const hasFilters = state || city || (featureIds && featureIds.length > 0);
-  const endpoint = hasFilters ? `/api/bookstores/filter${getQueryParams()}` : '/api/bookstores';
+  
+  // Important: The API route is /api/bookstores/filter and needs to come before other routes with parameters
+  const endpoint = hasFilters 
+    ? `/api/bookstores/filter${getQueryParams()}` 
+    : '/api/bookstores';
   
   // Fetch bookstores with the appropriate endpoint
   const { data, isLoading, isError, refetch } = useQuery<Bookstore[]>({
-    queryKey: [endpoint],
+    queryKey: ['bookstores', state || 'all', featureIds?.join(',') || 'all'],
+    queryFn: async () => {
+      try {
+        const response = await fetch(endpoint);
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('API error:', errorData);
+          throw new Error(errorData.message || 'Failed to fetch bookstores');
+        }
+        return response.json();
+      } catch (error) {
+        console.error('Fetch error:', error);
+        throw error;
+      }
+    }
   });
   
   return {

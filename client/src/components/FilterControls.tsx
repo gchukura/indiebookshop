@@ -71,9 +71,9 @@ const FilterControls = ({ bookstoreCount }: FilterControlsProps) => {
 
   return (
     <div className="bg-white shadow-sm py-4 rounded-md">
-      <div className="grid md:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-3 gap-4">
         <div className="flex flex-col">
-          <label htmlFor="state" className="mb-1 font-medium text-sm">State</label>
+          <label htmlFor="state" className="mb-1 font-medium text-sm">Filter by State</label>
           <Select value={filters.state || "all"} onValueChange={handleStateChange}>
             <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
               <SelectValue placeholder="All States" />
@@ -83,6 +83,7 @@ const FilterControls = ({ bookstoreCount }: FilterControlsProps) => {
               {states && states.length > 0 ? (
                 states
                   .filter(state => state && state.trim() !== "" && state !== "#ERROR!")
+                  .sort()
                   .map((state) => (
                     <SelectItem key={state} value={state}>
                       {state}
@@ -94,28 +95,7 @@ const FilterControls = ({ bookstoreCount }: FilterControlsProps) => {
         </div>
         
         <div className="flex flex-col">
-          <label htmlFor="city" className="mb-1 font-medium text-sm">City</label>
-          <Select value={filters.city || "all"} onValueChange={handleCityChange} disabled={!filters.state}>
-            <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
-              <SelectValue placeholder="All Cities" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Cities</SelectItem>
-              {cities && cities.length > 0 ? (
-                cities
-                  .filter(city => city && city.trim() !== "" && city !== "#ERROR!")
-                  .map((city) => (
-                    <SelectItem key={city} value={city}>
-                      {city}
-                    </SelectItem>
-                  ))
-              ) : null}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="flex flex-col">
-          <label htmlFor="feature" className="mb-1 font-medium text-sm">Features</label>
+          <label htmlFor="feature" className="mb-1 font-medium text-sm">Filter by Feature</label>
           <Select value={filters.featureIds?.length ? filters.featureIds[0].toString() : "all"} onValueChange={handleFeatureChange}>
             <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
               <SelectValue placeholder="All Features" />

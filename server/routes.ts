@@ -40,36 +40,61 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
     }
   });
 
-  // Get filtered bookstores
+  // Get filtered bookstores - IMPORTANT: This route must come before /api/bookstores/:id
   app.get("/api/bookstores/filter", async (req, res) => {
     try {
       // Handle single feature ID or comma-separated list
       let featureIds = undefined;
       if (req.query.features) {
         if (typeof req.query.features === 'string') {
-          featureIds = req.query.features.split(',').map(Number);
+          featureIds = req.query.features.split(',').map(Number).filter(n => !isNaN(n));
         } else if (Array.isArray(req.query.features)) {
-          featureIds = (req.query.features as string[]).map(Number);
+          featureIds = (req.query.features as string[]).map(Number).filter(n => !isNaN(n));
         }
       }
-      
-      const validatedFilters = bookstoreFiltersSchema.parse({
-        state: req.query.state,
-        city: req.query.city,
-        features: featureIds
-      });
-      
-      const bookstores = await storageImpl.getFilteredBookstores({
-        state: validatedFilters.state,
-        city: validatedFilters.city,
-        featureIds: validatedFilters.features
-      });
-      
-      res.json(bookstores);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid filter parameters", errors: error.errors });
+
+      // Get the state filter
+      let state = undefined;
+      if (req.query.state && typeof req.query.state === 'string' && req.query.state !== 'all') {
+        state = req.query.state;
       }
+      
+      // Get the city filter - not used in current UI but kept for API compatibility
+      let city = undefined;
+      if (req.query.city && typeof req.query.city === 'string' && req.query.city !== 'all') {
+        city = req.query.city;
+      }
+      
+      // Parse and validate filters
+      try {
+        const validatedFilters = bookstoreFiltersSchema.parse({
+          state: state,
+          city: city,
+          features: featureIds
+        });
+        
+        console.log('Filtering bookstores with:', {
+          state: validatedFilters.state,
+          city: validatedFilters.city,
+          featureIds: validatedFilters.features
+        });
+        
+        const bookstores = await storageImpl.getFilteredBookstores({
+          state: validatedFilters.state,
+          city: validatedFilters.city,
+          featureIds: validatedFilters.features
+        });
+        
+        res.json(bookstores);
+      } catch (validationError) {
+        console.error('Filter validation error:', validationError);
+        if (validationError instanceof z.ZodError) {
+          return res.status(400).json({ message: "Invalid filter parameters", errors: validationError.errors });
+        }
+        throw validationError;
+      }
+    } catch (error) {
+      console.error('Bookstore filter error:', error);
       res.status(500).json({ message: "Failed to fetch filtered bookstores" });
     }
   });
