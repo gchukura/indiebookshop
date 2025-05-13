@@ -50,7 +50,10 @@ const FilterControls = ({ bookstoreCount }: FilterControlsProps) => {
   }, [citiesData]);
 
   const handleStateChange = (value: string) => {
-    updateFilters({ state: value === "all" ? "" : value, city: "" });
+    updateFilters({ 
+      state: value === "all" ? "" : value, 
+      city: "" // Reset city when state changes
+    });
   };
 
   const handleCityChange = (value: string) => {

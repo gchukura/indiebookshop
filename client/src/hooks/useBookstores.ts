@@ -39,7 +39,7 @@ export const useBookstores = (filters: UseBookstoresFilters = {}) => {
     ? `/api/bookstores/filter${getQueryParams()}` 
     : '/api/bookstores';
   
-  // Fetch bookstores with the appropriate endpoint
+  // Fetch bookstores with the appropriate endpoint  
   const { data, isLoading, isError, refetch } = useQuery<Bookstore[]>({
     queryKey: ['bookstores', state || 'all', featureIds?.join(',') || 'all'],
     queryFn: async () => {
@@ -50,7 +50,7 @@ export const useBookstores = (filters: UseBookstoresFilters = {}) => {
           console.error('API error:', errorData);
           throw new Error(errorData.message || 'Failed to fetch bookstores');
         }
-        return response.json();
+        return await response.json();
       } catch (error) {
         console.error('Fetch error:', error);
         throw error;
