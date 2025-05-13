@@ -22,7 +22,7 @@ const Directory = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const booksPerPage = 10;
+  const booksPerPage = 150;
   
   const { filters } = useFilters();
   const { bookstores, isLoading, isError } = useBookstores(filters);
