@@ -74,97 +74,94 @@ const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) 
   };
 
   return (
-    <div className="bg-white shadow-sm py-4 sticky top-20 z-40">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="md:flex md:justify-between md:items-center">
-          <div className="flex space-x-4 items-center overflow-x-auto pb-3 md:pb-0 scrollbar-hide">
-            <div className="inline-flex items-center">
-              <label htmlFor="state" className="mr-2 font-medium text-sm">State:</label>
-              <Select value={filters.state || "all"} onValueChange={handleStateChange}>
-                <SelectTrigger className="w-32 border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
-                  <SelectValue placeholder="All States" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All States</SelectItem>
-                  {states && states.length > 0 ? (
-                    states
-                      .filter(state => state && state.trim() !== "" && state !== "#ERROR!")
-                      .map((state) => (
-                        <SelectItem key={state} value={state}>
-                          {state}
-                        </SelectItem>
-                      ))
-                  ) : null}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="inline-flex items-center">
-              <label htmlFor="city" className="mr-2 font-medium text-sm">City:</label>
-              <Select value={filters.city || "all"} onValueChange={handleCityChange} disabled={!filters.state}>
-                <SelectTrigger className="w-32 border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
-                  <SelectValue placeholder="All Cities" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Cities</SelectItem>
-                  {cities && cities.length > 0 ? (
-                    cities
-                      .filter(city => city && city.trim() !== "" && city !== "#ERROR!")
-                      .map((city) => (
-                        <SelectItem key={city} value={city}>
-                          {city}
-                        </SelectItem>
-                      ))
-                  ) : null}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="inline-flex items-center">
-              <label htmlFor="feature" className="mr-2 font-medium text-sm">Features:</label>
-              <Select value={filters.featureIds?.length ? filters.featureIds[0].toString() : "all"} onValueChange={handleFeatureChange}>
-                <SelectTrigger className="w-32 border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
-                  <SelectValue placeholder="All Features" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Features</SelectItem>
-                  {featuresData && featuresData.length > 0 ? (
-                    featuresData.map((feature) => (
-                      <SelectItem key={feature.id} value={feature.id.toString()}>
-                        {feature.name}
-                      </SelectItem>
-                    ))
-                  ) : null}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="flex justify-between mt-4 md:mt-0">
-            <div className="flex space-x-2">
-              <Button
-                id="view-map"
-                className={`${
-                  view === "map"
-                    ? "bg-[#5F4B32] text-white"
-                    : "bg-gray-200 text-[#333333] hover:bg-gray-300"
-                } px-4 py-2 rounded-md font-medium`}
-                onClick={() => setView("map")}
-              >
-                <MapPin className="h-4 w-4 mr-1" /> Map
-              </Button>
-              <Button
-                id="view-list"
-                className={`${
-                  view === "list"
-                    ? "bg-[#5F4B32] text-white"
-                    : "bg-gray-200 text-[#333333] hover:bg-gray-300"
-                } px-4 py-2 rounded-md font-medium`}
-                onClick={() => setView("list")}
-              >
-                <List className="h-4 w-4 mr-1" /> List
-              </Button>
-            </div>
-            <div className="hidden md:flex items-center ml-4">
-              <span className="text-sm font-medium">{bookstoreCount} bookstores found</span>
-            </div>
+    <div className="bg-white shadow-sm py-4 rounded-md">
+      <div className="grid md:grid-cols-4 gap-4">
+        <div className="flex flex-col">
+          <label htmlFor="state" className="mb-1 font-medium text-sm">State</label>
+          <Select value={filters.state || "all"} onValueChange={handleStateChange}>
+            <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
+              <SelectValue placeholder="All States" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All States</SelectItem>
+              {states && states.length > 0 ? (
+                states
+                  .filter(state => state && state.trim() !== "" && state !== "#ERROR!")
+                  .map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))
+              ) : null}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="flex flex-col">
+          <label htmlFor="city" className="mb-1 font-medium text-sm">City</label>
+          <Select value={filters.city || "all"} onValueChange={handleCityChange} disabled={!filters.state}>
+            <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
+              <SelectValue placeholder="All Cities" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Cities</SelectItem>
+              {cities && cities.length > 0 ? (
+                cities
+                  .filter(city => city && city.trim() !== "" && city !== "#ERROR!")
+                  .map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}
+                    </SelectItem>
+                  ))
+              ) : null}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="flex flex-col">
+          <label htmlFor="feature" className="mb-1 font-medium text-sm">Features</label>
+          <Select value={filters.featureIds?.length ? filters.featureIds[0].toString() : "all"} onValueChange={handleFeatureChange}>
+            <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
+              <SelectValue placeholder="All Features" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Features</SelectItem>
+              {featuresData && featuresData.length > 0 ? (
+                featuresData.map((feature) => (
+                  <SelectItem key={feature.id} value={feature.id.toString()}>
+                    {feature.name}
+                  </SelectItem>
+                ))
+              ) : null}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="flex flex-col items-center justify-end md:items-end">
+          <div className="text-sm text-gray-500 mb-1">{bookstoreCount} bookstores found</div>
+          <div className="flex space-x-2">
+            <Button
+              id="view-map"
+              className={`${
+                view === "map"
+                  ? "bg-[#5F4B32] text-white"
+                  : "bg-gray-200 text-[#333333] hover:bg-gray-300"
+              } px-3 py-2 rounded-md text-sm`}
+              onClick={() => setView("map")}
+            >
+              <MapPin className="h-4 w-4 mr-1" /> Map
+            </Button>
+            <Button
+              id="view-list"
+              className={`${
+                view === "list"
+                  ? "bg-[#5F4B32] text-white"
+                  : "bg-gray-200 text-[#333333] hover:bg-gray-300"
+              } px-3 py-2 rounded-md text-sm`}
+              onClick={() => setView("list")}
+            >
+              <List className="h-4 w-4 mr-1" /> List
+            </Button>
           </div>
         </div>
       </div>
