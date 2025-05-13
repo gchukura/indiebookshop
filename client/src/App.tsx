@@ -6,6 +6,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Directory from "@/pages/Directory";
+import StateDirectory from "@/pages/StateDirectory";
+import CityDirectory from "@/pages/CityDirectory";
+import CategoryDirectory from "@/pages/CategoryDirectory";
+import StatesListPage from "@/pages/StatesListPage";
 import BookstoreDetailPage from "@/pages/BookstoreDetailPage";
 import SubmitBookstore from "@/pages/SubmitBookstore";
 import Header from "@/components/Header";
@@ -20,6 +24,10 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/directory" component={Directory} />
+          <Route path="/directory/browse" component={StatesListPage} />
+          <Route path="/directory/state/:state" component={StateDirectory} />
+          <Route path="/directory/city/:city" component={CityDirectory} />
+          <Route path="/directory/category/:featureId" component={CategoryDirectory} />
           <Route path="/bookstore/:id" component={BookstoreDetailPage} />
           <Route path="/submit" component={SubmitBookstore} />
           {/* Fallback to 404 */}

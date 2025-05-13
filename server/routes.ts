@@ -43,10 +43,20 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   // Get filtered bookstores
   app.get("/api/bookstores/filter", async (req, res) => {
     try {
+      // Handle single feature ID or comma-separated list
+      let featureIds = undefined;
+      if (req.query.features) {
+        if (typeof req.query.features === 'string') {
+          featureIds = req.query.features.split(',').map(Number);
+        } else if (Array.isArray(req.query.features)) {
+          featureIds = (req.query.features as string[]).map(Number);
+        }
+      }
+      
       const validatedFilters = bookstoreFiltersSchema.parse({
         state: req.query.state,
         city: req.query.city,
-        features: req.query.features ? (req.query.features as string).split(',').map(Number) : undefined
+        features: featureIds
       });
       
       const bookstores = await storageImpl.getFilteredBookstores({
@@ -100,11 +110,15 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   app.get("/api/states", async (req, res) => {
     try {
       const bookstores = await storageImpl.getBookstores();
-      const states = [...new Set(
-        bookstores
-          .map(bookstore => bookstore.state)
-          .filter(state => state && state.trim() !== "" && state !== "#ERROR!")
-      )].sort();
+      // Use array-based filtering for better compatibility
+      const statesArray = bookstores
+        .map(bookstore => bookstore.state)
+        .filter(state => state && state.trim() !== "" && state !== "#ERROR!");
+      
+      // Create a unique array using Set but with a compatible approach
+      const uniqueStatesSet = new Set(statesArray);
+      const states = Array.from(uniqueStatesSet).sort();
+      
       res.json(states);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch states" });
@@ -116,11 +130,16 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
     try {
       const state = req.params.state;
       const bookstores = await storageImpl.getBookstoresByState(state);
-      const cities = [...new Set(
-        bookstores
-          .map(bookstore => bookstore.city)
-          .filter(city => city && city.trim() !== "" && city !== "#ERROR!")
-      )].sort();
+      
+      // Use array-based filtering for better compatibility
+      const citiesArray = bookstores
+        .map(bookstore => bookstore.city)
+        .filter(city => city && city.trim() !== "" && city !== "#ERROR!");
+      
+      // Create a unique array using Set but with a compatible approach
+      const uniqueCitiesSet = new Set(citiesArray);
+      const cities = Array.from(uniqueCitiesSet).sort();
+      
       res.json(cities);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch cities" });

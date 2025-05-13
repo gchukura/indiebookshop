@@ -18,7 +18,7 @@ const CategoryDirectory = () => {
     queryKey: ["/api/features"],
   });
   
-  const feature = features.find(f => f.id === parseInt(featureId));
+  const feature = features.find(f => f.id === parseInt(featureId || "0"));
   const featureName = feature?.name || "Category";
   
   // Fetch bookstores with this feature
