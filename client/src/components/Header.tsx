@@ -54,12 +54,52 @@ const Header = () => {
               <span className="text-[#5F4B32] font-serif text-2xl font-bold">IndiebookShop</span>
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
-              <Link 
-                href="/directory/browse" 
-                className={`${isActiveRoute('/directory') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
-              >
-                Directory
-              </Link>
+              <div className="relative" ref={statesDropdownRef}>
+                <button 
+                  onClick={() => {
+                    setShowStatesDropdown(!showStatesDropdown);
+                    setShowCategoriesDropdown(false);
+                  }}
+                  className={`${isActiveRoute('/directory') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2 flex items-center`}
+                >
+                  Directory
+                  <ChevronDown className="ml-1 h-4 w-4" />
+                </button>
+                {showStatesDropdown && (
+                  <div className="absolute top-12 left-0 bg-white shadow-lg rounded-md overflow-hidden w-64 z-50">
+                    <div className="py-1">
+                      <Link 
+                        href="/directory" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowStatesDropdown(false)}
+                      >
+                        All Bookstores
+                      </Link>
+                      <Link 
+                        href="/directory/browse" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowStatesDropdown(false)}
+                      >
+                        Bookstores by State
+                      </Link>
+                      <Link 
+                        href="/directory/browse" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowStatesDropdown(false)}
+                      >
+                        Bookstores by City
+                      </Link>
+                      <Link 
+                        href="/directory/browse" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowStatesDropdown(false)}
+                      >
+                        Bookstores by Category
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <Link 
                 href="/about" 
@@ -100,13 +140,41 @@ const Header = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-[250px] sm:w-[300px] overflow-y-auto">
                 <nav className="flex flex-col gap-2 mt-8">
-                  <Link 
-                    href="/directory/browse" 
-                    className="px-4 py-2 text-lg font-medium hover:bg-gray-100 rounded-md"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Directory
-                  </Link>
+                  <div className="space-y-2">
+                    <div className="px-4 py-2 text-lg font-medium text-[#5F4B32]">
+                      Directory
+                    </div>
+                    <div className="pl-4 space-y-1">
+                      <Link 
+                        href="/directory" 
+                        className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        All Bookstores
+                      </Link>
+                      <Link 
+                        href="/directory/browse" 
+                        className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Bookstores by State
+                      </Link>
+                      <Link 
+                        href="/directory/browse" 
+                        className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Bookstores by City
+                      </Link>
+                      <Link 
+                        href="/directory/browse" 
+                        className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Bookstores by Category
+                      </Link>
+                    </div>
+                  </div>
                   
                   <Link 
                     href="/about" 

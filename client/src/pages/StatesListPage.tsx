@@ -11,7 +11,7 @@ const StatesListPage = () => {
 
   // Group states in sections by region for better navigation
   const groupStates = () => {
-    const regions = {
+    const regions: Record<string, string[]> = {
       "Northeast": ["CT", "DE", "ME", "MA", "NH", "NJ", "NY", "PA", "RI", "VT"],
       "Midwest": ["IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"],
       "South": ["AL", "AR", "FL", "GA", "KY", "LA", "MD", "MS", "NC", "OK", "SC", "TN", "TX", "VA", "WV"],
@@ -21,15 +21,15 @@ const StatesListPage = () => {
     };
     
     // Create a map for quick lookups
-    const regionMap = {};
+    const regionMap: Record<string, string> = {};
     Object.keys(regions).forEach(region => {
-      regions[region].forEach(state => {
+      regions[region].forEach((state: string) => {
         regionMap[state] = region;
       });
     });
     
     // Group states by region
-    const grouped = {};
+    const grouped: Record<string, string[]> = {};
     Object.keys(regions).forEach(region => {
       grouped[region] = [];
     });
