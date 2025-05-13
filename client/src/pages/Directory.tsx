@@ -93,8 +93,6 @@ const Directory = () => {
         {/* Filtering controls */}
         <div className="mb-6">
           <FilterControls 
-            view={view} 
-            setView={setView} 
             bookstoreCount={filteredBookstores.length}
           />
         </div>

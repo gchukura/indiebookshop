@@ -45,16 +45,21 @@ const BookstoreTable = ({
           <TableHeader>
             <TableRow>
               <TableHead className="font-semibold">Name</TableHead>
-              <TableHead className="font-semibold">Location</TableHead>
+              <TableHead className="font-semibold">City</TableHead>
+              <TableHead className="font-semibold">State</TableHead>
               <TableHead className="font-semibold">Features</TableHead>
-              <TableHead className="font-semibold w-24 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {bookstores.map((bookstore) => (
-              <TableRow key={bookstore.id} className="hover:bg-gray-50">
+              <TableRow 
+                key={bookstore.id} 
+                className="hover:bg-gray-50 cursor-pointer" 
+                onClick={() => showDetails(bookstore.id)}
+              >
                 <TableCell className="font-medium">{bookstore.name}</TableCell>
-                <TableCell>{bookstore.city}, {bookstore.state}</TableCell>
+                <TableCell>{bookstore.city}</TableCell>
+                <TableCell>{bookstore.state}</TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
                     {getBookstoreFeatures(bookstore).slice(0, 3).map(feature => (
@@ -66,17 +71,6 @@ const BookstoreTable = ({
                       <span className="text-gray-500 text-xs">+{getBookstoreFeatures(bookstore).length - 3} more</span>
                     )}
                   </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    onClick={() => showDetails(bookstore.id)}
-                    className="text-[#2A6B7C] hover:text-[#E16D3D] h-8 px-2"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-1" />
-                    Details
-                  </Button>
                 </TableCell>
               </TableRow>
             ))}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -8,23 +7,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, List } from "lucide-react";
 import { useFilters } from "@/hooks/useFilters";
 import { Feature } from "@shared/schema";
 
 interface FilterControlsProps {
-  view: "map" | "list";
-  setView: (view: "map" | "list") => void;
   bookstoreCount: number;
 }
 
-const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) => {
+const FilterControls = ({ bookstoreCount }: FilterControlsProps) => {
   const { filters, updateFilters } = useFilters();
   const [states, setStates] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
 
   // Fetch all states with bookstores
-  const { data: statesData } = useQuery({
+  const { data: statesData } = useQuery<string[]>({
     queryKey: ["/api/states"],
   });
 
@@ -34,7 +30,7 @@ const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) 
   });
 
   // Fetch cities when state changes
-  const { data: citiesData } = useQuery({
+  const { data: citiesData } = useQuery<string[]>({
     queryKey: ["/api/states", filters.state, "cities"],
     enabled: !!filters.state,
   });
@@ -137,32 +133,8 @@ const FilterControls = ({ view, setView, bookstoreCount }: FilterControlsProps) 
           </Select>
         </div>
         
-        <div className="flex flex-col items-center justify-end md:items-end">
-          <div className="text-sm text-gray-500 mb-1">{bookstoreCount} bookstores found</div>
-          <div className="flex space-x-2">
-            <Button
-              id="view-map"
-              className={`${
-                view === "map"
-                  ? "bg-[#5F4B32] text-white"
-                  : "bg-gray-200 text-[#333333] hover:bg-gray-300"
-              } px-3 py-2 rounded-md text-sm`}
-              onClick={() => setView("map")}
-            >
-              <MapPin className="h-4 w-4 mr-1" /> Map
-            </Button>
-            <Button
-              id="view-list"
-              className={`${
-                view === "list"
-                  ? "bg-[#5F4B32] text-white"
-                  : "bg-gray-200 text-[#333333] hover:bg-gray-300"
-              } px-3 py-2 rounded-md text-sm`}
-              onClick={() => setView("list")}
-            >
-              <List className="h-4 w-4 mr-1" /> List
-            </Button>
-          </div>
+        <div className="flex items-end justify-end">
+          <div className="text-sm font-medium text-gray-700">{bookstoreCount} bookstores found</div>
         </div>
       </div>
     </div>
