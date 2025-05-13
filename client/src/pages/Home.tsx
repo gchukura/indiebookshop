@@ -1,11 +1,17 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Hero from "@/components/Hero";
 import { Bookstore, Feature } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
 
 const Home = () => {
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
   // Fetch featured bookstores
   const { data: bookstores, isLoading } = useQuery<Bookstore[]>({
     queryKey: ["/api/bookstores"],
@@ -15,6 +21,35 @@ const Home = () => {
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
   });
+  
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      // In a real app, this would call an API endpoint to handle the subscription
+      // For now, we'll just simulate a successful subscription with a timeout
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      toast({
+        title: "Subscription successful!",
+        description: "Thank you for subscribing to our newsletter.",
+        variant: "default",
+      });
+      
+      setEmail("");
+    } catch (error) {
+      toast({
+        title: "Subscription failed",
+        description: "There was a problem subscribing to the newsletter. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Get a limited set of featured bookstores
   const featuredBookstores = bookstores?.slice(0, 3) || [];
@@ -164,20 +199,29 @@ const Home = () => {
       <section className="py-16 bg-[#5F4B32] text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-serif font-bold mb-4">Join Our Literary Community</h2>
-          <p className="text-lg opacity-90 max-w-2xl mx-auto mb-8">
+          <p className="text-lg opacity-90 max-w-2xl mx-auto mb-6">
             Connect with fellow book lovers, stay updated on bookstore events, and discover new independent bookshops across the country.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link href="/directory">
-              <Button className="bg-white text-[#5F4B32] hover:bg-white/90 px-6 py-2">
-                Explore the Directory
+          <div className="max-w-md mx-auto">
+            <form className="flex flex-col sm:flex-row gap-3 justify-center items-stretch" onSubmit={handleSubscribe}>
+              <div className="flex-grow">
+                <input 
+                  type="email" 
+                  placeholder="Your email address" 
+                  className="w-full px-4 py-2 rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#E16D3D]"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white px-6 py-2 h-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Subscribing..." : "Subscribe to Newsletter"}
               </Button>
-            </Link>
-            <Link href="/newsletter">
-              <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white px-6 py-2">
-                Subscribe to Newsletter
-              </Button>
-            </Link>
+            </form>
           </div>
         </div>
       </section>

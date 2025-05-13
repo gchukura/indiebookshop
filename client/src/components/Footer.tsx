@@ -1,36 +1,12 @@
 import { Link } from "wouter";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { Facebook, Twitter, Instagram } from "lucide-react";
 
 const Footer = () => {
-  const [email, setEmail] = useState("");
-  const { toast } = useToast();
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email.trim()) {
-      // In a real app, we would make an API call to subscribe the user
-      toast({
-        title: "Subscription successful!",
-        description: "You have been subscribed to our newsletter.",
-      });
-      setEmail("");
-    } else {
-      toast({
-        title: "Subscription failed",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <footer className="bg-[#5F4B32] text-white py-10">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <h4 className="font-serif text-xl font-bold mb-4">IndiebookShop</h4>
             <p className="text-white/80 mb-4">Connecting readers with independent bookstores across the United States.</p>
@@ -46,44 +22,13 @@ const Footer = () => {
               </a>
             </div>
           </div>
-          <div>
-            <h4 className="font-serif text-lg font-bold mb-4">Explore</h4>
+          <div className="md:text-right">
+            <h4 className="font-serif text-lg font-bold mb-4">About Us</h4>
             <ul className="space-y-2">
-              <li><Link href="/directory" className="text-white/80 hover:text-[#E16D3D]">Directory</Link></li>
-              <li><Link href="/directory?view=map" className="text-white/80 hover:text-[#E16D3D]">Map View</Link></li>
-              <li><Link href="/browse-by-state" className="text-white/80 hover:text-[#E16D3D]">Browse by State</Link></li>
-              <li><Link href="/featured" className="text-white/80 hover:text-[#E16D3D]">Featured Stores</Link></li>
-              <li><Link href="/events" className="text-white/80 hover:text-[#E16D3D]">Upcoming Events</Link></li>
+              <li><Link href="/about" className="text-white/80 hover:text-[#E16D3D]">Our Mission</Link></li>
+              <li><Link href="/blog" className="text-white/80 hover:text-[#E16D3D]">Blog</Link></li>
+              <li><Link href="/contact" className="text-white/80 hover:text-[#E16D3D]">Contact Us</Link></li>
             </ul>
-          </div>
-          <div>
-            <h4 className="font-serif text-lg font-bold mb-4">For Bookstores</h4>
-            <ul className="space-y-2">
-              <li><Link href="/add-bookstore" className="text-white/80 hover:text-[#E16D3D]">Add Your Bookstore</Link></li>
-              <li><Link href="/update-listing" className="text-white/80 hover:text-[#E16D3D]">Update Listing</Link></li>
-              <li><Link href="/advertising" className="text-white/80 hover:text-[#E16D3D]">Advertising</Link></li>
-              <li><Link href="/partnerships" className="text-white/80 hover:text-[#E16D3D]">Partnerships</Link></li>
-              <li><Link href="/resources" className="text-white/80 hover:text-[#E16D3D]">Resources</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-serif text-lg font-bold mb-4">Newsletter</h4>
-            <p className="text-white/80 mb-4">Sign up to receive updates about new bookstores and literary events near you.</p>
-            <form onSubmit={handleSubscribe} className="flex">
-              <Input
-                type="email"
-                placeholder="Your email address"
-                className="px-4 py-2 rounded-l-md w-full focus:outline-none text-black"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <Button 
-                type="submit" 
-                className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white px-4 py-2 rounded-r-md"
-              >
-                Sign Up
-              </Button>
-            </form>
           </div>
         </div>
         <div className="border-t border-white/20 mt-8 pt-8 text-center text-white/60 text-sm">
