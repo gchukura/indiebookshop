@@ -122,6 +122,12 @@ const Header = () => {
             </nav>
           </div>
           <div className="flex items-center space-x-3">
+            <Link href="/submit-event">
+              <Button className="bg-[#5F4B32] hover:bg-[#5F4B32]/90 text-white">
+                <span className="hidden md:inline">Add An Event</span>
+                <span className="md:hidden">Add Event</span>
+              </Button>
+            </Link>
             <Link href="/submit">
               <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white">
                 <span className="hidden md:inline">Add Your Bookstore</span>
@@ -198,6 +204,15 @@ const Header = () => {
                     Blog
                   </Link>
                   <hr />
+                  <Link 
+                    href="/submit-event" 
+                    className="w-full mb-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Button className="bg-[#5F4B32] hover:bg-[#5F4B32]/90 text-white w-full">
+                      Add An Event
+                    </Button>
+                  </Link>
                   <Link 
                     href="/submit" 
                     className="w-full"
