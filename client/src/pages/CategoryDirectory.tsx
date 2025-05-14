@@ -113,10 +113,10 @@ const CategoryDirectory = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {bookstores.map((bookstore) => (
+                {bookshops.map((bookshop) => (
                   <BookshopCard 
-                    key={bookstore.id} 
-                    bookstore={bookstore} 
+                    key={bookshop.id} 
+                    bookstore={bookshop} 
                     showDetails={handleShowDetails} 
                   />
                 ))}

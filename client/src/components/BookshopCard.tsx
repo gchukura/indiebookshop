@@ -8,7 +8,7 @@ interface BookshopCardProps {
   showDetails: (id: number) => void;
 }
 
-const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
+const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) => {
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
@@ -16,7 +16,7 @@ const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
 
   // Get feature names for the bookshop
   const bookshopFeatures = features?.filter(feature => 
-    bookstore.featureIds?.includes(feature.id) || false
+    bookshop.featureIds?.includes(feature.id) || false
   ) || [];
 
   return (
@@ -25,12 +25,12 @@ const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
         <div className="sm:w-1/3">
           <div 
             className="w-full h-40 sm:h-full cursor-pointer" 
-            onClick={() => showDetails(bookstore.id)}
+            onClick={() => showDetails(bookshop.id)}
           >
-            {bookstore.imageUrl ? (
+            {bookshop.imageUrl ? (
               <img 
-                src={bookstore.imageUrl} 
-                alt={`${bookstore.name} storefront`} 
+                src={bookshop.imageUrl} 
+                alt={`${bookshop.name} storefront`} 
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -44,15 +44,15 @@ const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
           <div>
             <h3 
               className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C]"
-              onClick={() => showDetails(bookstore.id)}
+              onClick={() => showDetails(bookshop.id)}
             >
-              {bookstore.name}
+              {bookshop.name}
             </h3>
           </div>
           <div className="text-sm text-gray-600 mb-2">
-            <MapPin className="h-4 w-4 inline mr-1" /> {bookstore.city}, {bookstore.state}
+            <MapPin className="h-4 w-4 inline mr-1" /> {bookshop.city}, {bookshop.state}
           </div>
-          <p className="text-sm mb-3 line-clamp-2">{bookstore.description}</p>
+          <p className="text-sm mb-3 line-clamp-2">{bookshop.description}</p>
           <div className="flex flex-wrap gap-2 mb-3">
             {bookshopFeatures.map(feature => (
               <span key={feature.id} className="shop-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
