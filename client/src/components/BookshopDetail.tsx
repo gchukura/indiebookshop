@@ -6,18 +6,18 @@ import { X, Navigation } from "lucide-react";
 import SingleLocationMap from "./SingleLocationMap";
 
 interface BookshopDetailProps {
-  bookstoreId: number;
+  bookshopId: number;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) => {
+const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Fetch bookshop details
-  const { data: bookstore, isLoading: isLoadingBookstore } = useQuery<Bookstore>({
-    queryKey: [`/api/bookstores/${bookstoreId}`],
-    enabled: isOpen && bookstoreId > 0,
+  const { data: bookshop, isLoading: isLoadingBookshop } = useQuery<Bookstore>({
+    queryKey: [`/api/bookstores/${bookshopId}`],
+    enabled: isOpen && bookshopId > 0,
   });
 
   // Fetch all features to match with bookshop.featureIds
@@ -28,8 +28,8 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
 
   // Fetch events for this bookshop
   const { data: events } = useQuery<Event[]>({
-    queryKey: [`/api/bookstores/${bookstoreId}/events`],
-    enabled: isOpen && bookstoreId > 0,
+    queryKey: [`/api/bookstores/${bookshopId}/events`],
+    enabled: isOpen && bookshopId > 0,
   });
 
   // Handle click outside to close modal
@@ -55,7 +55,7 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
 
   // Get feature names for the bookshop
   const bookshopFeatures = features?.filter(feature => 
-    bookstore?.featureIds && bookstore.featureIds.includes(feature.id)
+    bookshop?.featureIds && bookshop.featureIds.includes(feature.id)
   ) || [];
 
   return (

@@ -21,7 +21,7 @@ import Contact from "@/pages/Contact";
 import Events from "@/pages/Events";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { BookstoreProvider } from "@/context/BookstoreContext";
+import { BookshopProvider } from "@/context/BookshopContext";
 
 function Router() {
   return (
@@ -58,10 +58,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <BookstoreProvider>
+        <BookshopProvider>
           <Toaster />
           <Router />
-        </BookstoreProvider>
+        </BookshopProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
