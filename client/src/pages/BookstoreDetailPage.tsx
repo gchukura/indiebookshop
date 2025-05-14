@@ -3,7 +3,6 @@ import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Bookstore, Feature, Event } from '@shared/schema';
 import { Button } from '@/components/ui/button';
-import { Navigation } from 'lucide-react';
 import SingleLocationMap from '@/components/SingleLocationMap';
 
 const BookstoreDetailPage = () => {
@@ -172,11 +171,7 @@ const BookstoreDetailPage = () => {
                   longitude={bookstore.longitude} 
                 />
               </div>
-              <div className="mt-4">
-                <Button className="w-full bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white py-2 rounded-md font-medium">
-                  <Navigation className="h-4 w-4 mr-2" /> Get Directions
-                </Button>
-              </div>
+
             </div>
           </div>
         </div>
