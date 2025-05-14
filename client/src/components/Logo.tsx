@@ -1,4 +1,5 @@
 import React from 'react';
+import { COLORS } from "@/lib/constants";
 
 interface LogoProps {
   width?: number;
@@ -6,16 +7,16 @@ interface LogoProps {
   showDotCom?: boolean;
 }
 
-// Logo color constants - matching the SVG and website theme
-const COLORS = {
-  BLUE: "#3d6a80",     // Dark blue for "Indie" and bottom book
-  ORANGE: "#e65c4f",   // Orange-red for "Bookshop" and middle book
-  LIGHT_BLUE: "#5d8aa8", // Light blue for top book
-  GRAY: "#666666"      // Gray for ".com"
+// Logo color constants - matching the website theme
+const LOGO_COLORS = {
+  BLUE: COLORS.secondary,    // Teal color from site theme for "Indie" and bottom book
+  ORANGE: COLORS.accent,     // Orange from site theme for "Bookshop" and middle book
+  BROWN: COLORS.primary,     // Brown from site theme for top book
+  GRAY: COLORS.dark,         // Dark text color for ".com"
 };
 
-const Logo = ({ width = 180, height = 60, showDotCom = true }: LogoProps) => {
-  const aspectRatio = 500 / 200; // Original SVG dimensions
+const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
+  const aspectRatio = 3.5; // Modified aspect ratio to make logo more visible
   const calculatedWidth = height * aspectRatio;
   
   return (
@@ -28,32 +29,32 @@ const Logo = ({ width = 180, height = 60, showDotCom = true }: LogoProps) => {
         className="mr-2"
       >
         {/* Book stack */}
-        <g transform="translate(55, 20)">
+        <g transform="translate(35, 20)">
           {/* Bottom book */}
-          <rect x="0" y="70" width="90" height="30" rx="2" ry="2" fill={COLORS.BLUE} />
+          <rect x="0" y="70" width="90" height="30" rx="2" ry="2" fill={LOGO_COLORS.BLUE} />
           
           {/* Middle book */}
-          <rect x="5" y="40" width="90" height="30" rx="2" ry="2" fill={COLORS.ORANGE} />
+          <rect x="5" y="40" width="90" height="30" rx="2" ry="2" fill={LOGO_COLORS.ORANGE} />
           
           {/* Top book */}
-          <rect x="10" y="10" width="90" height="30" rx="2" ry="2" fill={COLORS.LIGHT_BLUE} />
+          <rect x="10" y="10" width="90" height="30" rx="2" ry="2" fill={LOGO_COLORS.BROWN} />
         </g>
         
         {/* Company name */}
-        <g transform="translate(165, 87)">
+        <g transform="translate(130, 87)">
           {/* Indie */}
-          <text fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="36" fill={COLORS.BLUE}>
+          <text fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="40" fill={LOGO_COLORS.BLUE}>
             Indie
           </text>
           
           {/* Bookshop */}
-          <text x="85" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="36" fill={COLORS.ORANGE}>
+          <text x="94" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="40" fill={LOGO_COLORS.ORANGE}>
             Bookshop
           </text>
           
           {/* .com */}
           {showDotCom && (
-            <text x="260" fontFamily="Arial, sans-serif" fontWeight="normal" fontSize="18" fill={COLORS.GRAY}>
+            <text x="285" fontFamily="Arial, sans-serif" fontWeight="normal" fontSize="20" fill={LOGO_COLORS.GRAY}>
               .com
             </text>
           )}
