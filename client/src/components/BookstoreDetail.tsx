@@ -15,7 +15,7 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Fetch bookshop details
-  const { data: bookstore, isLoading: isLoadingBookstore } = useQuery<Bookstore>({
+  const { data: bookshop, isLoading: isLoadingBookshop } = useQuery<Bookstore>({
     queryKey: [`/api/bookstores/${bookstoreId}`],
     enabled: isOpen && bookstoreId > 0,
   });
@@ -55,7 +55,7 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
 
   // Get feature names for the bookshop
   const bookshopFeatures = features?.filter(feature => 
-    bookstore?.featureIds && bookstore.featureIds.includes(feature.id)
+    bookshop?.featureIds && bookshop.featureIds.includes(feature.id)
   ) || [];
 
   return (
@@ -76,11 +76,11 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
             </button>
           </div>
           
-          {isLoadingBookstore ? (
+          {isLoadingBookshop ? (
             <div className="p-8 text-center">
               <p>Loading bookshop details...</p>
             </div>
-          ) : !bookstore ? (
+          ) : !bookshop ? (
             <div className="p-8 text-center">
               <p>Could not load bookshop details. Please try again.</p>
             </div>
