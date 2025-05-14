@@ -9,7 +9,6 @@ interface BookstoreIconProps {
 const BookstoreIcon: React.FC<BookstoreIconProps> = ({ size = 150, className = '' }) => {
   // Use secondary color from the theme (teal) for a clean, minimalist look
   const iconColor = COLORS.secondary;
-  const bgColor = "#f7f3e8"; // Cream/tan background
   
   return (
     <svg
@@ -20,22 +19,22 @@ const BookstoreIcon: React.FC<BookstoreIconProps> = ({ size = 150, className = '
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Expanded background fill */}
-      <rect width="200" height="200" rx="8" fill={bgColor} />
-      
-      {/* Ultra minimalist book stack - centered in the expanded space */}
-      <g fill={iconColor}>
-        {/* First book (bottom) */}
-        <rect x="45" y="125" width="110" height="25" rx="2" />
+      {/* Extremely minimal open book - just simple lines */}
+      <g stroke={iconColor} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
+        {/* Left page */}
+        <path d="M40,140 C40,140 70,120 100,120" />
         
-        {/* Second book */}
-        <rect x="50" y="100" width="110" height="25" rx="2" />
+        {/* Right page */}
+        <path d="M100,120 C130,120 160,140 160,140" />
         
-        {/* Third book */}
-        <rect x="55" y="75" width="110" height="25" rx="2" />
+        {/* Left side */}
+        <path d="M40,140 L40,70 C40,70 70,50 100,50" />
         
-        {/* Fourth book (top) */}
-        <rect x="60" y="50" width="110" height="25" rx="2" />
+        {/* Right side */}
+        <path d="M100,50 C130,50 160,70 160,70 L160,140" />
+        
+        {/* Spine */}
+        <path d="M100,50 L100,120" />
       </g>
     </svg>
   );
