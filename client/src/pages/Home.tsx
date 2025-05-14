@@ -87,7 +87,46 @@ const Home = () => {
 
   return (
     <div>
-      <Hero />
+      {/* Bookstore Detail Modal */}
+      {selectedBookstoreId && (
+        <BookstoreDetail
+          bookstoreId={selectedBookstoreId}
+          isOpen={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+        />
+      )}
+      
+      {/* Hero Section */}
+      <Hero 
+        title="IndieBookShop.com"
+        subtitle="Discover independent bookstores near you"
+        showButton={true}
+        buttonUrl="/directory"
+        buttonText="Find Bookstores"
+      />
+      
+      {/* Interactive Map Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+              Explore Bookstores Near You
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Use our interactive map to discover indie bookstores across the country
+            </p>
+          </div>
+          
+          <div className="h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-8">
+            {bookstores && (
+              <MapboxMap 
+                bookstores={bookstores} 
+                onSelectBookstore={handleSelectBookstore} 
+              />
+            )}
+          </div>
+        </div>
+      </section>
       
       {/* Featured Bookstores Section */}
       <section className="py-16 bg-white">
