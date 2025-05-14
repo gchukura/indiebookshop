@@ -69,7 +69,7 @@ const Events = () => {
 
   // Event card component
   const EventCard = ({ event }: { event: Event }) => {
-    const bookshopName = getBookshopName(event.bookstoreId);
+    const bookshopName = getBookshopName(event.bookshopId);
     
     return (
       <Card className="mb-4 p-4 hover:shadow-md transition-shadow">
@@ -77,7 +77,7 @@ const Events = () => {
           <h3 className="text-lg font-semibold text-[#5F4B32]">{event.title}</h3>
           <p className="text-sm text-gray-500 mb-2">
             {format(parseISO(event.date), 'MMMM d, yyyy')} • {event.time} • 
-            <Link href={`/bookshop/${event.bookstoreId}`} className="ml-1 text-[#2A6B7C] hover:underline">
+            <Link href={`/bookshop/${event.bookshopId}`} className="ml-1 text-[#2A6B7C] hover:underline">
               {bookshopName}
             </Link>
           </p>

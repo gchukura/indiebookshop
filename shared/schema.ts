@@ -34,7 +34,7 @@ export const bookstores = pgTable("bookstores", {
 
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
-  bookstoreId: integer("bookstore_id").notNull(),
+  bookshopId: integer("bookshop_id").notNull(),
   title: text("title").notNull(),
   description: text("description").notNull(),
   date: text("date").notNull(),
