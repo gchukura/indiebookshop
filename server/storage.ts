@@ -28,7 +28,7 @@ export interface IStorage {
   
   // Event operations
   getEvents(): Promise<Event[]>;
-  getEventsByBookstore(bookstoreId: number): Promise<Event[]>;
+  getEventsByBookshop(bookshopId: number): Promise<Event[]>;
   createEvent(event: InsertEvent): Promise<Event>;
 }
 
@@ -180,9 +180,9 @@ export class MemStorage implements IStorage {
     return Array.from(this.events.values());
   }
 
-  async getEventsByBookstore(bookstoreId: number): Promise<Event[]> {
+  async getEventsByBookshop(bookshopId: number): Promise<Event[]> {
     return Array.from(this.events.values()).filter(
-      (event) => event.bookstoreId === bookstoreId
+      (event) => event.bookshopId === bookshopId
     );
   }
 
@@ -383,49 +383,49 @@ export class MemStorage implements IStorage {
   private initializeEvents(): void {
     const eventsList = [
       {
-        bookstoreId: 1,
+        bookshopId: 1,
         title: "Author Reading: Margaret Atwood",
         description: "Join us for a reading and Q&A with award-winning author Margaret Atwood presenting her latest novel.",
         date: "2023-08-15",
         time: "7:00 PM"
       },
       {
-        bookstoreId: 1,
+        bookshopId: 1,
         title: "Poetry Night: Local Voices",
         description: "A celebration of San Francisco's vibrant poetry scene featuring readings from five local poets.",
         date: "2023-08-20",
         time: "6:30 PM"
       },
       {
-        bookstoreId: 2,
+        bookshopId: 2,
         title: "Author Reading: Zadie Smith",
         description: "Join us for a reading and Q&A with award-winning author Zadie Smith presenting her latest novel.",
         date: "2023-08-15",
         time: "7:00 PM"
       },
       {
-        bookstoreId: 2,
+        bookshopId: 2,
         title: "Poetry Night: Local Voices",
         description: "A celebration of Portland's vibrant poetry scene featuring readings from five local poets.",
         date: "2023-08-20",
         time: "6:30 PM"
       },
       {
-        bookstoreId: 2,
+        bookshopId: 2,
         title: "Children's Story Hour",
         description: "Weekly storytime for children ages 3-8 with activities and themed readings.",
         date: "2023-08-26",
         time: "11:00 AM"
       },
       {
-        bookstoreId: 3,
+        bookshopId: 3,
         title: "Book Club: Discussion of 'The Overstory'",
         description: "Join our monthly book club as we discuss Richard Powers' Pulitzer Prize-winning novel.",
         date: "2023-08-18",
         time: "6:00 PM"
       },
       {
-        bookstoreId: 4,
+        bookshopId: 4,
         title: "Sci-Fi Author Panel",
         description: "A discussion with prominent science fiction authors about the future of the genre.",
         date: "2023-08-25",
