@@ -62,7 +62,7 @@ const Home = () => {
   // Update featured bookshops periodically (every 30 seconds)
   useEffect(() => {
     // Only set up interval if we have bookshops
-    if (!bookstores || bookstores.length === 0) return;
+    if (!bookshops || bookshops.length === 0) return;
     
     // Set up 1-second interval for countdown
     const countdownInterval = setInterval(() => {
@@ -83,7 +83,7 @@ const Home = () => {
     
     // Clean up interval on unmount
     return () => clearInterval(countdownInterval);
-  }, [bookstores, getRandomBookshops]);
+  }, [bookshops, getRandomBookshops]);
 
   return (
     <div>
@@ -103,9 +103,9 @@ const Home = () => {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-8">
-            {bookstores && (
+            {bookshops && (
               <MapboxMap 
-                bookstores={bookstores} 
+                bookstores={bookshops} 
                 onSelectBookshop={handleSelectBookshop} 
               />
             )}
@@ -134,19 +134,19 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {featuredBookshops.map((bookstore) => {
+                  {featuredBookshops.map((bookshop) => {
                     // Get feature names for this bookshop
                     const bookshopFeatures = features?.filter(feature => 
-                      bookstore.featureIds && bookstore.featureIds.includes(feature.id)
+                      bookshop.featureIds && bookshop.featureIds.includes(feature.id)
                     ).slice(0, 3) || [];
                     
                     return (
-                      <div key={bookstore.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
-                        <Link href={`/bookshop/${bookstore.id}`}>
-                          {bookstore.imageUrl ? (
+                      <div key={bookshop.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+                        <Link href={`/bookshop/${bookshop.id}`}>
+                          {bookshop.imageUrl ? (
                             <img 
-                              src={bookstore.imageUrl} 
-                              alt={bookstore.name}
+                              src={bookshop.imageUrl} 
+                              alt={bookshop.name}
                               className="w-full h-48 object-cover cursor-pointer" 
                             />
                           ) : (
@@ -156,11 +156,11 @@ const Home = () => {
                           )}
                         </Link>
                         <div className="p-6">
-                          <Link href={`/bookshop/${bookstore.id}`}>
-                            <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D]">{bookstore.name}</h3>
+                          <Link href={`/bookshop/${bookshop.id}`}>
+                            <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D]">{bookshop.name}</h3>
                           </Link>
-                          <p className="text-sm text-gray-600 mb-4">{bookstore.city}, {bookstore.state}</p>
-                          <p className="text-gray-700 mb-4 line-clamp-3">{bookstore.description}</p>
+                          <p className="text-sm text-gray-600 mb-4">{bookshop.city}, {bookshop.state}</p>
+                          <p className="text-gray-700 mb-4 line-clamp-3">{bookshop.description}</p>
                           <div className="flex flex-wrap gap-2 mb-4">
                             {bookshopFeatures.map(feature => (
                               <span key={feature.id} className="bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
@@ -195,8 +195,8 @@ const Home = () => {
               </div>
             ) : (
               <div className="flex flex-col space-y-6">
-                {/* Get all unique states from bookstores array and sort alphabetically */}
-                {bookstores && (() => {
+                {/* Get all unique states from bookshops array and sort alphabetically */}
+                {bookshops && (() => {
                   // State abbreviation to full name mapping
                   const stateMap: {[key: string]: string} = {
                     'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 
@@ -235,8 +235,8 @@ const Home = () => {
                     'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
                   ];
                   
-                  // Get unique states from bookstores
-                  const stateAbbreviations = Array.from(new Set(bookstores.map(b => b.state)))
+                  // Get unique states from bookshops
+                  const stateAbbreviations = Array.from(new Set(bookshops.map(b => b.state)))
                     .filter(state => state); // Filter out null/undefined
                   
                   // Separate US states from other regions
