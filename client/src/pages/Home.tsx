@@ -1,11 +1,12 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState, useCallback } from "react";
 import Hero from "@/components/Hero";
 import { Bookstore, Feature } from "@shared/schema";
 import BookstoreIcon from "@/components/BookstoreIcon";
 
 const Home = () => {
-  // Fetch featured bookstores
+  // Fetch all bookstores
   const { data: bookstores, isLoading } = useQuery<Bookstore[]>({
     queryKey: ["/api/bookstores"],
   });
@@ -14,9 +15,63 @@ const Home = () => {
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
   });
-
-  // Get a limited set of featured bookstores
-  const featuredBookstores = bookstores?.slice(0, 3) || [];
+  
+  // State to hold current featured bookstores
+  const [featuredBookstores, setFeaturedBookstores] = useState<Bookstore[]>([]);
+  // State to track the countdown to next refresh (in seconds)
+  const [refreshCountdown, setRefreshCountdown] = useState(30);
+  // State to show a brief animation when bookstores are refreshed
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Function to get random bookstores
+  const getRandomBookstores = useCallback(() => {
+    if (!bookstores || bookstores.length === 0) return [];
+    
+    // Make a copy of the bookstores array to avoid mutating the original
+    const shuffled = [...bookstores];
+    
+    // Fisher-Yates shuffle algorithm
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    
+    // Return the first 3 bookstores
+    return shuffled.slice(0, 3);
+  }, [bookstores]);
+  
+  // Set initial featured bookstores when data is loaded
+  useEffect(() => {
+    if (bookstores && bookstores.length > 0) {
+      setFeaturedBookstores(getRandomBookstores());
+    }
+  }, [bookstores, getRandomBookstores]);
+  
+  // Update featured bookstores periodically (every 30 seconds)
+  useEffect(() => {
+    // Only set up interval if we have bookstores
+    if (!bookstores || bookstores.length === 0) return;
+    
+    // Set up 1-second interval for countdown
+    const countdownInterval = setInterval(() => {
+      setRefreshCountdown(prev => {
+        // When countdown reaches 0, refresh bookstores and reset countdown
+        if (prev <= 1) {
+          setIsRefreshing(true);
+          setFeaturedBookstores(getRandomBookstores());
+          
+          // Reset the refreshing animation after 1 second
+          setTimeout(() => setIsRefreshing(false), 1000);
+          
+          return 30; // Reset to 30 seconds
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    // Clean up interval on unmount
+    return () => clearInterval(countdownInterval);
+  }, [bookstores, getRandomBookstores]);
 
   return (
     <div>
@@ -29,12 +84,18 @@ const Home = () => {
           {/* Featured section with border and heading that intersects with the border */}
           <div className="mb-8">
             {/* Full border box with top border and heading that intersects */}
-            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-8 pt-6 shadow-sm">
+            <div className={`relative border-4 border-[#2A6B7C] rounded-lg p-8 pt-6 shadow-sm transition-all duration-300 ${isRefreshing ? 'bg-[rgba(42,107,124,0.05)]' : ''}`}>
               {/* Heading centered on the top border */}
               <div className="absolute -top-5 left-0 w-full flex justify-center">
                 <h2 className="inline-block bg-white px-5 text-3xl font-serif font-bold text-[#5F4B32]">
                   ⭐ Featured Bookstores
                 </h2>
+              </div>
+              
+              {/* Auto-refresh indicator in top-right corner */}
+              <div className="absolute -top-3 right-4 bg-white px-2 py-1 rounded-full text-xs font-medium text-[#2A6B7C] border border-[#2A6B7C] flex items-center">
+                <span className="mr-1">Refreshing in</span>
+                <span className="font-bold">{refreshCountdown}s</span>
               </div>
             
               {isLoading ? (
