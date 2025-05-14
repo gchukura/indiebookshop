@@ -1,11 +1,11 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Bookstore } from '@shared/schema';
+import { Bookstore as Bookshop } from '@shared/schema';
 import { COLORS } from '@/lib/constants';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface MapboxMapProps {
-  bookstores: Bookstore[];
+  bookstores: Bookshop[];
   onSelectBookshop: (id: number) => void;
 }
 

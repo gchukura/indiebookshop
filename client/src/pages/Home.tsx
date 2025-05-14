@@ -249,8 +249,8 @@ const Home = () => {
                     .sort((a, b) => a.fullName.localeCompare(b.fullName));
                   
                   const otherRegions = stateAbbreviations
-                    .filter(abbr => !usStateAbbreviations.includes(abbr))
-                    .map(abbr => ({
+                    .filter((abbr: string) => !usStateAbbreviations.includes(abbr))
+                    .map((abbr: string) => ({
                       abbreviation: abbr,
                       fullName: stateMap[abbr] || abbr
                     }))
