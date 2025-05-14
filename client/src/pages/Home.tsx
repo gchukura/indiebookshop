@@ -153,7 +153,7 @@ const Home = () => {
             </p>
           </div>
           
-          {/* States List with organized layout */}
+          {/* States List - simple 5 column layout */}
           <div className="bg-white rounded-lg p-8 shadow-sm">
             {/* Fetch states from API instead of hardcoded list */}
             {isLoading ? (
@@ -161,42 +161,20 @@ const Home = () => {
                 <p>Loading states...</p>
               </div>
             ) : (
-              <div className="flex flex-wrap justify-center">
-                {/* Get all unique states from bookstores array, organize alphabetically */}
-                {bookstores && (() => {
-                  // Get unique states and sort them
-                  const states = Array.from(new Set(bookstores.map(b => b.state)))
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {/* Get all unique states from bookstores array and sort alphabetically */}
+                {bookstores && 
+                  Array.from(new Set(bookstores.map(b => b.state)))
                     .filter(state => state) // Filter out null/undefined
-                    .sort();
-                  
-                  // Group states by first letter for organized display
-                  const statesByLetter: {[key: string]: string[]} = {};
-                  states.forEach(state => {
-                    const firstLetter = state.charAt(0).toUpperCase();
-                    if (!statesByLetter[firstLetter]) {
-                      statesByLetter[firstLetter] = [];
-                    }
-                    statesByLetter[firstLetter].push(state);
-                  });
-                  
-                  // Return the JSX with organized groups
-                  return Object.keys(statesByLetter).sort().map(letter => (
-                    <div key={letter} className="m-2 p-3 min-w-[180px]">
-                      <div className="text-lg font-bold text-[#5F4B32] mb-2 pb-1 border-b border-[#5F4B32]/20">
-                        {letter}
-                      </div>
-                      <div className="flex flex-col space-y-2">
-                        {statesByLetter[letter].map(state => (
-                          <Link key={state} href={`/directory?state=${state}`}>
-                            <span className="inline-block font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
-                              {state}
-                            </span>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  ));
-                })()}
+                    .sort() // Sort alphabetically
+                    .map(state => (
+                      <Link key={state} href={`/directory?state=${state}`}>
+                        <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
+                          {state}
+                        </span>
+                      </Link>
+                    ))
+                }
               </div>
             )}
           </div>
