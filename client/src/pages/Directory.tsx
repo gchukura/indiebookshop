@@ -3,9 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation, useSearch } from "wouter";
 import Hero from "@/components/Hero";
 import FilterControls from "@/components/FilterControls";
-import BookstoreDetail from "@/components/BookstoreDetail";
+import BookshopDetail from "@/components/BookstoreDetail";
 import MapboxMap from "@/components/MapboxMap";
-import BookstoreTable from "@/components/BookstoreTable";
+import BookshopTable from "@/components/BookstoreTable";
 import { Button } from "@/components/ui/button";
 import { Bookstore } from "@shared/schema";
 
@@ -180,7 +180,7 @@ const Directory = () => {
               </Button>
             </div>
           ) : (
-            <BookstoreTable 
+            <BookshopTable 
               bookstores={currentBookstores}
               showDetails={handleShowDetails}
               currentPage={currentPage}
@@ -191,9 +191,9 @@ const Directory = () => {
         </div>
       </main>
 
-      {/* Bookstore Detail Modal */}
+      {/* Bookshop Detail Modal */}
       {selectedBookstoreId && (
-        <BookstoreDetail 
+        <BookshopDetail 
           bookstoreId={selectedBookstoreId} 
           isOpen={isDetailOpen} 
           onClose={handleCloseDetail} 
