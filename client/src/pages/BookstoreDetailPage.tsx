@@ -18,7 +18,7 @@ const BookshopDetailPage = () => {
   }, [bookshopId, setLocation]);
 
   // Fetch bookshop details
-  const { data: bookstore, isLoading: isLoadingBookstore, isError: isErrorBookstore } = useQuery<Bookstore>({
+  const { data: bookshop, isLoading: isLoadingBookshop, isError: isErrorBookshop } = useQuery<Bookstore>({
     queryKey: [`/api/bookstores/${bookshopId}`],
     enabled: !isNaN(bookshopId),
   });
@@ -34,12 +34,12 @@ const BookshopDetailPage = () => {
     enabled: !isNaN(bookshopId),
   });
 
-  // Get feature names for the bookstore
-  const bookstoreFeatures = features?.filter(feature => 
-    bookstore?.featureIds?.includes(feature.id) || false
+  // Get feature names for the bookshop
+  const bookshopFeatures = features?.filter(feature => 
+    bookshop?.featureIds?.includes(feature.id) || false
   ) || [];
 
-  if (isLoadingBookstore) {
+  if (isLoadingBookshop) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <p>Loading bookshop details...</p>
@@ -47,7 +47,7 @@ const BookshopDetailPage = () => {
     );
   }
 
-  if (isErrorBookstore || !bookstore) {
+  if (isErrorBookshop || !bookshop) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <p>Error loading bookshop. The bookshop may not exist or there was a problem with the connection.</p>
@@ -65,14 +65,14 @@ const BookshopDetailPage = () => {
     <div className="bg-[#F7F3E8] min-h-screen">
       <div className="relative h-64 md:h-96">
         <img 
-          src={bookstore.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400"}
-          alt={`${bookstore.name} interior panorama`} 
+          src={bookshop.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400"}
+          alt={`${bookshop.name} interior panorama`} 
           className="w-full h-full object-cover" 
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-white text-2xl md:text-4xl font-serif font-bold">{bookstore.name}</h1>
-            <p className="text-white/90 text-sm md:text-base">{bookstore.city}, {bookstore.state}</p>
+            <h1 className="text-white text-2xl md:text-4xl font-serif font-bold">{bookshop.name}</h1>
+            <p className="text-white/90 text-sm md:text-base">{bookshop.city}, {bookshop.state}</p>
           </div>
         </div>
       </div>
@@ -82,12 +82,12 @@ const BookshopDetailPage = () => {
           <div className="md:col-span-2">
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h2 className="font-serif font-bold text-2xl mb-4">About</h2>
-              <p className="mb-4">{bookstore.description}</p>
+              <p className="mb-4">{bookshop.description}</p>
               
               <div className="mt-8">
                 <h3 className="font-serif font-bold text-xl mb-4">Features & Specialties</h3>
                 <div className="flex flex-wrap gap-2">
-                  {bookstoreFeatures.map(feature => (
+                  {bookshopFeatures.map(feature => (
                     <span key={feature.id} className="store-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
                       {feature.name}
                     </span>
