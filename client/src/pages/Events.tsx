@@ -127,20 +127,76 @@ const Events = () => {
                   </Button>
                 </div>
               </div>
-
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                month={currentDate}
-                className="rounded-md border w-full custom-calendar"
-                modifiers={{
-                  eventDay: datesWithEvents
-                }}
-                modifiersClassNames={{
-                  eventDay: "relative before:absolute before:bottom-2 before:left-1/2 before:w-3 before:h-3 before:bg-[#E16D3D] before:rounded-full before:-translate-x-1/2"
-                }}
-              />
+              
+              {/* Custom calendar implementation */}
+              <div className="w-full overflow-hidden rounded-md border">
+                {/* Day names header */}
+                <div className="grid grid-cols-7 bg-muted text-center">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                    <div key={day} className="p-3 text-base font-semibold text-gray-700">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Calendar grid */}
+                <div className="grid grid-cols-7">
+                  {(() => {
+                    // Get the first day of the month
+                    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+                    // Get the day of the week (0-6) on which the month begins
+                    const startingDayOfWeek = firstDayOfMonth.getDay();
+                    // Get the number of days in the month
+                    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+                    
+                    // Create the days array
+                    const daysArray = [];
+                    
+                    // Add empty cells for days of the previous month
+                    for (let i = 0; i < startingDayOfWeek; i++) {
+                      daysArray.push(
+                        <div key={`empty-${i}`} className="h-20 p-2 border-t border-r text-gray-300" />
+                      );
+                    }
+                    
+                    // Add cells for days of the current month
+                    for (let day = 1; day <= daysInMonth; day++) {
+                      const date = new Date(currentYear, currentMonth, day);
+                      const isSelected = selectedDate && isSameDay(date, selectedDate);
+                      const hasEvent = datesWithEvents.some(eventDate => isSameDay(eventDate, date));
+                      
+                      daysArray.push(
+                        <div 
+                          key={`day-${day}`}
+                          onClick={() => setSelectedDate(date)}
+                          className={`h-20 p-2 border-t border-r relative cursor-pointer hover:bg-gray-50 ${
+                            isSelected ? 'bg-blue-50' : ''
+                          }`}
+                        >
+                          <span className="text-lg">{day}</span>
+                          {hasEvent && (
+                            <div className="absolute bottom-2 left-1/2 w-3 h-3 bg-[#E16D3D] rounded-full transform -translate-x-1/2" />
+                          )}
+                        </div>
+                      );
+                    }
+                    
+                    // Calculate how many rows we need (minimum 5 to display a full month)
+                    const daysUsed = startingDayOfWeek + daysInMonth;
+                    const rowsNeeded = Math.ceil(daysUsed / 7);
+                    const totalCells = rowsNeeded * 7;
+                    const remainingCells = totalCells - daysArray.length;
+                    
+                    for (let i = 0; i < remainingCells; i++) {
+                      daysArray.push(
+                        <div key={`empty-end-${i}`} className="h-20 p-2 border-t border-r text-gray-300" />
+                      );
+                    }
+                    
+                    return daysArray;
+                  })()}
+                </div>
+              </div>
             </div>
           </div>
 
