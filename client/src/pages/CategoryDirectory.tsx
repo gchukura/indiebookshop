@@ -129,7 +129,7 @@ const CategoryDirectory = () => {
       {/* Bookshop Detail Modal */}
       {selectedBookshopId && (
         <BookshopDetail 
-          bookstoreId={selectedBookshopId} 
+          bookshopId={selectedBookshopId} 
           isOpen={isDetailOpen} 
           onClose={handleCloseDetail} 
         />

@@ -12,7 +12,7 @@ import CategoryDirectory from "@/pages/CategoryDirectory";
 import StatesListPage from "@/pages/StatesListPage";
 import CitiesListPage from "@/pages/CitiesListPage";
 import CategoriesListPage from "@/pages/CategoriesListPage";
-import BookstoreDetailPage from "@/pages/BookstoreDetailPage";
+import BookshopDetailPage from "@/pages/BookshopDetailPage";
 import SubmitBookstore from "@/pages/SubmitBookstore";
 import SubmitEvent from "@/pages/SubmitEvent";
 import Blog from "@/pages/Blog";
@@ -37,8 +37,7 @@ function Router() {
           <Route path="/directory/state/:state" component={StateDirectory} />
           <Route path="/directory/city/:city" component={CityDirectory} />
           <Route path="/directory/category/:featureId" component={CategoryDirectory} />
-          <Route path="/bookshop/:id" component={BookstoreDetailPage} />
-          <Route path="/bookstore/:id" component={BookstoreDetailPage} />
+          <Route path="/bookshop/:id" component={BookshopDetailPage} />
           <Route path="/submit" component={SubmitBookstore} />
           <Route path="/submit-event" component={SubmitEvent} />
           <Route path="/blog" component={Blog} />
