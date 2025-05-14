@@ -161,7 +161,7 @@ const Home = () => {
                 <p>Loading states...</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              <div className="flex flex-col space-y-6">
                 {/* Get all unique states from bookstores array and sort alphabetically */}
                 {bookstores && (() => {
                   // State abbreviation to full name mapping
@@ -188,25 +188,73 @@ const Home = () => {
                     'NB': 'New Brunswick', 'SK': 'Saskatchewan'
                   };
                   
-                  // Get unique states and sort them
+                  // List of US state abbreviations
+                  const usStateAbbreviations = [
+                    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 
+                    'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 
+                    'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 
+                    'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 
+                    'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+                  ];
+                  
+                  // Get unique states from bookstores
                   const stateAbbreviations = Array.from(new Set(bookstores.map(b => b.state)))
-                    .filter(state => state) // Filter out null/undefined
-                    .sort(); // Sort alphabetically
+                    .filter(state => state); // Filter out null/undefined
                   
-                  // Convert to array of objects with full name and abbreviation, then sort by full name
-                  const states = stateAbbreviations.map(abbr => ({
-                    abbreviation: abbr,
-                    fullName: stateMap[abbr] || abbr // Use mapping or fallback to abbreviation if not found
-                  })).sort((a, b) => a.fullName.localeCompare(b.fullName));
+                  // Separate US states from other regions
+                  const usStates = stateAbbreviations
+                    .filter(abbr => usStateAbbreviations.includes(abbr))
+                    .map(abbr => ({
+                      abbreviation: abbr,
+                      fullName: stateMap[abbr] || abbr
+                    }))
+                    .sort((a, b) => a.fullName.localeCompare(b.fullName));
                   
-                  // Return sorted full state names
-                  return states.map(state => (
-                    <Link key={state.abbreviation} href={`/directory?state=${state.abbreviation}`}>
-                      <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
-                        {state.fullName}
-                      </span>
-                    </Link>
-                  ));
+                  const otherRegions = stateAbbreviations
+                    .filter(abbr => !usStateAbbreviations.includes(abbr))
+                    .map(abbr => ({
+                      abbreviation: abbr,
+                      fullName: stateMap[abbr] || abbr
+                    }))
+                    .sort((a, b) => a.fullName.localeCompare(b.fullName));
+                  
+                  return (
+                    <>
+                      {/* United States section */}
+                      <div>
+                        <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4 pb-2 border-b border-[#5F4B32]/20">
+                          United States
+                        </h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                          {usStates.map(state => (
+                            <Link key={state.abbreviation} href={`/directory?state=${state.abbreviation}`}>
+                              <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
+                                {state.fullName}
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Only show Other Regions section if there are any */}
+                      {otherRegions.length > 0 && (
+                        <div>
+                          <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4 pb-2 border-b border-[#5F4B32]/20">
+                            Other Regions
+                          </h3>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            {otherRegions.map(region => (
+                              <Link key={region.abbreviation} href={`/directory?state=${region.abbreviation}`}>
+                                <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
+                                  {region.fullName}
+                                </span>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
                 })()}
               </div>
             )}
