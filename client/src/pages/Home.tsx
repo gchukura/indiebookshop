@@ -163,18 +163,51 @@ const Home = () => {
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {/* Get all unique states from bookstores array and sort alphabetically */}
-                {bookstores && 
-                  Array.from(new Set(bookstores.map(b => b.state)))
+                {bookstores && (() => {
+                  // State abbreviation to full name mapping
+                  const stateMap: {[key: string]: string} = {
+                    'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 
+                    'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 
+                    'DE': 'Delaware', 'DC': 'District of Columbia', 'FL': 'Florida', 
+                    'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 
+                    'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas', 'KY': 'Kentucky', 
+                    'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland', 
+                    'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 
+                    'MS': 'Mississippi', 'MO': 'Missouri', 'MT': 'Montana', 
+                    'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 
+                    'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York', 
+                    'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 
+                    'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 
+                    'RI': 'Rhode Island', 'SC': 'South Carolina', 'SD': 'South Dakota', 
+                    'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 
+                    'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 
+                    'WI': 'Wisconsin', 'WY': 'Wyoming',
+                    // Include Canadian provinces as they appear in the data
+                    'BC': 'British Columbia', 'ON': 'Ontario', 'QC': 'Quebec',
+                    'AB': 'Alberta', 'MB': 'Manitoba', 'NS': 'Nova Scotia',
+                    'NB': 'New Brunswick', 'SK': 'Saskatchewan'
+                  };
+                  
+                  // Get unique states and sort them
+                  const stateAbbreviations = Array.from(new Set(bookstores.map(b => b.state)))
                     .filter(state => state) // Filter out null/undefined
-                    .sort() // Sort alphabetically
-                    .map(state => (
-                      <Link key={state} href={`/directory?state=${state}`}>
-                        <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
-                          {state}
-                        </span>
-                      </Link>
-                    ))
-                }
+                    .sort(); // Sort alphabetically
+                  
+                  // Convert to array of objects with full name and abbreviation, then sort by full name
+                  const states = stateAbbreviations.map(abbr => ({
+                    abbreviation: abbr,
+                    fullName: stateMap[abbr] || abbr // Use mapping or fallback to abbreviation if not found
+                  })).sort((a, b) => a.fullName.localeCompare(b.fullName));
+                  
+                  // Return sorted full state names
+                  return states.map(state => (
+                    <Link key={state.abbreviation} href={`/directory?state=${state.abbreviation}`}>
+                      <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
+                        {state.fullName}
+                      </span>
+                    </Link>
+                  ));
+                })()}
               </div>
             )}
           </div>
