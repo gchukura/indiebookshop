@@ -120,6 +120,49 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       res.status(500).json({ message: "Failed to fetch events" });
     }
   });
+  
+  // Get all events
+  app.get("/api/events", async (req, res) => {
+    try {
+      const events = await storageImpl.getEvents();
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch events" });
+    }
+  });
+  
+  // Get events by month and year
+  app.get("/api/events/calendar", async (req, res) => {
+    try {
+      // Extract month and year from query parameters
+      const year = req.query.year ? parseInt(req.query.year as string) : new Date().getFullYear();
+      const month = req.query.month ? parseInt(req.query.month as string) - 1 : new Date().getMonth(); // JS months are 0-indexed
+      
+      if (isNaN(year) || isNaN(month) || month < 0 || month > 11) {
+        return res.status(400).json({ message: "Invalid month or year" });
+      }
+      
+      // Get all events
+      const allEvents = await storageImpl.getEvents();
+      
+      // Filter events for the specified month and year
+      const eventsInMonth = allEvents.filter(event => {
+        // Parse the event date (assuming format is "YYYY-MM-DD" or similar)
+        try {
+          const eventDate = new Date(event.date);
+          return eventDate.getFullYear() === year && eventDate.getMonth() === month;
+        } catch (e) {
+          console.error(`Error parsing date for event ${event.id}:`, e);
+          return false;
+        }
+      });
+      
+      res.json(eventsInMonth);
+    } catch (error) {
+      console.error("Error fetching calendar events:", error);
+      res.status(500).json({ message: "Failed to fetch calendar events" });
+    }
+  });
 
   // Get all states with bookstores
   app.get("/api/states", async (req, res) => {
