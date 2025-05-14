@@ -151,25 +151,25 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
                     <div className="space-y-4">
                       <div>
                         <p className="font-bold">Address</p>
-                        <p>{bookstore.street}</p>
-                        <p>{bookstore.city}, {bookstore.state} {bookstore.zip}</p>
+                        <p>{bookshop.street}</p>
+                        <p>{bookshop.city}, {bookshop.state} {bookshop.zip}</p>
                       </div>
                       
                       <div>
                         <p className="font-bold">Contact</p>
-                        <p>Phone: {bookstore.phone || 'Not available'}</p>
-                        <p>Website: {bookstore.website ? (
-                          <a href={bookstore.website} target="_blank" rel="noopener noreferrer" className="text-[#2A6B7C] hover:text-[#E16D3D]">
-                            {new URL(bookstore.website).hostname}
+                        <p>Phone: {bookshop.phone || 'Not available'}</p>
+                        <p>Website: {bookshop.website ? (
+                          <a href={bookshop.website} target="_blank" rel="noopener noreferrer" className="text-[#2A6B7C] hover:text-[#E16D3D]">
+                            {new URL(bookshop.website).hostname}
                           </a>
                         ) : 'Not available'}</p>
                       </div>
                       
                       <div>
                         <p className="font-bold">Hours</p>
-                        {bookstore.hours ? (
+                        {bookshop.hours ? (
                           <div className="grid grid-cols-2 gap-1 text-sm">
-                            {Object.entries(bookstore.hours).map(([day, hours]) => (
+                            {Object.entries(bookshop.hours).map(([day, hours]) => (
                               <React.Fragment key={day}>
                                 <p>{day}:</p>
                                 <p>{hours}</p>
@@ -187,14 +187,14 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
                     <h3 className="font-serif font-bold text-xl mb-4">Store Location</h3>
                     <div className="bg-gray-200 h-52 rounded-md overflow-hidden">
                       <SingleLocationMap 
-                        latitude={bookstore.latitude} 
-                        longitude={bookstore.longitude} 
+                        latitude={bookshop.latitude} 
+                        longitude={bookshop.longitude} 
                       />
                     </div>
                     <div className="mt-4">
-                      {bookstore.latitude && bookstore.longitude ? (
+                      {bookshop.latitude && bookshop.longitude ? (
                         <a 
-                          href={`https://www.google.com/maps/dir/?api=1&destination=${bookstore.latitude},${bookstore.longitude}`}
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${bookshop.latitude},${bookshop.longitude}`}
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="block w-full"
