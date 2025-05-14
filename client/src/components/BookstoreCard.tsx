@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Bookstore, Feature } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
+import BookstoreIcon from "./BookstoreIcon";
 
 interface BookstoreCardProps {
   bookstore: Bookstore;
@@ -38,11 +39,17 @@ const BookstoreCard = ({ bookstore, showDetails }: BookstoreCardProps) => {
     <div className="bookstore-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
       <div className="flex flex-col sm:flex-row">
         <div className="sm:w-1/3">
-          <img 
-            src={bookstore.imageUrl || "https://placehold.co/400x300?text=No+Image"} 
-            alt={`${bookstore.name} storefront`} 
-            className="w-full h-40 sm:h-full object-cover"
-          />
+          {bookstore.imageUrl ? (
+            <img 
+              src={bookstore.imageUrl} 
+              alt={`${bookstore.name} storefront`} 
+              className="w-full h-40 sm:h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-40 sm:h-full bg-[#F7F3E8] flex items-center justify-center">
+              <BookstoreIcon size={100} />
+            </div>
+          )}
         </div>
         <div className="p-4 sm:w-2/3">
           <div className="flex justify-between items-start">
