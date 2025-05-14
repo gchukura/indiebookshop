@@ -16,7 +16,7 @@ const CategoriesListPage = () => {
           By Category
         </h1>
         <p className="text-gray-600 mb-6">
-          Find independent bookstores offering specific features and specialties. Select a category to see all bookstores that offer it.
+          Find independent bookshops offering specific features and specialties. Select a category to see all bookshops that offer it.
         </p>
       </div>
 
@@ -50,10 +50,10 @@ const CategoriesListPage = () => {
           Why browse by category?
         </h2>
         <p className="text-gray-700 mb-4">
-          Each independent bookstore offers unique features and specialties. Some have cozy cafés perfect for reading, others specialize in rare or used books, and many host regular author events and book clubs.
+          Each independent bookshop offers unique features and specialties. Some have cozy cafés perfect for reading, others specialize in rare or used books, and many host regular author events and book clubs.
         </p>
         <p className="text-gray-700">
-          By browsing bookstores by category, you can find the perfect bookshop that matches your specific interests and preferences.
+          By browsing bookshops by category, you can find the perfect bookshop that matches your specific interests and preferences.
         </p>
       </div>
     </div>

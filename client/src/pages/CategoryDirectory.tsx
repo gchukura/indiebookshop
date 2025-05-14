@@ -22,7 +22,7 @@ const CategoryDirectory = () => {
   const featureName = feature?.name || "Category";
   
   // Fetch bookshops with this feature
-  const { data: bookstores = [], isLoading, isError } = useQuery<Bookstore[]>({
+  const { data: bookshops = [], isLoading, isError } = useQuery<Bookstore[]>({
     queryKey: [`/api/bookstores/filter?features=${featureId}`],
     enabled: !!featureId,
   });
@@ -80,7 +80,7 @@ const CategoryDirectory = () => {
           <div className="w-full md:w-1/2 mb-6 md:mb-0">
             <div className="bg-white rounded-lg shadow-md overflow-hidden map-container relative" style={{ height: "600px" }}>
               <MapboxMap 
-                bookstores={bookstores} 
+                bookstores={bookshops} 
                 onSelectBookshop={handleShowDetails}
               />
             </div>
@@ -91,7 +91,7 @@ const CategoryDirectory = () => {
         <div className={`w-full ${view === "map" ? "md:w-1/2" : "md:w-full"}`}>
           <div className="bg-white rounded-lg shadow-md p-4">
             <h2 className="text-xl font-medium mb-4">
-              {bookstores.length} Bookshops with {featureName}
+              {bookshops.length} Bookshops with {featureName}
             </h2>
             
             {isLoading ? (
@@ -102,7 +102,7 @@ const CategoryDirectory = () => {
               <div className="text-center py-10">
                 <p>Error loading bookshops. Please try again later.</p>
               </div>
-            ) : bookstores.length === 0 ? (
+            ) : bookshops.length === 0 ? (
               <div className="text-center py-10">
                 <p>No bookshops found with {featureName}.</p>
                 <Link href="/directory">
