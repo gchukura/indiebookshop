@@ -167,9 +167,9 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                       
                       <div>
                         <p className="font-bold">Hours</p>
-                        {bookstore.hours ? (
+                        {bookshop.hours ? (
                           <div className="grid grid-cols-2 gap-1 text-sm">
-                            {Object.entries(bookstore.hours).map(([day, hours]) => (
+                            {Object.entries(bookshop.hours).map(([day, hours]) => (
                               <React.Fragment key={day}>
                                 <p>{day}:</p>
                                 <p>{hours}</p>
@@ -187,14 +187,14 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                     <h3 className="font-serif font-bold text-xl mb-4">Store Location</h3>
                     <div className="bg-gray-200 h-52 rounded-md overflow-hidden">
                       <SingleLocationMap 
-                        latitude={bookstore.latitude} 
-                        longitude={bookstore.longitude} 
+                        latitude={bookshop.latitude} 
+                        longitude={bookshop.longitude} 
                       />
                     </div>
                     <div className="mt-4">
-                      {bookstore.latitude && bookstore.longitude ? (
+                      {bookshop.latitude && bookshop.longitude ? (
                         <a 
-                          href={`https://www.google.com/maps/dir/?api=1&destination=${bookstore.latitude},${bookstore.longitude}`}
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${bookshop.latitude},${bookshop.longitude}`}
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="block w-full"
