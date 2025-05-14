@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 const CityDirectory = () => {
   const { city } = useParams();
-  const [selectedBookstoreId, setSelectedBookstoreId] = useState<number | null>(null);
+  const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [view, setView] = useState<"map" | "list">("map");
   
@@ -22,7 +22,7 @@ const CityDirectory = () => {
   const state = bookstores.length > 0 ? bookstores[0].state : '';
 
   const handleShowDetails = (id: number) => {
-    setSelectedBookstoreId(id);
+    setSelectedBookshopId(id);
     setIsDetailOpen(true);
   };
 
@@ -127,9 +127,9 @@ const CityDirectory = () => {
       </div>
 
       {/* Bookshop Detail Modal */}
-      {selectedBookstoreId && (
+      {selectedBookshopId && (
         <BookshopDetail 
-          bookstoreId={selectedBookstoreId} 
+          bookstoreId={selectedBookshopId} 
           isOpen={isDetailOpen} 
           onClose={handleCloseDetail} 
         />

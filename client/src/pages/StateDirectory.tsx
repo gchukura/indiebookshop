@@ -10,7 +10,7 @@ import { getFullStateName } from "@/lib/stateUtils";
 
 const StateDirectory = () => {
   const { state } = useParams();
-  const [selectedBookstoreId, setSelectedBookstoreId] = useState<number | null>(null);
+  const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [view, setView] = useState<"map" | "list">("map");
   
@@ -29,7 +29,7 @@ const StateDirectory = () => {
   });
 
   const handleShowDetails = (id: number) => {
-    setSelectedBookstoreId(id);
+    setSelectedBookshopId(id);
     setIsDetailOpen(true);
   };
 
@@ -135,9 +135,9 @@ const StateDirectory = () => {
       </div>
 
       {/* Bookshop Detail Modal */}
-      {selectedBookstoreId && (
+      {selectedBookshopId && (
         <BookshopDetail 
-          bookstoreId={selectedBookstoreId} 
+          bookstoreId={selectedBookshopId} 
           isOpen={isDetailOpen} 
           onClose={handleCloseDetail} 
         />
