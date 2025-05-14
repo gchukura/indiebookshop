@@ -5,28 +5,28 @@ import { Button } from "@/components/ui/button";
 import { X, Navigation } from "lucide-react";
 import SingleLocationMap from "./SingleLocationMap";
 
-interface BookstoreDetailProps {
+interface BookshopDetailProps {
   bookstoreId: number;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const BookstoreDetail = ({ bookstoreId, isOpen, onClose }: BookstoreDetailProps) => {
+const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Fetch bookstore details
+  // Fetch bookshop details
   const { data: bookstore, isLoading: isLoadingBookstore } = useQuery<Bookstore>({
     queryKey: [`/api/bookstores/${bookstoreId}`],
     enabled: isOpen && bookstoreId > 0,
   });
 
-  // Fetch all features to match with bookstore.featureIds
+  // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
     enabled: isOpen,
   });
 
-  // Fetch events for this bookstore
+  // Fetch events for this bookshop
   const { data: events } = useQuery<Event[]>({
     queryKey: [`/api/bookstores/${bookstoreId}/events`],
     enabled: isOpen && bookstoreId > 0,
@@ -78,7 +78,7 @@ const BookstoreDetail = ({ bookstoreId, isOpen, onClose }: BookstoreDetailProps)
           
           {isLoadingBookstore ? (
             <div className="p-8 text-center">
-              <p>Loading bookstore details...</p>
+              <p>Loading bookshop details...</p>
             </div>
           ) : !bookstore ? (
             <div className="p-8 text-center">
@@ -222,4 +222,4 @@ const BookstoreDetail = ({ bookstoreId, isOpen, onClose }: BookstoreDetailProps)
   );
 };
 
-export default BookstoreDetail;
+export default BookshopDetail;
