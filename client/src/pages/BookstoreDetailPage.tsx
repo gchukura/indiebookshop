@@ -8,30 +8,30 @@ import SingleLocationMap from '@/components/SingleLocationMap';
 const BookshopDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [_, setLocation] = useLocation();
-  const bookstoreId = parseInt(id);
+  const bookshopId = parseInt(id);
 
   // Redirect to directory if id is invalid
   useEffect(() => {
-    if (isNaN(bookstoreId)) {
+    if (isNaN(bookshopId)) {
       setLocation('/directory');
     }
-  }, [bookstoreId, setLocation]);
+  }, [bookshopId, setLocation]);
 
-  // Fetch bookstore details
+  // Fetch bookshop details
   const { data: bookstore, isLoading: isLoadingBookstore, isError: isErrorBookstore } = useQuery<Bookstore>({
-    queryKey: [`/api/bookstores/${bookstoreId}`],
-    enabled: !isNaN(bookstoreId),
+    queryKey: [`/api/bookstores/${bookshopId}`],
+    enabled: !isNaN(bookshopId),
   });
 
-  // Fetch all features to match with bookstore.featureIds
+  // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
   });
 
-  // Fetch events for this bookstore
+  // Fetch events for this bookshop
   const { data: events } = useQuery<Event[]>({
-    queryKey: [`/api/bookstores/${bookstoreId}/events`],
-    enabled: !isNaN(bookstoreId),
+    queryKey: [`/api/bookstores/${bookshopId}/events`],
+    enabled: !isNaN(bookshopId),
   });
 
   // Get feature names for the bookstore
@@ -50,7 +50,7 @@ const BookshopDetailPage = () => {
   if (isErrorBookstore || !bookstore) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <p>Error loading bookstore. The bookstore may not exist or there was a problem with the connection.</p>
+        <p>Error loading bookshop. The bookshop may not exist or there was a problem with the connection.</p>
         <Button 
           className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white"
           onClick={() => setLocation('/directory')}
