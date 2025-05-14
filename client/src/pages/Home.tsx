@@ -91,12 +91,6 @@ const Home = () => {
                   ⭐ Featured Bookstores
                 </h2>
               </div>
-              
-              {/* Auto-refresh indicator in top-right corner */}
-              <div className="absolute -top-3 right-4 bg-white px-2 py-1 rounded-full text-xs font-medium text-[#2A6B7C] border border-[#2A6B7C] flex items-center">
-                <span className="mr-1">Refreshing in</span>
-                <span className="font-bold">{refreshCountdown}s</span>
-              </div>
             
               {isLoading ? (
                 <div className="text-center py-10">
