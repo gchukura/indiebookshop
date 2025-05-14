@@ -54,8 +54,8 @@ const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
           </div>
           <p className="text-sm mb-3 line-clamp-2">{bookstore.description}</p>
           <div className="flex flex-wrap gap-2 mb-3">
-            {bookstoreFeatures.map(feature => (
-              <span key={feature.id} className="store-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
+            {bookshopFeatures.map(feature => (
+              <span key={feature.id} className="shop-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
                 {feature.name}
               </span>
             ))}
@@ -103,4 +103,4 @@ const ArrowRight = (props: React.SVGProps<SVGSVGElement>) => {
   );
 };
 
-export default BookstoreCard;
+export default BookshopCard;
