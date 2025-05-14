@@ -6,12 +6,16 @@ import BookstoreCard from "@/components/BookstoreCard";
 import BookstoreDetail from "@/components/BookstoreDetail";
 import MapboxMap from "@/components/MapboxMap";
 import { Button } from "@/components/ui/button";
+import { getFullStateName } from "@/lib/stateUtils";
 
 const StateDirectory = () => {
   const { state } = useParams();
   const [selectedBookstoreId, setSelectedBookstoreId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [view, setView] = useState<"map" | "list">("map");
+  
+  // Get full state name using utility function
+  const fullStateName = getFullStateName(state);
   
   // Fetch bookstores for this state
   const { data: bookstores = [], isLoading, isError } = useQuery<Bookstore[]>({
@@ -37,10 +41,10 @@ const StateDirectory = () => {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          Bookstores in {state}
+          Bookstores in {fullStateName}
         </h1>
         <p className="text-gray-600 mb-6">
-          Discover the indie bookstores in {state}. Browse the map or list view to find your next favorite bookshop.
+          Discover the indie bookstores in {fullStateName}. Browse the map or list view to find your next favorite bookshop.
         </p>
         
         {/* Toggle View */}
@@ -64,7 +68,7 @@ const StateDirectory = () => {
         {/* City Quick Links */}
         {cities.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-xl font-medium mb-2">Cities in {state}</h2>
+            <h2 className="text-xl font-medium mb-2">Cities in {fullStateName}</h2>
             <div className="flex flex-wrap gap-2">
               {cities.map((city) => (
                 <Link key={city} href={`/directory/city/${city}`}>
@@ -95,7 +99,7 @@ const StateDirectory = () => {
         <div className={`w-full ${view === "map" ? "md:w-1/2" : "md:w-full"}`}>
           <div className="bg-white rounded-lg shadow-md p-4">
             <h2 className="text-xl font-medium mb-4">
-              {bookstores.length} Bookstores in {state}
+              {bookstores.length} Bookstores in {fullStateName}
             </h2>
             
             {isLoading ? (
@@ -108,7 +112,7 @@ const StateDirectory = () => {
               </div>
             ) : bookstores.length === 0 ? (
               <div className="text-center py-10">
-                <p>No bookstores found in {state}.</p>
+                <p>No bookstores found in {fullStateName}.</p>
                 <Link href="/directory">
                   <Button className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
                     View All Bookstores
