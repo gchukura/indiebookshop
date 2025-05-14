@@ -74,28 +74,28 @@ const Header = () => {
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowStatesDropdown(false)}
                       >
-                        All Bookstores
+                        All Bookshops
                       </Link>
                       <Link 
                         href="/directory/browse" 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowStatesDropdown(false)}
                       >
-                        Bookstores by State
+                        Bookshops by State
                       </Link>
                       <Link 
                         href="/directory/cities" 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowStatesDropdown(false)}
                       >
-                        Bookstores by City
+                        Bookshops by City
                       </Link>
                       <Link 
                         href="/directory/categories" 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowStatesDropdown(false)}
                       >
-                        Bookstores by Category
+                        Bookshops by Category
                       </Link>
                     </div>
                   </div>
@@ -131,8 +131,8 @@ const Header = () => {
           <div className="flex items-center space-x-3">
             <Link href="/submit">
               <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white">
-                <span className="hidden md:inline">Add a Bookstore</span>
-                <span className="md:hidden">Add Bookstore</span>
+                <span className="hidden md:inline">Add a Bookshop</span>
+                <span className="md:hidden">Add Bookshop</span>
               </Button>
             </Link>
             <Link href="/submit-event">
@@ -163,28 +163,28 @@ const Header = () => {
                         className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        All Bookstores
+                        All Bookshops
                       </Link>
                       <Link 
                         href="/directory/browse" 
                         className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        Bookstores by State
+                        Bookshops by State
                       </Link>
                       <Link 
                         href="/directory/cities" 
                         className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        Bookstores by City
+                        Bookshops by City
                       </Link>
                       <Link 
                         href="/directory/categories" 
                         className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        Bookstores by Category
+                        Bookshops by Category
                       </Link>
                     </div>
                   </div>
@@ -224,7 +224,7 @@ const Header = () => {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white w-full">
-                      Add a Bookstore
+                      Add a Bookshop
                     </Button>
                   </Link>
                   <Link 
