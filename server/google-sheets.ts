@@ -220,10 +220,26 @@ export class GoogleSheetsService {
         return [];
       }
 
+      console.log('First row headers:', rows[0]); // Log headers to understand structure
+      
+      // Check if we have headers
+      const headers = rows[0].map((header: string) => header.toLowerCase());
+      const hasHeaders = headers.includes('id') && headers.includes('bookstoreid');
+      
+      // If first row contains headers, skip it
+      const dataRows = hasHeaders ? rows.slice(1) : rows;
+      
+      // Expected column structure based on user input:
+      // id, bookstoreId, title, description, date, time
+      
       // Convert rows to Event objects
-      const events: Event[] = rows.map((row, index) => {
+      const events: Event[] = dataRows.map((row, index) => {
         try {
-          // Assuming columns are in this order: id, bookstoreId, title, description, date, time
+          if (row.length < 4) {
+            console.warn(`Row ${index} has insufficient data, skipping`);
+            return null;
+          }
+          
           const id = parseInt(row[0] || '0');
           const bookstoreId = parseInt(row[1] || '0');
           const title = row[2] || '';

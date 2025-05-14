@@ -105,25 +105,25 @@ const Events = () => {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-serif text-[#5F4B32]">
-                  {format(currentDate, 'MMMM yyyy')}
-                </h2>
-                <div className="flex space-x-2">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center">
                   <Button 
-                    variant="outline" 
-                    size="icon"
+                    variant="ghost" 
                     onClick={goToPreviousMonth}
+                    className="mr-1"
                   >
-                    <ChevronLeft className="h-4 w-4" />
+                    <ChevronLeft className="h-5 w-5" />
                   </Button>
+                  <h2 className="text-2xl font-serif text-[#5F4B32] font-bold">
+                    {format(currentDate, 'MMMM yyyy')}
+                  </h2>
                   <Button 
-                    variant="outline" 
-                    size="icon"
+                    variant="ghost" 
                     onClick={goToNextMonth}
+                    className="ml-1"
                   >
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
@@ -133,19 +133,19 @@ const Events = () => {
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 month={currentDate}
-                className="rounded-md border"
+                className="rounded-md border w-full [&_.rdp-cell]:p-0 [&_.rdp-day]:h-14 [&_.rdp-day]:w-14 [&_.rdp-day]:text-lg"
                 modifiers={{
                   eventDay: datesWithEvents
                 }}
                 modifiersClassNames={{
-                  eventDay: "relative before:absolute before:bottom-1 before:left-1/2 before:w-1.5 before:h-1.5 before:bg-[#E16D3D] before:rounded-full before:-translate-x-1/2"
+                  eventDay: "relative before:absolute before:bottom-2 before:left-1/2 before:w-2 before:h-2 before:bg-[#E16D3D] before:rounded-full before:-translate-x-1/2"
                 }}
               />
             </div>
           </div>
 
           <div>
-            <div className="bg-white rounded-lg shadow-sm p-4 h-full">
+            <div className="bg-white rounded-lg shadow-sm p-6 h-full">
               <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
                 {selectedDate ? (
                   <>Events on {format(selectedDate, 'MMMM d, yyyy')}</>
