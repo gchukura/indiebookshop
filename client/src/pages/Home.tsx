@@ -18,25 +18,25 @@ const Home = () => {
     queryKey: ["/api/features"],
   });
   
-  // State to hold current featured bookstores
-  const [featuredBookstores, setFeaturedBookstores] = useState<Bookstore[]>([]);
+  // State to hold current featured bookshops
+  const [featuredBookshops, setFeaturedBookshops] = useState<Bookstore[]>([]);
   // State to track the countdown to next refresh (in seconds)
   const [refreshCountdown, setRefreshCountdown] = useState(30);
-  // State to show a brief animation when bookstores are refreshed
+  // State to show a brief animation when bookshops are refreshed
   const [isRefreshing, setIsRefreshing] = useState(false);
   
   // State for the interactive map
-  const [selectedBookstoreId, setSelectedBookstoreId] = useState<number | null>(null);
+  const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   
   // Handle bookshop selection from the map
-  const handleSelectBookstore = (id: number) => {
-    setSelectedBookstoreId(id);
+  const handleSelectBookshop = (id: number) => {
+    setSelectedBookshopId(id);
     setIsDetailOpen(true);
   };
   
-  // Function to get random bookstores
-  const getRandomBookstores = useCallback(() => {
+  // Function to get random bookshops
+  const getRandomBookshops = useCallback(() => {
     if (!bookstores || bookstores.length === 0) return [];
     
     // Make a copy of the bookstores array to avoid mutating the original
@@ -48,29 +48,29 @@ const Home = () => {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     
-    // Return the first 3 bookstores
+    // Return the first 3 bookshops
     return shuffled.slice(0, 3);
   }, [bookstores]);
   
-  // Set initial featured bookstores when data is loaded
+  // Set initial featured bookshops when data is loaded
   useEffect(() => {
     if (bookstores && bookstores.length > 0) {
-      setFeaturedBookstores(getRandomBookstores());
+      setFeaturedBookshops(getRandomBookshops());
     }
-  }, [bookstores, getRandomBookstores]);
+  }, [bookstores, getRandomBookshops]);
   
-  // Update featured bookstores periodically (every 30 seconds)
+  // Update featured bookshops periodically (every 30 seconds)
   useEffect(() => {
-    // Only set up interval if we have bookstores
+    // Only set up interval if we have bookshops
     if (!bookstores || bookstores.length === 0) return;
     
     // Set up 1-second interval for countdown
     const countdownInterval = setInterval(() => {
       setRefreshCountdown(prev => {
-        // When countdown reaches 0, refresh bookstores and reset countdown
+        // When countdown reaches 0, refresh bookshops and reset countdown
         if (prev <= 1) {
           setIsRefreshing(true);
-          setFeaturedBookstores(getRandomBookstores());
+          setFeaturedBookshops(getRandomBookshops());
           
           // Reset the refreshing animation after 1 second
           setTimeout(() => setIsRefreshing(false), 1000);
@@ -83,14 +83,14 @@ const Home = () => {
     
     // Clean up interval on unmount
     return () => clearInterval(countdownInterval);
-  }, [bookstores, getRandomBookstores]);
+  }, [bookstores, getRandomBookshops]);
 
   return (
     <div>
       {/* Bookshop Detail Modal */}
-      {selectedBookstoreId && (
+      {selectedBookshopId && (
         <BookshopDetail
-          bookstoreId={selectedBookstoreId}
+          bookstoreId={selectedBookshopId}
           isOpen={isDetailOpen}
           onClose={() => setIsDetailOpen(false)}
         />
@@ -106,7 +106,7 @@ const Home = () => {
             {bookstores && (
               <MapboxMap 
                 bookstores={bookstores} 
-                onSelectBookstore={handleSelectBookstore} 
+                onSelectBookstore={handleSelectBookshop} 
               />
             )}
           </div>
@@ -134,7 +134,7 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {featuredBookstores.map((bookstore) => {
+                  {featuredBookshops.map((bookstore) => {
                     // Get feature names for this bookstore
                     const bookstoreFeatures = features?.filter(feature => 
                       bookstore.featureIds && bookstore.featureIds.includes(feature.id)
