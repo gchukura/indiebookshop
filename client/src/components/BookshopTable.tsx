@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface BookshopTableProps {
-  bookstores: Bookstore[];
+  bookshops: Bookstore[];
   showDetails: (id: number) => void;
   currentPage: number;
   totalPages: number;
@@ -20,7 +20,7 @@ interface BookshopTableProps {
 }
 
 const BookshopTable = ({ 
-  bookstores, 
+  bookshops, 
   showDetails, 
   currentPage, 
   totalPages, 
@@ -32,9 +32,9 @@ const BookshopTable = ({
   });
 
   // Get feature names for a bookshop
-  const getBookshopFeatures = (bookstore: Bookstore) => {
+  const getBookshopFeatures = (bookshop: Bookstore) => {
     return features?.filter(feature => 
-      bookstore.featureIds?.includes(feature.id) || false
+      bookshop.featureIds?.includes(feature.id) || false
     ) || [];
   };
 
@@ -51,24 +51,24 @@ const BookshopTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {bookstores.map((bookstore) => (
+            {bookshops.map((bookshop) => (
               <TableRow 
-                key={bookstore.id} 
+                key={bookshop.id} 
                 className="hover:bg-gray-50 cursor-pointer" 
-                onClick={() => showDetails(bookstore.id)}
+                onClick={() => showDetails(bookshop.id)}
               >
-                <TableCell className="font-medium">{bookstore.name}</TableCell>
-                <TableCell>{bookstore.city}</TableCell>
-                <TableCell>{bookstore.state}</TableCell>
+                <TableCell className="font-medium">{bookshop.name}</TableCell>
+                <TableCell>{bookshop.city}</TableCell>
+                <TableCell>{bookshop.state}</TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
-                    {getBookshopFeatures(bookstore).slice(0, 3).map(feature => (
+                    {getBookshopFeatures(bookshop).slice(0, 3).map(feature => (
                       <span key={feature.id} className="bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-2 py-0.5 text-xs">
                         {feature.name}
                       </span>
                     ))}
-                    {getBookshopFeatures(bookstore).length > 3 && (
-                      <span className="text-gray-500 text-xs">+{getBookshopFeatures(bookstore).length - 3} more</span>
+                    {getBookshopFeatures(bookshop).length > 3 && (
+                      <span className="text-gray-500 text-xs">+{getBookshopFeatures(bookshop).length - 3} more</span>
                     )}
                   </div>
                 </TableCell>
