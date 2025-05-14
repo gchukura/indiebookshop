@@ -21,15 +21,15 @@ const Events = () => {
   // Fetch events for the current month
   const { data: events = [], isLoading: eventsLoading } = useCalendarEvents(currentYear, currentMonth);
   
-  // Fetch all bookstores to display bookstore name with each event
+  // Fetch all bookshops to display bookshop name with each event
   const { data: bookstores = [], isLoading: bookstoresLoading } = useQuery<Bookstore[]>({
     queryKey: ["/api/bookstores"],
   });
   
-  // Get bookstore details by ID
-  const getBookstoreName = (bookstoreId: number) => {
+  // Get bookshop details by ID
+  const getBookshopName = (bookstoreId: number) => {
     const bookstore = bookstores.find(b => b.id === bookstoreId);
-    return bookstore?.name || "Unknown Bookstore";
+    return bookstore?.name || "Unknown Bookshop";
   };
   
   // Navigate to previous month
@@ -69,7 +69,7 @@ const Events = () => {
 
   // Event card component
   const EventCard = ({ event }: { event: Event }) => {
-    const bookstoreName = getBookstoreName(event.bookstoreId);
+    const bookshopName = getBookshopName(event.bookstoreId);
     
     return (
       <Card className="mb-4 p-4 hover:shadow-md transition-shadow">
@@ -77,8 +77,8 @@ const Events = () => {
           <h3 className="text-lg font-semibold text-[#5F4B32]">{event.title}</h3>
           <p className="text-sm text-gray-500 mb-2">
             {format(parseISO(event.date), 'MMMM d, yyyy')} • {event.time} • 
-            <Link href={`/bookstore/${event.bookstoreId}`} className="ml-1 text-[#2A6B7C] hover:underline">
-              {bookstoreName}
+            <Link href={`/bookshop/${event.bookstoreId}`} className="ml-1 text-[#2A6B7C] hover:underline">
+              {bookshopName}
             </Link>
           </p>
           <p className="text-gray-700">{event.description}</p>

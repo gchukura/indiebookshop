@@ -21,7 +21,7 @@ const CategoryDirectory = () => {
   const feature = features.find(f => f.id === parseInt(featureId || "0"));
   const featureName = feature?.name || "Category";
   
-  // Fetch bookstores with this feature
+  // Fetch bookshops with this feature
   const { data: bookstores = [], isLoading, isError } = useQuery<Bookstore[]>({
     queryKey: [`/api/bookstores/filter?features=${featureId}`],
     enabled: !!featureId,
