@@ -101,7 +101,7 @@ const FilterControls = ({
         </div>
         
         <div className="flex items-end justify-end">
-          <div className="text-sm font-medium text-gray-700">{bookstoreCount} bookstores found</div>
+          <div className="text-sm font-medium text-gray-700">{bookshopCount} bookshops found</div>
         </div>
       </div>
     </div>

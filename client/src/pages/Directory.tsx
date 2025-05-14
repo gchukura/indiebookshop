@@ -31,13 +31,13 @@ const Directory = () => {
   const [selectedState, setSelectedState] = useState<string>("");
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
   
-  // Fetch all bookstores initially
+  // Fetch all bookshops initially
   const { data: allBookstores, isLoading, isError } = useQuery<BookstoreWithFeatures[]>({
     queryKey: ['bookstores'],
     queryFn: async () => {
       const response = await fetch('/api/bookstores');
       if (!response.ok) {
-        throw new Error('Failed to fetch bookstores');
+        throw new Error('Failed to fetch bookshops');
       }
       return response.json();
     }
@@ -140,12 +140,12 @@ const Directory = () => {
         </div>
       </div>
       
-      {/* Controls and bookstore table */}
+      {/* Controls and bookshop table */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Filtering controls */}
         <div className="mb-6">
           <FilterControls 
-            bookstoreCount={filteredBookstores.length}
+            bookshopCount={filteredBookstores.length}
             onStateChange={setSelectedState}
             onFeatureChange={setSelectedFeature}
             selectedState={selectedState}
@@ -153,25 +153,25 @@ const Directory = () => {
           />
         </div>
         
-        {/* Bookstore table section */}
+        {/* Bookshop table section */}
         <div className="bg-white rounded-lg shadow-md p-4">
           <h2 className="text-xl font-serif font-bold mb-4">
             {searchQuery 
               ? `Search Results for "${searchQuery}"` 
-              : "Bookstore Directory"}
+              : "Bookshop Directory"}
           </h2>
           
           {isLoading ? (
             <div className="text-center py-10">
-              <p>Loading bookstores...</p>
+              <p>Loading bookshops...</p>
             </div>
           ) : isError ? (
             <div className="text-center py-10">
-              <p>Error loading bookstores. Please try again later.</p>
+              <p>Error loading bookshops. Please try again later.</p>
             </div>
           ) : filteredBookstores.length === 0 ? (
             <div className="text-center py-10">
-              <p>No bookstores found matching your criteria.</p>
+              <p>No bookshops found matching your criteria.</p>
               <Button 
                 className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white"
                 onClick={() => window.location.href = "/directory"}
