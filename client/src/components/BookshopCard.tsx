@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import BookshopIcon from "./BookshopIcon";
 
 interface BookshopCardProps {
-  bookstore: Bookstore;
+  bookstore: Bookstore; // using bookstore for backward compatibility, but will be renamed to bookshop in the prop
   showDetails: (id: number) => void;
 }
 

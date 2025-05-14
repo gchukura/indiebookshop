@@ -18,7 +18,7 @@ const StateDirectory = () => {
   const fullStateName = getFullStateName(state);
   
   // Fetch bookshops for this state
-  const { data: bookstores = [], isLoading, isError } = useQuery<Bookstore[]>({
+  const { data: bookshops = [], isLoading, isError } = useQuery<Bookstore[]>({
     queryKey: [`/api/bookstores/filter?state=${state}`],
   });
 
@@ -88,7 +88,7 @@ const StateDirectory = () => {
           <div className="w-full md:w-1/2 mb-6 md:mb-0">
             <div className="bg-white rounded-lg shadow-md overflow-hidden map-container relative" style={{ height: "600px" }}>
               <MapboxMap 
-                bookstores={bookstores} 
+                bookstores={bookshops} 
                 onSelectBookshop={handleShowDetails}
               />
             </div>
@@ -99,16 +99,16 @@ const StateDirectory = () => {
         <div className={`w-full ${view === "map" ? "md:w-1/2" : "md:w-full"}`}>
           <div className="bg-white rounded-lg shadow-md p-4">
             <h2 className="text-xl font-medium mb-4">
-              {bookstores.length} Bookshops in {fullStateName}
+              {bookshops.length} Bookshops in {fullStateName}
             </h2>
             
             {isLoading ? (
               <div className="text-center py-10">
-                <p>Loading bookstores...</p>
+                <p>Loading bookshops...</p>
               </div>
             ) : isError ? (
               <div className="text-center py-10">
-                <p>Error loading bookstores. Please try again later.</p>
+                <p>Error loading bookshops. Please try again later.</p>
               </div>
             ) : bookstores.length === 0 ? (
               <div className="text-center py-10">
