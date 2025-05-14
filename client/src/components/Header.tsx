@@ -131,13 +131,13 @@ const Header = () => {
           <div className="flex items-center space-x-3">
             <Link href="/submit">
               <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white">
-                <span className="hidden md:inline">Add Your Bookstore</span>
+                <span className="hidden md:inline">Add a Bookstore</span>
                 <span className="md:hidden">Add Bookstore</span>
               </Button>
             </Link>
             <Link href="/submit-event">
               <Button className="bg-[#4A7C59] hover:bg-[#4A7C59]/90 text-white">
-                <span className="hidden md:inline">Add An Event</span>
+                <span className="hidden md:inline">Add an Event</span>
                 <span className="md:hidden">Add Event</span>
               </Button>
             </Link>
@@ -224,7 +224,7 @@ const Header = () => {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white w-full">
-                      Add Your Bookstore
+                      Add a Bookstore
                     </Button>
                   </Link>
                   <Link 
@@ -233,7 +233,7 @@ const Header = () => {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Button className="bg-[#4A7C59] hover:bg-[#4A7C59]/90 text-white w-full">
-                      Add An Event
+                      Add an Event
                     </Button>
                   </Link>
                 </nav>

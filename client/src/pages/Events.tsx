@@ -244,7 +244,7 @@ const Events = () => {
             </p>
             <Link href="/submit-event">
               <Button className="bg-[#4A7C59] hover:bg-[#4A7C59]/90 text-white">
-                Add Your Event
+                Add an Event
               </Button>
             </Link>
           </div>
