@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 const CategoryDirectory = () => {
   const { featureId } = useParams();
-  const [selectedBookstoreId, setSelectedBookstoreId] = useState<number | null>(null);
+  const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [view, setView] = useState<"map" | "list">("map");
   
@@ -28,7 +28,7 @@ const CategoryDirectory = () => {
   });
 
   const handleShowDetails = (id: number) => {
-    setSelectedBookstoreId(id);
+    setSelectedBookshopId(id);
     setIsDetailOpen(true);
   };
 
@@ -40,10 +40,10 @@ const CategoryDirectory = () => {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          Bookstores with {featureName}
+          Bookshops with {featureName}
         </h1>
         <p className="text-gray-600 mb-6">
-          Discover indie bookstores that offer {featureName.toLowerCase()}. Browse the map or list view to find your next favorite bookshop.
+          Discover indie bookshops that offer {featureName.toLowerCase()}. Browse the map or list view to find your next favorite bookshop.
         </p>
         
         {/* Breadcrumb Navigation */}
@@ -127,9 +127,9 @@ const CategoryDirectory = () => {
       </div>
 
       {/* Bookshop Detail Modal */}
-      {selectedBookstoreId && (
+      {selectedBookshopId && (
         <BookshopDetail 
-          bookstoreId={selectedBookstoreId} 
+          bookstoreId={selectedBookshopId} 
           isOpen={isDetailOpen} 
           onClose={handleCloseDetail} 
         />
