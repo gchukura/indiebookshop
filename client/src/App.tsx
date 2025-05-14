@@ -37,7 +37,7 @@ function Router() {
           <Route path="/directory/state/:state" component={StateDirectory} />
           <Route path="/directory/city/:city" component={CityDirectory} />
           <Route path="/directory/category/:featureId" component={CategoryDirectory} />
-          <Route path="/bookstore/:id" component={BookstoreDetailPage} />
+          <Route path="/bookshop/:id" component={BookstoreDetailPage} />
           <Route path="/submit" component={SubmitBookstore} />
           <Route path="/submit-event" component={SubmitEvent} />
           <Route path="/blog" component={Blog} />
