@@ -182,7 +182,12 @@ const Home = () => {
                     // Include Canadian provinces as they appear in the data
                     'BC': 'British Columbia', 'ON': 'Ontario', 'QC': 'Quebec',
                     'AB': 'Alberta', 'MB': 'Manitoba', 'NS': 'Nova Scotia',
-                    'NB': 'New Brunswick', 'SK': 'Saskatchewan'
+                    'NB': 'New Brunswick', 'SK': 'Saskatchewan',
+                    // Include other territories and regions
+                    'HM': 'Heard and McDonald Islands',
+                    'VI': 'Virgin Islands',
+                    // Fix for the erroneous "OK Input: CA Output: California" entry
+                    'OK Input: CA Output: California': 'California'
                   };
                   
                   // List of US state abbreviations
@@ -219,7 +224,7 @@ const Home = () => {
                     <>
                       {/* United States section */}
                       <div>
-                        <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4 pb-2 border-b border-[#5F4B32]/20">
+                        <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
                           United States
                         </h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -236,7 +241,7 @@ const Home = () => {
                       {/* Only show Other Regions section if there are any */}
                       {otherRegions.length > 0 && (
                         <div>
-                          <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4 pb-2 border-b border-[#5F4B32]/20">
+                          <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
                             Other Regions
                           </h3>
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
