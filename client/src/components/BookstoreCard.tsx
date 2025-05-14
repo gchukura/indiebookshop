@@ -46,7 +46,7 @@ const BookstoreCard = ({ bookstore, showDetails }: BookstoreCardProps) => {
               className="w-full h-40 sm:h-full object-cover"
             />
           ) : (
-            <div className="w-full h-40 sm:h-full bg-[#F7F3E8] flex items-center justify-center">
+            <div className="w-full h-40 sm:h-full flex items-center justify-center">
               <BookstoreIcon size={100} />
             </div>
           )}
