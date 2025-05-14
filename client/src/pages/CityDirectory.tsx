@@ -102,7 +102,7 @@ const CityDirectory = () => {
               <div className="text-center py-10">
                 <p>Error loading bookshops. Please try again later.</p>
               </div>
-            ) : bookstores.length === 0 ? (
+            ) : bookshops.length === 0 ? (
               <div className="text-center py-10">
                 <p>No bookshops found in {city}.</p>
                 <Link href="/directory">
@@ -113,10 +113,10 @@ const CityDirectory = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {bookstores.map((bookstore) => (
+                {bookshops.map((bookshop) => (
                   <BookshopCard 
-                    key={bookstore.id} 
-                    bookstore={bookstore} 
+                    key={bookshop.id} 
+                    bookstore={bookshop} 
                     showDetails={handleShowDetails} 
                   />
                 ))}

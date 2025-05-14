@@ -22,13 +22,13 @@ const Events = () => {
   const { data: events = [], isLoading: eventsLoading } = useCalendarEvents(currentYear, currentMonth);
   
   // Fetch all bookshops to display bookshop name with each event
-  const { data: bookstores = [], isLoading: bookstoresLoading } = useQuery<Bookstore[]>({
+  const { data: bookshops = [], isLoading: bookshopsLoading } = useQuery<Bookstore[]>({
     queryKey: ["/api/bookstores"],
   });
   
   // Get bookshop details by ID
   const getBookshopName = (bookshopId: number) => {
-    const bookshop = bookstores.find(b => b.id === bookshopId);
+    const bookshop = bookshops.find(b => b.id === bookshopId);
     return bookshop?.name || "Unknown Bookshop";
   };
   
@@ -98,7 +98,7 @@ const Events = () => {
         </p>
       </div>
 
-      {eventsLoading || bookstoresLoading ? (
+      {eventsLoading || bookshopsLoading ? (
         <div className="text-center py-12">
           <p>Loading events calendar...</p>
         </div>
