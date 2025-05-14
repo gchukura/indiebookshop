@@ -81,7 +81,7 @@ const CategoryDirectory = () => {
             <div className="bg-white rounded-lg shadow-md overflow-hidden map-container relative" style={{ height: "600px" }}>
               <MapboxMap 
                 bookstores={bookstores} 
-                onSelectBookstore={handleShowDetails}
+                onSelectBookshop={handleShowDetails}
               />
             </div>
           </div>
