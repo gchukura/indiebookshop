@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Bookstore } from "@shared/schema";
 import BookstoreCard from "@/components/BookstoreCard";
-import BookstoreDetail from "@/components/BookstoreDetail";
+import BookshopDetail from "@/components/BookstoreDetail";
 import MapboxMap from "@/components/MapboxMap";
 import { Button } from "@/components/ui/button";
 import { getFullStateName } from "@/lib/stateUtils";
@@ -134,9 +134,9 @@ const StateDirectory = () => {
         </div>
       </div>
 
-      {/* Bookstore Detail Modal */}
+      {/* Bookshop Detail Modal */}
       {selectedBookstoreId && (
-        <BookstoreDetail 
+        <BookshopDetail 
           bookstoreId={selectedBookstoreId} 
           isOpen={isDetailOpen} 
           onClose={handleCloseDetail} 

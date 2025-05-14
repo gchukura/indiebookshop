@@ -126,9 +126,9 @@ const CategoryDirectory = () => {
         </div>
       </div>
 
-      {/* Bookstore Detail Modal */}
+      {/* Bookshop Detail Modal */}
       {selectedBookstoreId && (
-        <BookstoreDetail 
+        <BookshopDetail 
           bookstoreId={selectedBookstoreId} 
           isOpen={isDetailOpen} 
           onClose={handleCloseDetail} 
