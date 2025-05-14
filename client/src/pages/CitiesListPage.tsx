@@ -42,8 +42,6 @@ const METRO_AREAS = {
   ]
 };
 
-// We'll dynamically populate notable literary cities based on bookstore count
-
 const CitiesListPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -57,14 +55,6 @@ const CitiesListPage = () => {
     return bookstores.filter((b: Bookstore) => b.city?.toLowerCase() === city.toLowerCase()).length;
   };
   
-  // Function to filter cities based on search query
-  const filterCities = (cities: Array<{name: string, state: string}>) => {
-    if (!searchQuery) return cities;
-    return cities.filter((city: {name: string, state: string}) => 
-      city.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  };
-  
   // Get all metro areas with at least one bookstore
   const metroAreasWithBookstores = Object.entries(METRO_AREAS).reduce((acc, [region, cities]) => {
     const citiesWithBookstores = cities.filter(city => getBookstoreCount(city.name) > 0);
@@ -74,48 +64,15 @@ const CitiesListPage = () => {
     return acc;
   }, {} as Record<string, Array<{name: string, state: string}>>);
   
-  // Find literary cities (cities with 3+ bookstores that aren't in metro areas)
-  const getNotableLiteraryCities = () => {
-    const metroAreaNames = new Set(
-      Object.values(METRO_AREAS).flat().map(city => city.name.toLowerCase())
-    );
-    
-    // Get all cities from bookstores
-    const cityMap = new Map<string, {count: number, state: string}>();
-    
-    bookstores.forEach(bookstore => {
-      if (bookstore.city && bookstore.state) {
-        const cityKey = bookstore.city.toLowerCase();
-        if (!metroAreaNames.has(cityKey)) {
-          const existing = cityMap.get(cityKey);
-          if (existing) {
-            existing.count += 1;
-          } else {
-            cityMap.set(cityKey, { count: 1, state: bookstore.state });
-          }
-        }
-      }
-    });
-    
-    // Convert to array and filter for cities with 3+ bookstores
-    return Array.from(cityMap.entries())
-      .filter(([_, data]) => data.count >= 3)
-      .map(([cityName, data]) => ({ 
-        name: cityName.charAt(0).toUpperCase() + cityName.slice(1), 
-        state: data.state 
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  };
-  
-  const notableLiteraryCities = getNotableLiteraryCities();
-  
   // Combine all cities for search
-  const allCities = [
-    ...Object.values(metroAreasWithBookstores).flat(),
-    ...notableLiteraryCities
-  ];
+  const allCities = Object.values(metroAreasWithBookstores).flat();
   
-  const filteredCities = searchQuery ? filterCities(allCities) : null;
+  // Filter cities based on search query
+  const filteredCities = searchQuery 
+    ? allCities.filter(city => 
+        city.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : null;
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -123,9 +80,6 @@ const CitiesListPage = () => {
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
           Browse Bookstores by City
         </h1>
-        <p className="text-gray-600 mb-6">
-          Find independent bookstores in major cities across North America, or search for a specific city.
-        </p>
         
         {/* Search Bar */}
         <div className="relative max-w-md mb-8">
@@ -200,36 +154,6 @@ const CitiesListPage = () => {
               </div>
             </div>
           ))}
-          
-          {/* Literary Cities Section */}
-          {notableLiteraryCities.length > 0 && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-                Notable Literary Cities
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Cities with 3+ independent bookstores:
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {notableLiteraryCities.map((city, index) => (
-                  <Link 
-                    key={`${city.name}-${index}`} 
-                    href={`/directory/city/${city.name}`}
-                  >
-                    <Button 
-                      variant="outline" 
-                      className="w-full justify-between font-medium hover:bg-[#2A6B7C]/5 hover:text-[#2A6B7C] hover:border-[#2A6B7C] transition-colors"
-                    >
-                      <span>{city.name}, {city.state}</span>
-                      <span className="ml-2 text-xs bg-[#F7F3E8] text-[#5F4B32] px-2 py-0.5 rounded-full">
-                        {getBookstoreCount(city.name)}
-                      </span>
-                    </Button>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>
