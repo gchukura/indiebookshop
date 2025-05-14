@@ -1,8 +1,6 @@
-import { useState } from "react";
 import { Link } from "wouter";
 import { Bookstore, Feature } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
-import { Heart } from "lucide-react";
 import BookstoreIcon from "./BookstoreIcon";
 
 interface BookstoreCardProps {
@@ -11,8 +9,6 @@ interface BookstoreCardProps {
 }
 
 const BookstoreCard = ({ bookstore, showDetails }: BookstoreCardProps) => {
-  const [isFavorite, setIsFavorite] = useState(false);
-
   // Fetch all features to match with bookstore.featureIds
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
@@ -22,13 +18,6 @@ const BookstoreCard = ({ bookstore, showDetails }: BookstoreCardProps) => {
   const bookstoreFeatures = features?.filter(feature => 
     bookstore.featureIds?.includes(feature.id) || false
   ) || [];
-
-  const toggleFavorite = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsFavorite(!isFavorite);
-    // In a real app, we would make an API call to add/remove from favorites
-  };
 
   return (
     <div className="bookstore-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
@@ -52,20 +41,13 @@ const BookstoreCard = ({ bookstore, showDetails }: BookstoreCardProps) => {
           </div>
         </div>
         <div className="p-4 sm:w-2/3">
-          <div className="flex justify-between items-start">
+          <div>
             <h3 
               className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C]"
               onClick={() => showDetails(bookstore.id)}
             >
               {bookstore.name}
             </h3>
-            <button 
-              className={`${isFavorite ? 'text-[#E16D3D]' : 'text-gray-400 hover:text-[#E16D3D]'}`}
-              onClick={toggleFavorite}
-              aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-            >
-              <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current' : ''}`} />
-            </button>
           </div>
           <div className="text-sm text-gray-600 mb-2">
             <MapPin className="h-4 w-4 inline mr-1" /> {bookstore.city}, {bookstore.state}
