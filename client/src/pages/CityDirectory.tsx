@@ -126,7 +126,7 @@ const CityDirectory = () => {
         </div>
       </div>
 
-      {/* Bookstore Detail Modal */}
+      {/* Bookshop Detail Modal */}
       {selectedBookstoreId && (
         <BookshopDetail 
           bookstoreId={selectedBookstoreId} 
