@@ -2,7 +2,7 @@ import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Bookstore, Feature } from "@shared/schema";
-import BookstoreCard from "@/components/BookstoreCard";
+import BookshopCard from "@/components/BookshopCard";
 import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
 import { Button } from "@/components/ui/button";
@@ -87,34 +87,34 @@ const CategoryDirectory = () => {
           </div>
         )}
 
-        {/* Bookstore Listings Section */}
+        {/* Bookshop Listings Section */}
         <div className={`w-full ${view === "map" ? "md:w-1/2" : "md:w-full"}`}>
           <div className="bg-white rounded-lg shadow-md p-4">
             <h2 className="text-xl font-medium mb-4">
-              {bookstores.length} Bookstores with {featureName}
+              {bookstores.length} Bookshops with {featureName}
             </h2>
             
             {isLoading ? (
               <div className="text-center py-10">
-                <p>Loading bookstores...</p>
+                <p>Loading bookshops...</p>
               </div>
             ) : isError ? (
               <div className="text-center py-10">
-                <p>Error loading bookstores. Please try again later.</p>
+                <p>Error loading bookshops. Please try again later.</p>
               </div>
             ) : bookstores.length === 0 ? (
               <div className="text-center py-10">
-                <p>No bookstores found with {featureName}.</p>
+                <p>No bookshops found with {featureName}.</p>
                 <Link href="/directory">
                   <Button className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
-                    View All Bookstores
+                    View All Bookshops
                   </Button>
                 </Link>
               </div>
             ) : (
               <div className="space-y-4">
                 {bookstores.map((bookstore) => (
-                  <BookstoreCard 
+                  <BookshopCard 
                     key={bookstore.id} 
                     bookstore={bookstore} 
                     showDetails={handleShowDetails} 
