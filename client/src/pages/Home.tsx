@@ -113,7 +113,7 @@ const Home = () => {
         </div>
       </section>
       
-      {/* Featured Bookstores Section */}
+      {/* Featured Bookshops Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -124,13 +124,13 @@ const Home = () => {
               {/* Heading centered on the top border */}
               <div className="absolute -top-5 left-0 w-full flex justify-center">
                 <h2 className="inline-block bg-white px-5 text-3xl font-serif font-bold text-[#5F4B32]">
-                  ⭐ Featured Bookstores
+                  ⭐ Featured Bookshops
                 </h2>
               </div>
             
               {isLoading ? (
                 <div className="text-center py-10">
-                  <p>Loading featured bookstores...</p>
+                  <p>Loading featured bookshops...</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

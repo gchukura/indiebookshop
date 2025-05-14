@@ -6,10 +6,10 @@ const SubmitBookstore: FC = () => {
     <div className="container py-8 md:py-12">
       <div className="max-w-3xl mx-auto mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-4 text-center">
-          Submit a Bookstore
+          Submit a Bookshop
         </h1>
         <p className="text-center text-muted-foreground mb-8">
-          Help us grow our directory of independent bookstores. Submit a new bookstore or suggest changes to an existing one.
+          Help us grow our directory of independent bookshops. Submit a new bookshop or suggest changes to an existing one.
         </p>
         <BookstoreSubmissionForm />
       </div>

@@ -91,10 +91,10 @@ const Events = () => {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          Bookstore Events
+          Bookshop Events
         </h1>
         <p className="text-gray-600 mb-6">
-          Discover readings, signings, book clubs, and other events at independent bookstores.
+          Discover readings, signings, book clubs, and other events at independent bookshops.
         </p>
       </div>
 
@@ -240,7 +240,7 @@ const Events = () => {
               Event Listings
             </h2>
             <p className="text-gray-700 mb-4">
-              Are you an independent bookstore owner or employee? You can submit your upcoming events to be featured in our calendar.
+              Are you an independent bookshop owner or employee? You can submit your upcoming events to be featured in our calendar.
             </p>
             <Link href="/submit-event">
               <Button className="bg-[#4A7C59] hover:bg-[#4A7C59]/90 text-white">
