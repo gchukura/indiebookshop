@@ -163,6 +163,38 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       res.status(500).json({ message: "Failed to fetch calendar events" });
     }
   });
+  
+  // Submit a new event
+  app.post("/api/events", async (req, res) => {
+    try {
+      const { title, description, date, time, bookstoreId } = req.body;
+      
+      // Basic validation
+      if (!title || !description || !date || !time || !bookstoreId) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+      
+      // Check if the bookstore exists
+      const bookstore = await storageImpl.getBookstore(bookstoreId);
+      if (!bookstore) {
+        return res.status(404).json({ message: "Bookstore not found" });
+      }
+      
+      // Create the event
+      const newEvent = await storageImpl.createEvent({
+        bookstoreId,
+        title,
+        description,
+        date,
+        time
+      });
+      
+      res.status(201).json(newEvent);
+    } catch (error) {
+      console.error("Error creating event:", error);
+      res.status(500).json({ message: "Failed to create event" });
+    }
+  });
 
   // Get all states with bookstores
   app.get("/api/states", async (req, res) => {

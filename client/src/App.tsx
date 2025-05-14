@@ -14,9 +14,11 @@ import CitiesListPage from "@/pages/CitiesListPage";
 import CategoriesListPage from "@/pages/CategoriesListPage";
 import BookstoreDetailPage from "@/pages/BookstoreDetailPage";
 import SubmitBookstore from "@/pages/SubmitBookstore";
+import SubmitEvent from "@/pages/SubmitEvent";
 import Blog from "@/pages/Blog";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+import Events from "@/pages/Events";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BookstoreProvider } from "@/context/BookstoreContext";
@@ -37,9 +39,11 @@ function Router() {
           <Route path="/directory/category/:featureId" component={CategoryDirectory} />
           <Route path="/bookstore/:id" component={BookstoreDetailPage} />
           <Route path="/submit" component={SubmitBookstore} />
+          <Route path="/submit-event" component={SubmitEvent} />
           <Route path="/blog" component={Blog} />
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
+          <Route path="/events" component={Events} />
           {/* Fallback to 404 */}
           <Route component={NotFound} />
         </Switch>

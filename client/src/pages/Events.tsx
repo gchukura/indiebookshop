@@ -134,6 +134,12 @@ const Events = () => {
                 onSelect={setSelectedDate}
                 month={currentDate}
                 className="rounded-md border"
+                modifiers={{
+                  eventDay: datesWithEvents
+                }}
+                modifiersClassNames={{
+                  eventDay: "relative before:absolute before:bottom-1 before:left-1/2 before:w-1.5 before:h-1.5 before:bg-[#E16D3D] before:rounded-full before:-translate-x-1/2"
+                }}
               />
             </div>
           </div>
