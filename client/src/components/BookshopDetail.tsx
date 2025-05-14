@@ -76,11 +76,11 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
             </button>
           </div>
           
-          {isLoadingBookstore ? (
+          {isLoadingBookshop ? (
             <div className="p-8 text-center">
               <p>Loading bookshop details...</p>
             </div>
-          ) : !bookstore ? (
+          ) : !bookshop ? (
             <div className="p-8 text-center">
               <p>Could not load bookshop details. Please try again.</p>
             </div>
@@ -88,13 +88,13 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
             <div className="bg-[#F7F3E8]">
               <div className="relative h-64 md:h-96">
                 <img 
-                  src={bookstore.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400"}
-                  alt={`${bookstore.name} interior panorama`} 
+                  src={bookshop.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400"}
+                  alt={`${bookshop.name} interior panorama`} 
                   className="w-full h-full object-cover" 
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                  <h2 className="text-white text-2xl md:text-3xl font-serif font-bold">{bookstore.name}</h2>
-                  <p className="text-white/90 text-sm md:text-base">{bookstore.city}, {bookstore.state}</p>
+                  <h2 className="text-white text-2xl md:text-3xl font-serif font-bold">{bookshop.name}</h2>
+                  <p className="text-white/90 text-sm md:text-base">{bookshop.city}, {bookshop.state}</p>
                 </div>
               </div>
               
@@ -102,7 +102,7 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                 <div className="md:col-span-2">
                   <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
                     <h3 className="font-serif font-bold text-xl mb-4">About</h3>
-                    <p className="mb-4">{bookstore.description}</p>
+                    <p className="mb-4">{bookshop.description}</p>
                     
                     <div className="mt-6">
                       <h3 className="font-serif font-bold text-xl mb-4">Features & Specialties</h3>
@@ -151,16 +151,16 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                     <div className="space-y-4">
                       <div>
                         <p className="font-bold">Address</p>
-                        <p>{bookstore.street}</p>
-                        <p>{bookstore.city}, {bookstore.state} {bookstore.zip}</p>
+                        <p>{bookshop.street}</p>
+                        <p>{bookshop.city}, {bookshop.state} {bookshop.zip}</p>
                       </div>
                       
                       <div>
                         <p className="font-bold">Contact</p>
-                        <p>Phone: {bookstore.phone || 'Not available'}</p>
-                        <p>Website: {bookstore.website ? (
-                          <a href={bookstore.website} target="_blank" rel="noopener noreferrer" className="text-[#2A6B7C] hover:text-[#E16D3D]">
-                            {new URL(bookstore.website).hostname}
+                        <p>Phone: {bookshop.phone || 'Not available'}</p>
+                        <p>Website: {bookshop.website ? (
+                          <a href={bookshop.website} target="_blank" rel="noopener noreferrer" className="text-[#2A6B7C] hover:text-[#E16D3D]">
+                            {new URL(bookshop.website).hostname}
                           </a>
                         ) : 'Not available'}</p>
                       </div>
