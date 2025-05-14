@@ -28,23 +28,13 @@ const Home = () => {
           
           {/* Featured section with border and heading that intersects with the border */}
           <div className="mb-8">
-            {/* Top border only */}
-            <div className="border-t-4 border-[#2A6B7C] relative">
+            {/* Full border box with top border and heading that intersects */}
+            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-8 pt-6 shadow-sm">
               {/* Heading centered on the top border */}
-              <div className="flex justify-center -mt-5">
+              <div className="absolute -top-5 left-0 w-full flex justify-center">
                 <h2 className="inline-block bg-white px-5 text-3xl font-serif font-bold text-[#5F4B32]">
-                  Featured Bookstores
+                  ⭐ Featured Bookstores
                 </h2>
-              </div>
-            </div>
-            
-            {/* Bottom, left, and right borders with content */}
-            <div className="border-b-4 border-l-4 border-r-4 border-[#2A6B7C] rounded-b-lg p-8 pt-6 shadow-sm">
-              <div className="text-center mb-10">
-                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  Discover these unique independent bookshops that offer exceptional
-                  literary experiences across the United States.
-                </p>
               </div>
             
               {isLoading ? (
