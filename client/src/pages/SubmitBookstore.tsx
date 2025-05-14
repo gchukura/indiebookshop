@@ -1,7 +1,7 @@
 import { FC } from "react";
-import BookstoreSubmissionForm from "../components/BookstoreSubmissionForm";
+import BookshopSubmissionForm from "../components/BookstoreSubmissionForm";
 
-const SubmitBookstore: FC = () => {
+const SubmitBookshop: FC = () => {
   return (
     <div className="container py-8 md:py-12">
       <div className="max-w-3xl mx-auto mb-8">
@@ -11,10 +11,10 @@ const SubmitBookstore: FC = () => {
         <p className="text-center text-muted-foreground mb-8">
           Help us grow our directory of independent bookshops. Submit a new bookshop or suggest changes to an existing one.
         </p>
-        <BookstoreSubmissionForm />
+        <BookshopSubmissionForm />
       </div>
     </div>
   );
 };
 
-export default SubmitBookstore;
+export default SubmitBookshop;

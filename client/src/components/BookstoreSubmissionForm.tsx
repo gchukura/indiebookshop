@@ -27,7 +27,7 @@ const submissionFormSchema = z.object({
   submissionType: z.enum(["new", "change"]),
   existingBookstoreId: z.string().optional(),
   name: z.string().min(2, {
-    message: "Bookstore name must be at least 2 characters.",
+    message: "Bookshop name must be at least 2 characters.",
   }),
   street: z.string().min(2, {
     message: "Street address is required.",
@@ -52,7 +52,7 @@ const submissionFormSchema = z.object({
 
 type SubmissionFormValues = z.infer<typeof submissionFormSchema>;
 
-export const BookstoreSubmissionForm = () => {
+export const BookshopSubmissionForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFeatures, setSelectedFeatures] = useState<number[]>([]);
   const { toast } = useToast();
@@ -198,16 +198,16 @@ export const BookstoreSubmissionForm = () => {
               )}
             />
 
-            {/* If updating, ask for existing bookstore ID */}
+            {/* If updating, ask for existing bookshop ID */}
             {submissionType === "change" && (
               <FormField
                 control={form.control}
                 name="existingBookstoreId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Existing Bookstore ID</FormLabel>
+                    <FormLabel>Existing Bookshop ID</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter bookstore ID (found in URL)" {...field} />
+                      <Input placeholder="Enter bookshop ID (found in URL)" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -245,7 +245,7 @@ export const BookstoreSubmissionForm = () => {
               />
             </div>
 
-            {/* Bookstore Information */}
+            {/* Bookshop Information */}
             <FormField
               control={form.control}
               name="name"
@@ -453,4 +453,4 @@ export const BookstoreSubmissionForm = () => {
   );
 };
 
-export default BookstoreSubmissionForm;
+export default BookshopSubmissionForm;
