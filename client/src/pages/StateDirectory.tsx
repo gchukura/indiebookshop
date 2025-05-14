@@ -2,7 +2,7 @@ import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Bookstore } from "@shared/schema";
-import BookstoreCard from "@/components/BookstoreCard";
+import BookshopCard from "@/components/BookshopCard";
 import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
 import { Button } from "@/components/ui/button";
@@ -41,10 +41,10 @@ const StateDirectory = () => {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          Bookstores in {fullStateName}
+          Bookshops in {fullStateName}
         </h1>
         <p className="text-gray-600 mb-6">
-          Discover the indie bookstores in {fullStateName}. Browse the map or list view to find your next favorite bookshop.
+          Discover the indie bookshops in {fullStateName}. Browse the map or list view to find your next favorite bookshop.
         </p>
         
         {/* Toggle View */}
@@ -99,7 +99,7 @@ const StateDirectory = () => {
         <div className={`w-full ${view === "map" ? "md:w-1/2" : "md:w-full"}`}>
           <div className="bg-white rounded-lg shadow-md p-4">
             <h2 className="text-xl font-medium mb-4">
-              {bookstores.length} Bookstores in {fullStateName}
+              {bookstores.length} Bookshops in {fullStateName}
             </h2>
             
             {isLoading ? (
@@ -122,7 +122,7 @@ const StateDirectory = () => {
             ) : (
               <div className="space-y-4">
                 {bookstores.map((bookstore) => (
-                  <BookstoreCard 
+                  <BookshopCard 
                     key={bookstore.id} 
                     bookstore={bookstore} 
                     showDetails={handleShowDetails} 
