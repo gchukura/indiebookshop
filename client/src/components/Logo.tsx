@@ -17,7 +17,7 @@ const LOGO_COLORS = {
 
 const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
   // Calculate display dimensions while maintaining proportions
-  const originalAspectRatio = 500 / 200;
+  const originalAspectRatio = 600 / 200; // Increased width to accommodate larger text
   const calculatedWidth = height * originalAspectRatio;
   
   // Scale factor for fonts and positioning - keeps original SVG proportions
@@ -28,7 +28,7 @@ const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
       <svg 
         width={calculatedWidth} 
         height={height} 
-        viewBox="0 0 500 200" 
+        viewBox="0 0 600 200" 
         xmlns="http://www.w3.org/2000/svg"
         className="mr-2"
       >
@@ -44,21 +44,21 @@ const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
           <rect x="10" y="10" width="90" height="30" rx="2" ry="2" fill={LOGO_COLORS.BROWN} />
         </g>
         
-        {/* Company name - keeping original positioning */}
-        <g transform="translate(165, 87)">
+        {/* Company name - adjusted positioning for larger text */}
+        <g transform="translate(155, 92)">
           {/* Indie */}
-          <text fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="36" fill={LOGO_COLORS.BLUE}>
+          <text fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="44" fill={LOGO_COLORS.BLUE}>
             Indie
           </text>
           
           {/* Bookshop */}
-          <text x="85" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="36" fill={LOGO_COLORS.ORANGE}>
+          <text x="105" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="44" fill={LOGO_COLORS.ORANGE}>
             Bookshop
           </text>
           
           {/* .com */}
           {showDotCom && (
-            <text x="260" fontFamily="Arial, sans-serif" fontWeight="normal" fontSize="18" fill={LOGO_COLORS.GRAY}>
+            <text x="320" fontFamily="Arial, sans-serif" fontWeight="normal" fontSize="22" fill={LOGO_COLORS.GRAY}>
               .com
             </text>
           )}
