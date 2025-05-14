@@ -17,7 +17,7 @@ const StateDirectory = () => {
   // Get full state name using utility function
   const fullStateName = getFullStateName(state);
   
-  // Fetch bookstores for this state
+  // Fetch bookshops for this state
   const { data: bookstores = [], isLoading, isError } = useQuery<Bookstore[]>({
     queryKey: [`/api/bookstores/filter?state=${state}`],
   });

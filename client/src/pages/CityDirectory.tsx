@@ -13,12 +13,12 @@ const CityDirectory = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [view, setView] = useState<"map" | "list">("map");
   
-  // Fetch bookstores for this city
+  // Fetch bookshops for this city
   const { data: bookstores = [], isLoading, isError } = useQuery<Bookstore[]>({
     queryKey: [`/api/bookstores/filter?city=${city}`],
   });
 
-  // Get state from the first bookstore (assuming all bookstores in a city are in the same state)
+  // Get state from the first bookshop (assuming all bookshops in a city are in the same state)
   const state = bookstores.length > 0 ? bookstores[0].state : '';
 
   const handleShowDetails = (id: number) => {
@@ -34,10 +34,10 @@ const CityDirectory = () => {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          Bookstores in {city}{state ? `, ${state}` : ''}
+          Bookshops in {city}{state ? `, ${state}` : ''}
         </h1>
         <p className="text-gray-600 mb-6">
-          Discover the indie bookstores in {city}. Browse the map or list view to find your next favorite bookshop.
+          Discover the indie bookshops in {city}. Browse the map or list view to find your next favorite bookshop.
         </p>
         
         {/* Breadcrumb Navigation */}
