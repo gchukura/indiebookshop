@@ -168,31 +168,6 @@ const StatesListPage = () => {
           })}
         </div>
       )}
-      
-      {/* Quick Bookstore Features */}
-      <div className="mt-12 bg-[#F8F5F0] rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-          Bookstore Features
-        </h2>
-        <p className="text-gray-600 mb-4">
-          You can also explore bookstores by their special features:
-        </p>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-          <Link href={`/directory/category/1`}>
-            <Button variant="outline" className="w-full bg-white">Coffee Shop</Button>
-          </Link>
-          <Link href={`/directory/category/2`}>
-            <Button variant="outline" className="w-full bg-white">Used Books</Button>
-          </Link>
-          <Link href={`/directory/category/3`}>
-            <Button variant="outline" className="w-full bg-white">Rare Books</Button>
-          </Link>
-          <Link href={`/directory/category/5`}>
-            <Button variant="outline" className="w-full bg-white">Author Events</Button>
-          </Link>
-        </div>
-      </div>
     </div>
   );
 };
