@@ -28,13 +28,13 @@ const Hero = () => {
               onClick={handleFindBookshops}
               className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white rounded-full px-8 py-6 text-lg"
             >
-              Find Bookshops
+              Add a Bookshop
             </Button>
             <Button 
               onClick={handleAddBookshop}
               className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white rounded-full px-8 py-6 text-lg"
             >
-              Add Your Bookshop
+              Add a Bookshop
             </Button>
           </div>
         </div>
