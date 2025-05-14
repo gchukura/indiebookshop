@@ -9,18 +9,18 @@ interface BookshopCardProps {
 }
 
 const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
-  // Fetch all features to match with bookstore.featureIds
+  // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
   });
 
-  // Get feature names for the bookstore
-  const bookstoreFeatures = features?.filter(feature => 
+  // Get feature names for the bookshop
+  const bookshopFeatures = features?.filter(feature => 
     bookstore.featureIds?.includes(feature.id) || false
   ) || [];
 
   return (
-    <div className="bookstore-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
+    <div className="bookshop-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
       <div className="flex flex-col sm:flex-row">
         <div className="sm:w-1/3">
           <div 
@@ -35,7 +35,7 @@ const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <BookstoreIcon size={100} />
+                <BookshopIcon size={100} />
               </div>
             )}
           </div>
