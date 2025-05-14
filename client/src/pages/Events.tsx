@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { format, isSameDay, isSameMonth, addMonths, subMonths, parseISO } from "date-fns";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { Link } from "wouter";
@@ -10,52 +10,9 @@ import { Card } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 
-// Add custom styles to head
-const addCustomCalendarStyles = () => {
-  const styleId = 'custom-calendar-styles';
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.innerHTML = `
-      .rdp-caption {
-        display: none !important;
-      }
-      .rdp-table { 
-        width: 100% !important;
-      }
-      .rdp-cell {
-        width: calc(100% / 7) !important;
-        height: 60px !important;
-        padding: 0 !important;
-      }
-      .rdp-day {
-        width: 100% !important;
-        height: 100% !important;
-        max-width: none !important; 
-        font-size: 1.1rem !important;
-        border-radius: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-      .rdp-head_cell {
-        font-size: 1rem !important;
-        font-weight: 600 !important;
-        padding: 10px 0 !important;
-      }
-    `;
-    document.head.appendChild(style);
-  }
-};
-
 const Events = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  
-  // Apply custom calendar styles when component mounts
-  useEffect(() => {
-    addCustomCalendarStyles();
-  }, []);
   
   // Get current month and year
   const currentMonth = currentDate.getMonth();

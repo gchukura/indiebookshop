@@ -56,3 +56,39 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+/* Custom Calendar Styles */
+.rdp-caption {
+  display: none !important;
+}
+
+.rdp-table { 
+  width: 100% !important;
+}
+
+.rdp-cell {
+  width: calc(100% / 7) !important;
+  height: 60px !important;
+  padding: 0 !important;
+}
+
+.rdp-day {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important; 
+  font-size: 1.1rem !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.rdp-head_cell {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  padding: 10px 0 !important;
+}
+
+.rdp-month {
+  width: 100% !important;
+}
