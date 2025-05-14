@@ -2,14 +2,14 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, useCallback } from "react";
 import Hero from "@/components/Hero";
-import { Bookstore, Feature } from "@shared/schema";
+import { Bookstore as Bookshop, Feature } from "@shared/schema";
 import BookshopIcon from "@/components/BookshopIcon";
 import MapboxMap from "@/components/MapboxMap";
 import BookshopDetail from "@/components/BookshopDetail";
 
 const Home = () => {
   // Fetch all bookshops
-  const { data: bookshops, isLoading } = useQuery<Bookstore[]>({
+  const { data: bookshops, isLoading } = useQuery<Bookshop[]>({
     queryKey: ["/api/bookstores"],
   });
 
@@ -19,7 +19,7 @@ const Home = () => {
   });
   
   // State to hold current featured bookshops
-  const [featuredBookshops, setFeaturedBookshops] = useState<Bookstore[]>([]);
+  const [featuredBookshops, setFeaturedBookshops] = useState<Bookshop[]>([]);
   // State to track the countdown to next refresh (in seconds)
   const [refreshCountdown, setRefreshCountdown] = useState(30);
   // State to show a brief animation when bookshops are refreshed
@@ -36,7 +36,7 @@ const Home = () => {
   };
   
   // Function to get random bookshops
-  const getRandomBookshops = useCallback(() => {
+  const getRandomBookshops = useCallback((): Bookshop[] => {
     if (!bookshops || bookshops.length === 0) return [];
     
     // Make a copy of the bookshops array to avoid mutating the original
@@ -236,13 +236,13 @@ const Home = () => {
                   ];
                   
                   // Get unique states from bookshops
-                  const stateAbbreviations = Array.from(new Set(bookshops.map(b => b.state)))
+                  const stateAbbreviations = Array.from(new Set(bookshops.map((b: Bookshop) => b.state)))
                     .filter(state => state); // Filter out null/undefined
                   
                   // Separate US states from other regions
                   const usStates = stateAbbreviations
-                    .filter(abbr => usStateAbbreviations.includes(abbr))
-                    .map(abbr => ({
+                    .filter((abbr: string) => usStateAbbreviations.includes(abbr))
+                    .map((abbr: string) => ({
                       abbreviation: abbr,
                       fullName: stateMap[abbr] || abbr
                     }))
