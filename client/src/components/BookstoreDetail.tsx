@@ -53,8 +53,8 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
 
   if (!isOpen) return null;
 
-  // Get feature names for the bookstore
-  const bookstoreFeatures = features?.filter(feature => 
+  // Get feature names for the bookshop
+  const bookshopFeatures = features?.filter(feature => 
     bookstore?.featureIds && bookstore.featureIds.includes(feature.id)
   ) || [];
 
@@ -82,7 +82,7 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
             </div>
           ) : !bookstore ? (
             <div className="p-8 text-center">
-              <p>Could not load bookstore details. Please try again.</p>
+              <p>Could not load bookshop details. Please try again.</p>
             </div>
           ) : (
             <div className="bg-[#F7F3E8]">
@@ -107,7 +107,7 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
                     <div className="mt-6">
                       <h3 className="font-serif font-bold text-xl mb-4">Features & Specialties</h3>
                       <div className="flex flex-wrap gap-2">
-                        {bookstoreFeatures.map(feature => (
+                        {bookshopFeatures.map(feature => (
                           <span key={feature.id} className="store-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
                             {feature.name}
                           </span>

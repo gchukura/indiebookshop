@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
-interface BookstoreTableProps {
+interface BookshopTableProps {
   bookstores: Bookstore[];
   showDetails: (id: number) => void;
   currentPage: number;
@@ -19,20 +19,20 @@ interface BookstoreTableProps {
   onPageChange: (page: number) => void;
 }
 
-const BookstoreTable = ({ 
+const BookshopTable = ({ 
   bookstores, 
   showDetails, 
   currentPage, 
   totalPages, 
   onPageChange 
-}: BookstoreTableProps) => {
-  // Fetch all features to match with bookstore.featureIds
+}: BookshopTableProps) => {
+  // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
   });
 
-  // Get feature names for a bookstore
-  const getBookstoreFeatures = (bookstore: Bookstore) => {
+  // Get feature names for a bookshop
+  const getBookshopFeatures = (bookstore: Bookstore) => {
     return features?.filter(feature => 
       bookstore.featureIds?.includes(feature.id) || false
     ) || [];
@@ -62,13 +62,13 @@ const BookstoreTable = ({
                 <TableCell>{bookstore.state}</TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
-                    {getBookstoreFeatures(bookstore).slice(0, 3).map(feature => (
+                    {getBookshopFeatures(bookstore).slice(0, 3).map(feature => (
                       <span key={feature.id} className="bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-2 py-0.5 text-xs">
                         {feature.name}
                       </span>
                     ))}
-                    {getBookstoreFeatures(bookstore).length > 3 && (
-                      <span className="text-gray-500 text-xs">+{getBookstoreFeatures(bookstore).length - 3} more</span>
+                    {getBookshopFeatures(bookstore).length > 3 && (
+                      <span className="text-gray-500 text-xs">+{getBookshopFeatures(bookstore).length - 3} more</span>
                     )}
                   </div>
                 </TableCell>
@@ -106,4 +106,4 @@ const BookstoreTable = ({
   );
 };
 
-export default BookstoreTable;
+export default BookshopTable;
