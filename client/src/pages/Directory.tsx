@@ -7,10 +7,10 @@ import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
 import BookshopTable from "@/components/BookshopTable";
 import { Button } from "@/components/ui/button";
-import { Bookstore } from "@shared/schema";
+import { Bookstore as Bookshop } from "@shared/schema";
 
 // Type for bookshop with flexible featureIds handling
-type BookshopWithFeatures = Bookstore & {
+type BookshopWithFeatures = Bookshop & {
   featureIds?: number[] | string | null;
 };
 

@@ -40,7 +40,7 @@ export const useBookstores = (filters: UseBookstoresFilters = {}) => {
     : '/api/bookstores';
   
   // Fetch bookstores with the appropriate endpoint  
-  const { data, isLoading, isError, refetch } = useQuery<Bookstore[]>({
+  const { data, isLoading, isError, refetch } = useQuery<Bookshop[]>({
     queryKey: ['bookstores', state || 'all', featureIds?.join(',') || 'all'],
     queryFn: async () => {
       try {
@@ -59,7 +59,7 @@ export const useBookstores = (filters: UseBookstoresFilters = {}) => {
   });
   
   return {
-    bookstores: data || [],
+    bookshops: data || [],
     isLoading,
     isError,
     refetch
