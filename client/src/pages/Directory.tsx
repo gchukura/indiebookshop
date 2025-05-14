@@ -134,7 +134,7 @@ const Directory = () => {
       <div className="w-full bg-white">
         <div className="map-container relative" style={{ height: "550px" }}>
           <MapboxMap 
-            bookstores={filteredBookstores} 
+            bookstores={filteredBookshops} 
             onSelectBookshop={handleShowDetails}
           />
         </div>
@@ -145,7 +145,7 @@ const Directory = () => {
         {/* Filtering controls */}
         <div className="mb-6">
           <FilterControls 
-            bookshopCount={filteredBookstores.length}
+            bookshopCount={filteredBookshops.length}
             onStateChange={setSelectedState}
             onFeatureChange={setSelectedFeature}
             selectedState={selectedState}
@@ -169,7 +169,7 @@ const Directory = () => {
             <div className="text-center py-10">
               <p>Error loading bookshops. Please try again later.</p>
             </div>
-          ) : filteredBookstores.length === 0 ? (
+          ) : filteredBookshops.length === 0 ? (
             <div className="text-center py-10">
               <p>No bookshops found matching your criteria.</p>
               <Button 
