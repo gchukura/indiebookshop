@@ -33,13 +33,15 @@ const Home = () => {
             </p>
           </div>
           
-          {isLoading ? (
-            <div className="text-center py-10">
-              <p>Loading featured bookstores...</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {featuredBookstores.map((bookstore) => {
+          {/* Featured section with border */}
+          <div className="border-2 border-[#f7f3e8] rounded-lg p-8 mb-8 shadow-sm">
+            {isLoading ? (
+              <div className="text-center py-10">
+                <p>Loading featured bookstores...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {featuredBookstores.map((bookstore) => {
                 // Get feature names for this bookstore
                 const bookstoreFeatures = features?.filter(feature => 
                   bookstore.featureIds && bookstore.featureIds.includes(feature.id)
@@ -77,8 +79,9 @@ const Home = () => {
                   </div>
                 );
               })}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
           
           {/* "Explore All Bookstores" button removed */}
         </div>
