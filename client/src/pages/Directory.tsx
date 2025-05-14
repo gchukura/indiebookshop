@@ -25,7 +25,7 @@ const Directory = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const booksPerPage = 150;
+  const bookshopsPerPage = 150;
   
   // State for filters managed directly in this component
   const [selectedState, setSelectedState] = useState<string>("");
@@ -79,10 +79,10 @@ const Directory = () => {
     // Filter by search query if present
     if (searchQuery) {
       filtered = filtered.filter(
-        (bookstore) =>
-          bookstore.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (bookstore.city && bookstore.city.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (bookstore.state && bookstore.state.toLowerCase().includes(searchQuery.toLowerCase()))
+        (bookshop) =>
+          bookshop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (bookshop.city && bookshop.city.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (bookshop.state && bookshop.state.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
     
@@ -106,7 +106,7 @@ const Directory = () => {
   }, [view]);
 
   const handleShowDetails = (id: number) => {
-    setSelectedBookstoreId(id);
+    setSelectedBookshopId(id);
     setIsDetailOpen(true);
   };
 
@@ -114,11 +114,11 @@ const Directory = () => {
     setIsDetailOpen(false);
   };
 
-  // Get paginated bookstores
-  const indexOfLastBookstore = currentPage * booksPerPage;
-  const indexOfFirstBookstore = indexOfLastBookstore - booksPerPage;
-  const currentBookstores = filteredBookstores.slice(indexOfFirstBookstore, indexOfLastBookstore);
-  const totalPages = Math.ceil(filteredBookstores.length / booksPerPage);
+  // Get paginated bookshops
+  const indexOfLastBookshop = currentPage * bookshopsPerPage;
+  const indexOfFirstBookshop = indexOfLastBookshop - bookshopsPerPage;
+  const currentBookshops = filteredBookstores.slice(indexOfFirstBookshop, indexOfLastBookshop);
+  const totalPages = Math.ceil(filteredBookstores.length / bookshopsPerPage);
   
   // Handle page change
   const handlePageChange = (pageNumber: number) => {
@@ -181,7 +181,7 @@ const Directory = () => {
             </div>
           ) : (
             <BookshopTable 
-              bookstores={currentBookstores}
+              bookstores={currentBookshops}
               showDetails={handleShowDetails}
               currentPage={currentPage}
               totalPages={totalPages}
