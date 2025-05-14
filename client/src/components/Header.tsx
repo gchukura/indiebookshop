@@ -49,10 +49,10 @@ const Header = () => {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-24">
+        <div className="flex justify-between h-28">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <Logo height={65} showDotCom={true} />
+              <Logo height={80} showDotCom={true} />
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
               <div className="relative" ref={statesDropdownRef}>

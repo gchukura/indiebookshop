@@ -29,7 +29,7 @@ const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
         className="mr-2"
       >
         {/* Book stack */}
-        <g transform="translate(25, 15)">
+        <g transform="translate(20, 15)">
           {/* Bottom book */}
           <rect x="0" y="70" width="110" height="35" rx="3" ry="3" fill={LOGO_COLORS.BLUE} />
           
@@ -41,20 +41,20 @@ const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
         </g>
         
         {/* Company name */}
-        <g transform="translate(130, 87)">
+        <g transform="translate(150, 87)">
           {/* Indie */}
-          <text fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="45" fill={LOGO_COLORS.BLUE}>
+          <text fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="50" fill={LOGO_COLORS.BLUE}>
             Indie
           </text>
           
           {/* Bookshop */}
-          <text x="103" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="45" fill={LOGO_COLORS.ORANGE}>
+          <text x="110" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="50" fill={LOGO_COLORS.ORANGE}>
             Bookshop
           </text>
           
           {/* .com */}
           {showDotCom && (
-            <text x="315" fontFamily="Arial, sans-serif" fontWeight="normal" fontSize="25" fill={LOGO_COLORS.GRAY}>
+            <text x="340" fontFamily="Arial, sans-serif" fontWeight="normal" fontSize="28" fill={LOGO_COLORS.GRAY}>
               .com
             </text>
           )}
