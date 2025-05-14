@@ -27,9 +27,9 @@ const Events = () => {
   });
   
   // Get bookshop details by ID
-  const getBookshopName = (bookstoreId: number) => {
-    const bookstore = bookstores.find(b => b.id === bookstoreId);
-    return bookstore?.name || "Unknown Bookshop";
+  const getBookshopName = (bookshopId: number) => {
+    const bookshop = bookstores.find(b => b.id === bookshopId);
+    return bookshop?.name || "Unknown Bookshop";
   };
   
   // Navigate to previous month
