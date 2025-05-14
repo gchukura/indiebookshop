@@ -9,6 +9,11 @@ import BookstoreTable from "@/components/BookstoreTable";
 import { Button } from "@/components/ui/button";
 import { Bookstore } from "@shared/schema";
 
+// Type for bookstore with flexible featureIds handling
+type BookstoreWithFeatures = Bookstore & {
+  featureIds?: number[] | string | null;
+};
+
 const Directory = () => {
   const [view, setView] = useState<"map" | "list">("map");
   const [selectedBookstoreId, setSelectedBookstoreId] = useState<number | null>(null);
@@ -27,7 +32,7 @@ const Directory = () => {
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
   
   // Fetch all bookstores initially
-  const { data: allBookstores, isLoading, isError } = useQuery<Bookstore[]>({
+  const { data: allBookstores, isLoading, isError } = useQuery<BookstoreWithFeatures[]>({
     queryKey: ['bookstores'],
     queryFn: async () => {
       const response = await fetch('/api/bookstores');
@@ -50,21 +55,24 @@ const Directory = () => {
     // Filter by feature if selected
     if (selectedFeature) {
       filtered = filtered.filter(bookstore => {
-        // Handle different types of featureIds (array or string)
+        // Handle different types of featureIds
         if (!bookstore.featureIds) return false;
         
-        // Handle string format (comma-separated numbers)
+        // Convert feature IDs to an array of numbers
+        let featureIdArray: number[] = [];
+        
         if (typeof bookstore.featureIds === 'string') {
-          const ids = bookstore.featureIds.split(',').map(id => parseInt(id.trim()));
-          return ids.includes(selectedFeature);
+          // Handle string format "1,2,3"
+          const idStrings = bookstore.featureIds.split(',');
+          featureIdArray = idStrings
+            .map(idString => parseInt(idString.trim()))
+            .filter(id => !isNaN(id));
+        } else if (Array.isArray(bookstore.featureIds)) {
+          // Handle array format
+          featureIdArray = bookstore.featureIds;
         }
         
-        // Handle array format
-        if (Array.isArray(bookstore.featureIds)) {
-          return bookstore.featureIds.includes(selectedFeature);
-        }
-        
-        return false;
+        return featureIdArray.includes(selectedFeature);
       });
     }
     
