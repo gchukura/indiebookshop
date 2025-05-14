@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Bookstore, Feature, Event } from "@shared/schema";
+import { Bookstore as Bookshop, Feature, Event } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { X, Navigation } from "lucide-react";
 import SingleLocationMap from "./SingleLocationMap";
@@ -15,7 +15,7 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Fetch bookshop details
-  const { data: bookshop, isLoading: isLoadingBookshop } = useQuery<Bookstore>({
+  const { data: bookshop, isLoading: isLoadingBookshop } = useQuery<Bookshop>({
     queryKey: [`/api/bookstores/${bookshopId}`],
     enabled: isOpen && bookshopId > 0,
   });

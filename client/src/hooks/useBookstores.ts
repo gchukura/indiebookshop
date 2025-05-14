@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Bookstore } from "@shared/schema";
+import { Bookstore as Bookshop } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 
 interface UseBookstoresFilters {

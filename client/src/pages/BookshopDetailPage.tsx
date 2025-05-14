@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import { Bookstore, Feature, Event } from '@shared/schema';
+import { Bookstore as Bookshop, Feature, Event } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import SingleLocationMap from '@/components/SingleLocationMap';
 
@@ -18,7 +18,7 @@ const BookshopDetailPage = () => {
   }, [bookshopId, setLocation]);
 
   // Fetch bookshop details
-  const { data: bookshop, isLoading: isLoadingBookshop, isError: isErrorBookshop } = useQuery<Bookstore>({
+  const { data: bookshop, isLoading: isLoadingBookshop, isError: isErrorBookshop } = useQuery<Bookshop>({
     queryKey: [`/api/bookstores/${bookshopId}`],
     enabled: !isNaN(bookshopId),
   });
