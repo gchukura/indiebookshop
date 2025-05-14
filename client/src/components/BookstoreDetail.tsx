@@ -88,13 +88,13 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
             <div className="bg-[#F7F3E8]">
               <div className="relative h-64 md:h-96">
                 <img 
-                  src={bookstore.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400"}
-                  alt={`${bookstore.name} interior panorama`} 
+                  src={bookshop.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400"}
+                  alt={`${bookshop.name} interior panorama`} 
                   className="w-full h-full object-cover" 
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-                  <h2 className="text-white text-2xl md:text-3xl font-serif font-bold">{bookstore.name}</h2>
-                  <p className="text-white/90 text-sm md:text-base">{bookstore.city}, {bookstore.state}</p>
+                  <h2 className="text-white text-2xl md:text-3xl font-serif font-bold">{bookshop.name}</h2>
+                  <p className="text-white/90 text-sm md:text-base">{bookshop.city}, {bookshop.state}</p>
                 </div>
               </div>
               
@@ -102,7 +102,7 @@ const BookshopDetail = ({ bookstoreId, isOpen, onClose }: BookshopDetailProps) =
                 <div className="md:col-span-2">
                   <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
                     <h3 className="font-serif font-bold text-xl mb-4">About</h3>
-                    <p className="mb-4">{bookstore.description}</p>
+                    <p className="mb-4">{bookshop.description}</p>
                     
                     <div className="mt-6">
                       <h3 className="font-serif font-bold text-xl mb-4">Features & Specialties</h3>
