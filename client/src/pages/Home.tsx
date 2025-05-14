@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import Hero from "@/components/Hero";
 import { Bookstore, Feature } from "@shared/schema";
 import BookstoreIcon from "@/components/BookstoreIcon";
+import MapboxMap from "@/components/MapboxMap";
+import BookstoreDetail from "@/components/BookstoreDetail";
 
 const Home = () => {
   // Fetch all bookstores
@@ -22,6 +24,16 @@ const Home = () => {
   const [refreshCountdown, setRefreshCountdown] = useState(30);
   // State to show a brief animation when bookstores are refreshed
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // State for the interactive map
+  const [selectedBookstoreId, setSelectedBookstoreId] = useState<number | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  
+  // Handle bookstore selection from the map
+  const handleSelectBookstore = (id: number) => {
+    setSelectedBookstoreId(id);
+    setIsDetailOpen(true);
+  };
   
   // Function to get random bookstores
   const getRandomBookstores = useCallback(() => {
