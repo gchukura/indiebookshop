@@ -224,13 +224,13 @@ export class GoogleSheetsService {
       
       // Check if we have headers
       const headers = rows[0].map((header: string) => header.toLowerCase());
-      const hasHeaders = headers.includes('id') && headers.includes('bookstoreid');
+      const hasHeaders = headers.includes('id') && headers.includes('bookshopid');
       
       // If first row contains headers, skip it
       const dataRows = hasHeaders ? rows.slice(1) : rows;
       
       // Expected column structure based on user input:
-      // id, bookstoreId, title, description, date, time
+      // id, bookshopId, title, description, date, time
       
       // Convert rows to Event objects
       const events: Event[] = dataRows.map((row, index) => {
@@ -241,7 +241,7 @@ export class GoogleSheetsService {
           }
           
           const id = parseInt(row[0] || '0');
-          const bookstoreId = parseInt(row[1] || '0');
+          const bookshopId = parseInt(row[1] || '0');
           const title = row[2] || '';
           const description = row[3] || '';
           const date = row[4] || '';
@@ -249,7 +249,7 @@ export class GoogleSheetsService {
 
           return {
             id,
-            bookstoreId,
+            bookshopId,
             title,
             description,
             date,
@@ -269,10 +269,10 @@ export class GoogleSheetsService {
     }
   }
 
-  // Fetch events for a specific bookstore
-  async getEventsByBookstore(bookstoreId: number): Promise<Event[]> {
+  // Fetch events for a specific bookshop
+  async getEventsByBookshop(bookshopId: number): Promise<Event[]> {
     const allEvents = await this.getEvents();
-    return allEvents.filter(event => event.bookstoreId === bookstoreId);
+    return allEvents.filter(event => event.bookshopId === bookshopId);
   }
 }
 
