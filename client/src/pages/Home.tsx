@@ -135,14 +135,14 @@ const Home = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {featuredBookshops.map((bookstore) => {
-                    // Get feature names for this bookstore
-                    const bookstoreFeatures = features?.filter(feature => 
+                    // Get feature names for this bookshop
+                    const bookshopFeatures = features?.filter(feature => 
                       bookstore.featureIds && bookstore.featureIds.includes(feature.id)
                     ).slice(0, 3) || [];
                     
                     return (
                       <div key={bookstore.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
-                        <Link href={`/bookstore/${bookstore.id}`}>
+                        <Link href={`/bookshop/${bookstore.id}`}>
                           {bookstore.imageUrl ? (
                             <img 
                               src={bookstore.imageUrl} 
@@ -156,13 +156,13 @@ const Home = () => {
                           )}
                         </Link>
                         <div className="p-6">
-                          <Link href={`/bookstore/${bookstore.id}`}>
+                          <Link href={`/bookshop/${bookstore.id}`}>
                             <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D]">{bookstore.name}</h3>
                           </Link>
                           <p className="text-sm text-gray-600 mb-4">{bookstore.city}, {bookstore.state}</p>
                           <p className="text-gray-700 mb-4 line-clamp-3">{bookstore.description}</p>
                           <div className="flex flex-wrap gap-2 mb-4">
-                            {bookstoreFeatures.map(feature => (
+                            {bookshopFeatures.map(feature => (
                               <span key={feature.id} className="bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
                                 {feature.name}
                               </span>
@@ -305,9 +305,9 @@ const Home = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:flex lg:items-center lg:space-x-12">
             <div className="lg:w-1/2 mb-8 lg:mb-0">
-              <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">Why Support Independent Bookstores?</h2>
+              <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">Why Support Independent Bookshops?</h2>
               <p className="text-gray-700 mb-6">
-                Independent bookstores are vital cultural hubs that foster community connections, support local economies, and celebrate the diversity of literature. Each store has its own unique character, curated selection, and knowledgeable staff that big-box retailers can't match.
+                Independent bookshops are vital cultural hubs that foster community connections, support local economies, and celebrate the diversity of literature. Each shop has its own unique character, curated selection, and knowledgeable staff that big-box retailers can't match.
               </p>
               <p className="text-gray-700 mb-6">
                 By shopping at indie bookshops, you're not just buying books—you're investing in your community, supporting small businesses, and helping to maintain vibrant, diverse literary spaces for everyone.
