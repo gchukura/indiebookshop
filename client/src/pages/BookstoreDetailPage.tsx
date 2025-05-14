@@ -3,8 +3,7 @@ import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Bookstore, Feature, Event } from '@shared/schema';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Heart, Share2, MapPin, Navigation } from 'lucide-react';
+import { Navigation } from 'lucide-react';
 import SingleLocationMap from '@/components/SingleLocationMap';
 
 const BookstoreDetailPage = () => {
@@ -64,7 +63,7 @@ const BookstoreDetailPage = () => {
   }
 
   return (
-    <div className="bg-[#F7F3E8]">
+    <div className="bg-[#F7F3E8] min-h-screen">
       <div className="relative h-64 md:h-96">
         <img 
           src={bookstore.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400"}
@@ -72,7 +71,7 @@ const BookstoreDetailPage = () => {
           className="w-full h-full object-cover" 
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-          <div className="container mx-auto">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-white text-2xl md:text-4xl font-serif font-bold">{bookstore.name}</h1>
             <p className="text-white/90 text-sm md:text-base">{bookstore.city}, {bookstore.state}</p>
           </div>
@@ -181,21 +180,12 @@ const BookstoreDetailPage = () => {
             </div>
             
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="font-serif font-bold text-xl mb-4">Actions</h3>
-              <div className="space-y-3">
-                <Button variant="outline" className="w-full border border-gray-300 hover:bg-gray-50 text-dark py-2 rounded-md font-medium">
-                  <Heart className="h-4 w-4 mr-2" /> Save to Favorites
-                </Button>
-                <Button variant="outline" className="w-full border border-gray-300 hover:bg-gray-50 text-dark py-2 rounded-md font-medium">
-                  <Share2 className="h-4 w-4 mr-2" /> Share
-                </Button>
-                <Button 
-                  className="w-full bg-[#5F4B32] hover:bg-[#5F4B32]/90 text-white mt-4"
-                  onClick={() => setLocation('/directory')}
-                >
-                  Back to Directory
-                </Button>
-              </div>
+              <Button 
+                className="w-full bg-[#5F4B32] hover:bg-[#5F4B32]/90 text-white"
+                onClick={() => setLocation('/directory')}
+              >
+                Back to Directory
+              </Button>
             </div>
           </div>
         </div>
