@@ -3,7 +3,11 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 
 const Hero = () => {
-  const [_, setLocation] = useLocation();
+  const [_, navigate] = useLocation();
+
+  const handleFindBookstores = () => {
+    navigate('/directory');
+  };
 
   return (
     <section className="bg-[#5F4B32] text-white py-12 md:py-16">
@@ -17,7 +21,7 @@ const Hero = () => {
           </p>
           <div className="max-w-xl mx-auto">
             <Button 
-              onClick={() => setLocation('/directory')}
+              onClick={handleFindBookstores}
               className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white rounded-full px-8 py-6 text-lg"
             >
               Find Bookstores
