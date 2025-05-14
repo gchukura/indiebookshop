@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useSearch } from "wouter";
 import Hero from "@/components/Hero";
@@ -8,8 +8,6 @@ import MapboxMap from "@/components/MapboxMap";
 import BookstoreTable from "@/components/BookstoreTable";
 import { Button } from "@/components/ui/button";
 import { Bookstore } from "@shared/schema";
-import { useFilters } from "@/hooks/useFilters";
-import { useBookstores } from "@/hooks/useBookstores";
 
 const Directory = () => {
   const [view, setView] = useState<"map" | "list">("map");
@@ -24,18 +22,64 @@ const Directory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const booksPerPage = 150;
   
-  const { filters } = useFilters();
-  const { bookstores, isLoading, isError } = useBookstores(filters);
+  // State for filters managed directly in this component
+  const [selectedState, setSelectedState] = useState<string>("");
+  const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
   
-  // Filter bookstores by search query locally
-  const filteredBookstores = searchQuery
-    ? bookstores.filter(
+  // Fetch all bookstores initially
+  const { data: allBookstores, isLoading, isError } = useQuery<Bookstore[]>({
+    queryKey: ['bookstores'],
+    queryFn: async () => {
+      const response = await fetch('/api/bookstores');
+      if (!response.ok) {
+        throw new Error('Failed to fetch bookstores');
+      }
+      return response.json();
+    }
+  });
+  
+  // Apply filtering logic
+  const filteredBookstores = useMemo(() => {
+    let filtered = allBookstores || [];
+    
+    // Filter by state if selected
+    if (selectedState) {
+      filtered = filtered.filter(bookstore => bookstore.state === selectedState);
+    }
+    
+    // Filter by feature if selected
+    if (selectedFeature) {
+      filtered = filtered.filter(bookstore => {
+        // Handle different types of featureIds (array or string)
+        if (!bookstore.featureIds) return false;
+        
+        // Handle string format (comma-separated numbers)
+        if (typeof bookstore.featureIds === 'string') {
+          const ids = bookstore.featureIds.split(',').map(id => parseInt(id.trim()));
+          return ids.includes(selectedFeature);
+        }
+        
+        // Handle array format
+        if (Array.isArray(bookstore.featureIds)) {
+          return bookstore.featureIds.includes(selectedFeature);
+        }
+        
+        return false;
+      });
+    }
+    
+    // Filter by search query if present
+    if (searchQuery) {
+      filtered = filtered.filter(
         (bookstore) =>
           bookstore.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          bookstore.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          bookstore.state.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : bookstores;
+          (bookstore.city && bookstore.city.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (bookstore.state && bookstore.state.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+    
+    return filtered;
+  }, [allBookstores, selectedState, selectedFeature, searchQuery]);
 
   // Set view from URL parameter on initial load
   useEffect(() => {
@@ -94,6 +138,10 @@ const Directory = () => {
         <div className="mb-6">
           <FilterControls 
             bookstoreCount={filteredBookstores.length}
+            onStateChange={setSelectedState}
+            onFeatureChange={setSelectedFeature}
+            selectedState={selectedState}
+            selectedFeature={selectedFeature}
           />
         </div>
         

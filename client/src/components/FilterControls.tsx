@@ -7,17 +7,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useFilters } from "@/hooks/useFilters";
 import { Feature } from "@shared/schema";
 
 interface FilterControlsProps {
   bookstoreCount: number;
+  onStateChange: (state: string) => void;
+  onFeatureChange: (featureId: number | null) => void;
+  selectedState: string;
+  selectedFeature: number | null;
 }
 
-const FilterControls = ({ bookstoreCount }: FilterControlsProps) => {
-  const { filters, updateFilters } = useFilters();
+const FilterControls = ({ 
+  bookstoreCount, 
+  onStateChange,
+  onFeatureChange,
+  selectedState, 
+  selectedFeature 
+}: FilterControlsProps) => {
   const [states, setStates] = useState<string[]>([]);
-  const [cities, setCities] = useState<string[]>([]);
 
   // Fetch all states with bookstores
   const { data: statesData } = useQuery<string[]>({
@@ -29,47 +36,24 @@ const FilterControls = ({ bookstoreCount }: FilterControlsProps) => {
     queryKey: ["/api/features"],
   });
 
-  // Fetch cities when state changes
-  const { data: citiesData } = useQuery<string[]>({
-    queryKey: ["/api/states", filters.state, "cities"],
-    enabled: !!filters.state,
-  });
-
   useEffect(() => {
     if (statesData) {
       setStates(statesData);
     }
   }, [statesData]);
 
-  useEffect(() => {
-    if (citiesData) {
-      setCities(citiesData);
-    } else {
-      setCities([]);
-    }
-  }, [citiesData]);
-
   const handleStateChange = (value: string) => {
-    updateFilters({ 
-      state: value === "all" ? "" : value, 
-      city: "" // Reset city when state changes
-    });
-  };
-
-  const handleCityChange = (value: string) => {
-    updateFilters({ city: value === "all" ? "" : value });
+    onStateChange(value === "all" ? "" : value);
   };
 
   const handleFeatureChange = (value: string) => {
     if (value === "all") {
-      updateFilters({ featureIds: [] });
+      onFeatureChange(null);
       return;
     }
     
     const featureId = parseInt(value);
-    updateFilters({ 
-      featureIds: featureId ? [featureId] : [] 
-    });
+    onFeatureChange(featureId || null);
   };
 
   return (
