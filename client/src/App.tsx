@@ -10,6 +10,7 @@ import StateDirectory from "@/pages/StateDirectory";
 import CityDirectory from "@/pages/CityDirectory";
 import CategoryDirectory from "@/pages/CategoryDirectory";
 import StatesListPage from "@/pages/StatesListPage";
+import CitiesListPage from "@/pages/CitiesListPage";
 import BookstoreDetailPage from "@/pages/BookstoreDetailPage";
 import SubmitBookstore from "@/pages/SubmitBookstore";
 import Header from "@/components/Header";
@@ -25,6 +26,7 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/directory" component={Directory} />
           <Route path="/directory/browse" component={StatesListPage} />
+          <Route path="/directory/cities" component={CitiesListPage} />
           <Route path="/directory/state/:state" component={StateDirectory} />
           <Route path="/directory/city/:city" component={CityDirectory} />
           <Route path="/directory/category/:featureId" component={CategoryDirectory} />
