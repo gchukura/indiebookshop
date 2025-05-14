@@ -45,27 +45,27 @@ const METRO_AREAS = {
 const CitiesListPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Fetch bookstore data (we'll use this to count bookstores per city)
-  const { data: bookstores = [], isLoading } = useQuery<Bookstore[]>({
+  // Fetch bookshop data (we'll use this to count bookshops per city)
+  const { data: bookshops = [], isLoading } = useQuery<Bookstore[]>({
     queryKey: ["/api/bookstores"],
   });
   
-  // Function to count bookstores for a given city
-  const getBookstoreCount = (city: string) => {
-    return bookstores.filter((b: Bookstore) => b.city?.toLowerCase() === city.toLowerCase()).length;
+  // Function to count bookshops for a given city
+  const getBookshopCount = (city: string) => {
+    return bookshops.filter((b: Bookstore) => b.city?.toLowerCase() === city.toLowerCase()).length;
   };
   
-  // Get all metro areas with at least one bookstore
-  const metroAreasWithBookstores = Object.entries(METRO_AREAS).reduce((acc, [region, cities]) => {
-    const citiesWithBookstores = cities.filter(city => getBookstoreCount(city.name) > 0);
-    if (citiesWithBookstores.length > 0) {
-      acc[region] = citiesWithBookstores;
+  // Get all metro areas with at least one bookshop
+  const metroAreasWithBookshops = Object.entries(METRO_AREAS).reduce((acc, [region, cities]) => {
+    const citiesWithBookshops = cities.filter(city => getBookshopCount(city.name) > 0);
+    if (citiesWithBookshops.length > 0) {
+      acc[region] = citiesWithBookshops;
     }
     return acc;
   }, {} as Record<string, Array<{name: string, state: string}>>);
   
   // Combine all cities for search
-  const allCities = Object.values(metroAreasWithBookstores).flat();
+  const allCities = Object.values(metroAreasWithBookshops).flat();
   
   // Filter cities based on search query
   const filteredCities = searchQuery 

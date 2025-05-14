@@ -130,7 +130,7 @@ const StatesListPage = () => {
           By State
         </h1>
         <p className="text-gray-600 mb-6">
-          Find independent bookstores across the United States and Canada. Select a state to see all the bookstores in that area.
+          Find independent bookshops across the United States and Canada. Select a state to see all the bookshops in that area.
         </p>
       </div>
 
