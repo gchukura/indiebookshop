@@ -2,8 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Bookstore, Feature, Event } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { X, MapPin, Heart, Share2, Flag, Navigation } from "lucide-react";
+import { X, Navigation } from "lucide-react";
 import SingleLocationMap from "./SingleLocationMap";
 
 interface BookstoreDetailProps {
@@ -212,20 +211,7 @@ const BookstoreDetail = ({ bookstoreId, isOpen, onClose }: BookstoreDetailProps)
                     </div>
                   </div>
                   
-                  <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="font-serif font-bold text-xl mb-4">Actions</h3>
-                    <div className="space-y-3">
-                      <Button variant="outline" className="w-full border border-gray-300 hover:bg-gray-50 text-dark py-2 rounded-md font-medium">
-                        <Heart className="h-4 w-4 mr-2" /> Save to Favorites
-                      </Button>
-                      <Button variant="outline" className="w-full border border-gray-300 hover:bg-gray-50 text-dark py-2 rounded-md font-medium">
-                        <Share2 className="h-4 w-4 mr-2" /> Share
-                      </Button>
-                      <Button variant="outline" className="w-full border border-gray-300 hover:bg-gray-50 text-dark py-2 rounded-md font-medium">
-                        <Flag className="h-4 w-4 mr-2" /> Report Issue
-                      </Button>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </div>
