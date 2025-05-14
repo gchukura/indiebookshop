@@ -148,13 +148,10 @@ const Home = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">Browse by State</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Find independent bookstores in your state or explore literary havens across the country.
-            </p>
           </div>
           
-          {/* States List - simple 5 column layout */}
-          <div className="bg-white rounded-lg p-8 shadow-sm">
+          {/* States List - simple 5 column layout without white background */}
+          <div className="p-2">
             {/* Fetch states from API instead of hardcoded list */}
             {isLoading ? (
               <div className="text-center py-6">
