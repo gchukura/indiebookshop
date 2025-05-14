@@ -9,7 +9,7 @@ import BookshopDetail from "@/components/BookshopDetail";
 
 const Home = () => {
   // Fetch all bookshops
-  const { data: bookstores, isLoading } = useQuery<Bookstore[]>({
+  const { data: bookshops, isLoading } = useQuery<Bookstore[]>({
     queryKey: ["/api/bookstores"],
   });
 
@@ -37,10 +37,10 @@ const Home = () => {
   
   // Function to get random bookshops
   const getRandomBookshops = useCallback(() => {
-    if (!bookstores || bookstores.length === 0) return [];
+    if (!bookshops || bookshops.length === 0) return [];
     
-    // Make a copy of the bookstores array to avoid mutating the original
-    const shuffled = [...bookstores];
+    // Make a copy of the bookshops array to avoid mutating the original
+    const shuffled = [...bookshops];
     
     // Fisher-Yates shuffle algorithm
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -50,14 +50,14 @@ const Home = () => {
     
     // Return the first 3 bookshops
     return shuffled.slice(0, 3);
-  }, [bookstores]);
+  }, [bookshops]);
   
   // Set initial featured bookshops when data is loaded
   useEffect(() => {
-    if (bookstores && bookstores.length > 0) {
+    if (bookshops && bookshops.length > 0) {
       setFeaturedBookshops(getRandomBookshops());
     }
-  }, [bookstores, getRandomBookshops]);
+  }, [bookshops, getRandomBookshops]);
   
   // Update featured bookshops periodically (every 30 seconds)
   useEffect(() => {
