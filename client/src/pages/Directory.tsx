@@ -5,7 +5,7 @@ import Hero from "@/components/Hero";
 import FilterControls from "@/components/FilterControls";
 import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
-import BookshopTable from "@/components/BookstoreTable";
+import BookshopTable from "@/components/BookshopTable";
 import { Button } from "@/components/ui/button";
 import { Bookstore } from "@shared/schema";
 
@@ -181,7 +181,7 @@ const Directory = () => {
             </div>
           ) : (
             <BookshopTable 
-              bookstores={currentBookshops}
+              bookshops={currentBookshops}
               showDetails={handleShowDetails}
               currentPage={currentPage}
               totalPages={totalPages}
