@@ -178,15 +178,6 @@ const BookstoreDetailPage = () => {
                 </Button>
               </div>
             </div>
-            
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <Button 
-                className="w-full bg-[#5F4B32] hover:bg-[#5F4B32]/90 text-white"
-                onClick={() => setLocation('/directory')}
-              >
-                Back to Directory
-              </Button>
-            </div>
           </div>
         </div>
       </div>
