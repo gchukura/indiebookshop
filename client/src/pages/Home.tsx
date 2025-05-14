@@ -25,16 +25,17 @@ const Home = () => {
       {/* Featured Bookstores Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">Featured Bookstores</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Discover these unique independent bookshops that offer exceptional
-              literary experiences across the United States.
-            </p>
-          </div>
           
           {/* Featured section with border */}
-          <div className="border-2 border-[#f7f3e8] rounded-lg p-8 mb-8 shadow-sm">
+          <div className="border-4 border-[#2A6B7C] rounded-lg p-8 mb-8 shadow-sm">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">Featured Bookstores</h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Discover these unique independent bookshops that offer exceptional
+                literary experiences across the United States.
+              </p>
+            </div>
+            
             {isLoading ? (
               <div className="text-center py-10">
                 <p>Loading featured bookstores...</p>

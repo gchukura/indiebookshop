@@ -9,7 +9,7 @@ interface BookstoreIconProps {
 const BookstoreIcon: React.FC<BookstoreIconProps> = ({ size = 150, className = '' }) => {
   // Use secondary color from the theme (teal) for a clean, minimalist look
   const iconColor = COLORS.secondary;
-  const textLineColor = `${iconColor}40`; // 25% opacity version of the icon color
+  const textLineColor = iconColor; // Using same color as the icon outline
   
   return (
     <svg
@@ -39,7 +39,7 @@ const BookstoreIcon: React.FC<BookstoreIconProps> = ({ size = 150, className = '
       </g>
       
       {/* Fake text lines - left page */}
-      <g stroke={textLineColor} strokeWidth="2" strokeLinecap="round">
+      <g stroke={textLineColor} strokeWidth="1.5" strokeLinecap="round">
         <path d="M50,80 L90,73" />
         <path d="M50,90 L90,83" />
         <path d="M50,100 L90,93" />
@@ -47,7 +47,7 @@ const BookstoreIcon: React.FC<BookstoreIconProps> = ({ size = 150, className = '
       </g>
       
       {/* Fake text lines - right page */}
-      <g stroke={textLineColor} strokeWidth="2" strokeLinecap="round">
+      <g stroke={textLineColor} strokeWidth="1.5" strokeLinecap="round">
         <path d="M110,73 L150,80" />
         <path d="M110,83 L150,90" />
         <path d="M110,93 L150,100" />
