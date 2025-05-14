@@ -14,12 +14,12 @@ const CityDirectory = () => {
   const [view, setView] = useState<"map" | "list">("map");
   
   // Fetch bookshops for this city
-  const { data: bookstores = [], isLoading, isError } = useQuery<Bookstore[]>({
+  const { data: bookshops = [], isLoading, isError } = useQuery<Bookstore[]>({
     queryKey: [`/api/bookstores/filter?city=${city}`],
   });
 
   // Get state from the first bookshop (assuming all bookshops in a city are in the same state)
-  const state = bookstores.length > 0 ? bookstores[0].state : '';
+  const state = bookshops.length > 0 ? bookshops[0].state : '';
 
   const handleShowDetails = (id: number) => {
     setSelectedBookshopId(id);
@@ -80,7 +80,7 @@ const CityDirectory = () => {
           <div className="w-full md:w-1/2 mb-6 md:mb-0">
             <div className="bg-white rounded-lg shadow-md overflow-hidden map-container relative" style={{ height: "600px" }}>
               <MapboxMap 
-                bookstores={bookstores} 
+                bookstores={bookshops} 
                 onSelectBookshop={handleShowDetails}
               />
             </div>
@@ -91,7 +91,7 @@ const CityDirectory = () => {
         <div className={`w-full ${view === "map" ? "md:w-1/2" : "md:w-full"}`}>
           <div className="bg-white rounded-lg shadow-md p-4">
             <h2 className="text-xl font-medium mb-4">
-              {bookstores.length} Bookshops in {city}
+              {bookshops.length} Bookshops in {city}
             </h2>
             
             {isLoading ? (
