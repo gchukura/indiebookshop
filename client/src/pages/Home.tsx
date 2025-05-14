@@ -153,21 +153,52 @@ const Home = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {/* This would dynamically populate from API data in production */}
-            {["California", "New York", "Texas", "Oregon", "Washington", "Colorado", "Massachusetts", "Illinois", "Florida", "Pennsylvania"].map((state) => (
-              <Link key={state} href={`/directory?state=${state}`}>
-                <div className="bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-shadow duration-200">
-                  <span className="font-serif font-medium text-[#5F4B32]">{state}</span>
-                </div>
-              </Link>
-            ))}
-            
-            <Link href="/directory">
-              <div className="bg-[#E16D3D]/10 rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-shadow duration-200">
-                <span className="font-serif font-medium text-[#E16D3D]">View All States</span>
+          {/* States List with organized layout */}
+          <div className="bg-white rounded-lg p-8 shadow-sm">
+            {/* Fetch states from API instead of hardcoded list */}
+            {isLoading ? (
+              <div className="text-center py-6">
+                <p>Loading states...</p>
               </div>
-            </Link>
+            ) : (
+              <div className="flex flex-wrap justify-center">
+                {/* Get all unique states from bookstores array, organize alphabetically */}
+                {bookstores && (() => {
+                  // Get unique states and sort them
+                  const states = Array.from(new Set(bookstores.map(b => b.state)))
+                    .filter(state => state) // Filter out null/undefined
+                    .sort();
+                  
+                  // Group states by first letter for organized display
+                  const statesByLetter: {[key: string]: string[]} = {};
+                  states.forEach(state => {
+                    const firstLetter = state.charAt(0).toUpperCase();
+                    if (!statesByLetter[firstLetter]) {
+                      statesByLetter[firstLetter] = [];
+                    }
+                    statesByLetter[firstLetter].push(state);
+                  });
+                  
+                  // Return the JSX with organized groups
+                  return Object.keys(statesByLetter).sort().map(letter => (
+                    <div key={letter} className="m-2 p-3 min-w-[180px]">
+                      <div className="text-lg font-bold text-[#5F4B32] mb-2 pb-1 border-b border-[#5F4B32]/20">
+                        {letter}
+                      </div>
+                      <div className="flex flex-col space-y-2">
+                        {statesByLetter[letter].map(state => (
+                          <Link key={state} href={`/directory?state=${state}`}>
+                            <span className="inline-block font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
+                              {state}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                })()}
+              </div>
+            )}
           </div>
         </div>
       </section>
