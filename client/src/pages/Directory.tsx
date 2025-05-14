@@ -135,7 +135,7 @@ const Directory = () => {
         <div className="map-container relative" style={{ height: "550px" }}>
           <MapboxMap 
             bookstores={filteredBookstores} 
-            onSelectBookstore={handleShowDetails}
+            onSelectBookshop={handleShowDetails}
           />
         </div>
       </div>
