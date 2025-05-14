@@ -4,7 +4,7 @@ import { Facebook, Twitter, Instagram } from "lucide-react";
 const Footer = () => {
 
   return (
-    <footer className="bg-[#2A6B7C] text-white py-8">
+    <footer className="bg-[#5F4B32] text-white py-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="border-white/20 pt-2 text-center">
           <p className="mb-3">&copy; {new Date().getFullYear()} IndiebookShop. All rights reserved.</p>
