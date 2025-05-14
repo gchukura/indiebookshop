@@ -13,7 +13,7 @@ const BlogPlaceholder = () => {
         </blockquote>
         <p className="text-[#2A6B7C] font-medium text-lg">— Abraham Lincoln</p>
         <p className="mt-6 text-gray-600">
-          We're working on some amazing articles about independent bookstores. 
+          We're working on some amazing articles about independent bookshops. 
           Check back soon!
         </p>
       </div>
@@ -74,19 +74,19 @@ const Blog = () => {
   const placeholderArticles = [
     {
       id: 1,
-      title: "The Magic of Independent Bookstores",
+      title: "The Magic of Independent Bookshops",
       excerpt: "Discover why indie bookshops create unique reading experiences in a digital age.",
       imageUrl: ""
     },
     {
       id: 2,
       title: "5 Hidden Literary Gems in Small Towns",
-      excerpt: "These charming bookstores in unexpected locations are worth the journey for any book lover.",
+      excerpt: "These charming bookshops in unexpected locations are worth the journey for any book lover.",
       imageUrl: ""
     },
     {
       id: 3,
-      title: "How Bookstore Cats Became a Tradition",
+      title: "How Bookshop Cats Became a Tradition",
       excerpt: "The delightful history behind the feline residents of your favorite indie bookshops.",
       imageUrl: ""
     },
@@ -105,7 +105,7 @@ const Blog = () => {
           Bookshop Blog
         </h1>
         <p className="text-gray-600 mb-8">
-          Stories, interviews, and insights from the world of independent bookstores.
+          Stories, interviews, and insights from the world of independent bookshops.
         </p>
         
         {/* Placeholder with mascot while no articles exist */}

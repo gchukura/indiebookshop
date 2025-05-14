@@ -38,7 +38,7 @@ const Footer = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-serif font-bold mb-3">Join Our Literary Community</h2>
           <p className="text-base opacity-90 max-w-2xl mx-auto mb-4">
-            Connect with fellow book lovers, stay updated on bookstore events, and discover new independent bookshops.
+            Connect with fellow book lovers, stay updated on bookshop events, and discover new independent bookshops.
           </p>
           <div className="max-w-md mx-auto">
             <form className="flex flex-col sm:flex-row gap-2 justify-center items-stretch" onSubmit={handleSubscribe}>
