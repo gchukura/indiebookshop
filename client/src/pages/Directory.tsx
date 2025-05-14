@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation, useSearch } from "wouter";
 import Hero from "@/components/Hero";
 import FilterControls from "@/components/FilterControls";
-import BookshopDetail from "@/components/BookstoreDetail";
+import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
 import BookshopTable from "@/components/BookstoreTable";
 import { Button } from "@/components/ui/button";

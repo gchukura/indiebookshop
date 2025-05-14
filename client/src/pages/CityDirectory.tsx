@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Bookstore } from "@shared/schema";
 import BookstoreCard from "@/components/BookstoreCard";
-import BookshopDetail from "@/components/BookstoreDetail";
+import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
 import { Button } from "@/components/ui/button";
 

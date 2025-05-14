@@ -5,7 +5,7 @@ import { Bookstore, Feature, Event } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import SingleLocationMap from '@/components/SingleLocationMap';
 
-const BookstoreDetailPage = () => {
+const BookshopDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [_, setLocation] = useLocation();
   const bookstoreId = parseInt(id);
@@ -42,7 +42,7 @@ const BookstoreDetailPage = () => {
   if (isLoadingBookstore) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <p>Loading bookstore details...</p>
+        <p>Loading bookshop details...</p>
       </div>
     );
   }
@@ -180,4 +180,4 @@ const BookstoreDetailPage = () => {
   );
 };
 
-export default BookstoreDetailPage;
+export default BookshopDetailPage;

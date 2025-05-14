@@ -5,7 +5,7 @@ import Hero from "@/components/Hero";
 import { Bookstore, Feature } from "@shared/schema";
 import BookshopIcon from "@/components/BookstoreIcon";
 import MapboxMap from "@/components/MapboxMap";
-import BookshopDetail from "@/components/BookstoreDetail";
+import BookshopDetail from "@/components/BookshopDetail";
 
 const Home = () => {
   // Fetch all bookshops
