@@ -3,15 +3,15 @@ import { Book } from "lucide-react";
 
 const BlogPlaceholder = () => {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 bg-[#F7F3E8] rounded-lg text-center">
-      <div className="mb-6">
+    <div className="flex flex-col md:flex-row items-center justify-center py-16 px-4 bg-[#F7F3E8] rounded-lg text-center md:text-left gap-10">
+      <div className="mb-6 md:mb-0 md:w-1/4 flex justify-center">
         <BookWormMascot />
       </div>
-      <div className="max-w-md">
-        <blockquote className="italic text-xl mb-4 text-[#5F4B32] font-serif">
+      <div className="md:w-3/4 max-w-xl">
+        <blockquote className="italic text-2xl md:text-3xl mb-4 text-[#5F4B32] font-serif leading-relaxed">
           "Better to remain silent and be thought a fool than to speak and remove all doubt."
         </blockquote>
-        <p className="text-[#2A6B7C] font-medium">— Abraham Lincoln</p>
+        <p className="text-[#2A6B7C] font-medium text-lg">— Abraham Lincoln</p>
         <p className="mt-6 text-gray-600">
           We're working on some amazing articles about independent bookstores. 
           Check back soon!
@@ -24,44 +24,44 @@ const BlogPlaceholder = () => {
 // Cartoonish Book Worm Mascot component
 const BookWormMascot = () => {
   return (
-    <div className="relative">
+    <div className="relative w-40 h-40 transform scale-90">
       {/* Worm body */}
       <div className="relative">
         {/* Worm head */}
-        <div className="w-32 h-32 bg-[#7AB87A] rounded-full relative">
+        <div className="w-28 h-28 bg-[#7AB87A] rounded-full relative">
           {/* Eyes */}
-          <div className="absolute top-8 left-6 w-6 h-6 bg-white rounded-full">
-            <div className="absolute top-1 left-1 w-3 h-3 bg-black rounded-full"></div>
+          <div className="absolute top-7 left-5 w-5 h-5 bg-white rounded-full">
+            <div className="absolute top-1 left-1 w-2.5 h-2.5 bg-black rounded-full"></div>
           </div>
-          <div className="absolute top-8 right-6 w-6 h-6 bg-white rounded-full">
-            <div className="absolute top-1 left-1 w-3 h-3 bg-black rounded-full"></div>
+          <div className="absolute top-7 right-5 w-5 h-5 bg-white rounded-full">
+            <div className="absolute top-1 left-1 w-2.5 h-2.5 bg-black rounded-full"></div>
           </div>
           
           {/* Smile */}
-          <div className="absolute bottom-9 left-1/2 transform -translate-x-1/2 w-16 h-6 border-b-4 border-black rounded-b-full"></div>
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-14 h-5 border-b-3 border-black rounded-b-full"></div>
           
           {/* Reading glasses */}
-          <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-24 h-2 bg-[#B85C38]"></div>
-          <div className="absolute top-6 left-4 w-8 h-8 border-2 border-[#B85C38] rounded-full"></div>
-          <div className="absolute top-6 right-4 w-8 h-8 border-2 border-[#B85C38] rounded-full"></div>
+          <div className="absolute top-7 left-1/2 transform -translate-x-1/2 w-20 h-1.5 bg-[#B85C38]"></div>
+          <div className="absolute top-5 left-4 w-7 h-7 border-2 border-[#B85C38] rounded-full"></div>
+          <div className="absolute top-5 right-4 w-7 h-7 border-2 border-[#B85C38] rounded-full"></div>
         </div>
         
         {/* Worm body segments */}
-        <div className="w-24 h-24 bg-[#8BC48B] rounded-full absolute -bottom-8 left-4"></div>
-        <div className="w-20 h-20 bg-[#9BD09B] rounded-full absolute -bottom-14 left-12"></div>
+        <div className="w-20 h-20 bg-[#8BC48B] rounded-full absolute -bottom-6 left-4"></div>
+        <div className="w-16 h-16 bg-[#9BD09B] rounded-full absolute -bottom-12 left-10"></div>
         
         {/* Books that the worm is reading */}
-        <div className="absolute -top-4 -right-12 transform -rotate-12">
-          <div className="w-16 h-20 bg-[#2A6B7C] rounded-r-sm relative">
-            <div className="absolute left-0 top-0 bottom-0 w-2 bg-[#235A69]"></div>
-            <div className="absolute left-4 top-4 right-2 h-2 bg-[#F7F3E8]"></div>
-            <div className="absolute left-4 top-8 right-2 h-2 bg-[#F7F3E8]"></div>
-            <div className="absolute left-4 top-12 right-2 h-2 bg-[#F7F3E8]"></div>
+        <div className="absolute -top-4 -right-8 transform -rotate-12">
+          <div className="w-14 h-16 bg-[#2A6B7C] rounded-r-sm relative">
+            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#235A69]"></div>
+            <div className="absolute left-3 top-3 right-2 h-1.5 bg-[#F7F3E8]"></div>
+            <div className="absolute left-3 top-6 right-2 h-1.5 bg-[#F7F3E8]"></div>
+            <div className="absolute left-3 top-9 right-2 h-1.5 bg-[#F7F3E8]"></div>
           </div>
-          <div className="w-16 h-16 bg-[#E16D3D] rounded-r-sm absolute -top-4 -right-4 transform -rotate-6">
-            <div className="absolute left-0 top-0 bottom-0 w-2 bg-[#C6582B]"></div>
-            <div className="absolute left-4 top-4 right-2 h-2 bg-[#F7F3E8]"></div>
-            <div className="absolute left-4 top-8 right-2 h-2 bg-[#F7F3E8]"></div>
+          <div className="w-14 h-14 bg-[#E16D3D] rounded-r-sm absolute -top-3 -right-3 transform -rotate-6">
+            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#C6582B]"></div>
+            <div className="absolute left-3 top-3 right-2 h-1.5 bg-[#F7F3E8]"></div>
+            <div className="absolute left-3 top-6 right-2 h-1.5 bg-[#F7F3E8]"></div>
           </div>
         </div>
       </div>
