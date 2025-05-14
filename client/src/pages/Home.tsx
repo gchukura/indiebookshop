@@ -98,16 +98,16 @@ const Home = () => {
             {/* This would dynamically populate from API data in production */}
             {["California", "New York", "Texas", "Oregon", "Washington", "Colorado", "Massachusetts", "Illinois", "Florida", "Pennsylvania"].map((state) => (
               <Link key={state} href={`/directory?state=${state}`}>
-                <a className="bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-shadow duration-200">
                   <span className="font-serif font-medium text-[#5F4B32]">{state}</span>
-                </a>
+                </div>
               </Link>
             ))}
             
             <Link href="/directory">
-              <a className="bg-[#E16D3D]/10 rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="bg-[#E16D3D]/10 rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-shadow duration-200">
                 <span className="font-serif font-medium text-[#E16D3D]">View All States</span>
-              </a>
+              </div>
             </Link>
           </div>
         </div>
