@@ -42,21 +42,7 @@ const METRO_AREAS = {
   ]
 };
 
-// Additional popular cities - will be used to populate other cities section
-const POPULAR_CITIES = [
-  { name: "Nashville", state: "TN" },
-  { name: "Pittsburgh", state: "PA" },
-  { name: "Santa Fe", state: "NM" },
-  { name: "Durham", state: "NC" },
-  { name: "Ann Arbor", state: "MI" },
-  { name: "Madison", state: "WI" },
-  { name: "Boulder", state: "CO" },
-  { name: "Asheville", state: "NC" },
-  { name: "Berkeley", state: "CA" },
-  { name: "Cambridge", state: "MA" },
-  { name: "Iowa City", state: "IA" },
-  { name: "Providence", state: "RI" }
-];
+// We'll dynamically populate notable literary cities based on bookstore count
 
 const CitiesListPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -72,17 +58,61 @@ const CitiesListPage = () => {
   };
   
   // Function to filter cities based on search query
-  const filterCities = (cities: typeof POPULAR_CITIES) => {
+  const filterCities = (cities: Array<{name: string, state: string}>) => {
     if (!searchQuery) return cities;
-    return cities.filter(city => 
+    return cities.filter((city: {name: string, state: string}) => 
       city.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
   
+  // Get all metro areas with at least one bookstore
+  const metroAreasWithBookstores = Object.entries(METRO_AREAS).reduce((acc, [region, cities]) => {
+    const citiesWithBookstores = cities.filter(city => getBookstoreCount(city.name) > 0);
+    if (citiesWithBookstores.length > 0) {
+      acc[region] = citiesWithBookstores;
+    }
+    return acc;
+  }, {} as Record<string, Array<{name: string, state: string}>>);
+  
+  // Find literary cities (cities with 3+ bookstores that aren't in metro areas)
+  const getNotableLiteraryCities = () => {
+    const metroAreaNames = new Set(
+      Object.values(METRO_AREAS).flat().map(city => city.name.toLowerCase())
+    );
+    
+    // Get all cities from bookstores
+    const cityMap = new Map<string, {count: number, state: string}>();
+    
+    bookstores.forEach(bookstore => {
+      if (bookstore.city && bookstore.state) {
+        const cityKey = bookstore.city.toLowerCase();
+        if (!metroAreaNames.has(cityKey)) {
+          const existing = cityMap.get(cityKey);
+          if (existing) {
+            existing.count += 1;
+          } else {
+            cityMap.set(cityKey, { count: 1, state: bookstore.state });
+          }
+        }
+      }
+    });
+    
+    // Convert to array and filter for cities with 3+ bookstores
+    return Array.from(cityMap.entries())
+      .filter(([_, data]) => data.count >= 3)
+      .map(([cityName, data]) => ({ 
+        name: cityName.charAt(0).toUpperCase() + cityName.slice(1), 
+        state: data.state 
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  };
+  
+  const notableLiteraryCities = getNotableLiteraryCities();
+  
   // Combine all cities for search
   const allCities = [
-    ...Object.values(METRO_AREAS).flat(),
-    ...POPULAR_CITIES
+    ...Object.values(metroAreasWithBookstores).flat(),
+    ...notableLiteraryCities
   ];
   
   const filteredCities = searchQuery ? filterCities(allCities) : null;
@@ -117,24 +147,24 @@ const CitiesListPage = () => {
           </h2>
           {filteredCities && filteredCities.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {filteredCities.map((city, index) => (
-                <Link 
-                  key={`${city.name}-${index}`} 
-                  href={`/directory/city/${city.name}`}
-                >
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start font-medium hover:bg-[#2A6B7C]/5 hover:text-[#2A6B7C] hover:border-[#2A6B7C] transition-colors"
+              {filteredCities
+                .filter(city => getBookstoreCount(city.name) > 0)
+                .map((city, index) => (
+                  <Link 
+                    key={`${city.name}-${index}`} 
+                    href={`/directory/city/${city.name}`}
                   >
-                    {city.name}, {city.state}
-                    {!isLoading && (
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start font-medium hover:bg-[#2A6B7C]/5 hover:text-[#2A6B7C] hover:border-[#2A6B7C] transition-colors"
+                    >
+                      {city.name}, {city.state}
                       <span className="ml-auto text-xs bg-[#F7F3E8] text-[#5F4B32] px-2 py-0.5 rounded-full">
                         {getBookstoreCount(city.name)}
                       </span>
-                    )}
-                  </Button>
-                </Link>
-              ))}
+                    </Button>
+                  </Link>
+                ))}
             </div>
           ) : (
             <p>No cities found matching "{searchQuery}"</p>
@@ -143,13 +173,45 @@ const CitiesListPage = () => {
       ) : (
         <div className="space-y-8">
           {/* Major Metro Areas by Region */}
-          {Object.keys(METRO_AREAS).map(region => (
+          {Object.keys(metroAreasWithBookstores).map(region => (
             <div key={region} className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
                 {region}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {METRO_AREAS[region as keyof typeof METRO_AREAS].map((city, index) => (
+                {metroAreasWithBookstores[region as keyof typeof metroAreasWithBookstores]
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((city, index) => (
+                    <Link 
+                      key={`${city.name}-${index}`} 
+                      href={`/directory/city/${city.name}`}
+                    >
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-between font-medium hover:bg-[#2A6B7C]/5 hover:text-[#2A6B7C] hover:border-[#2A6B7C] transition-colors"
+                      >
+                        <span>{city.name}, {city.state}</span>
+                        <span className="ml-2 text-xs bg-[#F7F3E8] text-[#5F4B32] px-2 py-0.5 rounded-full">
+                          {getBookstoreCount(city.name)}
+                        </span>
+                      </Button>
+                    </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+          
+          {/* Literary Cities Section */}
+          {notableLiteraryCities.length > 0 && (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
+                Notable Literary Cities
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Cities with 3+ independent bookstores:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {notableLiteraryCities.map((city, index) => (
                   <Link 
                     key={`${city.name}-${index}`} 
                     href={`/directory/city/${city.name}`}
@@ -159,47 +221,15 @@ const CitiesListPage = () => {
                       className="w-full justify-between font-medium hover:bg-[#2A6B7C]/5 hover:text-[#2A6B7C] hover:border-[#2A6B7C] transition-colors"
                     >
                       <span>{city.name}, {city.state}</span>
-                      {!isLoading && (
-                        <span className="ml-2 text-xs bg-[#F7F3E8] text-[#5F4B32] px-2 py-0.5 rounded-full">
-                          {getBookstoreCount(city.name)}
-                        </span>
-                      )}
+                      <span className="ml-2 text-xs bg-[#F7F3E8] text-[#5F4B32] px-2 py-0.5 rounded-full">
+                        {getBookstoreCount(city.name)}
+                      </span>
                     </Button>
                   </Link>
                 ))}
               </div>
             </div>
-          ))}
-          
-          {/* Literary Cities Section */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-              Notable Literary Cities
-            </h2>
-            <p className="text-gray-600 mb-4">
-              Cities known for their independent bookstore scenes and literary culture:
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {POPULAR_CITIES.map((city, index) => (
-                <Link 
-                  key={`${city.name}-${index}`} 
-                  href={`/directory/city/${city.name}`}
-                >
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between font-medium hover:bg-[#2A6B7C]/5 hover:text-[#2A6B7C] hover:border-[#2A6B7C] transition-colors"
-                  >
-                    <span>{city.name}, {city.state}</span>
-                    {!isLoading && (
-                      <span className="ml-2 text-xs bg-[#F7F3E8] text-[#5F4B32] px-2 py-0.5 rounded-full">
-                        {getBookstoreCount(city.name)}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       )}
     </div>
