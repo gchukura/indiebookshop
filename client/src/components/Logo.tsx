@@ -44,8 +44,8 @@ const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
           <rect x="10" y="10" width="90" height="30" rx="2" ry="2" fill={LOGO_COLORS.BROWN} />
         </g>
         
-        {/* Company name - adjusted positioning for larger text */}
-        <g transform="translate(155, 92)">
+        {/* Company name - adjusted positioning with more space between books and text */}
+        <g transform="translate(180, 92)">
           {/* Indie */}
           <text fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="44" fill={LOGO_COLORS.BLUE}>
             Indie
