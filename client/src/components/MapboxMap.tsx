@@ -6,10 +6,10 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface MapboxMapProps {
   bookstores: Bookstore[];
-  onSelectBookstore: (id: number) => void;
+  onSelectBookshop: (id: number) => void;
 }
 
-const MapboxMap = ({ bookstores, onSelectBookstore }: MapboxMapProps) => {
+const MapboxMap = ({ bookstores, onSelectBookshop }: MapboxMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -132,7 +132,7 @@ const MapboxMap = ({ bookstores, onSelectBookstore }: MapboxMapProps) => {
 
         // Add click handler
         el.addEventListener('click', () => {
-          onSelectBookstore(bookstore.id);
+          onSelectBookshop(bookstore.id);
         });
 
         markersRef.current.push(marker);
@@ -153,7 +153,7 @@ const MapboxMap = ({ bookstores, onSelectBookstore }: MapboxMapProps) => {
         console.error('Error fitting bounds:', e);
       }
     }
-  }, [bookstores, mapLoaded, clearMarkers, onSelectBookstore]);
+  }, [bookstores, mapLoaded, clearMarkers, onSelectBookshop]);
 
   return (
     <div className="relative w-full h-full">

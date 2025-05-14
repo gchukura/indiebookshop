@@ -106,7 +106,7 @@ const Home = () => {
             {bookstores && (
               <MapboxMap 
                 bookstores={bookstores} 
-                onSelectBookstore={handleSelectBookshop} 
+                onSelectBookshop={handleSelectBookshop} 
               />
             )}
           </div>
