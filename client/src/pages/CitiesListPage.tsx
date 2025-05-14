@@ -102,7 +102,7 @@ const CitiesListPage = () => {
           {filteredCities && filteredCities.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {filteredCities
-                .filter(city => getBookstoreCount(city.name) > 0)
+                .filter(city => getBookshopCount(city.name) > 0)
                 .map((city, index) => (
                   <Link 
                     key={`${city.name}-${index}`} 
@@ -114,7 +114,7 @@ const CitiesListPage = () => {
                     >
                       {city.name}, {city.state}
                       <span className="ml-auto text-xs bg-[#F7F3E8] text-[#5F4B32] px-2 py-0.5 rounded-full">
-                        {getBookstoreCount(city.name)}
+                        {getBookshopCount(city.name)}
                       </span>
                     </Button>
                   </Link>
@@ -127,13 +127,13 @@ const CitiesListPage = () => {
       ) : (
         <div className="space-y-8">
           {/* Major Metro Areas by Region */}
-          {Object.keys(metroAreasWithBookstores).map(region => (
+          {Object.keys(metroAreasWithBookshops).map(region => (
             <div key={region} className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
                 {region}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {metroAreasWithBookstores[region as keyof typeof metroAreasWithBookstores]
+                {metroAreasWithBookshops[region as keyof typeof metroAreasWithBookshops]
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((city, index) => (
                     <Link 
@@ -146,7 +146,7 @@ const CitiesListPage = () => {
                       >
                         <span>{city.name}, {city.state}</span>
                         <span className="ml-2 text-xs bg-[#F7F3E8] text-[#5F4B32] px-2 py-0.5 rounded-full">
-                          {getBookstoreCount(city.name)}
+                          {getBookshopCount(city.name)}
                         </span>
                       </Button>
                     </Link>
