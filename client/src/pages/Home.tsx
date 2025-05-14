@@ -3,12 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, useCallback } from "react";
 import Hero from "@/components/Hero";
 import { Bookstore, Feature } from "@shared/schema";
-import BookstoreIcon from "@/components/BookstoreIcon";
+import BookshopIcon from "@/components/BookstoreIcon";
 import MapboxMap from "@/components/MapboxMap";
-import BookstoreDetail from "@/components/BookstoreDetail";
+import BookshopDetail from "@/components/BookstoreDetail";
 
 const Home = () => {
-  // Fetch all bookstores
+  // Fetch all bookshops
   const { data: bookstores, isLoading } = useQuery<Bookstore[]>({
     queryKey: ["/api/bookstores"],
   });
@@ -87,9 +87,9 @@ const Home = () => {
 
   return (
     <div>
-      {/* Bookstore Detail Modal */}
+      {/* Bookshop Detail Modal */}
       {selectedBookstoreId && (
-        <BookstoreDetail
+        <BookshopDetail
           bookstoreId={selectedBookstoreId}
           isOpen={isDetailOpen}
           onClose={() => setIsDetailOpen(false)}
@@ -151,7 +151,7 @@ const Home = () => {
                             />
                           ) : (
                             <div className="w-full h-48 flex items-center justify-center">
-                              <BookstoreIcon size={150} className="cursor-pointer" />
+                              <BookshopIcon size={150} className="cursor-pointer" />
                             </div>
                           )}
                         </Link>
