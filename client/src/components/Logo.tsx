@@ -16,7 +16,7 @@ const LOGO_COLORS = {
 };
 
 const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
-  const aspectRatio = 4.0; // Increased aspect ratio for better visibility
+  const aspectRatio = 4.5; // Increased aspect ratio for better visibility
   const calculatedWidth = height * aspectRatio;
   
   return (
@@ -29,32 +29,32 @@ const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
         className="mr-2"
       >
         {/* Book stack */}
-        <g transform="translate(20, 15)">
+        <g transform="translate(55, 20)">
           {/* Bottom book */}
-          <rect x="0" y="70" width="110" height="35" rx="3" ry="3" fill={LOGO_COLORS.BLUE} />
+          <rect x="0" y="70" width="90" height="30" rx="2" ry="2" fill={LOGO_COLORS.BLUE} />
           
           {/* Middle book */}
-          <rect x="5" y="40" width="110" height="35" rx="3" ry="3" fill={LOGO_COLORS.ORANGE} />
+          <rect x="5" y="40" width="90" height="30" rx="2" ry="2" fill={LOGO_COLORS.ORANGE} />
           
           {/* Top book */}
-          <rect x="10" y="10" width="110" height="35" rx="3" ry="3" fill={LOGO_COLORS.BROWN} />
+          <rect x="10" y="10" width="90" height="30" rx="2" ry="2" fill={LOGO_COLORS.BROWN} />
         </g>
         
         {/* Company name */}
-        <g transform="translate(150, 87)">
+        <g transform="translate(165, 87)">
           {/* Indie */}
-          <text fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="50" fill={LOGO_COLORS.BLUE}>
+          <text fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="55" fill={LOGO_COLORS.BLUE}>
             Indie
           </text>
           
           {/* Bookshop */}
-          <text x="110" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="50" fill={LOGO_COLORS.ORANGE}>
+          <text x="85" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="55" fill={LOGO_COLORS.ORANGE}>
             Bookshop
           </text>
           
           {/* .com */}
           {showDotCom && (
-            <text x="340" fontFamily="Arial, sans-serif" fontWeight="normal" fontSize="28" fill={LOGO_COLORS.GRAY}>
+            <text x="260" fontFamily="Arial, sans-serif" fontWeight="normal" fontSize="28" fill={LOGO_COLORS.GRAY}>
               .com
             </text>
           )}
