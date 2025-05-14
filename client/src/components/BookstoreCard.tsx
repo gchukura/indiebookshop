@@ -30,30 +30,35 @@ const BookstoreCard = ({ bookstore, showDetails }: BookstoreCardProps) => {
     // In a real app, we would make an API call to add/remove from favorites
   };
 
-  const handleViewDetails = (e: React.MouseEvent) => {
-    e.preventDefault();
-    showDetails(bookstore.id);
-  };
-
   return (
     <div className="bookstore-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
       <div className="flex flex-col sm:flex-row">
         <div className="sm:w-1/3">
-          {bookstore.imageUrl ? (
-            <img 
-              src={bookstore.imageUrl} 
-              alt={`${bookstore.name} storefront`} 
-              className="w-full h-40 sm:h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-40 sm:h-full flex items-center justify-center">
-              <BookstoreIcon size={100} />
-            </div>
-          )}
+          <div 
+            className="w-full h-40 sm:h-full cursor-pointer" 
+            onClick={() => showDetails(bookstore.id)}
+          >
+            {bookstore.imageUrl ? (
+              <img 
+                src={bookstore.imageUrl} 
+                alt={`${bookstore.name} storefront`} 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <BookstoreIcon size={100} />
+              </div>
+            )}
+          </div>
         </div>
         <div className="p-4 sm:w-2/3">
           <div className="flex justify-between items-start">
-            <h3 className="font-serif font-bold text-lg">{bookstore.name}</h3>
+            <h3 
+              className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C]"
+              onClick={() => showDetails(bookstore.id)}
+            >
+              {bookstore.name}
+            </h3>
             <button 
               className={`${isFavorite ? 'text-[#E16D3D]' : 'text-gray-400 hover:text-[#E16D3D]'}`}
               onClick={toggleFavorite}
@@ -73,12 +78,6 @@ const BookstoreCard = ({ bookstore, showDetails }: BookstoreCardProps) => {
               </span>
             ))}
           </div>
-          <button
-            className="inline-block text-[#2A6B7C] hover:text-[#E16D3D] font-medium text-sm bg-transparent border-none cursor-pointer"
-            onClick={handleViewDetails}
-          >
-            View Details <ArrowRight className="h-4 w-4 inline" />
-          </button>
         </div>
       </div>
     </div>
