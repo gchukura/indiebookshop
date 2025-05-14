@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Feature } from "@shared/schema";
+import Logo from "@/components/Logo";
 
 const Header = () => {
   const [location] = useLocation();
@@ -51,7 +52,7 @@ const Header = () => {
         <div className="flex justify-between h-20">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <span className="text-[#5F4B32] font-serif text-2xl font-bold">IndiebookShop</span>
+              <Logo height={40} showDotCom={false} />
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
               <div className="relative" ref={statesDropdownRef}>
