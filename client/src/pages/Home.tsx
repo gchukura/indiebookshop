@@ -227,7 +227,7 @@ const Home = () => {
                         </h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                           {usStates.map(state => (
-                            <Link key={state.abbreviation} href={`/directory?state=${state.abbreviation}`}>
+                            <Link key={state.abbreviation} href={`/directory/state/${state.abbreviation}`}>
                               <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
                                 {state.fullName}
                               </span>
@@ -244,7 +244,7 @@ const Home = () => {
                           </h3>
                           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {otherRegions.map(region => (
-                              <Link key={region.abbreviation} href={`/directory?state=${region.abbreviation}`}>
+                              <Link key={region.abbreviation} href={`/directory/state/${region.abbreviation}`}>
                                 <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
                                   {region.fullName}
                                 </span>
