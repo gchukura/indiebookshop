@@ -167,14 +167,14 @@ const Header = () => {
                         Bookstores by State
                       </Link>
                       <Link 
-                        href="/directory/browse" 
+                        href="/directory/cities" 
                         className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Bookstores by City
                       </Link>
                       <Link 
-                        href="/directory/browse" 
+                        href="/directory/categories" 
                         className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >
