@@ -10,7 +10,7 @@ import {
 import { Feature } from "@shared/schema";
 
 interface FilterControlsProps {
-  bookstoreCount: number;
+  bookshopCount: number;
   onStateChange: (state: string) => void;
   onFeatureChange: (featureId: number | null) => void;
   selectedState: string;
@@ -18,7 +18,7 @@ interface FilterControlsProps {
 }
 
 const FilterControls = ({ 
-  bookstoreCount, 
+  bookshopCount, 
   onStateChange,
   onFeatureChange,
   selectedState, 
