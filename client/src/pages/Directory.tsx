@@ -9,8 +9,8 @@ import BookshopTable from "@/components/BookstoreTable";
 import { Button } from "@/components/ui/button";
 import { Bookstore } from "@shared/schema";
 
-// Type for bookstore with flexible featureIds handling
-type BookstoreWithFeatures = Bookstore & {
+// Type for bookshop with flexible featureIds handling
+type BookshopWithFeatures = Bookstore & {
   featureIds?: number[] | string | null;
 };
 
@@ -32,7 +32,7 @@ const Directory = () => {
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
   
   // Fetch all bookshops initially
-  const { data: allBookstores, isLoading, isError } = useQuery<BookstoreWithFeatures[]>({
+  const { data: allBookstores, isLoading, isError } = useQuery<BookshopWithFeatures[]>({
     queryKey: ['bookstores'],
     queryFn: async () => {
       const response = await fetch('/api/bookstores');
@@ -49,27 +49,27 @@ const Directory = () => {
     
     // Filter by state if selected
     if (selectedState) {
-      filtered = filtered.filter(bookstore => bookstore.state === selectedState);
+      filtered = filtered.filter(bookshop => bookshop.state === selectedState);
     }
     
     // Filter by feature if selected
     if (selectedFeature) {
-      filtered = filtered.filter(bookstore => {
+      filtered = filtered.filter(bookshop => {
         // Handle different types of featureIds
-        if (!bookstore.featureIds) return false;
+        if (!bookshop.featureIds) return false;
         
         // Convert feature IDs to an array of numbers
         let featureIdArray: number[] = [];
         
-        if (typeof bookstore.featureIds === 'string') {
+        if (typeof bookshop.featureIds === 'string') {
           // Handle string format "1,2,3"
-          const idStrings = bookstore.featureIds.split(',');
+          const idStrings = bookshop.featureIds.split(',');
           featureIdArray = idStrings
             .map(idString => parseInt(idString.trim()))
             .filter(id => !isNaN(id));
-        } else if (Array.isArray(bookstore.featureIds)) {
+        } else if (Array.isArray(bookshop.featureIds)) {
           // Handle array format
-          featureIdArray = bookstore.featureIds;
+          featureIdArray = bookshop.featureIds;
         }
         
         return featureIdArray.includes(selectedFeature);
