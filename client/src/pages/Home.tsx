@@ -196,7 +196,7 @@ const Home = () => {
       </section>
       
       {/* Join the Community */}
-      <section className="py-10 bg-[#D2B48C] text-[#333333]">
+      <section className="py-10 bg-[#F7F3E8] text-[#5F4B32]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl font-serif font-bold mb-3">Join Our Literary Community</h2>
           <p className="text-base opacity-90 max-w-2xl mx-auto mb-4">
