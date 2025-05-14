@@ -32,8 +32,8 @@ const Directory = () => {
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
   
   // Fetch all bookshops initially
-  const { data: allBookstores, isLoading, isError } = useQuery<BookshopWithFeatures[]>({
-    queryKey: ['bookstores'],
+  const { data: allBookshops, isLoading, isError } = useQuery<BookshopWithFeatures[]>({
+    queryKey: ['bookshops'],
     queryFn: async () => {
       const response = await fetch('/api/bookstores');
       if (!response.ok) {
@@ -44,8 +44,8 @@ const Directory = () => {
   });
   
   // Apply filtering logic
-  const filteredBookstores = useMemo(() => {
-    let filtered = allBookstores || [];
+  const filteredBookshops = useMemo(() => {
+    let filtered = allBookshops || [];
     
     // Filter by state if selected
     if (selectedState) {
@@ -87,7 +87,7 @@ const Directory = () => {
     }
     
     return filtered;
-  }, [allBookstores, selectedState, selectedFeature, searchQuery]);
+  }, [allBookshops, selectedState, selectedFeature, searchQuery]);
 
   // Set view from URL parameter on initial load
   useEffect(() => {
@@ -117,8 +117,8 @@ const Directory = () => {
   // Get paginated bookshops
   const indexOfLastBookshop = currentPage * bookshopsPerPage;
   const indexOfFirstBookshop = indexOfLastBookshop - bookshopsPerPage;
-  const currentBookshops = filteredBookstores.slice(indexOfFirstBookshop, indexOfLastBookshop);
-  const totalPages = Math.ceil(filteredBookstores.length / bookshopsPerPage);
+  const currentBookshops = filteredBookshops.slice(indexOfFirstBookshop, indexOfLastBookshop);
+  const totalPages = Math.ceil(filteredBookshops.length / bookshopsPerPage);
   
   // Handle page change
   const handlePageChange = (pageNumber: number) => {
