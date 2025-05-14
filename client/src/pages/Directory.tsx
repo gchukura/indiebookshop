@@ -16,7 +16,7 @@ type BookstoreWithFeatures = Bookstore & {
 
 const Directory = () => {
   const [view, setView] = useState<"map" | "list">("map");
-  const [selectedBookstoreId, setSelectedBookstoreId] = useState<number | null>(null);
+  const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [location, setLocation] = useLocation();
   const search = useSearch();
@@ -192,9 +192,9 @@ const Directory = () => {
       </main>
 
       {/* Bookshop Detail Modal */}
-      {selectedBookstoreId && (
+      {selectedBookshopId && (
         <BookshopDetail 
-          bookstoreId={selectedBookstoreId} 
+          bookstoreId={selectedBookshopId} 
           isOpen={isDetailOpen} 
           onClose={handleCloseDetail} 
         />
