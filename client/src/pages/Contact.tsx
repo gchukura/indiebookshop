@@ -50,18 +50,6 @@ const Contact = () => {
           </form>
         </div>
       </div>
-      
-      <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-        <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-          Interested in Partnering With Us?
-        </h2>
-        <p className="text-gray-700 max-w-2xl mx-auto mb-6">
-          We're always looking for potential partnerships with organizations that support independent bookstores and literary culture. Whether you're a publisher, literary organization, or book-adjacent business, we'd love to hear from you.
-        </p>
-        <Button className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white px-6">
-          Explore Partnerships
-        </Button>
-      </div>
     </div>
   );
 };
