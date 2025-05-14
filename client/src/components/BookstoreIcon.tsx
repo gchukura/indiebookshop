@@ -7,6 +7,9 @@ interface BookstoreIconProps {
 }
 
 const BookstoreIcon: React.FC<BookstoreIconProps> = ({ size = 150, className = '' }) => {
+  // Use secondary color from the theme (teal) for a clean, minimalist look
+  const iconColor = COLORS.secondary;
+  
   return (
     <svg
       width={size}
@@ -19,31 +22,32 @@ const BookstoreIcon: React.FC<BookstoreIconProps> = ({ size = 150, className = '
       {/* Background */}
       <rect width="200" height="200" rx="10" fill="#f7f3e8" />
       
-      {/* Bookshelf */}
-      <rect x="30" y="130" width="140" height="15" fill={COLORS.primary} />
+      {/* Ultra minimalist book stack */}
+      <g fill={iconColor}>
+        {/* First book */}
+        <rect x="60" y="120" width="80" height="20" rx="2" />
+        
+        {/* Second book */}
+        <rect x="65" y="100" width="80" height="20" rx="2" />
+        
+        {/* Third book */}
+        <rect x="70" y="80" width="80" height="20" rx="2" />
+        
+        {/* Fourth book */}
+        <rect x="75" y="60" width="80" height="20" rx="2" />
+      </g>
       
-      {/* Books on shelf */}
-      <rect x="35" y="75" width="20" height="55" fill={COLORS.secondary} />
-      <rect x="60" y="65" width="15" height="65" fill={COLORS.accent} />
-      <rect x="80" y="85" width="25" height="45" fill={COLORS.primary} />
-      <rect x="110" y="70" width="18" height="60" fill={COLORS.accent} />
-      <rect x="133" y="80" width="12" height="50" fill={COLORS.secondary} />
-      <rect x="150" y="60" width="20" height="70" fill={COLORS.primary} />
-      
-      {/* Store name placard */}
-      <rect x="60" y="40" width="80" height="15" rx="2" fill={COLORS.accent} />
-      
-      {/* IndieBookshop text */}
+      {/* Store text */}
       <text 
         x="100" 
-        y="170" 
+        y="160" 
         fontFamily="Arial, sans-serif" 
-        fontSize="12" 
+        fontSize="16" 
         fontWeight="bold" 
-        fill={COLORS.dark}
+        fill={iconColor}
         textAnchor="middle"
       >
-        INDIE BOOKSHOP
+        BOOKSTORE
       </text>
     </svg>
   );
