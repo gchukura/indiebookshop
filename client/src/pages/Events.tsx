@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { format, isSameDay, isSameMonth, addMonths, subMonths, parseISO } from "date-fns";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { Link } from "wouter";
-import { Event, Bookstore } from "@shared/schema";
+import { Event, Bookstore as Bookshop } from "@shared/schema";
 import { useCalendarEvents } from "@/hooks/useEvents";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ const Events = () => {
   const { data: events = [], isLoading: eventsLoading } = useCalendarEvents(currentYear, currentMonth);
   
   // Fetch all bookshops to display bookshop name with each event
-  const { data: bookshops = [], isLoading: bookshopsLoading } = useQuery<Bookstore[]>({
+  const { data: bookshops = [], isLoading: bookshopsLoading } = useQuery<Bookshop[]>({
     queryKey: ["/api/bookstores"],
   });
   

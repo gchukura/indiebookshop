@@ -7,10 +7,10 @@ export const useEvents = () => {
   });
 };
 
-export const useEventsByBookstore = (bookstoreId: number) => {
+export const useEventsByBookshop = (bookshopId: number) => {
   return useQuery<Event[]>({
-    queryKey: ["/api/bookstores", bookstoreId, "events"],
-    enabled: !!bookstoreId,
+    queryKey: ["/api/bookstores", bookshopId, "events"],
+    enabled: !!bookshopId,
   });
 };
 
