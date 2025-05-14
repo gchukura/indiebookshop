@@ -9,7 +9,7 @@ import { Bookstore } from "@shared/schema";
 // Define major metro areas by region
 const METRO_AREAS = {
   "Northeast": [
-    { name: "New York City", state: "NY" },
+    { name: "New York", state: "NY" },
     { name: "Boston", state: "MA" },
     { name: "Philadelphia", state: "PA" },
     { name: "Washington", state: "DC" }
