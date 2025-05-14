@@ -120,6 +120,12 @@ const Header = () => {
               >
                 Blog
               </Link>
+              <Link 
+                href="/contact" 
+                className={`${isActiveRoute('/contact') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+              >
+                Contact
+              </Link>
             </nav>
           </div>
           <div className="flex items-center space-x-3">
@@ -203,6 +209,13 @@ const Header = () => {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Blog
+                  </Link>
+                  <Link 
+                    href="/contact" 
+                    className="px-4 py-2 text-lg font-medium hover:bg-gray-100 rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Contact
                   </Link>
                   <hr />
                   <Link 

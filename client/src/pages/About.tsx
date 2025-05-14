@@ -126,58 +126,6 @@ const AboutPage = () => {
       </section>
 
       <section className="mb-16">
-        <div className="max-w-3xl mx-auto text-center mb-8">
-          <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-            Meet Our Team
-          </h2>
-          <p className="text-gray-600">
-            The book enthusiasts behind IndieBookShop.com
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="p-6">
-              <div className="w-24 h-24 bg-[#F7F3E8] rounded-full mx-auto mb-4 flex items-center justify-center">
-                <BookOpen className="w-10 h-10 text-[#2A6B7C]" />
-              </div>
-              <h3 className="text-xl font-bold text-center text-[#5F4B32] mb-2">Elena Collins</h3>
-              <p className="text-center text-[#2A6B7C] mb-4">Founder & Executive Director</p>
-              <p className="text-gray-600 text-center">
-                Former independent bookseller with a passion for connecting readers with their perfect book.
-              </p>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="p-6">
-              <div className="w-24 h-24 bg-[#F7F3E8] rounded-full mx-auto mb-4 flex items-center justify-center">
-                <BookOpen className="w-10 h-10 text-[#2A6B7C]" />
-              </div>
-              <h3 className="text-xl font-bold text-center text-[#5F4B32] mb-2">Marcus Reid</h3>
-              <p className="text-center text-[#2A6B7C] mb-4">Technology Director</p>
-              <p className="text-gray-600 text-center">
-                Tech enthusiast who believes in using digital tools to support analog experiences.
-              </p>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            <div className="p-6">
-              <div className="w-24 h-24 bg-[#F7F3E8] rounded-full mx-auto mb-4 flex items-center justify-center">
-                <BookOpen className="w-10 h-10 text-[#2A6B7C]" />
-              </div>
-              <h3 className="text-xl font-bold text-center text-[#5F4B32] mb-2">Sophia Martinez</h3>
-              <p className="text-center text-[#2A6B7C] mb-4">Community Manager</p>
-              <p className="text-gray-600 text-center">
-                Literary event organizer and social media specialist focused on building community.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mb-16">
         <div className="bg-[#F7F3E8] rounded-lg p-8 md:p-12 text-center">
           <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-6">
             Join Our Mission
