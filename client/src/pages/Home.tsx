@@ -1,9 +1,8 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import Hero from "@/components/Hero";
 import { Bookstore, Feature } from "@shared/schema";
+import BookstoreIcon from "@/components/BookstoreIcon";
 
 const Home = () => {
   // Fetch featured bookstores
@@ -48,13 +47,23 @@ const Home = () => {
                 
                 return (
                   <div key={bookstore.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
-                    <img 
-                      src={bookstore.imageUrl || "https://placehold.co/600x400?text=Bookstore"} 
-                      alt={bookstore.name}
-                      className="w-full h-48 object-cover" 
-                    />
+                    <Link href={`/bookstore/${bookstore.id}`}>
+                      {bookstore.imageUrl ? (
+                        <img 
+                          src={bookstore.imageUrl} 
+                          alt={bookstore.name}
+                          className="w-full h-48 object-cover cursor-pointer" 
+                        />
+                      ) : (
+                        <div className="w-full h-48 flex items-center justify-center">
+                          <BookstoreIcon size={150} className="cursor-pointer" />
+                        </div>
+                      )}
+                    </Link>
                     <div className="p-6">
-                      <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-2">{bookstore.name}</h3>
+                      <Link href={`/bookstore/${bookstore.id}`}>
+                        <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D]">{bookstore.name}</h3>
+                      </Link>
                       <p className="text-sm text-gray-600 mb-4">{bookstore.city}, {bookstore.state}</p>
                       <p className="text-gray-700 mb-4 line-clamp-3">{bookstore.description}</p>
                       <div className="flex flex-wrap gap-2 mb-4">
@@ -64,11 +73,6 @@ const Home = () => {
                           </span>
                         ))}
                       </div>
-                      <Link href={`/bookstore/${bookstore.id}`}>
-                        <a className="text-[#2A6B7C] hover:text-[#E16D3D] font-medium inline-flex items-center">
-                          View Details <ArrowRight className="ml-1 h-4 w-4" />
-                        </a>
-                      </Link>
                     </div>
                   </div>
                 );
@@ -76,13 +80,7 @@ const Home = () => {
             </div>
           )}
           
-          <div className="text-center mt-12">
-            <Link href="/directory">
-              <Button className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white px-6 py-2">
-                Explore All Bookstores
-              </Button>
-            </Link>
-          </div>
+          {/* "Explore All Bookstores" button removed */}
         </div>
       </section>
       
