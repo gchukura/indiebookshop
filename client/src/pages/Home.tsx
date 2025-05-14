@@ -26,69 +26,75 @@ const Home = () => {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Featured section header that overlaps with border */}
-          <div className="relative text-center mb-5 z-10">
-            <h2 className="inline-block bg-white px-6 text-3xl font-serif font-bold text-[#5F4B32]">Featured Bookstores</h2>
-          </div>
-          
-          {/* Featured section with border */}
-          <div className="border-4 border-[#2A6B7C] rounded-lg p-8 pt-12 mb-8 shadow-sm -mt-5">
-            <div className="text-center mb-12">
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Discover these unique independent bookshops that offer exceptional
-                literary experiences across the United States.
-              </p>
+          {/* Featured section with border and heading that intersects with the border */}
+          <div className="mb-8">
+            {/* Top border only */}
+            <div className="border-t-4 border-[#2A6B7C] relative">
+              {/* Heading centered on the top border */}
+              <div className="flex justify-center -mt-5">
+                <h2 className="inline-block bg-white px-5 text-3xl font-serif font-bold text-[#5F4B32]">
+                  Featured Bookstores
+                </h2>
+              </div>
             </div>
             
-            {isLoading ? (
-              <div className="text-center py-10">
-                <p>Loading featured bookstores...</p>
+            {/* Bottom, left, and right borders with content */}
+            <div className="border-b-4 border-l-4 border-r-4 border-[#2A6B7C] rounded-b-lg p-8 pt-6 shadow-sm">
+              <div className="text-center mb-10">
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                  Discover these unique independent bookshops that offer exceptional
+                  literary experiences across the United States.
+                </p>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {featuredBookstores.map((bookstore) => {
-                // Get feature names for this bookstore
-                const bookstoreFeatures = features?.filter(feature => 
-                  bookstore.featureIds && bookstore.featureIds.includes(feature.id)
-                ).slice(0, 3) || [];
-                
-                return (
-                  <div key={bookstore.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
-                    <Link href={`/bookstore/${bookstore.id}`}>
-                      {bookstore.imageUrl ? (
-                        <img 
-                          src={bookstore.imageUrl} 
-                          alt={bookstore.name}
-                          className="w-full h-48 object-cover cursor-pointer" 
-                        />
-                      ) : (
-                        <div className="w-full h-48 flex items-center justify-center">
-                          <BookstoreIcon size={150} className="cursor-pointer" />
+            
+              {isLoading ? (
+                <div className="text-center py-10">
+                  <p>Loading featured bookstores...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {featuredBookstores.map((bookstore) => {
+                    // Get feature names for this bookstore
+                    const bookstoreFeatures = features?.filter(feature => 
+                      bookstore.featureIds && bookstore.featureIds.includes(feature.id)
+                    ).slice(0, 3) || [];
+                    
+                    return (
+                      <div key={bookstore.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+                        <Link href={`/bookstore/${bookstore.id}`}>
+                          {bookstore.imageUrl ? (
+                            <img 
+                              src={bookstore.imageUrl} 
+                              alt={bookstore.name}
+                              className="w-full h-48 object-cover cursor-pointer" 
+                            />
+                          ) : (
+                            <div className="w-full h-48 flex items-center justify-center">
+                              <BookstoreIcon size={150} className="cursor-pointer" />
+                            </div>
+                          )}
+                        </Link>
+                        <div className="p-6">
+                          <Link href={`/bookstore/${bookstore.id}`}>
+                            <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D]">{bookstore.name}</h3>
+                          </Link>
+                          <p className="text-sm text-gray-600 mb-4">{bookstore.city}, {bookstore.state}</p>
+                          <p className="text-gray-700 mb-4 line-clamp-3">{bookstore.description}</p>
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {bookstoreFeatures.map(feature => (
+                              <span key={feature.id} className="bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
+                                {feature.name}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      )}
-                    </Link>
-                    <div className="p-6">
-                      <Link href={`/bookstore/${bookstore.id}`}>
-                        <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D]">{bookstore.name}</h3>
-                      </Link>
-                      <p className="text-sm text-gray-600 mb-4">{bookstore.city}, {bookstore.state}</p>
-                      <p className="text-gray-700 mb-4 line-clamp-3">{bookstore.description}</p>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {bookstoreFeatures.map(feature => (
-                          <span key={feature.id} className="bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
-                            {feature.name}
-                          </span>
-                        ))}
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
-          
-          {/* "Explore All Bookstores" button removed */}
         </div>
       </section>
       
