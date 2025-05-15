@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Bookstore as Bookshop, Feature, Event } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import SingleLocationMap from '@/components/SingleLocationMap';
+import RelatedBookshops from '@/components/RelatedBookshops';
 
 const BookshopDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -175,6 +176,11 @@ const BookshopDetailPage = () => {
             </div>
           </div>
         </div>
+      </div>
+      
+      {/* Related Bookshops Section - Full Width */}
+      <div className="container mx-auto px-4 pb-8">
+        <RelatedBookshops currentBookshop={bookshop} />
       </div>
     </div>
   );
