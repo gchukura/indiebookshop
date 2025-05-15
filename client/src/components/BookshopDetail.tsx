@@ -8,6 +8,7 @@ import SingleLocationMap from "./SingleLocationMap";
 import SchemaOrg from "./SchemaOrg";
 import RelatedBookshops from "./RelatedBookshops";
 import OptimizedImage from "./OptimizedImage";
+import Breadcrumbs, { BreadcrumbItem } from "./Breadcrumbs";
 import { BASE_URL } from "../lib/seo";
 import { generateBookshopImageAlt, optimizeImageUrl } from "../lib/imageUtils";
 import { generateRelatedLinks, generateEventLinks } from "../lib/linkUtils";
@@ -64,6 +65,15 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
   const bookshopFeatures = features?.filter(feature => 
     bookshop?.featureIds && bookshop.featureIds.includes(feature.id)
   ) || [];
+
+  // Create breadcrumb items
+  const breadcrumbItems: BreadcrumbItem[] = bookshop ? [
+    { label: 'Home', href: '/' },
+    { label: 'Directory', href: '/directory' },
+    { label: bookshop.state, href: `/directory/state/${bookshop.state}` },
+    { label: bookshop.city, href: `/directory/city/${encodeURIComponent(bookshop.city)}` },
+    { label: bookshop.name, href: `/bookshop/${bookshop.id}`, isCurrent: true }
+  ] : [];
 
   // Prepare schema.org data when bookshop is available
   // Bookshop schema
@@ -142,6 +152,11 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                   <h2 className="text-white text-2xl md:text-3xl font-serif font-bold">{bookshop.name}</h2>
                   <p className="text-white/90 text-sm md:text-base">{bookshop.city}, {bookshop.state}</p>
                 </div>
+              </div>
+              
+              {/* Breadcrumb Navigation */}
+              <div className="p-4 bg-gray-50">
+                <Breadcrumbs items={breadcrumbItems} className="text-sm" />
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
