@@ -1,10 +1,12 @@
 import React, { useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { Bookstore as Bookshop, Feature, Event } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { X, Navigation } from "lucide-react";
 import SingleLocationMap from "./SingleLocationMap";
 import SchemaOrg from "./SchemaOrg";
+import RelatedBookshops from "./RelatedBookshops";
 import { BASE_URL } from "../lib/seo";
 import { generateBookshopImageAlt, optimizeImageUrl } from "../lib/imageUtils";
 import { generateRelatedLinks, generateEventLinks } from "../lib/linkUtils";
@@ -250,6 +252,46 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                     </div>
                   </div>
                   
+                  {/* Related Links Section */}
+                  <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <h3 className="font-serif font-bold text-xl mb-4">Explore More</h3>
+                    <div className="space-y-4">
+                      {features && features.length > 0 && (
+                        <>
+                          <h4 className="font-medium text-[#2A6B7C]">Related Directories</h4>
+                          <div className="grid gap-2">
+                            {generateRelatedLinks(bookshop, features).map((link, index) => (
+                              <Link 
+                                key={index} 
+                                to={link.url}
+                                className="text-blue-600 hover:underline hover:text-blue-800 block"
+                                title={link.description}
+                              >
+                                {link.title}
+                              </Link>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                      
+                      <h4 className="font-medium text-[#2A6B7C] mt-4">Event Information</h4>
+                      <div className="grid gap-2">
+                        {generateEventLinks(bookshop.id, bookshop.name).map((link, index) => (
+                          <Link 
+                            key={index} 
+                            to={link.url}
+                            className="text-blue-600 hover:underline hover:text-blue-800 block"
+                            title={link.description}
+                          >
+                            {link.title}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Related Bookshops Section */}
+                  {bookshop && <RelatedBookshops currentBookshop={bookshop} />}
 
                 </div>
               </div>
