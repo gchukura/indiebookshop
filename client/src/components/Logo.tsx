@@ -45,20 +45,20 @@ const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
         </g>
         
         {/* Company name - adjusted positioning with more space between books and text */}
-        <g transform="translate(180, 92)">
+        <g transform="translate(170, 92)">
           {/* Indie */}
-          <text fontFamily="serif" fontWeight="bold" fontSize="44" fill={LOGO_COLORS.BLUE}>
+          <text fontFamily="serif" fontWeight="bold" fontSize="42" fill={LOGO_COLORS.BLUE}>
             Indie
           </text>
           
           {/* Bookshop */}
-          <text x="105" fontFamily="serif" fontWeight="bold" fontSize="44" fill={LOGO_COLORS.ORANGE}>
+          <text x="110" fontFamily="serif" fontWeight="bold" fontSize="42" fill={LOGO_COLORS.ORANGE}>
             Bookshop
           </text>
           
           {/* .com */}
           {showDotCom && (
-            <text x="320" fontFamily="serif" fontWeight="normal" fontSize="22" fill={LOGO_COLORS.GRAY}>
+            <text x="320" fontFamily="serif" fontWeight="bold" fontSize="28" fill={LOGO_COLORS.GRAY}>
               .com
             </text>
           )}
