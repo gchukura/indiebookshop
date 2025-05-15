@@ -106,15 +106,15 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
     }
   });
 
-  // Get events for a bookstore
+  // Get events for a bookshop
   app.get("/api/bookstores/:id/events", async (req, res) => {
     try {
-      const bookstoreId = parseInt(req.params.id);
-      if (isNaN(bookstoreId)) {
-        return res.status(400).json({ message: "Invalid bookstore ID" });
+      const bookshopId = parseInt(req.params.id);
+      if (isNaN(bookshopId)) {
+        return res.status(400).json({ message: "Invalid bookshop ID" });
       }
       
-      const events = await storageImpl.getEventsByBookstore(bookstoreId);
+      const events = await storageImpl.getEventsByBookshop(bookshopId);
       res.json(events);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch events" });
@@ -167,22 +167,22 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   // Submit a new event
   app.post("/api/events", async (req, res) => {
     try {
-      const { title, description, date, time, bookstoreId } = req.body;
+      const { title, description, date, time, bookshopId } = req.body;
       
       // Basic validation
-      if (!title || !description || !date || !time || !bookstoreId) {
+      if (!title || !description || !date || !time || !bookshopId) {
         return res.status(400).json({ message: "All fields are required" });
       }
       
-      // Check if the bookstore exists
-      const bookstore = await storageImpl.getBookstore(bookstoreId);
-      if (!bookstore) {
-        return res.status(404).json({ message: "Bookstore not found" });
+      // Check if the bookshop exists
+      const bookshop = await storageImpl.getBookstore(bookshopId);
+      if (!bookshop) {
+        return res.status(404).json({ message: "Bookshop not found" });
       }
       
       // Create the event
       const newEvent = await storageImpl.createEvent({
-        bookstoreId,
+        bookshopId,
         title,
         description,
         date,

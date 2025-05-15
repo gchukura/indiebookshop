@@ -330,7 +330,7 @@ export class GoogleSheetsStorage implements IStorage {
     this.events = [
       {
         id: 1,
-        bookstoreId: 1,
+        bookshopId: 1,
         title: 'Meet the Author: Jane Smith',
         description: 'Jane Smith will be discussing her new novel "The Silent Echo".',
         date: '2025-05-15',
@@ -338,7 +338,7 @@ export class GoogleSheetsStorage implements IStorage {
       },
       {
         id: 2,
-        bookstoreId: 1,
+        bookshopId: 1,
         title: 'Children\'s Story Hour',
         description: 'Join us for a magical hour of storytelling for kids ages 4-8.',
         date: '2025-05-18',
@@ -346,7 +346,7 @@ export class GoogleSheetsStorage implements IStorage {
       },
       {
         id: 3,
-        bookstoreId: 2,
+        bookshopId: 2,
         title: 'Poetry Reading Night',
         description: 'Local poets share their latest works in an intimate setting.',
         date: '2025-05-20',
@@ -354,7 +354,7 @@ export class GoogleSheetsStorage implements IStorage {
       },
       {
         id: 4,
-        bookstoreId: 3,
+        bookshopId: 3,
         title: 'Book Club: "The Midnight Library"',
         description: 'Discussion of Matt Haig\'s bestselling novel.',
         date: '2025-05-25',
@@ -362,7 +362,7 @@ export class GoogleSheetsStorage implements IStorage {
       },
       {
         id: 5,
-        bookstoreId: 3,
+        bookshopId: 3,
         title: 'Coffee & Classics',
         description: 'A morning discussion of classic literature over fresh coffee.',
         date: '2025-05-16',
@@ -370,7 +370,7 @@ export class GoogleSheetsStorage implements IStorage {
       },
       {
         id: 6,
-        bookstoreId: 4,
+        bookshopId: 4,
         title: 'Local Author Showcase',
         description: 'Featuring five Austin-based authors and their recent publications.',
         date: '2025-05-22',
@@ -378,7 +378,7 @@ export class GoogleSheetsStorage implements IStorage {
       },
       {
         id: 7,
-        bookstoreId: 5,
+        bookshopId: 5,
         title: 'Young Writers Workshop',
         description: 'A creative writing workshop for teens interested in storytelling.',
         date: '2025-05-19',
