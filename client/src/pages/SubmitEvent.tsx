@@ -1,11 +1,49 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link } from "wouter";
 import EventSubmissionForm from "@/components/EventSubmissionForm";
 import { Button } from "@/components/ui/button";
+import { SEO } from "../components/SEO";
+import { BASE_URL } from "../lib/seo";
 
 const SubmitEvent = () => {
+  // SEO metadata
+  const seoTitle = useMemo(() => {
+    return "Submit a Bookstore Event | Independent Bookshop Event Calendar";
+  }, []);
+  
+  const seoDescription = useMemo(() => {
+    return "Share your bookstore's author signings, book clubs, reading groups, and literary events with our community. Submit indie bookshop events to our comprehensive events calendar.";
+  }, []);
+  
+  const seoKeywords = useMemo(() => {
+    return [
+      "submit bookstore event",
+      "indie bookshop events",
+      "bookstore reading calendar",
+      "author signing submission",
+      "literary events directory",
+      "book club listings",
+      "independent bookstore events",
+      "bookshop event calendar",
+      "promote book signing",
+      "advertise author talk"
+    ];
+  }, []);
+  
+  const canonicalUrl = useMemo(() => {
+    return `${BASE_URL}/submit-event`;
+  }, []);
+
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* SEO Component */}
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        canonicalUrl={canonicalUrl}
+      />
+      
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
           Submit a Bookstore Event
@@ -67,6 +105,24 @@ const SubmitEvent = () => {
           </div>
         </div>
       </div>
+      
+      {/* SEO-friendly content section */}
+      <section className="mt-12 bg-[#F7F3E8] rounded-lg p-6">
+        <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
+          Why Share Your Bookstore Events With Us?
+        </h2>
+        <div className="prose prose-p:text-gray-700 max-w-none">
+          <p>
+            Independent bookshops are cultural hubs that bring communities together through literary events. By submitting your bookstore events to our calendar, you'll reach a wider audience of book lovers actively seeking literary gatherings, author signings, and reading groups in their area.
+          </p>
+          <p>
+            Our event directory helps connect readers with independent bookstores across America. Whether you're hosting a major author signing, an intimate book club meeting, a children's storytime, or a writing workshop, our platform helps you promote these events to engaged readers searching for literary experiences.
+          </p>
+          <p>
+            Book events at indie bookshops contribute significantly to local literary culture and community building. They provide spaces for readers to connect with authors, discover new books, and engage with fellow book lovers. Your events help strengthen the vital ecosystem of independent bookstores that form the backbone of America's literary landscape.
+          </p>
+        </div>
+      </section>
     </div>
   );
 };
