@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Bookstore as Bookshop, Feature, Event } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import SingleLocationMap from '@/components/SingleLocationMap';
+import OptimizedImage from '@/components/OptimizedImage';
 import RelatedBookshops from '@/components/RelatedBookshops';
 
 const BookshopDetailPage = () => {
@@ -65,10 +66,14 @@ const BookshopDetailPage = () => {
   return (
     <div className="bg-[#F7F3E8] min-h-screen">
       <div className="relative h-64 md:h-96">
-        <img 
+        <OptimizedImage 
           src={bookshop.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400"}
-          alt={`${bookshop.name} interior panorama`} 
-          className="w-full h-full object-cover" 
+          alt={`${bookshop.name} interior panorama in ${bookshop.city}, ${bookshop.state}`} 
+          className="w-full h-full" 
+          objectFit="cover"
+          loading="eager"
+          sizes="100vw"
+          placeholderColor="#f7f3e8"
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -99,13 +104,49 @@ const BookshopDetailPage = () => {
               <div className="mt-8">
                 <h3 className="font-serif font-bold text-xl mb-4">Photo Gallery</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {/* Gallery images would be loaded from API in a real implementation */}
-                  <img src="https://pixabay.com/get/g19250fbdac2034d9a52598452a015110ca00e8a72f6f106864355fe192e17a2f7b06bb3391d499dc2b825b670440e97c837b67954aaaa898a198fa05df311386_1280.jpg" alt="Bookstore interior shelves" className="rounded-md h-40 w-full object-cover" />
-                  <img src="https://images.unsplash.com/photo-1524578271613-d550eacf6090?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" alt="Book display with staff recommendations" className="rounded-md h-40 w-full object-cover" />
-                  <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" alt="Reading area with comfortable seating" className="rounded-md h-40 w-full object-cover" />
-                  <img src="https://pixabay.com/get/gad7ae5ca8d3c20e6ea7d3000b277b675a63c751be2dad2863a5d5f792c8694ae9eda1dd7a4da67c8050e92d6d9e65616ab0e5d77451a37f6824bd02c471550ed_1280.jpg" alt="Bookstore storefront" className="rounded-md h-40 w-full object-cover" />
-                  <img src="https://pixabay.com/get/ge0dbb377908f4d4cf2abc1fb59b7bbebce8f79c3fc968b875fb589c86fa09193b24c436494cf183cb26093951597295d7e6f938ef23f48dbe21fdbb8e4ca8961_1280.jpg" alt="Café area with customers" className="rounded-md h-40 w-full object-cover" />
-                  <img src="https://pixabay.com/get/g8bf46861013f9985b53e992bfae870fb41e446b54a69402db4a287ead0c05467b3e92ea76bd39bebfc06fdba42143d720a995d603858b2cd3c4f461b441a6802_1280.jpg" alt="Author event with audience" className="rounded-md h-40 w-full object-cover" />
+                  {/* Using more reliable image sources with error handling */}
+                  {[1, 2, 3, 4, 5, 6].map((index) => {
+                    // Generate a set of reliable images with fallbacks
+                    const imageTypes = [
+                      { type: 'interior', label: 'bookstore interior' },
+                      { type: 'display', label: 'book display' },
+                      { type: 'reading', label: 'reading area' },
+                      { type: 'storefront', label: 'bookstore exterior' },
+                      { type: 'cafe', label: 'café area' },
+                      { type: 'event', label: 'author event' }
+                    ];
+                    
+                    const imageInfo = imageTypes[(index - 1) % imageTypes.length];
+                    
+                    // Set of reliable Unsplash images that won't break
+                    const unsplashImages = [
+                      'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
+                      'https://images.unsplash.com/photo-1524578271613-d550eacf6090?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
+                      'https://images.unsplash.com/photo-1526243741027-444d633d7365?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
+                      'https://images.unsplash.com/photo-1521123845560-14093637aa7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
+                      'https://images.unsplash.com/photo-1537497111996-4adb499e2534?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
+                      'https://images.unsplash.com/photo-1518373714866-3f1478910cc0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200'
+                    ];
+                    
+                    // Use bookshop's own image as first gallery image if available
+                    const imageSrc = index === 1 && bookshop.imageUrl 
+                      ? bookshop.imageUrl 
+                      : unsplashImages[(index - 1) % unsplashImages.length];
+                      
+                    return (
+                      <OptimizedImage 
+                        key={index}
+                        src={imageSrc}
+                        alt={`${imageInfo.label} at ${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
+                        className="rounded-md h-40 w-full" 
+                        objectFit="cover"
+                        loading="lazy"
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                        placeholderColor="#f7f3e8"
+                        onError={() => console.log(`Failed to load image ${index} for ${bookshop.name}`)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
               
