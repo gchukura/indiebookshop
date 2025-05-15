@@ -2,6 +2,10 @@ import { Link } from "wouter";
 import { Bookstore, Feature } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
 import BookshopIcon from "./BookshopIcon";
+import { 
+  generateBookshopImageAlt, 
+  optimizeImageUrl 
+} from "../lib/imageUtils";
 
 interface BookshopCardProps {
   bookstore: Bookstore; // using bookstore for backward compatibility, but will be renamed to bookshop in the prop

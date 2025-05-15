@@ -8,6 +8,7 @@ import {
   insertBookstoreSchema
 } from "@shared/schema";
 import { sendBookstoreSubmissionNotification } from "./email";
+import { generateSitemap } from "./sitemap";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express, storageImpl: IStorage = storage): Promise<Server> {
@@ -438,6 +439,9 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
     }
   });
 
+  // Sitemap route
+  app.get("/sitemap.xml", generateSitemap);
+  
   const httpServer = createServer(app);
   return httpServer;
 }
