@@ -61,10 +61,28 @@ if (process.env.GOOGLE_SHEETS_ID) {
 
 const storageImplementation = USE_GOOGLE_SHEETS ? new GoogleSheetsStorage() : storage;
 
+// Create data refresh manager with optimal settings
+const refreshManager = new DataRefreshManager(storageImplementation, {
+  // Use environment variables if provided, otherwise use sensible defaults
+  baseInterval: parseInt(process.env.REFRESH_INTERVAL || '1800000', 10), // 30 minutes by default
+  minRefreshInterval: parseInt(process.env.MIN_REFRESH_INTERVAL || '900000', 10), // 15 minutes by default
+  initialDelay: process.env.NODE_ENV === 'production' ? 300000 : 60000, // 5 minutes in prod, 1 minute in dev
+});
+
+// Enable or disable refresh based on environment
+if (process.env.DISABLE_AUTO_REFRESH === 'true') {
+  refreshManager.setEnabled(false);
+  log('Automatic data refresh is disabled via DISABLE_AUTO_REFRESH environment variable');
+}
+
 (async () => {
   const server = await registerRoutes(app, storageImplementation);
   
+  // Register refresh routes
+  registerRefreshRoutes(app, refreshManager);
+  
   log(`Using ${USE_GOOGLE_SHEETS ? 'Google Sheets' : 'in-memory'} storage implementation`);
+  log('Data refresh system initialized - data will automatically update from Google Sheets');
 
   // Add SSR middlewares before Vite setup
   // They only run for page requests, not API requests

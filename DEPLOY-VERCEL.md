@@ -30,13 +30,22 @@ Ensure your project is pushed to a Git repository (GitHub, GitLab, or Bitbucket)
 Add the following environment variables in the Vercel project settings:
 
 ```
+# Core environment settings
 NODE_ENV=production
 USE_SAMPLE_DATA=false
 USE_MEM_STORAGE=false
 GOOGLE_SHEETS_ID=your_google_sheets_id
+
+# API keys
 MAPBOX_ACCESS_TOKEN=your_mapbox_access_token
 SENDGRID_API_KEY=your_sendgrid_api_key
 GOOGLE_SERVICE_ACCOUNT_CREDENTIALS=your_credentials_json_string
+
+# Data refresh configuration
+REFRESH_API_KEY=your_custom_refresh_key     # Set a secure key for the refresh API
+REFRESH_INTERVAL=1800000                    # 30 minutes (in milliseconds)
+MIN_REFRESH_INTERVAL=900000                 # 15 minutes (in milliseconds)
+DISABLE_AUTO_REFRESH=false                  # Set to 'true' to disable automatic refresh
 ```
 
 **Important**: For the `GOOGLE_SERVICE_ACCOUNT_CREDENTIALS`, you need to:
@@ -79,3 +88,50 @@ To use your custom domain (e.g., indiebookshop.com):
 ## Ongoing Maintenance
 
 Vercel will automatically redeploy your application whenever changes are pushed to your repository's default branch.
+
+## Data Refresh System
+
+IndiebookShop.com includes a smart data refresh system that automatically updates content from Google Sheets.
+
+### How It Works
+
+1. **Automatic Refresh**: By default, the system will refresh data from Google Sheets approximately every 30 minutes.
+2. **Intelligent Timing**: 
+   - During peak hours, refreshes are spaced out to minimize API costs and maintain performance
+   - During off-peak hours (10 PM - 6 AM), refreshes happen more frequently
+   - If a refresh fails, the system uses exponential backoff to avoid overloading the API
+
+### Manual Refresh API
+
+You can manually trigger a data refresh using the refresh API:
+
+```bash
+# Replace YOUR_REFRESH_API_KEY with the value of REFRESH_API_KEY environment variable
+curl -X POST https://your-site.vercel.app/api/admin/refresh \
+  -H "X-Refresh-API-Key: YOUR_REFRESH_API_KEY"
+```
+
+### Checking Refresh Status
+
+Check the current status of the data refresh system:
+
+```bash
+# Replace YOUR_REFRESH_API_KEY with the value of REFRESH_API_KEY environment variable
+curl https://your-site.vercel.app/api/admin/refresh/status \
+  -H "X-Refresh-API-Key: YOUR_REFRESH_API_KEY"
+```
+
+### Disabling Automatic Refresh
+
+If needed, you can disable automatic refreshes by:
+
+1. Setting the `DISABLE_AUTO_REFRESH` environment variable to `true` in Vercel
+2. Using the API endpoint:
+
+```bash
+# Replace YOUR_REFRESH_API_KEY with the value of REFRESH_API_KEY environment variable
+curl -X POST https://your-site.vercel.app/api/admin/refresh/config \
+  -H "X-Refresh-API-Key: YOUR_REFRESH_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": false}'
+```

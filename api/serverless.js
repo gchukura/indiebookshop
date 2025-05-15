@@ -17,13 +17,23 @@ app.use(express.urlencoded({ extended: false }));
 
 // Import environment configuration
 import { ENV } from './env-config.js';
+import { DataRefreshManager } from '../server/dataRefresh.js';
+import { registerRefreshRoutes } from '../server/refreshRoutes.js';
+
+// Set up environment variables from config
+process.env.NODE_ENV = ENV.NODE_ENV;
+process.env.USE_SAMPLE_DATA = ENV.USE_SAMPLE_DATA;
+process.env.GOOGLE_SHEETS_ID = ENV.GOOGLE_SHEETS_ID;
+process.env.USE_MEM_STORAGE = ENV.USE_MEM_STORAGE;
+process.env.MAPBOX_ACCESS_TOKEN = ENV.MAPBOX_ACCESS_TOKEN;
+process.env.SENDGRID_API_KEY = ENV.SENDGRID_API_KEY;
+process.env.REFRESH_API_KEY = ENV.REFRESH_API_KEY;
+process.env.REFRESH_INTERVAL = ENV.REFRESH_INTERVAL;
+process.env.MIN_REFRESH_INTERVAL = ENV.MIN_REFRESH_INTERVAL;
+process.env.DISABLE_AUTO_REFRESH = ENV.DISABLE_AUTO_REFRESH;
 
 // Choose which storage implementation to use
 const USE_GOOGLE_SHEETS = ENV.USE_MEM_STORAGE !== 'true';
-process.env.USE_SAMPLE_DATA = ENV.USE_SAMPLE_DATA || 'true';
-process.env.GOOGLE_SHEETS_ID = ENV.GOOGLE_SHEETS_ID;
-process.env.MAPBOX_ACCESS_TOKEN = ENV.MAPBOX_ACCESS_TOKEN;
-process.env.SENDGRID_API_KEY = ENV.SENDGRID_API_KEY;
 
 // Setup storage
 const storageImplementation = USE_GOOGLE_SHEETS ? new GoogleSheetsStorage() : storage;
@@ -31,11 +41,30 @@ const storageImplementation = USE_GOOGLE_SHEETS ? new GoogleSheetsStorage() : st
 // Initialize server
 let server;
 let isSetup = false;
+let refreshManager;
 
 async function setupServer() {
   if (!isSetup) {
     server = createServer();
     await registerRoutes(app, storageImplementation);
+    
+    // Create and configure data refresh manager
+    refreshManager = new DataRefreshManager(storageImplementation, {
+      baseInterval: parseInt(ENV.REFRESH_INTERVAL, 10),
+      minRefreshInterval: parseInt(ENV.MIN_REFRESH_INTERVAL, 10),
+      initialDelay: ENV.NODE_ENV === 'production' ? 300000 : 60000,
+    });
+    
+    // Enable or disable auto-refresh based on environment
+    if (ENV.DISABLE_AUTO_REFRESH === 'true') {
+      refreshManager.setEnabled(false);
+      console.log('Automatic data refresh is disabled via DISABLE_AUTO_REFRESH environment variable');
+    } else {
+      console.log('Automatic data refresh is enabled - data will be refreshed periodically');
+    }
+    
+    // Register refresh API routes
+    registerRefreshRoutes(app, refreshManager);
     
     // Add middleware
     app.use(dataPreloadMiddleware);
