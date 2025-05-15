@@ -34,7 +34,7 @@ const Hero = () => {
               onClick={handleAddBookshop}
               className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white rounded-full px-8 py-6 text-lg"
             >
-              Add a Bookshop
+              Add Bookshop
             </Button>
           </div>
         </div>
