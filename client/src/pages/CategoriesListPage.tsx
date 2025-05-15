@@ -13,7 +13,7 @@ const CategoriesListPage = () => {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          By Category
+          Search for Bookshops by Category
         </h1>
         <p className="text-gray-600 mb-6">
           Find independent bookshops offering specific features and specialties. Select a category to see all bookshops that offer it.

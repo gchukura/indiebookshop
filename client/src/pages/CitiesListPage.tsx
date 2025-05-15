@@ -78,7 +78,7 @@ const CitiesListPage = () => {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          By City
+          Search for Bookshops by City
         </h1>
         
         {/* Search Bar */}
