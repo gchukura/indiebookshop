@@ -3,7 +3,7 @@ import { Bookstore, Feature, Event } from '@shared/schema';
 
 interface SheetsConfig {
   spreadsheetId: string;
-  bookstoreRange: string;
+  bookshopRange: string;
   featuresRange: string;
   eventsRange: string;
 }
@@ -15,7 +15,7 @@ const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1Qa3AW5Zmu0X4yT3fXjmoU62
 // Default configuration
 const DEFAULT_CONFIG: SheetsConfig = {
   spreadsheetId: SPREADSHEET_ID,
-  bookstoreRange: 'Bookstores!A2:O', // Added an additional column for 'live' field
+  bookshopRange: 'Bookstores!A2:O', // Added an additional column for 'live' field
   featuresRange: 'Features!A2:B',    // Assumes headers are in row 1
   eventsRange: 'Events!A2:F'         // Assumes headers are in row 1
 };
@@ -71,23 +71,23 @@ export class GoogleSheetsService {
     }
   }
 
-  // Fetch all bookstores from the Google Sheet
+  // Fetch all bookshops from the Google Sheet
   async getBookstores(): Promise<Bookstore[]> {
     try {
-      console.log(`Fetching bookstores from Google Sheets range: ${this.config.bookstoreRange}`);
+      console.log(`Fetching bookshops from Google Sheets range: ${this.config.bookshopRange}`);
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: this.config.spreadsheetId,
-        range: this.config.bookstoreRange,
+        range: this.config.bookshopRange,
       });
 
       const rows = response.data.values;
       if (!rows || rows.length === 0) {
-        console.log('No bookstore data found in the spreadsheet');
+        console.log('No bookshop data found in the spreadsheet');
         return [];
       }
 
       // Convert rows to Bookstore objects
-      const bookstores: Bookstore[] = rows.map((row, index) => {
+      const bookshops: Bookstore[] = rows.map((row, index) => {
         try {
           // Assuming columns are in this order:
           // id, name, street, city, state, zip, description, imageUrl, website, phone, hours (JSON), latitude, longitude, featureIds (comma-separated)
@@ -109,7 +109,7 @@ export class GoogleSheetsService {
               hours = JSON.parse(row[10]);
             }
           } catch (e) {
-            console.error(`Error parsing hours for bookstore ${id}:`, e);
+            console.error(`Error parsing hours for bookshop ${id}:`, e);
           }
 
           const latitude = row[11] || null;
@@ -122,7 +122,7 @@ export class GoogleSheetsService {
               featureIds = row[13].split(',').map(id => parseInt(id.trim()));
             }
           } catch (e) {
-            console.error(`Error parsing featureIds for bookstore ${id}:`, e);
+            console.error(`Error parsing featureIds for bookshop ${id}:`, e);
           }
           
           // Parse live status (default to true if not provided)
@@ -134,7 +134,7 @@ export class GoogleSheetsService {
               live = liveStr === 'yes' || liveStr === 'true' || liveStr === '1';
             }
           } catch (e) {
-            console.error(`Error parsing live status for bookstore ${id}:`, e);
+            console.error(`Error parsing live status for bookshop ${id}:`, e);
           }
 
           return {

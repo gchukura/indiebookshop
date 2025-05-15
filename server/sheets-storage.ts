@@ -386,32 +386,4 @@ export class GoogleSheetsStorage implements IStorage {
       }
     ];
   }
-
-  // Get all events
-  async getEvents(): Promise<Event[]> {
-    await this.ensureInitialized();
-    return this.events;
-  }
-
-  // Get events for a specific bookshop
-  async getEventsByBookshop(bookshopId: number): Promise<Event[]> {
-    await this.ensureInitialized();
-    return this.events.filter(event => event.bookshopId === bookshopId);
-  }
-
-  // Create a new event
-  async createEvent(event: InsertEvent): Promise<Event> {
-    await this.ensureInitialized();
-    const id = this.events.length > 0 ? Math.max(...this.events.map(e => e.id)) + 1 : 1;
-    const newEvent: Event = { ...event, id };
-    this.events.push(newEvent);
-    return newEvent;
-  }
-
-  // Refresh data from Google Sheets
-  async refreshData(): Promise<void> {
-    this.isInitialized = false;
-    await this.loadData();
-    this.isInitialized = true;
-  }
 }
