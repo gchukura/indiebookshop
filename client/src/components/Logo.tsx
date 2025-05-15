@@ -52,13 +52,13 @@ const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
           </text>
           
           {/* Bookshop */}
-          <text x="110" fontFamily="serif" fontWeight="bold" fontSize="42" fill={LOGO_COLORS.ORANGE}>
+          <text x="90" fontFamily="serif" fontWeight="bold" fontSize="42" fill={LOGO_COLORS.ORANGE}>
             Bookshop
           </text>
           
           {/* .com */}
           {showDotCom && (
-            <text x="320" fontFamily="serif" fontWeight="bold" fontSize="28" fill={LOGO_COLORS.GRAY}>
+            <text x="270" fontFamily="serif" fontWeight="bold" fontSize="28" fill={LOGO_COLORS.GRAY}>
               .com
             </text>
           )}
