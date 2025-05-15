@@ -1,11 +1,17 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Hero from "@/components/Hero";
 import { Bookstore as Bookshop, Feature } from "@shared/schema";
 import BookshopIcon from "@/components/BookshopIcon";
 import MapboxMap from "@/components/MapboxMap";
 import BookshopDetail from "@/components/BookshopDetail";
+import { SEO } from "../components/SEO";
+import { 
+  BASE_URL, 
+  PAGE_KEYWORDS,
+  DESCRIPTION_TEMPLATES 
+} from "../lib/seo";
 
 const Home = () => {
   // Fetch all bookshops
@@ -28,6 +34,40 @@ const Home = () => {
   // State for the interactive map
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  
+  // SEO metadata for the homepage
+  const seoTitle = useMemo(() => {
+    return "IndiebookShop.com | Find Independent Bookshops Near You";
+  }, []);
+  
+  const seoDescription = useMemo(() => {
+    return DESCRIPTION_TEMPLATES.home;
+  }, []);
+  
+  const seoKeywords = useMemo(() => {
+    return [
+      "independent bookshops",
+      "indie bookstores",
+      "local bookshops",
+      "find bookshops",
+      "bookstore directory",
+      "indie bookshop map",
+      "bookshops near me",
+      "local booksellers",
+      "independent bookstores directory",
+      "support local bookshops",
+      "indie bookshop finder",
+      "bookstore events",
+      "literary community",
+      "book lovers guide",
+      "browse indie bookshops",
+      ...PAGE_KEYWORDS.home.additionalKeywords
+    ];
+  }, []);
+  
+  const canonicalUrl = useMemo(() => {
+    return BASE_URL;
+  }, []);
   
   // Handle bookshop selection from the map
   const handleSelectBookshop = (id: number) => {
@@ -87,6 +127,14 @@ const Home = () => {
 
   return (
     <div>
+      {/* SEO Component */}
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        canonicalUrl={canonicalUrl}
+      />
+      
       {/* Bookshop Detail Modal */}
       {selectedBookshopId && (
         <BookshopDetail
@@ -102,6 +150,12 @@ const Home = () => {
       {/* Interactive Map Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">Find Independent Bookshops Near You</h2>
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-6">
+              Use our interactive map to explore indie bookshops across America. Click on any pin to view details about the bookshop, including hours, special features, and contact information.
+            </p>
+          </div>
           <div className="h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-8">
             {bookshops && (
               <MapboxMap 
@@ -124,9 +178,12 @@ const Home = () => {
               {/* Heading centered on the top border */}
               <div className="absolute -top-5 left-0 w-full flex justify-center">
                 <h2 className="inline-block bg-white px-5 text-3xl font-serif font-bold text-[#5F4B32]">
-                  ⭐ Featured Bookshops
+                  ⭐ Featured Independent Bookshops
                 </h2>
               </div>
+              <p className="text-center text-lg text-gray-700 mb-8">
+                Discover our community's favorite independent bookstores. These curated indie bookshops offer unique experiences for book lovers.
+              </p>
             
               {isLoading ? (
                 <div className="text-center py-10">
@@ -340,6 +397,37 @@ const Home = () => {
                 />
                 <div className="absolute inset-0 bg-[#5F4B32]/20"></div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* SEO Content Section */}
+      <section className="py-16 bg-[#F7F3E8]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+              Discover Independent Bookshops Across America
+            </h2>
+            <div className="prose prose-lg prose-p:text-gray-700 mx-auto">
+              <p>
+                Welcome to IndiebookShop.com, your comprehensive guide to independent bookshops across the United States and beyond. 
+                Our directory connects book lovers with local independent booksellers, helping you discover unique literary spaces in your neighborhood or while traveling.
+              </p>
+              <p>
+                Independent bookshops are vital cultural hubs that foster community, support local economies, and celebrate the diversity of literature. 
+                Each indie bookshop in our directory offers a unique experience that goes beyond the transactional nature of large chain stores or online retailers.
+              </p>
+              <p>
+                Use our interactive map to find indie bookshops near you, browse by state to plan your next literary road trip, or explore by specialty to find bookstores 
+                that match your interests. From children's bookshops to stores specializing in rare books, poetry, or particular genres, our directory helps you 
+                find the perfect independent bookstore for your needs.
+              </p>
+              <p>
+                Support local independent bookshops by visiting them in person, attending their events, and spreading the word about these vital community spaces. 
+                When you shop at an indie bookshop, you're not just buying a book—you're investing in your local literary ecosystem and helping to preserve the 
+                unique character of your community.
+              </p>
             </div>
           </div>
         </div>
