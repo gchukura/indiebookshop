@@ -1,0 +1,10 @@
+# robots.txt for IndiebookShop.com
+User-agent: *
+Allow: /
+
+# Allow all search engines to access all content
+Disallow: /api/
+Disallow: /admin/
+
+# Point to sitemap
+Sitemap: https://indiebookshop.com/sitemap.xml
