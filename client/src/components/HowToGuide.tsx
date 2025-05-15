@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import SchemaOrg from "./SchemaOrg";
+import { SchemaOrg } from "./SchemaOrg";
 import OptimizedImage from "./OptimizedImage";
 
 interface HowToStep {

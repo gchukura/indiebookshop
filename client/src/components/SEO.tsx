@@ -47,6 +47,10 @@ export const SEO = ({
   
   const isArticle = ogType === 'article';
   
+  // Convert ogType to string if it's a symbol or object
+  const safeOgType = typeof ogType === 'string' ? ogType : 'website';
+  const safeTwitterCard = typeof twitterCard === 'string' ? twitterCard : 'summary_large_image';
+  
   return (
     <Helmet>
       <title>{fullTitle}</title>
@@ -59,7 +63,7 @@ export const SEO = ({
       {/* Open Graph Tags */}
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
-      <meta property="og:type" content={ogType} />
+      <meta property="og:type" content={safeOgType} />
       {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
       {ogImage && (
         <>
@@ -92,7 +96,7 @@ export const SEO = ({
       ))}
       
       {/* Twitter Card Tags */}
-      <meta name="twitter:card" content={twitterCard} />
+      <meta name="twitter:card" content={safeTwitterCard} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       {twitterSite && <meta name="twitter:site" content={twitterSite} />}
