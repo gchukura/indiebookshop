@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f7f3e8"/>
+  
+  <!-- Bookshelves -->
+  <rect x="50" y="100" width="700" height="400" fill="#8B4513"/>
+  <rect x="60" y="110" width="680" height="380" fill="#6b3510"/>
+  
+  <!-- Shelf dividers -->
+  <rect x="60" y="200" width="680" height="10" fill="#8B4513"/>
+  <rect x="60" y="300" width="680" height="10" fill="#8B4513"/>
+  <rect x="60" y="400" width="680" height="10" fill="#8B4513"/>
+  
+  <!-- Vertical dividers -->
+  <rect x="200" y="110" width="10" height="380" fill="#8B4513"/>
+  <rect x="400" y="110" width="10" height="380" fill="#8B4513"/>
+  <rect x="600" y="110" width="10" height="380" fill="#8B4513"/>
+  
+  <!-- Books on shelves -->
+  <!-- Top shelf -->
+  <rect x="70" y="120" width="20" height="80" fill="#b54141"/>
+  <rect x="95" y="120" width="25" height="80" fill="#5b68ad"/>
+  <rect x="125" y="120" width="15" height="80" fill="#469e47"/>
+  <rect x="145" y="120" width="20" height="80" fill="#d6973e"/>
+  <rect x="170" y="120" width="25" height="80" fill="#8541b5"/>
+  
+  <rect x="220" y="120" width="30" height="80" fill="#41a3b5"/>
+  <rect x="255" y="120" width="20" height="80" fill="#b56841"/>
+  <rect x="280" y="120" width="25" height="80" fill="#8795ce"/>
+  <rect x="310" y="120" width="15" height="80" fill="#67b541"/>
+  <rect x="330" y="120" width="30" height="80" fill="#b5417d"/>
+  <rect x="365" y="120" width="25" height="80" fill="#419fb5"/>
+  
+  <rect x="420" y="120" width="20" height="80" fill="#b54141"/>
+  <rect x="445" y="120" width="30" height="80" fill="#5b68ad"/>
+  <rect x="480" y="120" width="15" height="80" fill="#469e47"/>
+  <rect x="500" y="120" width="25" height="80" fill="#d6973e"/>
+  <rect x="530" y="120" width="20" height="80" fill="#8541b5"/>
+  <rect x="555" y="120" width="35" height="80" fill="#41a3b5"/>
+  
+  <rect x="620" y="120" width="25" height="80" fill="#b56841"/>
+  <rect x="650" y="120" width="30" height="80" fill="#8795ce"/>
+  <rect x="685" y="120" width="20" height="80" fill="#67b541"/>
+  <rect x="710" y="120" width="25" height="80" fill="#b5417d"/>
+  
+  <!-- Middle shelf -->
+  <rect x="70" y="210" width="30" height="90" fill="#9e6b47"/>
+  <rect x="105" y="210" width="25" height="90" fill="#476b9e"/>
+  <rect x="135" y="210" width="20" height="90" fill="#6b9e47"/>
+  <rect x="160" y="210" width="30" height="90" fill="#9e476b"/>
+  
+  <rect x="220" y="210" width="20" height="90" fill="#479e6b"/>
+  <rect x="245" y="210" width="30" height="90" fill="#6b479e"/>
+  <rect x="280" y="210" width="25" height="90" fill="#9e9447"/>
+  <rect x="310" y="210" width="20" height="90" fill="#479e94"/>
+  <rect x="335" y="210" width="30" height="90" fill="#94479e"/>
+  <rect x="370" y="210" width="20" height="90" fill="#7a947a"/>
+  
+  <rect x="420" y="210" width="25" height="90" fill="#7a947a"/>
+  <rect x="450" y="210" width="30" height="90" fill="#94947a"/>
+  <rect x="485" y="210" width="20" height="90" fill="#7a9494"/>
+  <rect x="510" y="210" width="25" height="90" fill="#947a94"/>
+  <rect x="540" y="210" width="30" height="90" fill="#7a947a"/>
+  <rect x="575" y="210" width="20" height="90" fill="#947a7a"/>
+  
+  <rect x="620" y="210" width="30" height="90" fill="#7a7a94"/>
+  <rect x="655" y="210" width="20" height="90" fill="#94947a"/>
+  <rect x="680" y="210" width="30" height="90" fill="#7a9494"/>
+  <rect x="715" y="210" width="20" height="90" fill="#947a94"/>
+  
+  <!-- Bottom shelf -->
+  <rect x="70" y="310" width="25" height="90" fill="#3e6b82"/>
+  <rect x="100" y="310" width="30" height="90" fill="#826b3e"/>
+  <rect x="135" y="310" width="20" height="90" fill="#3e8255"/>
+  <rect x="160" y="310" width="30" height="90" fill="#823e6b"/>
+  
+  <rect x="220" y="310" width="25" height="90" fill="#553e82"/>
+  <rect x="250" y="310" width="30" height="90" fill="#82553e"/>
+  <rect x="285" y="310" width="20" height="90" fill="#3e8255"/>
+  <rect x="310" y="310" width="25" height="90" fill="#823e55"/>
+  <rect x="340" y="310" width="30" height="90" fill="#553e82"/>
+  <rect x="375" y="310" width="20" height="90" fill="#3e8282"/>
+  
+  <rect x="420" y="310" width="30" height="90" fill="#823e3e"/>
+  <rect x="455" y="310" width="20" height="90" fill="#3e3e82"/>
+  <rect x="480" y="310" width="25" height="90" fill="#3e823e"/>
+  <rect x="510" y="310" width="30" height="90" fill="#823e3e"/>
+  <rect x="545" y="310" width="20" height="90" fill="#3e3e82"/>
+  <rect x="570" y="310" width="25" height="90" fill="#3e823e"/>
+  
+  <rect x="620" y="310" width="30" height="90" fill="#823e3e"/>
+  <rect x="655" y="310" width="20" height="90" fill="#3e3e82"/>
+  <rect x="680" y="310" width="25" height="90" fill="#3e823e"/>
+  <rect x="710" y="310" width="30" height="90" fill="#823e3e"/>
+  
+  <!-- Lowest shelf -->
+  <rect x="70" y="410" width="20" height="80" fill="#6b6b6b"/>
+  <rect x="95" y="410" width="25" height="80" fill="#8d8d8d"/>
+  <rect x="125" y="410" width="30" height="80" fill="#6b6b6b"/>
+  <rect x="160" y="410" width="20" height="80" fill="#8d8d8d"/>
+  
+  <rect x="220" y="410" width="25" height="80" fill="#6b6b6b"/>
+  <rect x="250" y="410" width="30" height="80" fill="#8d8d8d"/>
+  <rect x="285" y="410" width="20" height="80" fill="#6b6b6b"/>
+  <rect x="310" y="410" width="25" height="80" fill="#8d8d8d"/>
+  <rect x="340" y="410" width="30" height="80" fill="#6b6b6b"/>
+  <rect x="375" y="410" width="20" height="80" fill="#8d8d8d"/>
+  
+  <rect x="420" y="410" width="25" height="80" fill="#6b6b6b"/>
+  <rect x="450" y="410" width="30" height="80" fill="#8d8d8d"/>
+  <rect x="485" y="410" width="20" height="80" fill="#6b6b6b"/>
+  <rect x="510" y="410" width="25" height="80" fill="#8d8d8d"/>
+  <rect x="540" y="410" width="30" height="80" fill="#6b6b6b"/>
+  <rect x="575" y="410" width="20" height="80" fill="#8d8d8d"/>
+  
+  <rect x="620" y="410" width="25" height="80" fill="#6b6b6b"/>
+  <rect x="650" y="410" width="30" height="80" fill="#8d8d8d"/>
+  <rect x="685" y="410" width="20" height="80" fill="#6b6b6b"/>
+  <rect x="710" y="410" width="25" height="80" fill="#8d8d8d"/>
+  
+  <!-- Floor shadow -->
+  <rect x="0" y="500" width="800" height="100" fill="#e5e0d5"/>
+  
+  <!-- Text -->
+  <text x="400" y="550" font-family="Arial" font-size="24" fill="#555" text-anchor="middle">Independent Bookshop Interior</text>
+</svg>

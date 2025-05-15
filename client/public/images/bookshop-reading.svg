@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f7f3e8"/>
+  
+  <!-- Floor -->
+  <rect x="0" y="500" width="800" height="100" fill="#e5e0d5"/>
+  
+  <!-- Reading chair -->
+  <rect x="500" y="300" width="200" height="200" rx="20" fill="#7a947a"/>
+  <rect x="500" y="300" width="200" height="50" rx="10" fill="#6b836b"/>
+  <rect x="500" y="350" width="200" height="30" fill="#6b836b"/>
+  <rect x="500" y="450" width="200" height="50" fill="#6b836b"/>
+  <rect x="480" y="320" width="20" height="180" fill="#6b836b"/>
+  
+  <!-- Side table -->
+  <rect x="350" y="400" width="100" height="20" fill="#8B4513"/>
+  <rect x="370" y="420" width="60" height="80" fill="#6b3510"/>
+  
+  <!-- Lamp on table -->
+  <rect x="390" y="380" width="10" height="20" fill="#d4c9a8"/>
+  <path d="M 370 380 Q 395 330 420 380 Z" fill="#f0e6c3"/>
+  <circle cx="395" cy="370" r="5" fill="#ffd700"/>
+  
+  <!-- Book on table -->
+  <rect x="360" y="385" width="25" height="15" fill="#b54141"/>
+  
+  <!-- Bookshelf in background -->
+  <rect x="100" y="150" width="200" height="350" fill="#8B4513"/>
+  <rect x="110" y="160" width="180" height="330" fill="#6b3510"/>
+  
+  <!-- Shelf dividers -->
+  <rect x="110" y="220" width="180" height="10" fill="#8B4513"/>
+  <rect x="110" y="290" width="180" height="10" fill="#8B4513"/>
+  <rect x="110" y="360" width="180" height="10" fill="#8B4513"/>
+  <rect x="110" y="430" width="180" height="10" fill="#8B4513"/>
+  
+  <!-- Books on shelves -->
+  <!-- Top shelf -->
+  <rect x="120" y="170" width="20" height="50" fill="#b54141"/>
+  <rect x="145" y="170" width="15" height="50" fill="#5b68ad"/>
+  <rect x="165" y="170" width="25" height="50" fill="#469e47"/>
+  <rect x="195" y="170" width="20" height="50" fill="#d6973e"/>
+  <rect x="220" y="170" width="15" height="50" fill="#8541b5"/>
+  <rect x="240" y="170" width="25" height="50" fill="#41a3b5"/>
+  <rect x="270" y="170" width="10" height="50" fill="#b56841"/>
+  
+  <!-- Second shelf -->
+  <rect x="120" y="230" width="25" height="60" fill="#9e6b47"/>
+  <rect x="150" y="230" width="20" height="60" fill="#476b9e"/>
+  <rect x="175" y="230" width="15" height="60" fill="#6b9e47"/>
+  <rect x="195" y="230" width="25" height="60" fill="#9e476b"/>
+  <rect x="225" y="230" width="20" height="60" fill="#479e6b"/>
+  <rect x="250" y="230" width="15" height="60" fill="#6b479e"/>
+  <rect x="270" y="230" width="10" height="60" fill="#9e9447"/>
+  
+  <!-- Third shelf -->
+  <rect x="120" y="300" width="15" height="60" fill="#3e6b82"/>
+  <rect x="140" y="300" width="20" height="60" fill="#826b3e"/>
+  <rect x="165" y="300" width="25" height="60" fill="#3e8255"/>
+  <rect x="195" y="300" width="15" height="60" fill="#823e6b"/>
+  <rect x="215" y="300" width="25" height="60" fill="#553e82"/>
+  <rect x="245" y="300" width="20" height="60" fill="#82553e"/>
+  <rect x="270" y="300" width="10" height="60" fill="#3e8255"/>
+  
+  <!-- Fourth shelf -->
+  <rect x="120" y="370" width="20" height="60" fill="#6b6b6b"/>
+  <rect x="145" y="370" width="25" height="60" fill="#8d8d8d"/>
+  <rect x="175" y="370" width="15" height="60" fill="#6b6b6b"/>
+  <rect x="195" y="370" width="20" height="60" fill="#8d8d8d"/>
+  <rect x="220" y="370" width="25" height="60" fill="#6b6b6b"/>
+  <rect x="250" y="370" width="30" height="60" fill="#8d8d8d"/>
+  
+  <!-- Person reading in chair (simplified) -->
+  <circle cx="600" cy="350" r="30" fill="#e0c8a0"/>  <!-- head -->
+  <rect x="585" y="380" width="30" height="70" fill="#5d8aa8"/> <!-- body -->
+  <rect x="575" y="380" width="10" height="50" transform="rotate(20, 575, 380)" fill="#5d8aa8"/> <!-- left arm -->
+  <rect x="615" y="380" width="10" height="50" transform="rotate(-20, 615, 380)" fill="#5d8aa8"/> <!-- right arm -->
+  <rect x="585" y="450" width="15" height="50" fill="#4a6c88"/> <!-- left leg -->
+  <rect x="600" y="450" width="15" height="50" fill="#4a6c88"/> <!-- right leg -->
+  
+  <!-- Book being read -->
+  <rect x="560" y="405" width="40" height="30" transform="rotate(-10, 560, 405)" fill="#e65c4f"/>
+  
+  <!-- Reading lamp -->
+  <rect x="700" y="300" width="10" height="200" fill="#d4c9a8"/>
+  <path d="M 650 300 Q 705 250 760 300 Z" fill="#f0e6c3"/>
+  <circle cx="705" cy="290" r="5" fill="#ffd700"/>
+  
+  <!-- Window with view -->
+  <rect x="50" y="150" width="120" height="180" fill="#a6cef7"/>
+  <rect x="60" y="160" width="100" height="160" fill="#c5e0ff"/>
+  <rect x="110" y="160" width="5" height="160" fill="#a6cef7"/>
+  <rect x="60" y="240" width="100" height="5" fill="#a6cef7"/>
+  
+  <!-- Text -->
+  <text x="400" y="570" font-family="Arial" font-size="20" fill="#555" text-anchor="middle">Cozy Reading Corner</text>
+</svg>

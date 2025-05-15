@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f7f3e8"/>
+  
+  <!-- Floor -->
+  <rect x="0" y="500" width="800" height="100" fill="#e5e0d5"/>
+  
+  <!-- Back wall with bookshelves -->
+  <rect x="50" y="100" width="700" height="400" fill="#f9f6f0"/>
+  
+  <!-- Simple bookshelves on back wall -->
+  <rect x="100" y="150" width="150" height="250" fill="#8B4513"/>
+  <rect x="110" y="160" width="130" height="230" fill="#6b3510"/>
+  
+  <rect x="550" y="150" width="150" height="250" fill="#8B4513"/>
+  <rect x="560" y="160" width="130" height="230" fill="#6b3510"/>
+  
+  <!-- Shelf dividers -->
+  <rect x="110" y="200" width="130" height="5" fill="#8B4513"/>
+  <rect x="110" y="250" width="130" height="5" fill="#8B4513"/>
+  <rect x="110" y="300" width="130" height="5" fill="#8B4513"/>
+  <rect x="110" y="350" width="130" height="5" fill="#8B4513"/>
+  
+  <rect x="560" y="200" width="130" height="5" fill="#8B4513"/>
+  <rect x="560" y="250" width="130" height="5" fill="#8B4513"/>
+  <rect x="560" y="300" width="130" height="5" fill="#8B4513"/>
+  <rect x="560" y="350" width="130" height="5" fill="#8B4513"/>
+  
+  <!-- Books on shelves (simplified) -->
+  <rect x="120" y="160" width="100" height="40" fill="#b54141"/>
+  <rect x="120" y="210" width="100" height="40" fill="#5b68ad"/>
+  <rect x="120" y="260" width="100" height="40" fill="#469e47"/>
+  <rect x="120" y="310" width="100" height="40" fill="#d6973e"/>
+  
+  <rect x="570" y="160" width="100" height="40" fill="#8541b5"/>
+  <rect x="570" y="210" width="100" height="40" fill="#41a3b5"/>
+  <rect x="570" y="260" width="100" height="40" fill="#b56841"/>
+  <rect x="570" y="310" width="100" height="40" fill="#67b541"/>
+  
+  <!-- Café counter -->
+  <rect x="300" y="150" width="200" height="100" fill="#8B4513"/>
+  <rect x="310" y="160" width="180" height="80" fill="#6b3510"/>
+  
+  <!-- Coffee machine -->
+  <rect x="340" y="130" width="120" height="30" fill="#777"/>
+  <rect x="360" y="160" width="80" height="10" fill="#555"/>
+  <rect x="380" y="170" width="40" height="30" fill="#999"/>
+  
+  <!-- Menu board -->
+  <rect x="380" y="80" width="120" height="50" fill="#222"/>
+  <text x="440" y="105" font-family="Arial" font-size="14" fill="#fff" text-anchor="middle">CAFÉ MENU</text>
+  <text x="440" y="125" font-family="Arial" font-size="10" fill="#fff" text-anchor="middle">Coffee • Tea • Pastries</text>
+  
+  <!-- Café tables -->
+  <!-- Table 1 -->
+  <circle cx="200" cy="400" r="30" fill="#8B4513"/>
+  <circle cx="200" cy="400" r="25" fill="#6b3510"/>
+  <rect x="195" y="430" width="10" height="70" fill="#8B4513"/>
+  
+  <circle cx="170" cy="380" r="10" fill="#b56841"/>  <!-- coffee cup -->
+  <rect x="180" cy="390" width="25" height="15" fill="#5b68ad"/>  <!-- book -->
+  
+  <!-- Table 2 -->
+  <circle cx="400" cy="400" r="30" fill="#8B4513"/>
+  <circle cx="400" cy="400" r="25" fill="#6b3510"/>
+  <rect x="395" y="430" width="10" height="70" fill="#8B4513"/>
+  
+  <circle cx="385" cy="385" r="10" fill="#b56841"/>  <!-- coffee cup -->
+  <circle cx="415" cy="385" r="10" fill="#b56841"/>  <!-- coffee cup -->
+  <rect x="390" cy="410" width="20" height="15" fill="#d6973e"/>  <!-- book -->
+  
+  <!-- Table 3 -->
+  <circle cx="600" cy="400" r="30" fill="#8B4513"/>
+  <circle cx="600" cy="400" r="25" fill="#6b3510"/>
+  <rect x="595" y="430" width="10" height="70" fill="#8B4513"/>
+  
+  <circle cx="580" cy="390" r="10" fill="#b56841"/>  <!-- coffee cup -->
+  <rect x="595" cy="380" width="30" height="20" fill="#67b541"/>  <!-- book -->
+  
+  <!-- Chairs (simplified) -->
+  <circle cx="170" cy="420" r="15" fill="#7a947a"/>
+  <circle cx="230" cy="420" r="15" fill="#7a947a"/>
+  
+  <circle cx="370" cy="420" r="15" fill="#7a947a"/>
+  <circle cx="430" cy="420" r="15" fill="#7a947a"/>
+  
+  <circle cx="570" cy="420" r="15" fill="#7a947a"/>
+  <circle cx="630" cy="420" r="15" fill="#7a947a"/>
+  
+  <!-- People at tables (simplified) -->
+  <circle cx="170" cy="420" r="10" fill="#e0c8a0"/>  <!-- person -->
+  <circle cx="430" cy="420" r="10" fill="#e0c8a0"/>  <!-- person -->
+  <circle cx="570" cy="420" r="10" fill="#e0c8a0"/>  <!-- person -->
+  
+  <!-- Text -->
+  <text x="400" y="560" font-family="Arial" font-size="20" fill="#555" text-anchor="middle">Bookshop Café Corner</text>
+</svg>
