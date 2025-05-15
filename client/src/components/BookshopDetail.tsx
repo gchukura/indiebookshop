@@ -179,48 +179,48 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                     <div className="mt-6">
                       <h3 className="font-serif font-bold text-xl mb-4">Photo Gallery</h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {/* Use simple img tags with reliable static book images */}
+                        {/* Use locally hosted SVG images that we created */}
                         <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
                           <img 
-                            src={bookshop.imageUrl || "https://cdn.pixabay.com/photo/2017/08/07/02/14/books-2598032_960_720.jpg"} 
+                            src={bookshop.imageUrl || "/images/bookshop-interior.svg"} 
                             alt={`${bookshop.name} bookstore interior`}
                             className="h-full w-full object-cover"
                             onError={(e) => {
-                              e.currentTarget.src = "https://cdn.pixabay.com/photo/2017/08/07/02/14/books-2598032_960_720.jpg";
+                              e.currentTarget.src = "/images/bookshop-interior.svg";
                             }}
                           />
                         </div>
                         <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
                           <img 
-                            src="https://cdn.pixabay.com/photo/2018/03/19/18/20/tea-3240766_960_720.jpg" 
+                            src="/images/bookshop-display.svg" 
                             alt={`Book display at ${bookshop.name}`}
                             className="h-full w-full object-cover"
                           />
                         </div>
                         <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
                           <img 
-                            src="https://cdn.pixabay.com/photo/2016/09/10/17/18/book-1659717_960_720.jpg" 
+                            src="/images/bookshop-reading.svg" 
                             alt={`Reading area at ${bookshop.name}`}
                             className="h-full w-full object-cover"
                           />
                         </div>
                         <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
                           <img 
-                            src="https://cdn.pixabay.com/photo/2019/12/02/07/10/bookstore-4667452_960_720.jpg" 
+                            src="/images/bookshop-storefront.svg" 
                             alt={`${bookshop.name} storefront`}
                             className="h-full w-full object-cover"
                           />
                         </div>
                         <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
                           <img 
-                            src="https://cdn.pixabay.com/photo/2018/02/23/09/39/coffee-3175722_960_720.jpg" 
+                            src="/images/bookshop-cafe.svg" 
                             alt={`Café area at ${bookshop.name}`}
                             className="h-full w-full object-cover"
                           />
                         </div>
                         <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
                           <img 
-                            src="https://cdn.pixabay.com/photo/2018/07/01/20/01/book-3510326_960_720.jpg" 
+                            src="/images/bookshop-event.svg" 
                             alt={`Author event at ${bookshop.name}`}
                             className="h-full w-full object-cover"
                           />
