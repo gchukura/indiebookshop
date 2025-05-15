@@ -1,11 +1,19 @@
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Bookstore } from "@shared/schema";
 import BookshopCard from "@/components/BookshopCard";
 import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
 import { Button } from "@/components/ui/button";
+import { SEO } from "../components/SEO";
+import { 
+  BASE_URL, 
+  DESCRIPTION_TEMPLATES, 
+  generateSlug, 
+  generateLocationKeywords, 
+  generateDescription 
+} from "../lib/seo";
 
 const CityDirectory = () => {
   const { city } = useParams();
