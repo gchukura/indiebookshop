@@ -118,20 +118,25 @@ const BookshopDetailPage = () => {
                     
                     const imageInfo = imageTypes[(index - 1) % imageTypes.length];
                     
-                    // Set of reliable Unsplash images that won't break
-                    const unsplashImages = [
-                      'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
-                      'https://images.unsplash.com/photo-1524578271613-d550eacf6090?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
+                    // Much more reliable image sources from Unsplash
+                    const reliableImages = [
+                      // These are Unsplash's permanently cached images that won't break
+                      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
+                      'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
+                      'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
                       'https://images.unsplash.com/photo-1526243741027-444d633d7365?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
                       'https://images.unsplash.com/photo-1521123845560-14093637aa7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
-                      'https://images.unsplash.com/photo-1537497111996-4adb499e2534?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
-                      'https://images.unsplash.com/photo-1518373714866-3f1478910cc0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200'
+                      'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200'
                     ];
                     
-                    // Use bookshop's own image as first gallery image if available
-                    const imageSrc = index === 1 && bookshop.imageUrl 
-                      ? bookshop.imageUrl 
-                      : unsplashImages[(index - 1) % unsplashImages.length];
+                    // Use bookshop's own image as first gallery image if available, otherwise use our reliable set
+                    let imageSrc;
+                    if (index === 1 && bookshop.imageUrl) {
+                      imageSrc = bookshop.imageUrl;
+                    } else {
+                      // Use a backup image from our reliable set
+                      imageSrc = reliableImages[(index - 1) % reliableImages.length];
+                    }
                       
                     return (
                       <OptimizedImage 
