@@ -5,6 +5,8 @@ import { GoogleSheetsStorage } from './sheets-storage';
 import { storage } from './storage';
 import { dataPreloadMiddleware } from './dataPreloading';
 import { htmlInjectionMiddleware } from './htmlInjectionMiddleware';
+import { DataRefreshManager } from './dataRefresh';
+import { registerRefreshRoutes } from './refreshRoutes';
 
 const app = express();
 app.use(express.json());
