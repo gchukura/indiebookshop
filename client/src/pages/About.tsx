@@ -77,7 +77,7 @@ const AboutPage = () => {
                 <div className="flex flex-wrap gap-4 mt-6">
                   <div className="flex items-center text-[#2A6B7C]">
                     <BookOpen className="w-5 h-5 mr-2" />
-                    <span>500+ Bookstores</span>
+                    <span>500+ Bookshops</span>
                   </div>
                   <div className="flex items-center text-[#2A6B7C]">
                     <MapPin className="w-5 h-5 mr-2" />

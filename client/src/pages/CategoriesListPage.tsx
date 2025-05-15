@@ -95,7 +95,7 @@ const CategoriesListPage = () => {
                   aria-label={`Browse indie bookshops with ${feature.name}`}
                 >
                   <span className="text-lg">{feature.name}</span>
-                  <span className="text-xs text-gray-500 mt-1">View Bookstores</span>
+                  <span className="text-xs text-gray-500 mt-1">View Bookshops</span>
                 </Button>
               </Link>
             ))}
