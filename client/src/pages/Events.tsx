@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { format, isSameDay, isSameMonth, addMonths, subMonths, parseISO } from "date-fns";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Info } from "lucide-react";
 import { Link } from "wouter";
@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { SEO } from "../components/SEO";
+import { BASE_URL, PAGE_KEYWORDS, DESCRIPTION_TEMPLATES } from "../lib/seo";
 
 const Events = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -67,6 +69,40 @@ const Events = () => {
     }
   }, []);
 
+  // SEO metadata for events page
+  const seoTitle = useMemo(() => {
+    return "Bookshop Events Calendar | Literary Events at Independent Bookshops";
+  }, []);
+  
+  const seoDescription = useMemo(() => {
+    return DESCRIPTION_TEMPLATES.events;
+  }, []);
+  
+  const seoKeywords = useMemo(() => {
+    return [
+      "bookshop events",
+      "indie bookstore events",
+      "literary events",
+      "author readings",
+      "book signings",
+      "book clubs",
+      "bookstore calendar",
+      "independent bookshop events",
+      "local literary events",
+      "author meet and greets",
+      "poetry readings",
+      "book launch events",
+      "children's story time",
+      "literary festivals",
+      "bookshop workshops",
+      ...PAGE_KEYWORDS.events.additionalKeywords
+    ];
+  }, []);
+  
+  const canonicalUrl = useMemo(() => {
+    return `${BASE_URL}/events`;
+  }, []);
+  
   // Event card component
   const EventCard = ({ event }: { event: Event }) => {
     const bookshopName = getBookshopName(event.bookshopId);
@@ -89,12 +125,22 @@ const Events = () => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* SEO Component */}
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        canonicalUrl={canonicalUrl}
+      />
+      
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          Bookshop Events
+          Independent Bookshop Events Calendar
         </h1>
         <p className="text-gray-600 mb-6">
-          Discover readings, signings, book clubs, and other events at independent bookshops.
+          Discover author readings, book signings, literary festivals, book clubs, children's story times, and 
+          other special events at independent bookshops across America. Our comprehensive events calendar 
+          helps you connect with your local literary community.
         </p>
       </div>
 
@@ -230,17 +276,19 @@ const Events = () => {
         </div>
       )}
       
+      {/* Event Submission Section */}
       <div className="mt-12 bg-[#F7F3E8] rounded-lg p-6">
-        <div className="flex items-start">
-          <div className="mr-4 flex-shrink-0">
+        <div className="flex flex-col md:flex-row items-start">
+          <div className="mr-4 flex-shrink-0 mb-4 md:mb-0">
             <Info className="h-6 w-6 text-[#E16D3D]" />
           </div>
           <div>
             <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-2">
-              Event Listings
+              Submit Your Bookshop Event
             </h2>
             <p className="text-gray-700 mb-4">
-              Are you an independent bookshop owner or employee? You can submit your upcoming events to be featured in our calendar.
+              Are you an independent bookshop owner or employee? You can submit your upcoming author readings, book signings, 
+              literary festivals, book clubs, and other special events to be featured in our comprehensive calendar.
             </p>
             <Link href="/submit-event">
               <Button className="bg-[#4A7C59] hover:bg-[#4A7C59]/90 text-white">
@@ -250,6 +298,30 @@ const Events = () => {
           </div>
         </div>
       </div>
+      
+      {/* SEO Content Section */}
+      <section className="mt-12 bg-white rounded-lg p-6 border border-[#E3E9ED]">
+        <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
+          About Our Independent Bookshop Events Calendar
+        </h2>
+        <div className="prose prose-p:text-gray-700 max-w-none">
+          <p>
+            Our independent bookshop events calendar showcases literary events happening at indie bookstores across America. 
+            From author readings and book signings to writing workshops and children's story times, these events create vibrant 
+            spaces for literary communities to connect and thrive.
+          </p>
+          <p>
+            Independent bookshops are more than just places to buy books—they're cultural hubs that foster community connections 
+            through diverse programming. By attending events at local indie bookshops, you support small businesses while enjoying 
+            unique literary experiences that online retailers simply can't provide.
+          </p>
+          <p>
+            Browse our calendar to discover upcoming events by date or explore events at specific bookshops. Whether you're looking 
+            for poetry readings, book clubs, or author meet and greets, our comprehensive events directory connects book lovers with 
+            meaningful literary experiences at independent bookstores nationwide.
+          </p>
+        </div>
+      </section>
     </div>
   );
 };
