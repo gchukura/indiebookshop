@@ -1,6 +1,43 @@
 /**
  * Utility functions for handling images and SEO optimizations
  */
+import { useEffect, useState, useRef } from 'react';
+
+/**
+ * Hook to implement lazy loading for images
+ * 
+ * @param options IntersectionObserver options
+ * @returns An object with the ref to attach to the element and a boolean indicating if it's visible
+ */
+export function useLazyLoading(options = { rootMargin: '100px', threshold: 0.1 }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const elementRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const currentElement = elementRef.current;
+    if (!currentElement) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect(); // Once visible, no need to observe anymore
+        }
+      },
+      options
+    );
+
+    observer.observe(currentElement);
+
+    return () => {
+      if (currentElement) {
+        observer.unobserve(currentElement);
+      }
+    };
+  }, [options]);
+
+  return { ref: elementRef, isVisible };
+}
 
 /**
  * Generates a descriptive alt text for a bookshop image

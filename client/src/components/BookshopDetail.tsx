@@ -7,6 +7,7 @@ import { X, Navigation } from "lucide-react";
 import SingleLocationMap from "./SingleLocationMap";
 import SchemaOrg from "./SchemaOrg";
 import RelatedBookshops from "./RelatedBookshops";
+import OptimizedImage from "./OptimizedImage";
 import { BASE_URL } from "../lib/seo";
 import { generateBookshopImageAlt, optimizeImageUrl } from "../lib/imageUtils";
 import { generateRelatedLinks, generateEventLinks } from "../lib/linkUtils";

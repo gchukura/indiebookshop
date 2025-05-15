@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Bookstore, Feature } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
 import BookshopIcon from "./BookshopIcon";
+import OptimizedImage from "./OptimizedImage";
 import { 
   generateBookshopImageAlt, 
   optimizeImageUrl 
@@ -32,7 +33,7 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
             onClick={() => showDetails(bookshop.id)}
           >
             {bookshop.imageUrl ? (
-              <img 
+              <OptimizedImage 
                 src={optimizeImageUrl(bookshop.imageUrl, 'card')} 
                 alt={generateBookshopImageAlt(
                   bookshop.name, 
@@ -40,8 +41,10 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
                   bookshop.state, 
                   bookshopFeatures.map(f => f.name)
                 )}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
+                objectFit="cover"
                 loading="lazy"
+                sizes="(max-width: 640px) 100vw, 33vw"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
