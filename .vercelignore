@@ -1,0 +1,10 @@
+# Ignore development files
+node_modules
+.git
+.replit
+.local
+.cache
+.upm
+
+# Keep output build files
+!dist

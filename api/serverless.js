@@ -1,0 +1,81 @@
+// This file serves as a bridge between Vercel's serverless environment 
+// and our Express application
+
+import express from 'express';
+import { createServer } from 'http';
+import { parse } from 'url';
+import { GoogleSheetsStorage } from '../server/sheets-storage.js';
+import { storage } from '../server/storage.js';
+import { registerRoutes } from '../server/routes.js';
+import { dataPreloadMiddleware } from '../server/dataPreloading.js';
+import { htmlInjectionMiddleware } from '../server/htmlInjectionMiddleware.js';
+
+// Create our Express app
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Import environment configuration
+import { ENV } from './env-config.js';
+
+// Choose which storage implementation to use
+const USE_GOOGLE_SHEETS = ENV.USE_MEM_STORAGE !== 'true';
+process.env.USE_SAMPLE_DATA = ENV.USE_SAMPLE_DATA || 'true';
+process.env.GOOGLE_SHEETS_ID = ENV.GOOGLE_SHEETS_ID;
+process.env.MAPBOX_ACCESS_TOKEN = ENV.MAPBOX_ACCESS_TOKEN;
+process.env.SENDGRID_API_KEY = ENV.SENDGRID_API_KEY;
+
+// Setup storage
+const storageImplementation = USE_GOOGLE_SHEETS ? new GoogleSheetsStorage() : storage;
+
+// Initialize server
+let server;
+let isSetup = false;
+
+async function setupServer() {
+  if (!isSetup) {
+    server = createServer();
+    await registerRoutes(app, storageImplementation);
+    
+    // Add middleware
+    app.use(dataPreloadMiddleware);
+    app.use(htmlInjectionMiddleware);
+    
+    // Error handling
+    app.use((err, _req, res, _next) => {
+      const status = err.status || err.statusCode || 500;
+      const message = err.message || "Internal Server Error";
+      console.error(err);
+      res.status(status).json({ message });
+    });
+    
+    // Serve static files for production
+    if (process.env.NODE_ENV === 'production') {
+      app.use(express.static('dist/public'));
+      
+      // Handle client-side routing
+      app.get('*', (req, res) => {
+        res.sendFile('dist/public/index.html', { root: '.' });
+      });
+    }
+    
+    isSetup = true;
+  }
+  
+  return { app, server };
+}
+
+// Export the serverless function handler
+export default async function handler(req, res) {
+  const { app } = await setupServer();
+  
+  // Process the request
+  return new Promise((resolve, reject) => {
+    app(req, res, (err) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve();
+    });
+  });
+}
