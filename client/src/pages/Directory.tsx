@@ -8,6 +8,8 @@ import MapboxMap from "@/components/MapboxMap";
 import BookshopTable from "@/components/BookshopTable";
 import { Button } from "@/components/ui/button";
 import { Bookstore as Bookshop } from "@shared/schema";
+import { SEO } from "../components/SEO";
+import { BASE_URL, MAIN_KEYWORDS } from "../lib/seo";
 
 // Type for bookshop with flexible featureIds handling
 type BookshopWithFeatures = Bookshop & {
@@ -126,8 +128,89 @@ const Directory = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
+  // SEO metadata
+  const seoTitle = useMemo(() => {
+    if (searchQuery) {
+      return `Search Results for "${searchQuery}" | Independent Bookshop Directory`;
+    }
+    
+    if (selectedState && selectedFeature) {
+      return `${selectedState} Bookshops with Special Features | Find Independent Bookstores`;
+    }
+    
+    if (selectedState) {
+      return `Independent Bookshops in ${selectedState} | Find Local Bookstores`;
+    }
+    
+    if (selectedFeature) {
+      return `Specialty Bookshops | Find Independent Bookstores with Special Features`;
+    }
+    
+    return "Independent Bookshop Directory | Find Local Indie Bookstores Near You";
+  }, [searchQuery, selectedState, selectedFeature]);
+  
+  const seoDescription = useMemo(() => {
+    if (searchQuery) {
+      return `Browse search results for "${searchQuery}" in our independent bookshop directory. Find local indie bookstores, their locations, features, and upcoming events.`;
+    }
+    
+    if (selectedState && selectedFeature) {
+      return `Find ${selectedState} independent bookshops with specialty offerings. Browse our directory of local indie bookstores with special features like coffee shops, rare books, and more.`;
+    }
+    
+    if (selectedState) {
+      return `Discover independent bookshops in ${selectedState}. Browse our complete directory of local indie bookstores, view their locations on the map, and find details about each shop.`;
+    }
+    
+    if (selectedFeature) {
+      return `Find specialty independent bookshops with unique features. Browse our directory of local indie bookstores that offer special amenities to enhance your book shopping experience.`;
+    }
+    
+    return "Browse our comprehensive directory of independent bookshops across America. Find local indie bookstores near you, view their locations on the map, and discover their unique offerings.";
+  }, [searchQuery, selectedState, selectedFeature]);
+  
+  const seoKeywords = useMemo(() => {
+    let keywords = [...MAIN_KEYWORDS];
+    
+    if (selectedState) {
+      keywords = keywords.concat([
+        `bookshops in ${selectedState}`,
+        `independent bookshops in ${selectedState}`,
+        `indie bookstores in ${selectedState}`,
+        `local bookshops in ${selectedState}`,
+        `${selectedState} bookshops`,
+        `${selectedState} indie bookstores`
+      ]);
+    }
+    
+    if (selectedFeature) {
+      keywords = keywords.concat([
+        `bookshops with special features`,
+        `specialty indie bookstores`,
+        `bookshops with coffee shops`,
+        `bookstores with rare books`,
+        `unique bookshops`,
+        `independent bookshops with special amenities`
+      ]);
+    }
+    
+    return keywords;
+  }, [selectedState, selectedFeature]);
+  
+  const canonicalUrl = useMemo(() => {
+    return `${BASE_URL}/directory`;
+  }, []);
+  
   return (
     <>
+      {/* SEO Component */}
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        canonicalUrl={canonicalUrl}
+      />
+      
       <Hero />
       
       {/* Main map section - Full width */}
@@ -157,9 +240,27 @@ const Directory = () => {
         <div className="bg-white rounded-lg shadow-md p-4">
           <h2 className="text-xl font-serif font-bold mb-4">
             {searchQuery 
-              ? `Search Results for "${searchQuery}"` 
-              : "Bookshop Directory"}
+              ? `Search Results for "${searchQuery}" - Independent Bookshops` 
+              : selectedState && selectedFeature
+                ? `${selectedState} Independent Bookshops with Special Features`
+                : selectedState
+                  ? `Independent Bookshops in ${selectedState}`
+                  : selectedFeature
+                    ? "Specialty Independent Bookshops Directory" 
+                    : "Independent Bookshop Directory - Find Local Indie Bookstores"}
           </h2>
+          
+          <p className="text-gray-600 mb-6">
+            {searchQuery 
+              ? `Showing matching local bookshops for your search "${searchQuery}". Browse the results below.` 
+              : selectedState && selectedFeature
+                ? `Browse all indie bookshops in ${selectedState} with specialty features and amenities. Click on any bookshop for more details.`
+                : selectedState
+                  ? `Discover independent bookshops throughout ${selectedState}. View locations on the map or browse the list below.`
+                  : selectedFeature
+                    ? "Find independent bookshops with unique specialty features. Explore our directory of indie bookstores with special amenities."
+                    : "Browse our comprehensive directory of independent bookshops across America. Find your next favorite local indie bookstore."}
+          </p>
           
           {isLoading ? (
             <div className="text-center py-10">
