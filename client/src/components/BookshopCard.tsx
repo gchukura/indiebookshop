@@ -33,9 +33,15 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
           >
             {bookshop.imageUrl ? (
               <img 
-                src={bookshop.imageUrl} 
-                alt={`${bookshop.name} storefront`} 
+                src={optimizeImageUrl(bookshop.imageUrl, 'card')} 
+                alt={generateBookshopImageAlt(
+                  bookshop.name, 
+                  bookshop.city, 
+                  bookshop.state, 
+                  bookshopFeatures.map(f => f.name)
+                )}
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">

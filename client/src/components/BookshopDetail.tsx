@@ -4,6 +4,9 @@ import { Bookstore as Bookshop, Feature, Event } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { X, Navigation } from "lucide-react";
 import SingleLocationMap from "./SingleLocationMap";
+import SchemaOrg from "./SchemaOrg";
+import { BASE_URL } from "../lib/seo";
+import { generateBookshopImageAlt, optimizeImageUrl } from "../lib/imageUtils";
 
 interface BookshopDetailProps {
   bookshopId: number;
@@ -58,8 +61,34 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
     bookshop?.featureIds && bookshop.featureIds.includes(feature.id)
   ) || [];
 
+  // Prepare schema.org data when bookshop is available
+  const bookshopSchema = bookshop ? {
+    type: 'bookshop',
+    name: bookshop.name,
+    description: bookshop.description || `Independent bookshop in ${bookshop.city}, ${bookshop.state}`,
+    url: `${BASE_URL}/bookshop/${bookshop.id}`,
+    image: bookshop.imageUrl,
+    address: {
+      streetAddress: bookshop.street || '',
+      addressLocality: bookshop.city,
+      addressRegion: bookshop.state,
+      postalCode: bookshop.zip || '',
+      addressCountry: 'US'
+    },
+    telephone: bookshop.phone,
+    geo: bookshop.latitude && bookshop.longitude ? {
+      latitude: bookshop.latitude,
+      longitude: bookshop.longitude
+    } : undefined,
+    openingHours: bookshop.hours,
+    features: bookshopFeatures.map(f => f.name)
+  } : null;
+
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-75 z-50 overflow-y-auto">
+      {/* Schema.org structured data */}
+      {bookshopSchema && <SchemaOrg schema={bookshopSchema} />}
+      
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div 
           ref={modalRef}
@@ -88,9 +117,18 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
             <div className="bg-[#F7F3E8]">
               <div className="relative h-64 md:h-96">
                 <img 
-                  src={bookshop.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400"}
-                  alt={`${bookshop.name} interior panorama`} 
-                  className="w-full h-full object-cover" 
+                  src={optimizeImageUrl(
+                    bookshop.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400",
+                    'detail'
+                  )}
+                  alt={generateBookshopImageAlt(
+                    bookshop.name, 
+                    bookshop.city, 
+                    bookshop.state, 
+                    bookshopFeatures.map(f => f.name)
+                  )} 
+                  className="w-full h-full object-cover"
+                  loading="eager"
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                   <h2 className="text-white text-2xl md:text-3xl font-serif font-bold">{bookshop.name}</h2>
