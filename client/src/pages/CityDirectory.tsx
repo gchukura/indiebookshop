@@ -28,6 +28,33 @@ const CityDirectory = () => {
 
   // Get state from the first bookshop (assuming all bookshops in a city are in the same state)
   const state = bookshops.length > 0 ? bookshops[0].state : '';
+  
+  // Generate SEO metadata
+  const cityName = city || '';
+  const stateName = state || '';
+  
+  const seoTitle = useMemo(() => {
+    if (stateName) {
+      return `${cityName} Local Bookshops | Independent Bookshops in ${cityName}, ${stateName}`;
+    }
+    return `${cityName} Local Bookshops | Indie Bookshops in ${cityName}`;
+  }, [cityName, stateName]);
+  
+  const seoDescription = useMemo(() => {
+    return generateDescription(
+      DESCRIPTION_TEMPLATES.city_state, 
+      { city: cityName, state: stateName }
+    );
+  }, [cityName, stateName]);
+  
+  const seoKeywords = useMemo(() => {
+    // Generate location-specific keywords
+    return generateLocationKeywords(cityName, stateName, 'all', 15);
+  }, [cityName, stateName]);
+  
+  const canonicalUrl = useMemo(() => {
+    return `${BASE_URL}/directory/city/${generateSlug(cityName)}`;
+  }, [cityName]);
 
   const handleShowDetails = (id: number) => {
     setSelectedBookshopId(id);
@@ -40,12 +67,20 @@ const CityDirectory = () => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* SEO Component */}
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        canonicalUrl={canonicalUrl}
+      />
+      
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          Bookshops in {city}{state ? `, ${state}` : ''}
+          {city} Local Bookshops{state ? ` in ${state}` : ''}
         </h1>
         <p className="text-gray-600 mb-6">
-          Discover the indie bookshops in {city}. Browse the map or list view to find your next favorite bookshop.
+          Discover indie bookshops in {city}{state ? `, ${state}` : ''}. Browse our list of independent bookshops with our map or list view to find your next favorite local bookshop.
         </p>
         
         {/* Breadcrumb Navigation */}
@@ -55,11 +90,11 @@ const CityDirectory = () => {
               <span className="text-[#2A6B7C] hover:underline">Directory</span>
             </Link>
             <span className="mx-2">›</span>
-            <Link href={`/directory/state/${state}`}>
+            <Link href={`/directory/state/${state}`} title={`${state} Local Bookshops`}>
               <span className="text-[#2A6B7C] hover:underline">{state}</span>
             </Link>
             <span className="mx-2">›</span>
-            <span className="font-medium">{city}</span>
+            <span className="font-medium">{city} Bookshops</span>
           </div>
         )}
         
@@ -98,29 +133,36 @@ const CityDirectory = () => {
         {/* Bookshop Listings Section */}
         <div className={`w-full ${view === "map" ? "md:w-1/2" : "md:w-full"}`}>
           <div className="bg-white rounded-lg shadow-md p-4">
-            <h2 className="text-xl font-medium mb-4">
-              {bookshops.length} Bookshops in {city}
+            <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
+              {bookshops.length} Local Bookshops in {cityName}
             </h2>
+            <h3 className="text-md text-gray-600 mb-6">
+              A guide to independent bookshops and indie bookstores in {cityName}{stateName ? `, ${stateName}` : ''}
+            </h3>
             
             {isLoading ? (
               <div className="text-center py-10">
-                <p>Loading bookshops...</p>
+                <p>Loading indie bookshops in {cityName}...</p>
               </div>
             ) : isError ? (
               <div className="text-center py-10">
-                <p>Error loading bookshops. Please try again later.</p>
+                <p>Error loading independent bookshops. Please try again later.</p>
               </div>
             ) : bookshops.length === 0 ? (
               <div className="text-center py-10">
-                <p>No bookshops found in {city}.</p>
+                <p>No local bookshops found in {cityName}.</p>
+                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops across America. Check back soon for indie bookstores in {cityName}.</p>
                 <Link href="/directory">
                   <Button className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
-                    View All Bookshops
+                    View All Indie Bookshops
                   </Button>
                 </Link>
               </div>
             ) : (
               <div className="space-y-4">
+                <p className="text-gray-600 mb-4">
+                  Browse our list of {bookshops.length} independent bookshops in {cityName}. Click on any bookshop for more details, including location, hours, and special features.
+                </p>
                 {bookshops.map((bookshop) => (
                   <BookshopCard 
                     key={bookshop.id} 
@@ -142,6 +184,24 @@ const CityDirectory = () => {
           onClose={handleCloseDetail} 
         />
       )}
+      
+      {/* SEO Content Section */}
+      <section className="mt-12 bg-[#F7F3E8] rounded-lg p-6">
+        <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
+          Exploring Independent Bookshops in {cityName}
+        </h2>
+        <div className="prose prose-p:text-gray-700 max-w-none">
+          <p>
+            {cityName}{stateName ? `, ${stateName}` : ''} offers a wonderful selection of local bookshops and indie bookstores for book lovers to explore. Each independent bookshop in {cityName} has its own unique character and specialty, from rare book collections to cozy reading spaces and community events.
+          </p>
+          <p>
+            When looking for the best bookshops in {cityName}, our directory provides a comprehensive list of independent bookshops that you can browse by location or specialty. Whether you're searching for local bookshops near me in {cityName} or want to explore the variety of indie bookshops this city has to offer, our guide connects readers with their next literary destination.
+          </p>
+          <p>
+            The independent bookshops of {cityName} are more than just retail spaces—they're cultural hubs that support local authors, host community events, and offer personalized recommendations you won't find at chain stores. Visit one of these {cityName} bookshops today to experience the difference that passionate, independent booksellers make.
+          </p>
+        </div>
+      </section>
     </div>
   );
 };

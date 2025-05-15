@@ -285,8 +285,8 @@ export const generateDescription = (template: string, replacements: Record<strin
 
 // Helper to generate location-specific keywords
 export const generateLocationKeywords = (
-  city?: string, 
-  state?: string, 
+  city: string, 
+  state: string, 
   keywordType: 'local' | 'indie' | 'independent' | 'vintage' | 'alternative' | 'best' | 'all' = 'all',
   limit: number = 10
 ): string[] => {
