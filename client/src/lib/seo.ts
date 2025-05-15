@@ -138,6 +138,17 @@ export const PAGE_KEYWORDS: KeywordRecommendations = {
     ],
     recommendedDensity: 2,
   },
+  about: {
+    mainKeyword: 'About IndieBookShop',
+    additionalKeywords: [
+      'Support indie bookshops',
+      'Independent bookstore mission',
+      'Bookshop directory',
+      'Local bookstore community',
+      'Indie bookshop advocacy'
+    ],
+    recommendedDensity: 2,
+  },
   states: {
     mainKeyword: 'Bookshops by state',
     additionalKeywords: [
@@ -228,6 +239,8 @@ export const PAGE_KEYWORDS: KeywordRecommendations = {
 // Description templates
 export const DESCRIPTION_TEMPLATES = {
   home: 'Find local bookshops, indie bookshops, and independent bookshops across America. Browse our comprehensive directory of the best bookshops and discover unique literary destinations.',
+  
+  about: 'Learn about IndieBookShop.com and our mission to support independent bookshops across America. Discover how we connect readers with local indie bookstores through our comprehensive directory.',
   
   states: 'Browse {state} local bookshops and indie bookshops. Find independent bookshops in {state} with our complete directory of the best bookshops across the state.',
   

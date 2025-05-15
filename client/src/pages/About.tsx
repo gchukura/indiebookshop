@@ -1,15 +1,59 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { MapPin, Mail, Award, Heart, BookOpen, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { SEO } from "../components/SEO";
+import { BASE_URL, PAGE_KEYWORDS, DESCRIPTION_TEMPLATES } from "../lib/seo";
 
 const AboutPage = () => {
+  // SEO metadata for the About page
+  const seoTitle = useMemo(() => {
+    return "About IndieBookShop.com | Supporting Independent Bookshops Across America";
+  }, []);
+  
+  const seoDescription = useMemo(() => {
+    return 'Learn about IndieBookShop.com and our mission to support independent bookshops across America. Discover how we connect readers with local indie bookstores through our comprehensive directory.';
+  }, []);
+  
+  const seoKeywords = useMemo(() => {
+    return [
+      "about IndiebookShop.com",
+      "independent bookstore directory",
+      "indie bookshop mission",
+      "support local bookstores",
+      "bookshop community",
+      "bookstore advocacy",
+      "indie bookseller network",
+      "independent bookshop directory",
+      "local bookstore finder",
+      "bookshop support mission",
+      "indie bookshop community",
+      "why independent bookstores matter",
+      "bookstore directory mission",
+      "local bookshop champions",
+      "book community platform",
+      ...PAGE_KEYWORDS.about.additionalKeywords
+    ];
+  }, []);
+  
+  const canonicalUrl = useMemo(() => {
+    return `${BASE_URL}/about`;
+  }, []);
+  
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* SEO Component */}
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        canonicalUrl={canonicalUrl}
+      />
+      
       <section className="mb-16">
         <div className="max-w-3xl mx-auto text-center mb-12">
           <h1 className="text-4xl font-serif font-bold text-[#5F4B32] mb-4">
-            About IndieBookShop.com
+            About IndieBookShop.com | Supporting Independent Bookshops
           </h1>
           <p className="text-xl text-gray-600">
             Connecting readers with independent bookstores since 2023
@@ -21,13 +65,13 @@ const AboutPage = () => {
             <div className="p-8 md:p-12 flex items-center">
               <div>
                 <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-                  Our Mission
+                  Our Mission: Supporting Independent Bookshops
                 </h2>
                 <p className="text-gray-700 mb-6">
-                  At IndieBookShop.com, we believe that independent bookstores are vital cultural hubs that foster community, creativity, and intellectual curiosity. In a world dominated by algorithms and corporate retail, indie bookshops offer something invaluable: personal connection, curation by real book lovers, and spaces where ideas can flourish.
+                  At IndieBookShop.com, we believe that independent bookstores are vital cultural hubs that foster community, creativity, and intellectual curiosity. In a world dominated by algorithms and corporate retail, indie bookshops offer something invaluable: personal connection, curation by real book lovers, and spaces where ideas and literary communities can flourish.
                 </p>
                 <p className="text-gray-700 mb-6">
-                  Our mission is simple but powerful: to help readers discover and support independent bookstores across North America. We're building the most comprehensive, user-friendly directory that connects book lovers with their perfect local bookshop.
+                  Our mission is simple but powerful: to help readers discover and support independent bookstores across North America. We're building the most comprehensive, user-friendly directory that connects book lovers with their perfect local indie bookshop, whether they're looking for specialized collections, author events, or community gathering spaces.
                 </p>
                 <div className="flex flex-wrap gap-4 mt-6">
                   <div className="flex items-center text-[#2A6B7C]">
@@ -48,8 +92,11 @@ const AboutPage = () => {
             <div className="bg-[#F7F3E8] p-8 md:p-12">
               <div className="h-full flex flex-col justify-center">
                 <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-                  Why Independent Bookstores Matter
+                  Why Independent Bookshops Matter
                 </h2>
+                <p className="text-gray-700 mb-4">
+                  Independent bookshops are vital cultural assets in communities across America, offering much more than just places to buy books.
+                </p>
                 <ul className="space-y-4">
                   <li className="flex">
                     <div className="mr-4 mt-1">
@@ -57,7 +104,7 @@ const AboutPage = () => {
                     </div>
                     <div>
                       <h3 className="font-medium text-[#5F4B32]">Community Anchors</h3>
-                      <p className="text-gray-700">Indie bookstores create gathering spaces for meaningful connection and conversation.</p>
+                      <p className="text-gray-700">Indie bookshops create welcoming gathering spaces for meaningful connections, literary discussions, and community events that bring readers together.</p>
                     </div>
                   </li>
                   <li className="flex">
@@ -65,8 +112,8 @@ const AboutPage = () => {
                       <Heart className="w-5 h-5 text-[#E16D3D]" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-[#5F4B32]">Economic Impact</h3>
-                      <p className="text-gray-700">When you shop at an indie bookstore, more of your money stays in your local economy.</p>
+                      <h3 className="font-medium text-[#5F4B32]">Local Economic Impact</h3>
+                      <p className="text-gray-700">When you support local independent bookshops, more of your money stays in your community, helping to create jobs and strengthen the local economy.</p>
                     </div>
                   </li>
                   <li className="flex">
@@ -74,8 +121,8 @@ const AboutPage = () => {
                       <Heart className="w-5 h-5 text-[#E16D3D]" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-[#5F4B32]">Cultural Diversity</h3>
-                      <p className="text-gray-700">Independent booksellers champion diverse voices and stories that might otherwise go untold.</p>
+                      <h3 className="font-medium text-[#5F4B32]">Literary Diversity</h3>
+                      <p className="text-gray-700">Independent booksellers champion diverse voices and stories that might otherwise go untold, creating more inclusive literary communities.</p>
                     </div>
                   </li>
                   <li className="flex">
@@ -83,8 +130,8 @@ const AboutPage = () => {
                       <Heart className="w-5 h-5 text-[#E16D3D]" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-[#5F4B32]">Personal Touch</h3>
-                      <p className="text-gray-700">Thoughtful recommendations from knowledgeable booksellers who genuinely care about your reading experience.</p>
+                      <h3 className="font-medium text-[#5F4B32]">Personalized Book Discovery</h3>
+                      <p className="text-gray-700">Thoughtful recommendations from knowledgeable booksellers who genuinely care about your reading experience, helping you discover books you might never find through algorithms.</p>
                     </div>
                   </li>
                 </ul>
@@ -97,29 +144,29 @@ const AboutPage = () => {
       <section className="mb-16">
         <div className="max-w-3xl mx-auto text-center mb-8">
           <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-            Our Story
+            Our Story: Building a Community of Independent Bookshop Advocates
           </h2>
           <p className="text-gray-600">
-            From book lovers to bookstore champions
+            From book lovers to independent bookstore champions
           </p>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
           <div className="prose prose-stone max-w-none">
             <p>
-              IndieBookShop.com began with a simple question: "How can we help independent bookstores thrive in the digital age?" As avid readers and supporters of local businesses, we were troubled by the challenges facing indie bookshops – from rising rents to competition from e-commerce giants.
+              IndieBookShop.com began with a simple question: "How can we help independent bookshops thrive in the digital age?" As avid readers and passionate supporters of local businesses, we were concerned about the challenges facing indie bookshops – from rising rents to competition from e-commerce giants and chain retailers.
             </p>
             
             <p>
-              In 2023, we set out to create a solution that would help readers discover the magic of indie bookstores. Our team – a mix of book lovers, technology experts, and former booksellers – built this platform to bridge the gap between the convenience of online discovery and the irreplaceable experience of walking into a well-curated bookshop.
+              In 2023, we set out to create a comprehensive directory that would help readers discover the magic of independent bookstores in their communities and while traveling. Our team – a mix of dedicated book lovers, technology experts, and former booksellers – built this platform to bridge the gap between the convenience of online discovery and the irreplaceable experience of walking into a well-curated independent bookshop.
             </p>
             
             <p>
-              What started as a passion project has grown into the most comprehensive directory of independent bookstores in North America. We're constantly improving our platform based on feedback from both readers and booksellers, working to create meaningful connections that strengthen the literary ecosystem.
+              What started as a passion project has grown into one of the most comprehensive directories of independent bookstores in North America. We're constantly improving our platform based on feedback from both readers and booksellers, working to create meaningful connections that strengthen local literary ecosystems and support independent bookshops everywhere.
             </p>
             
             <p>
-              Today, IndieBookShop.com is proud to feature hundreds of independent bookstores across the United States and Canada, with plans to expand our coverage globally. We're more than just a directory – we're a community of people who believe in the power of books and the spaces dedicated to them.
+              Today, IndieBookShop.com is proud to feature thousands of independent bookshops across the United States and Canada, with plans to expand our coverage globally. We're more than just a directory – we're a community of people who believe in the cultural importance of independent bookstores and their vital role in creating diverse, vibrant communities centered around the love of reading.
             </p>
           </div>
         </div>
