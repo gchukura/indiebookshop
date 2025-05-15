@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { GoogleSheetsStorage } from './sheets-storage';
 import { storage } from './storage';
+import { ssrMiddleware } from './ssrMiddleware';
 
 const app = express();
 app.use(express.json());
