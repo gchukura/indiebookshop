@@ -179,54 +179,52 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                     <div className="mt-6">
                       <h3 className="font-serif font-bold text-xl mb-4">Photo Gallery</h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {/* Using more reliable image sources and error handling */}
-                        {[1, 2, 3, 4, 5, 6].map((index) => {
-                          // Generate a set of reliable images with fallbacks
-                          const imageTypes = [
-                            { type: 'interior', label: 'bookstore interior' },
-                            { type: 'display', label: 'book display' },
-                            { type: 'reading', label: 'reading area' },
-                            { type: 'storefront', label: 'bookstore exterior' },
-                            { type: 'cafe', label: 'café area' },
-                            { type: 'event', label: 'author event' }
-                          ];
-                          
-                          const imageInfo = imageTypes[(index - 1) % imageTypes.length];
-                          
-                          // Much more reliable image sources from Unsplash
-                          const reliableImages = [
-                            // These are Unsplash's permanently cached images that won't break
-                            'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
-                            'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
-                            'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
-                            'https://images.unsplash.com/photo-1526243741027-444d633d7365?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
-                            'https://images.unsplash.com/photo-1521123845560-14093637aa7d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200',
-                            'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200'
-                          ];
-                          
-                          // Use bookshop's own image as first gallery image if available, otherwise use our reliable set
-                          let imageSrc;
-                          if (index === 1 && bookshop.imageUrl) {
-                            imageSrc = bookshop.imageUrl;
-                          } else {
-                            // Use a backup image from our reliable set
-                            imageSrc = reliableImages[(index - 1) % reliableImages.length];
-                          }
-                            
-                          return (
-                            <OptimizedImage 
-                              key={index}
-                              src={imageSrc}
-                              alt={`${imageInfo.label} at ${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
-                              className="rounded-md h-28 w-full" 
-                              objectFit="cover"
-                              loading="lazy"
-                              sizes="(max-width: 768px) 50vw, 33vw"
-                              placeholderColor="#f7f3e8"
-                              onError={() => console.log(`Failed to load image ${index} for ${bookshop.name}`)}
-                            />
-                          );
-                        })}
+                        {/* Use simple img tags with reliable static book images */}
+                        <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
+                          <img 
+                            src={bookshop.imageUrl || "https://cdn.pixabay.com/photo/2017/08/07/02/14/books-2598032_960_720.jpg"} 
+                            alt={`${bookshop.name} bookstore interior`}
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = "https://cdn.pixabay.com/photo/2017/08/07/02/14/books-2598032_960_720.jpg";
+                            }}
+                          />
+                        </div>
+                        <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
+                          <img 
+                            src="https://cdn.pixabay.com/photo/2018/03/19/18/20/tea-3240766_960_720.jpg" 
+                            alt={`Book display at ${bookshop.name}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
+                          <img 
+                            src="https://cdn.pixabay.com/photo/2016/09/10/17/18/book-1659717_960_720.jpg" 
+                            alt={`Reading area at ${bookshop.name}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
+                          <img 
+                            src="https://cdn.pixabay.com/photo/2019/12/02/07/10/bookstore-4667452_960_720.jpg" 
+                            alt={`${bookshop.name} storefront`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
+                          <img 
+                            src="https://cdn.pixabay.com/photo/2018/02/23/09/39/coffee-3175722_960_720.jpg" 
+                            alt={`Café area at ${bookshop.name}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
+                          <img 
+                            src="https://cdn.pixabay.com/photo/2018/07/01/20/01/book-3510326_960_720.jpg" 
+                            alt={`Author event at ${bookshop.name}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
                       </div>
                     </div>
                     
