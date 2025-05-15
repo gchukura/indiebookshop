@@ -3,7 +3,8 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { GoogleSheetsStorage } from './sheets-storage';
 import { storage } from './storage';
-import { ssrMiddleware } from './ssrMiddleware';
+import { dataPreloadMiddleware } from './dataPreloading';
+import { htmlInjectionMiddleware } from './htmlInjectionMiddleware';
 
 const app = express();
 app.use(express.json());
@@ -63,6 +64,12 @@ const storageImplementation = USE_GOOGLE_SHEETS ? new GoogleSheetsStorage() : st
   
   log(`Using ${USE_GOOGLE_SHEETS ? 'Google Sheets' : 'in-memory'} storage implementation`);
 
+  // Add SSR middlewares before Vite setup
+  // They only run for page requests, not API requests
+  app.use(dataPreloadMiddleware);   // Preload data on the server
+  app.use(htmlInjectionMiddleware); // Inject data and meta tags into HTML
+
+  // Error handling middleware
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
