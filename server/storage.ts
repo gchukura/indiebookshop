@@ -145,7 +145,7 @@ export class MemStorage implements IStorage {
     
     if (filters.featureIds && filters.featureIds.length > 0) {
       filteredBookstores = filteredBookstores.filter(
-        (bookstore) => bookstore.featureIds.some(id => filters.featureIds!.includes(id))
+        (bookstore) => bookstore.featureIds?.some(id => filters.featureIds!.includes(id)) || false
       );
     }
     
@@ -154,7 +154,23 @@ export class MemStorage implements IStorage {
 
   async createBookstore(insertBookstore: InsertBookstore): Promise<Bookstore> {
     const id = this.bookstoreCurrentId++;
-    const bookstore: Bookstore = { ...insertBookstore, id };
+    const bookstore: Bookstore = { 
+      id,
+      name: insertBookstore.name,
+      street: insertBookstore.street,
+      city: insertBookstore.city,
+      state: insertBookstore.state,
+      zip: insertBookstore.zip,
+      description: insertBookstore.description,
+      imageUrl: insertBookstore.imageUrl || null,
+      website: insertBookstore.website || null,
+      phone: insertBookstore.phone || null,
+      hours: insertBookstore.hours || null,
+      latitude: insertBookstore.latitude || null,
+      longitude: insertBookstore.longitude || null,
+      featureIds: insertBookstore.featureIds || null,
+      live: insertBookstore.live || null
+    };
     this.bookstores.set(id, bookstore);
     return bookstore;
   }

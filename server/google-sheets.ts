@@ -119,7 +119,7 @@ export class GoogleSheetsService {
           let featureIds: number[] | null = null;
           try {
             if (row[13]) {
-              featureIds = row[13].split(',').map(id => parseInt(id.trim()));
+              featureIds = row[13].split(',').map((idStr: string) => parseInt(idStr.trim()));
             }
           } catch (e) {
             console.error(`Error parsing featureIds for bookshop ${id}:`, e);
@@ -155,15 +155,15 @@ export class GoogleSheetsService {
             live,
           };
         } catch (error) {
-          console.error(`Error processing bookstore row ${index}:`, error);
+          console.error(`Error processing bookshop row ${index}:`, error);
           return null;
         }
       }).filter(Boolean) as Bookstore[];
 
-      console.log(`Retrieved ${bookstores.length} bookstores from Google Sheets`);
-      return bookstores;
+      console.log(`Retrieved ${bookshops.length} bookshops from Google Sheets`);
+      return bookshops;
     } catch (error) {
-      console.error('Error fetching bookstores from Google Sheets:', error);
+      console.error('Error fetching bookshops from Google Sheets:', error);
       throw error;
     }
   }
