@@ -66,6 +66,7 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
   ) || [];
 
   // Prepare schema.org data when bookshop is available
+  // Bookshop schema
   const bookshopSchema = bookshop ? {
     type: 'bookshop' as const,
     name: bookshop.name,
@@ -120,7 +121,7 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
           ) : (
             <div className="bg-[#F7F3E8]">
               <div className="relative h-64 md:h-96">
-                <img 
+                <OptimizedImage
                   src={optimizeImageUrl(
                     bookshop.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400",
                     'detail'
@@ -131,8 +132,11 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                     bookshop.state, 
                     bookshopFeatures.map(f => f.name)
                   )} 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
+                  objectFit="cover"
                   loading="eager"
+                  sizes="100vw"
+                  placeholderColor="#f7f3e8"
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
                   <h2 className="text-white text-2xl md:text-3xl font-serif font-bold">{bookshop.name}</h2>
@@ -161,12 +165,54 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                       <h3 className="font-serif font-bold text-xl mb-4">Photo Gallery</h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {/* Gallery images would be loaded from API in a real implementation */}
-                        <img src="https://pixabay.com/get/g19250fbdac2034d9a52598452a015110ca00e8a72f6f106864355fe192e17a2f7b06bb3391d499dc2b825b670440e97c837b67954aaaa898a198fa05df311386_1280.jpg" alt="Bookstore interior shelves" className="rounded-md h-28 w-full object-cover" />
-                        <img src="https://images.unsplash.com/photo-1524578271613-d550eacf6090?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" alt="Book display with staff recommendations" className="rounded-md h-28 w-full object-cover" />
-                        <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" alt="Reading area with comfortable seating" className="rounded-md h-28 w-full object-cover" />
-                        <img src="https://pixabay.com/get/gad7ae5ca8d3c20e6ea7d3000b277b675a63c751be2dad2863a5d5f792c8694ae9eda1dd7a4da67c8050e92d6d9e65616ab0e5d77451a37f6824bd02c471550ed_1280.jpg" alt="Bookstore storefront" className="rounded-md h-28 w-full object-cover" />
-                        <img src="https://pixabay.com/get/ge0dbb377908f4d4cf2abc1fb59b7bbebce8f79c3fc968b875fb589c86fa09193b24c436494cf183cb26093951597295d7e6f938ef23f48dbe21fdbb8e4ca8961_1280.jpg" alt="Café area with customers" className="rounded-md h-28 w-full object-cover" />
-                        <img src="https://pixabay.com/get/g8bf46861013f9985b53e992bfae870fb41e446b54a69402db4a287ead0c05467b3e92ea76bd39bebfc06fdba42143d720a995d603858b2cd3c4f461b441a6802_1280.jpg" alt="Author event with audience" className="rounded-md h-28 w-full object-cover" />
+                        <OptimizedImage 
+                          src="https://pixabay.com/get/g19250fbdac2034d9a52598452a015110ca00e8a72f6f106864355fe192e17a2f7b06bb3391d499dc2b825b670440e97c837b67954aaaa898a198fa05df311386_1280.jpg" 
+                          alt={`${bookshop.name} bookstore interior shelves in ${bookshop.city}, ${bookshop.state}`}
+                          className="rounded-md h-28 w-full" 
+                          objectFit="cover"
+                          loading="lazy"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                        />
+                        <OptimizedImage 
+                          src="https://images.unsplash.com/photo-1524578271613-d550eacf6090?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" 
+                          alt={`Book display with staff recommendations at ${bookshop.name} in ${bookshop.city}`}
+                          className="rounded-md h-28 w-full" 
+                          objectFit="cover"
+                          loading="lazy"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                        />
+                        <OptimizedImage 
+                          src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" 
+                          alt={`Reading area with comfortable seating at ${bookshop.name} bookstore`}
+                          className="rounded-md h-28 w-full" 
+                          objectFit="cover"
+                          loading="lazy"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                        />
+                        <OptimizedImage 
+                          src="https://pixabay.com/get/gad7ae5ca8d3c20e6ea7d3000b277b675a63c751be2dad2863a5d5f792c8694ae9eda1dd7a4da67c8050e92d6d9e65616ab0e5d77451a37f6824bd02c471550ed_1280.jpg" 
+                          alt={`${bookshop.name} bookstore storefront in ${bookshop.city}, ${bookshop.state}`}
+                          className="rounded-md h-28 w-full" 
+                          objectFit="cover"
+                          loading="lazy"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                        />
+                        <OptimizedImage 
+                          src="https://pixabay.com/get/ge0dbb377908f4d4cf2abc1fb59b7bbebce8f79c3fc968b875fb589c86fa09193b24c436494cf183cb26093951597295d7e6f938ef23f48dbe21fdbb8e4ca8961_1280.jpg" 
+                          alt={`Café area with customers at ${bookshop.name} independent bookstore`}
+                          className="rounded-md h-28 w-full" 
+                          objectFit="cover"
+                          loading="lazy"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                        />
+                        <OptimizedImage 
+                          src="https://pixabay.com/get/g8bf46861013f9985b53e992bfae870fb41e446b54a69402db4a287ead0c05467b3e92ea76bd39bebfc06fdba42143d720a995d603858b2cd3c4f461b441a6802_1280.jpg" 
+                          alt={`Author event with audience at ${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
+                          className="rounded-md h-28 w-full" 
+                          objectFit="cover"
+                          loading="lazy"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                        />
                       </div>
                     </div>
                     
