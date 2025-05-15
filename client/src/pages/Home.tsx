@@ -357,7 +357,7 @@ const Home = () => {
         </div>
       </section>
       
-      {/* Why Independent Bookstores Section */}
+      {/* Why Independent Bookshops Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="lg:flex lg:items-center lg:space-x-12">

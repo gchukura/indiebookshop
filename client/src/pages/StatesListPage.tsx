@@ -171,7 +171,7 @@ const StatesListPage = () => {
             return (
               <div key={region} className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-                  {region} Bookstores
+                  {region} Bookshops
                 </h2>
                 <p className="text-gray-600 text-sm mb-4">
                   Find independent bookshops in the {region} region. Browse our bookstore directory by state.
@@ -202,7 +202,7 @@ const StatesListPage = () => {
       {/* SEO-friendly content section */}
       <section className="mt-12 bg-[#F7F3E8] rounded-lg p-6">
         <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-          Why Browse Bookstores by State?
+          Why Browse Bookshops by State?
         </h2>
         <div className="prose prose-p:text-gray-700 max-w-none">
           <p>
