@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Book } from "lucide-react";
+import { SEO } from "../components/SEO";
+import { BASE_URL } from "../lib/seo";
 
 const BlogPlaceholder = () => {
   return (
@@ -70,6 +72,35 @@ const BookWormMascot = () => {
 };
 
 const Blog = () => {
+  // SEO metadata
+  const seoTitle = useMemo(() => {
+    return "Independent Bookshop Blog | Articles about Indie Bookstores";
+  }, []);
+  
+  const seoDescription = useMemo(() => {
+    return "Articles, interviews, and insights about independent bookshops across America. Discover stories about local indie bookstores, author events, bookseller profiles, and the cultural impact of independent bookshops.";
+  }, []);
+  
+  const seoKeywords = useMemo(() => {
+    return [
+      "independent bookshop blog",
+      "indie bookstore articles",
+      "bookshop stories",
+      "local bookshop features",
+      "indie bookseller interviews",
+      "independent bookstore community",
+      "bookshop culture",
+      "author events bookshops",
+      "independent bookshop insights",
+      "bookstore cats",
+      "literary community stories"
+    ];
+  }, []);
+  
+  const canonicalUrl = useMemo(() => {
+    return `${BASE_URL}/blog`;
+  }, []);
+
   // Mock data for future blog articles
   const placeholderArticles = [
     {
@@ -100,12 +131,20 @@ const Blog = () => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* SEO Component */}
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        canonicalUrl={canonicalUrl}
+      />
+      
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          Bookshop Blog
+          Independent Bookshop Blog & Articles
         </h1>
         <p className="text-gray-600 mb-8">
-          Stories, interviews, and insights from the world of independent bookshops.
+          Stories, interviews, and insights from the world of independent bookshops across America.
         </p>
         
         {/* Placeholder with mascot while no articles exist */}
