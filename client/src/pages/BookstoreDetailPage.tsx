@@ -1,9 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Bookstore, Feature, Event } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import SingleLocationMap from '@/components/SingleLocationMap';
+import { SEO } from '../components/SEO';
+import { 
+  BASE_URL, 
+  generateDescription,
+  DESCRIPTION_TEMPLATES
+} from '../lib/seo';
 
 const BookshopDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +44,57 @@ const BookshopDetailPage = () => {
   const bookshopFeatures = features?.filter(feature => 
     bookshop?.featureIds?.includes(feature.id) || false
   ) || [];
+  
+  // SEO metadata - only generate when bookshop data is available
+  const seoTitle = useMemo(() => {
+    if (!bookshop) return "Bookshop Details | IndieBookShop.com";
+    return `${bookshop.name} | Independent Bookshop in ${bookshop.city}, ${bookshop.state}`;
+  }, [bookshop]);
+  
+  const seoDescription = useMemo(() => {
+    if (!bookshop) return "";
+    return generateDescription(DESCRIPTION_TEMPLATES.detail, {
+      name: bookshop.name,
+      city: bookshop.city,
+      state: bookshop.state
+    });
+  }, [bookshop]);
+  
+  const seoKeywords = useMemo(() => {
+    if (!bookshop) return [];
+    
+    // Create base keywords
+    const keywords = [
+      `${bookshop.name}`,
+      `${bookshop.name} bookshop`,
+      `${bookshop.name} bookstore`,
+      `independent bookshop ${bookshop.city}`,
+      `independent bookstore ${bookshop.city}`,
+      `indie bookshop ${bookshop.city}`,
+      `bookshops in ${bookshop.city}`,
+      `bookstores in ${bookshop.city}`,
+      `${bookshop.city} ${bookshop.state} bookshops`,
+      `independent bookshops ${bookshop.state}`
+    ];
+    
+    // Add feature-specific keywords
+    bookshopFeatures.forEach(feature => {
+      keywords.push(`${bookshop.name} ${feature.name.toLowerCase()}`);
+      keywords.push(`${feature.name.toLowerCase()} bookshops in ${bookshop.city}`);
+    });
+    
+    return keywords;
+  }, [bookshop, bookshopFeatures]);
+  
+  const canonicalUrl = useMemo(() => {
+    if (!bookshop) return "";
+    return `${BASE_URL}/bookshop/${bookshop.id}`;
+  }, [bookshop]);
+  
+  // Used for ogImage, ensures we handle null values correctly
+  const getImageUrl = useMemo(() => {
+    return bookshop?.imageUrl || undefined;
+  }, [bookshop]);
 
   if (isLoadingBookshop) {
     return (
@@ -63,16 +120,25 @@ const BookshopDetailPage = () => {
 
   return (
     <div className="bg-[#F7F3E8] min-h-screen">
+      {/* SEO Component */}
+      <SEO 
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
+        canonicalUrl={canonicalUrl}
+        ogImage={getImageUrl}
+      />
+      
       <div className="relative h-64 md:h-96">
         <img 
           src={bookshop.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400"}
-          alt={`${bookshop.name} interior panorama`} 
+          alt={`${bookshop.name} - independent bookshop in ${bookshop.city}, ${bookshop.state}`} 
           className="w-full h-full object-cover" 
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-white text-2xl md:text-4xl font-serif font-bold">{bookshop.name}</h1>
-            <p className="text-white/90 text-sm md:text-base">{bookshop.city}, {bookshop.state}</p>
+            <h1 className="text-white text-2xl md:text-4xl font-serif font-bold">{bookshop.name} | Independent Bookshop in {bookshop.city}</h1>
+            <p className="text-white/90 text-sm md:text-base">{bookshop.city}, {bookshop.state} • Indie Bookstore</p>
           </div>
         </div>
       </div>
@@ -81,11 +147,19 @@ const BookshopDetailPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="font-serif font-bold text-2xl mb-4">About</h2>
+              <h2 className="font-serif font-bold text-2xl mb-4">About {bookshop.name} - Independent Bookshop in {bookshop.city}</h2>
               <p className="mb-4">{bookshop.description}</p>
+              <p className="mb-6 text-gray-700">
+                {bookshop.name} is a cherished independent bookshop located in {bookshop.city}, {bookshop.state}. 
+                As a local indie bookstore, we provide a curated selection of books and a unique shopping 
+                experience that online retailers simply can't match.
+              </p>
               
               <div className="mt-8">
-                <h3 className="font-serif font-bold text-xl mb-4">Features & Specialties</h3>
+                <h3 className="font-serif font-bold text-xl mb-4">Specialty Areas & Features</h3>
+                <p className="mb-3 text-gray-700">
+                  {bookshop.name} specializes in the following areas and offers these features to our community:
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {bookshopFeatures.map(feature => (
                     <span key={feature.id} className="store-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
