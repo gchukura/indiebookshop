@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { SEO } from "../components/SEO";
 import { BASE_URL, PAGE_KEYWORDS, DESCRIPTION_TEMPLATES } from "../lib/seo";
+import FAQSection from "../components/FAQSection";
 
 const AboutPage = () => {
   // SEO metadata for the About page
@@ -196,41 +197,37 @@ const AboutPage = () => {
       </section>
 
       <section>
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
-            Frequently Asked Questions
-          </h2>
-          
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-xl font-medium text-[#5F4B32] mb-2">How do I add my bookstore to the directory?</h3>
-              <p className="text-gray-700">
-                You can easily submit your bookstore through our <Link href="/submit" className="text-[#2A6B7C] hover:underline">submission form</Link>. We'll review the information and add it to our directory, typically within 3-5 business days.
-              </p>
-            </div>
-            
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-xl font-medium text-[#5F4B32] mb-2">Is this service free for bookstores?</h3>
-              <p className="text-gray-700">
-                Yes! Basic listings in our directory are completely free for all legitimate independent bookstores. We believe in supporting the indie bookstore community without barriers.
-              </p>
-            </div>
-            
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-xl font-medium text-[#5F4B32] mb-2">How do you define an "independent" bookstore?</h3>
-              <p className="text-gray-700">
-                We consider bookstores to be independent if they are not part of a large national chain and have a significant focus on selling books. This includes used bookstores, specialty bookshops, and bookstores that may also sell other items.
-              </p>
-            </div>
-            
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-xl font-medium text-[#5F4B32] mb-2">How can I report an error in a listing?</h3>
-              <p className="text-gray-700">
-                If you notice any outdated or incorrect information in our directory, please <Link href="/contact" className="text-[#2A6B7C] hover:underline">contact us</Link> with the details. We appreciate your help in keeping our information accurate!
-              </p>
-            </div>
-          </div>
-        </div>
+        <FAQSection
+          title="Frequently Asked Questions"
+          description="Find answers to common questions about IndiebookShop.com and our directory services."
+          faqs={[
+            {
+              question: "How do I add my bookstore to the directory?",
+              answer: "You can easily submit your bookstore through our <a href='/submit' class='text-[#2A6B7C] hover:underline'>submission form</a>. We'll review the information and add it to our directory, typically within 3-5 business days."
+            },
+            {
+              question: "Is this service free for bookstores?",
+              answer: "Yes! Basic listings in our directory are completely free for all legitimate independent bookstores. We believe in supporting the indie bookstore community without barriers."
+            },
+            {
+              question: "How do you define an \"independent\" bookstore?",
+              answer: "We consider bookstores to be independent if they are not part of a large national chain and have a significant focus on selling books. This includes used bookstores, specialty bookshops, and bookstores that may also sell other items."
+            },
+            {
+              question: "How can I report an error in a listing?",
+              answer: "If you notice any outdated or incorrect information in our directory, please <a href='/contact' class='text-[#2A6B7C] hover:underline'>contact us</a> with the details. We appreciate your help in keeping our information accurate!"
+            },
+            {
+              question: "Do you list online-only bookstores?",
+              answer: "Yes, we list online-only independent bookstores that operate as dedicated businesses. However, we prioritize brick-and-mortar stores in our directory as they often have a larger community impact."
+            },
+            {
+              question: "Can I list my book-related business if it's not primarily a bookstore?",
+              answer: "Our directory focuses on businesses where selling books is a primary function. If you have a related business like a literary café, book-themed gift shop, or publishing service, please <a href='/contact' class='text-[#2A6B7C] hover:underline'>contact us</a> to discuss potential listing options."
+            }
+          ]}
+          className="max-w-3xl mx-auto"
+        />
       </section>
     </div>
   );

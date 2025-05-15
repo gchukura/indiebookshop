@@ -73,13 +73,43 @@ type BreadcrumbSchema = {
   }>;
 };
 
+type FAQSchema = {
+  type: 'faq';
+  questions: Array<{
+    question: string;
+    answer: string;
+  }>;
+};
+
+type HowToSchema = {
+  type: 'howto';
+  name: string;
+  description: string;
+  image?: string;
+  totalTime?: string; // Format: "PT2H30M" (2 hours, 30 minutes)
+  estimatedCost?: {
+    currency: string;
+    value: string;
+  };
+  supply?: string[];
+  tool?: string[];
+  step: Array<{
+    name: string;
+    text: string;
+    image?: string;
+    url?: string;
+  }>;
+};
+
 type SchemaProps = {
   schema: 
     | BookshopSchema 
     | EventSchema 
     | OrganizationSchema 
     | WebsiteSchema 
-    | BreadcrumbSchema;
+    | BreadcrumbSchema
+    | FAQSchema
+    | HowToSchema;
 };
 
 export const SchemaOrg: React.FC<SchemaProps> = ({ schema }) => {
@@ -174,6 +204,53 @@ export const SchemaOrg: React.FC<SchemaProps> = ({ schema }) => {
             'position': item.position,
             'name': item.name,
             'item': item.item
+          }))
+        };
+
+      case 'faq':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          'mainEntity': schema.questions.map(qa => ({
+            '@type': 'Question',
+            'name': qa.question,
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': qa.answer
+            }
+          }))
+        };
+
+      case 'howto':
+        return {
+          '@context': 'https://schema.org',
+          '@type': 'HowTo',
+          'name': schema.name,
+          'description': schema.description,
+          'image': schema.image,
+          'totalTime': schema.totalTime,
+          ...(schema.estimatedCost && {
+            'estimatedCost': {
+              '@type': 'MonetaryAmount',
+              'currency': schema.estimatedCost.currency,
+              'value': schema.estimatedCost.value
+            }
+          }),
+          'supply': schema.supply?.map(item => ({
+            '@type': 'HowToSupply',
+            'name': item
+          })),
+          'tool': schema.tool?.map(item => ({
+            '@type': 'HowToTool',
+            'name': item
+          })),
+          'step': schema.step.map((step, index) => ({
+            '@type': 'HowToStep',
+            'position': index + 1,
+            'name': step.name,
+            'text': step.text,
+            'image': step.image,
+            'url': step.url
           }))
         };
       
