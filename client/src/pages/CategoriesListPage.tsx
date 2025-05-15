@@ -44,18 +44,6 @@ const CategoriesListPage = () => {
           </div>
         </div>
       )}
-      
-      <div className="mt-8 bg-[#F7F3E8] rounded-lg p-6">
-        <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-3">
-          Why browse by category?
-        </h2>
-        <p className="text-gray-700 mb-4">
-          Each independent bookshop offers unique features and specialties. Some have cozy cafés perfect for reading, others specialize in rare or used books, and many host regular author events and book clubs.
-        </p>
-        <p className="text-gray-700">
-          By browsing bookshops by category, you can find the perfect bookshop that matches your specific interests and preferences.
-        </p>
-      </div>
     </div>
   );
 };
