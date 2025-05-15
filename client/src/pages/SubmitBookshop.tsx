@@ -41,11 +41,6 @@ const SubmitBookshop: FC = () => {
         description={seoDescription}
         keywords={seoKeywords}
         canonicalUrl={canonicalUrl}
-        ogType="website"
-        ogImage={`${BASE_URL}/images/submit-bookshop-guide.jpg`}
-        ogImageAlt="How to submit a bookshop to our directory"
-        ogImageWidth={1200}
-        ogImageHeight={630}
       />
       
       <div className="max-w-3xl mx-auto mb-8">

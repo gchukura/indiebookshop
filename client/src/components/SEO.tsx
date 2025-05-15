@@ -6,11 +6,11 @@ interface SEOProps {
   keywords?: string[];
   canonicalUrl?: string;
   ogImage?: string;
-  ogType?: 'website' | 'article' | 'book' | 'profile' | 'business.business';
+  ogType?: string; // 'website', 'article', 'book', 'profile', 'business.business'
   ogImageAlt?: string;
   ogImageWidth?: number;
   ogImageHeight?: number;
-  twitterCard?: 'summary' | 'summary_large_image' | 'app' | 'player';
+  twitterCard?: string; // 'summary', 'summary_large_image', 'app', 'player'
   twitterSite?: string;
   twitterCreator?: string;
   articlePublishedTime?: string; // ISO date string
@@ -45,11 +45,13 @@ export const SEO = ({
   // Format title to include site name
   const fullTitle = `${title} | IndiebookShop.com`;
   
-  const isArticle = ogType === 'article';
+  // Make sure we're using string values for all props
+  const safeOgType = String(ogType || 'website');
+  const safeTwitterCard = String(twitterCard || 'summary_large_image');
+  const safeSite = String(twitterSite || '@indiebookshop');
+  const safeCreator = twitterCreator ? String(twitterCreator) : undefined;
   
-  // Convert ogType to string if it's a symbol or object
-  const safeOgType = typeof ogType === 'string' ? ogType : 'website';
-  const safeTwitterCard = typeof twitterCard === 'string' ? twitterCard : 'summary_large_image';
+  const isArticle = safeOgType === 'article';
   
   return (
     <Helmet>
@@ -80,29 +82,29 @@ export const SEO = ({
       
       {/* Article specific Open Graph */}
       {isArticle && articlePublishedTime && (
-        <meta property="article:published_time" content={articlePublishedTime} />
+        <meta property="article:published_time" content={String(articlePublishedTime)} />
       )}
       {isArticle && articleModifiedTime && (
-        <meta property="article:modified_time" content={articleModifiedTime} />
+        <meta property="article:modified_time" content={String(articleModifiedTime)} />
       )}
       {isArticle && articleAuthor && (
-        <meta property="article:author" content={articleAuthor} />
+        <meta property="article:author" content={String(articleAuthor)} />
       )}
       {isArticle && articleSection && (
-        <meta property="article:section" content={articleSection} />
+        <meta property="article:section" content={String(articleSection)} />
       )}
       {isArticle && articleTags.map((tag, index) => (
-        <meta property="article:tag" content={tag} key={index} />
+        <meta property="article:tag" content={String(tag)} key={index} />
       ))}
       
       {/* Twitter Card Tags */}
       <meta name="twitter:card" content={safeTwitterCard} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      {twitterSite && <meta name="twitter:site" content={twitterSite} />}
-      {twitterCreator && <meta name="twitter:creator" content={twitterCreator} />}
+      {twitterSite && <meta name="twitter:site" content={safeSite} />}
+      {twitterCreator && <meta name="twitter:creator" content={safeCreator} />}
       {ogImage && <meta name="twitter:image" content={ogImage} />}
-      {ogImageAlt && <meta name="twitter:image:alt" content={ogImageAlt} />}
+      {ogImageAlt && <meta name="twitter:image:alt" content={String(ogImageAlt)} />}
     </Helmet>
   );
 };
