@@ -7,6 +7,7 @@ import SingleLocationMap from "./SingleLocationMap";
 import SchemaOrg from "./SchemaOrg";
 import { BASE_URL } from "../lib/seo";
 import { generateBookshopImageAlt, optimizeImageUrl } from "../lib/imageUtils";
+import { generateRelatedLinks, generateEventLinks } from "../lib/linkUtils";
 
 interface BookshopDetailProps {
   bookshopId: number;
@@ -63,11 +64,11 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
 
   // Prepare schema.org data when bookshop is available
   const bookshopSchema = bookshop ? {
-    type: 'bookshop',
+    type: 'bookshop' as const,
     name: bookshop.name,
     description: bookshop.description || `Independent bookshop in ${bookshop.city}, ${bookshop.state}`,
     url: `${BASE_URL}/bookshop/${bookshop.id}`,
-    image: bookshop.imageUrl,
+    image: bookshop.imageUrl || undefined,
     address: {
       streetAddress: bookshop.street || '',
       addressLocality: bookshop.city,
@@ -75,12 +76,12 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
       postalCode: bookshop.zip || '',
       addressCountry: 'US'
     },
-    telephone: bookshop.phone,
+    telephone: bookshop.phone || undefined,
     geo: bookshop.latitude && bookshop.longitude ? {
-      latitude: bookshop.latitude,
-      longitude: bookshop.longitude
+      latitude: String(bookshop.latitude),
+      longitude: String(bookshop.longitude)
     } : undefined,
-    openingHours: bookshop.hours,
+    openingHours: bookshop.hours ? JSON.stringify(bookshop.hours) : undefined,
     features: bookshopFeatures.map(f => f.name)
   } : null;
 
