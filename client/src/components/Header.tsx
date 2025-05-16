@@ -129,18 +129,20 @@ const Header = () => {
             </nav>
           </div>
           <div className="flex items-center space-x-3">
-            <Link href="/submit">
-              <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white">
-                <span className="hidden md:inline">Add Bookshop</span>
-                <span className="md:hidden">Add Bookshop</span>
-              </Button>
-            </Link>
-            <Link href="/submit-event">
-              <Button className="bg-[#4A7C59] hover:bg-[#4A7C59]/90 text-white">
-                <span className="hidden md:inline">Add Event</span>
-                <span className="md:hidden">Add Event</span>
-              </Button>
-            </Link>
+            {/* Only show buttons on desktop */}
+            <div className="hidden md:flex space-x-3">
+              <Link href="/submit">
+                <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white">
+                  Add Bookshop
+                </Button>
+              </Link>
+              <Link href="/submit-event">
+                <Button className="bg-[#4A7C59] hover:bg-[#4A7C59]/90 text-white">
+                  Add Event
+                </Button>
+              </Link>
+            </div>
+            {/* Mobile menu control */}
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="icon" className="text-gray-500 hover:text-[#5F4B32]">
