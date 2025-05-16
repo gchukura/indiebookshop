@@ -74,20 +74,7 @@ const AboutPage = () => {
                 <p className="text-gray-700 mb-6">
                   Our mission is simple but powerful: to help readers discover and support independent bookstores across North America. We're building the most comprehensive, user-friendly directory that connects book lovers with their perfect local indie bookshop, whether they're looking for specialized collections, author events, or community gathering spaces.
                 </p>
-                <div className="flex flex-wrap gap-4 mt-6">
-                  <div className="flex items-center text-[#2A6B7C]">
-                    <BookOpen className="w-5 h-5 mr-2" />
-                    <span>500+ Bookshops</span>
-                  </div>
-                  <div className="flex items-center text-[#2A6B7C]">
-                    <MapPin className="w-5 h-5 mr-2" />
-                    <span>50+ States & Provinces</span>
-                  </div>
-                  <div className="flex items-center text-[#2A6B7C]">
-                    <Users className="w-5 h-5 mr-2" />
-                    <span>10,000+ Monthly Visitors</span>
-                  </div>
-                </div>
+
               </div>
             </div>
             <div className="bg-[#F7F3E8] p-8 md:p-12">

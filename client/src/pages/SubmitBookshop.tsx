@@ -61,7 +61,6 @@ const SubmitBookshop: FC = () => {
           title="How to Submit Your Bookshop"
           description="Follow these simple steps to add your independent bookshop to our directory"
           image={`${BASE_URL}/images/submit-bookshop-guide.jpg`}
-          totalTime="PT10M"
           steps={[
             {
               name: "Gather Your Bookshop Information",
