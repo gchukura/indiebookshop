@@ -52,7 +52,7 @@ const Header = () => {
         <div className="flex justify-between h-16 md:h-24">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <Logo height={60} width={60} className="md:h-[80px] md:w-auto" showDotCom={true} />
+              <Logo height={70} width={70} className="md:h-[80px] md:w-auto" showDotCom={true} />
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
               <div className="relative" ref={statesDropdownRef}>
