@@ -1,0 +1,14 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Adjusted viewBox to focus just on the books -->
+  <!-- Book stack - scaled and centered for favicon -->
+  <g transform="translate(1, 4) scale(0.28)">
+    <!-- Bottom book -->
+    <rect x="0" y="70" width="90" height="30" rx="2" ry="2" fill="#3d6a80" />
+    
+    <!-- Middle book -->
+    <rect x="5" y="40" width="90" height="30" rx="2" ry="2" fill="#e65c4f" />
+    
+    <!-- Top book -->
+    <rect x="10" y="10" width="90" height="30" rx="2" ry="2" fill="#5F4B32" />
+  </g>
+</svg>
