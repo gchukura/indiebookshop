@@ -177,21 +177,26 @@ const StatesListPage = () => {
                   Find independent bookshops in the {region} region. Browse our bookstore directory by state.
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {groupedStates[region].sort().map(state => (
-                    <Link 
-                      key={state} 
-                      href={`/directory/state/${state}`}
-                      title={`Independent bookstores in ${stateMap[state] || state}`}
-                    >
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-center text-center font-medium hover:bg-[#2A6B7C]/5 hover:text-[#2A6B7C] hover:border-[#2A6B7C] transition-colors"
-                        aria-label={`Browse indie bookshops in ${stateMap[state] || state}`}
+                  {groupedStates[region].sort().map(state => {
+                    const fullStateName = stateMap[state] || state;
+                    const stateSlug = generateSlug(fullStateName);
+                    
+                    return (
+                      <Link 
+                        key={state} 
+                        href={`/directory/state/${state}`}
+                        title={`Independent bookstores in ${fullStateName}`}
                       >
-                        {stateMap[state] || state}
-                      </Button>
-                    </Link>
-                  ))}
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-center text-center font-medium hover:bg-[#2A6B7C]/5 hover:text-[#2A6B7C] hover:border-[#2A6B7C] transition-colors"
+                          aria-label={`Browse indie bookshops in ${fullStateName}`}
+                        >
+                          {fullStateName}
+                        </Button>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             );
