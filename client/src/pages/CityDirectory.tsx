@@ -1,6 +1,5 @@
 import { useParams, Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Bookstore } from "@shared/schema";
 import BookshopCard from "@/components/BookshopCard";
 import BookshopDetail from "@/components/BookshopDetail";
@@ -16,29 +15,34 @@ import {
 } from "../lib/seo";
 
 const CityDirectory = () => {
-  const { city } = useParams();
+  // Get city from URL params
+  const params = useParams();
+  const city = params.city;
+  
+  // Component state
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [view, setView] = useState<"map" | "list">("map");
-  
-  // State to hold data
   const [bookshops, setBookshops] = useState<Bookstore[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   
-  // Fetch data on component mount
+  // Fetch data when component mounts or city changes
   useEffect(() => {
     if (!city) return;
     
+    console.log(`Loading data for city: ${city}`);
     setIsLoading(true);
     setIsError(false);
     
-    const fetchBookshops = async () => {
+    // Fetch bookshops for this city
+    const fetchData = async () => {
       try {
-        console.log(`Fetching bookshops for city: ${city}`);
+        // Make sure the city is URL-encoded
         const encodedCity = encodeURIComponent(city);
-        const response = await fetch(`/api/bookstores/filter?city=${encodedCity}`);
         
+        // Fetch bookshops
+        const response = await fetch(`/api/bookstores/filter?city=${encodedCity}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch bookshops: ${response.status}`);
         }
@@ -48,15 +52,15 @@ const CityDirectory = () => {
         setBookshops(data);
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching bookshops:", error);
+        console.error("Error fetching data:", error);
         setIsError(true);
         setIsLoading(false);
       }
     };
     
-    fetchBookshops();
+    fetchData();
   }, [city]);
-
+  
   // Get state from the first bookshop (assuming all bookshops in a city are in the same state)
   const state = bookshops.length > 0 ? bookshops[0].state : '';
   

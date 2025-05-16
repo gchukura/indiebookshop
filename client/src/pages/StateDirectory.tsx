@@ -1,6 +1,5 @@
 import { useParams, Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Bookstore } from "@shared/schema";
 import BookshopCard from "@/components/BookshopCard";
 import BookshopDetail from "@/components/BookshopDetail";
@@ -17,32 +16,36 @@ import {
 } from "../lib/seo";
 
 const StateDirectory = () => {
-  const { state } = useParams();
+  // Get state from URL params
+  const params = useParams();
+  const state = params.state;
+  
+  // Component state
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [view, setView] = useState<"map" | "list">("map");
-  
-  // Get full state name using utility function
-  const stateAbbr = state || '';
-  const fullStateName = getFullStateName(stateAbbr);
-  
-  // State to hold data
   const [bookshops, setBookshops] = useState<Bookstore[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   
-  // Fetch data on component mount
+  // Get full state name
+  const stateAbbr = state || '';
+  const fullStateName = getFullStateName(stateAbbr);
+  
+  // Fetch data when component mounts or state changes
   useEffect(() => {
     if (!stateAbbr) return;
     
+    console.log(`Loading data for state: ${stateAbbr}`);
     setIsLoading(true);
     setIsError(false);
     
-    const fetchBookshops = async () => {
+    // Fetch bookshops for this state
+    const fetchData = async () => {
       try {
-        console.log(`Fetching bookshops for state: ${stateAbbr}`);
+        // Fetch bookshops
         const response = await fetch(`/api/bookstores/filter?state=${stateAbbr}`);
-        
         if (!response.ok) {
           throw new Error(`Failed to fetch bookshops: ${response.status}`);
         }
@@ -50,22 +53,25 @@ const StateDirectory = () => {
         const data = await response.json();
         console.log(`Found ${data.length} bookshops for state: ${stateAbbr}`);
         setBookshops(data);
+        
+        // Fetch cities in this state
+        const citiesResponse = await fetch(`/api/states/${stateAbbr}/cities`);
+        if (citiesResponse.ok) {
+          const citiesData = await citiesResponse.json();
+          console.log(`Found ${citiesData.length} cities in ${stateAbbr}`);
+          setCities(citiesData);
+        }
+        
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching bookshops:", error);
+        console.error("Error fetching data:", error);
         setIsError(true);
         setIsLoading(false);
       }
     };
     
-    fetchBookshops();
+    fetchData();
   }, [stateAbbr]);
-
-  // Fetch cities in this state
-  const { data: cities = [] } = useQuery<string[]>({
-    queryKey: [`/api/states/${stateAbbr}/cities`],
-    enabled: !!stateAbbr,
-  });
   
   // Generate SEO metadata
   const seoTitle = useMemo(() => {
