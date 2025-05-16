@@ -48,23 +48,23 @@ const Logo = ({ width = 200, height = 80, showDotCom = true, className = '' }: L
           <line x1="5" y1="93" x2="85" y2="93" stroke="white" strokeWidth="1.5" strokeOpacity="0.3" />
         </g>
         
-        {/* Company name - improved positioning with more space for text */}
+        {/* Company name - as one word with consistent font size */}
         <g transform="translate(170, 105)">
-          {/* Indie - larger font size */}
-          <text fontFamily="serif" fontWeight="bold" fontSize="52" fill={LOGO_COLORS.BLUE} 
+          {/* First part of name */}
+          <text fontFamily="serif" fontWeight="bold" fontSize="56" fill={LOGO_COLORS.BLUE} 
                 style={{ textShadow: "0px 1px 1px rgba(0, 0, 0, 0.1)" }}>
             Indie
           </text>
           
-          {/* Bookshop - larger font size */}
-          <text x="110" fontFamily="serif" fontWeight="bold" fontSize="52" fill={LOGO_COLORS.ORANGE}
+          {/* Second part of name - positioned closer for single word appearance */}
+          <text x="125" fontFamily="serif" fontWeight="bold" fontSize="56" fill={LOGO_COLORS.ORANGE}
                 style={{ textShadow: "0px 1px 1px rgba(0, 0, 0, 0.1)" }}>
-            Bookshop
+            bookShop
           </text>
           
           {/* .com - slightly larger */}
           {showDotCom && (
-            <text x="315" fontFamily="serif" fontWeight="bold" fontSize="32" fill={LOGO_COLORS.GRAY}>
+            <text x="330" fontFamily="serif" fontWeight="bold" fontSize="36" fill={LOGO_COLORS.GRAY}>
               .com
             </text>
           )}
