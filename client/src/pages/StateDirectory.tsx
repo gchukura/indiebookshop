@@ -28,14 +28,20 @@ const StateDirectory = () => {
   
   // Fetch bookshops for this state
   const { data: bookshops = [], isLoading, isError } = useQuery<Bookstore[]>({
-    queryKey: [`/api/bookstores/filter`, { state: stateAbbr }],
+    queryKey: ['filteredBookshops', stateAbbr],
     queryFn: async () => {
+      console.log(`Fetching bookshops for state: ${stateAbbr}`);
       const response = await fetch(`/api/bookstores/filter?state=${stateAbbr}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch bookshops');
+        const errorText = await response.text();
+        console.error(`API error: ${errorText}`);
+        throw new Error(`Failed to fetch bookshops: ${response.status}`);
       }
-      return response.json();
-    }
+      const data = await response.json();
+      console.log(`Found ${data.length} bookshops for state: ${stateAbbr}`);
+      return data;
+    },
+    enabled: !!stateAbbr
   });
 
   // Fetch cities in this state
