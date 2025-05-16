@@ -28,7 +28,14 @@ const StateDirectory = () => {
   
   // Fetch bookshops for this state
   const { data: bookshops = [], isLoading, isError } = useQuery<Bookstore[]>({
-    queryKey: [`/api/bookstores/filter?state=${stateAbbr}`],
+    queryKey: [`/api/bookstores/filter`, { state: stateAbbr }],
+    queryFn: async () => {
+      const response = await fetch(`/api/bookstores/filter?state=${stateAbbr}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch bookshops');
+      }
+      return response.json();
+    }
   });
 
   // Fetch cities in this state
