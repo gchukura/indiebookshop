@@ -18,7 +18,7 @@ const LOGO_COLORS = {
 
 const Logo = ({ width = 200, height = 80, showDotCom = true, className = '' }: LogoProps) => {
   // Calculate display dimensions while maintaining proportions
-  const originalAspectRatio = 650 / 200; // Wider aspect ratio to fit larger text
+  const originalAspectRatio = 700 / 200; // Wider aspect ratio to fit larger text
   const calculatedWidth = height * originalAspectRatio;
   
   return (
@@ -26,7 +26,7 @@ const Logo = ({ width = 200, height = 80, showDotCom = true, className = '' }: L
       <svg 
         width={calculatedWidth} 
         height={height} 
-        viewBox="0 0 650 200" 
+        viewBox="0 0 700 200" 
         xmlns="http://www.w3.org/2000/svg"
         className="mr-2"
         style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.1))" }}
@@ -48,7 +48,7 @@ const Logo = ({ width = 200, height = 80, showDotCom = true, className = '' }: L
           <line x1="5" y1="93" x2="85" y2="93" stroke="white" strokeWidth="1.5" strokeOpacity="0.3" />
         </g>
         
-        {/* Company name - as one word with consistent font size */}
+        {/* Company name with consistent spacing */}
         <g transform="translate(170, 105)">
           {/* First part of name */}
           <text fontFamily="serif" fontWeight="bold" fontSize="56" fill={LOGO_COLORS.BLUE} 
@@ -56,15 +56,15 @@ const Logo = ({ width = 200, height = 80, showDotCom = true, className = '' }: L
             Indie
           </text>
           
-          {/* Second part of name - positioned closer for single word appearance */}
-          <text x="125" fontFamily="serif" fontWeight="bold" fontSize="56" fill={LOGO_COLORS.ORANGE}
+          {/* Second part of name */}
+          <text x="140" fontFamily="serif" fontWeight="bold" fontSize="56" fill={LOGO_COLORS.ORANGE}
                 style={{ textShadow: "0px 1px 1px rgba(0, 0, 0, 0.1)" }}>
             bookShop
           </text>
           
-          {/* .com - slightly larger */}
+          {/* .com - positioned with consistent spacing */}
           {showDotCom && (
-            <text x="330" fontFamily="serif" fontWeight="bold" fontSize="36" fill={LOGO_COLORS.GRAY}>
+            <text x="365" fontFamily="serif" fontWeight="bold" fontSize="36" fill={LOGO_COLORS.GRAY}>
               .com
             </text>
           )}
