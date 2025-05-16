@@ -6,6 +6,10 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/sitemap.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -15,6 +19,10 @@
   ],
   "routes": [
     {
+      "src": "/sitemap.xml",
+      "dest": "/api/sitemap.js"
+    },
+    {
       "src": "/api/health",
       "dest": "/api/health.js"
     },
@@ -23,11 +31,16 @@
       "dest": "/api/serverless.js"
     },
     {
+      "src": "/(assets|images|fonts|css|js)/.*",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "continue": true
+    },
+    {
       "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/api/serverless.js"
+      "dest": "/index.html"
     }
   ],
   "env": {
