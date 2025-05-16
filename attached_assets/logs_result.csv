@@ -1,0 +1,545 @@
+"TimeUTC","timestampInMs","requestPath","requestMethod","requestQueryString","responseStatusCode","requestId","requestUserAgent","level","environment","branch","vercelCache","type","function","host","deploymentDomain","deploymentId","durationMs","region","maxMemoryUsed","memorySize","message","projectId","traceId","sessionId"
+"2025-05-16 00:39:43",1747355983971,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"bf56c-1747355983723-2747d084403e","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:39:43",1747355983737,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"bf56c-1747355983723-2747d084403e","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",215,"iad1",92,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:39:43",1747355983584,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"tp7hf-1747355983284-4a421ffbaf74","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:39:43",1747355983566,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"p9fqf-1747355983284-aa1d830e4b7f","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:39:43",1747355983550,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"8sbjf-1747355983284-9763a32f56a9","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:39:43",1747355983315,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/states","GET","",500,"tp7hf-1747355983284-4a421ffbaf74","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",243,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:39:43",1747355983313,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/bookstores","GET","",500,"p9fqf-1747355983284-aa1d830e4b7f","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",235,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:39:43",1747355983313,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/features","GET","",500,"8sbjf-1747355983284-9763a32f56a9","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",221,"iad1",92,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:36",1747355916704,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.png","GET","",-1,"8tm2r-1747355916432-c6f2bcd12a65","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:36",1747355916474,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.png","GET","",500,"8tm2r-1747355916432-c6f2bcd12a65","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",214,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:34",1747355914320,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.png","GET","",-1,"758g6-1747355914039-a5420d2123a9","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:34",1747355914082,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.png","GET","",500,"758g6-1747355914039-a5420d2123a9","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",219,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:32",1747355912925,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.png","GET","",-1,"cxgs6-1747355912646-7b1fc3e65d5d","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:32",1747355912690,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.png","GET","",500,"cxgs6-1747355912646-7b1fc3e65d5d","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",218,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:32",1747355912602,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"vjxgk-1747355912317-c3cdc99e51cb","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:32",1747355912361,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"vjxgk-1747355912317-c3cdc99e51cb","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",224,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:30",1747355910197,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"5xvp2-1747355909916-e3c7fa36a7b2","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909961,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"5xvp2-1747355909916-e3c7fa36a7b2","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",221,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909862,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"g7bxb-1747355909571-87e9f8d09201","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909680,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"nhv6j-1747355908804-a4ac7f5dc271","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909664,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"dpttq-1747355909339-2be87aa66552","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909617,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"g7bxb-1747355909571-87e9f8d09201","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",221,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909610,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"j9dvw-1747355909337-f5dc22360cf1","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909600,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"x2kml-1747355908932-154f7779ae38","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909592,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"d8wfx-1747355909338-32a39567e262","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909536,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"x2lcj-1747355908804-4378b7f9a03c","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909494,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"c4l7c-1747355908718-89ea731bc3ed","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909464,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"kdrmk-1747355908804-43bf94522220","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909437,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"84k9f-1747355908718-4a914bc28967","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909388,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/bookstores","GET","",500,"dpttq-1747355909339-2be87aa66552","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",220,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909382,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/features","GET","",500,"d8wfx-1747355909338-32a39567e262","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",187,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909381,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/states","GET","",500,"j9dvw-1747355909337-f5dc22360cf1","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",214,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909249,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"pqr8n-1747355908839-e98b9ced3086","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:29",1747355909027,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"w6sf4-1747355908718-b88afcdc70b5","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:28",1747355908989,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"x2kml-1747355908932-154f7779ae38","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",236,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:28",1747355908880,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"pqr8n-1747355908839-e98b9ced3086","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",213,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:28",1747355908848,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/states","GET","",500,"nhv6j-1747355908804-a4ac7f5dc271","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",273,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:28",1747355908847,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/bookstores","GET","",500,"x2lcj-1747355908804-4378b7f9a03c","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",223,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:28",1747355908844,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/features","GET","",500,"kdrmk-1747355908804-43bf94522220","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",224,"iad1",92,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:28",1747355908808,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"zjmjf-1747355908409-9cab82bdcdf5","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:28",1747355908763,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/states","GET","",500,"c4l7c-1747355908718-89ea731bc3ed","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",226,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:28",1747355908762,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/bookstores","GET","",500,"w6sf4-1747355908718-b88afcdc70b5","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",211,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:28",1747355908761,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/api/features","GET","",500,"84k9f-1747355908718-4a914bc28967","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",227,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:38:28",1747355908568,"indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"zjmjf-1747355908409-9cab82bdcdf5","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","indiebookshop-jsclzoig2-gini-chukuras-projects.vercel.app","dpl_8x3rtnW6FJYETJXoVgo3H7dcLmFz",223,"iad1",92,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:31:43",1747355503084,"indiebookshop.vercel.app/favicon.ico","GET","",-1,"pvmh5-1747355502318-54b9a34233c9","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_9sV9AwkADwQyWYNxoqUs1B89UQoS",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:31:43",1747355503072,"indiebookshop.vercel.app/api/features","GET","",-1,"ks56q-1747355501995-e4230b9e20d6","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_9sV9AwkADwQyWYNxoqUs1B89UQoS",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:31:42",1747355502977,"indiebookshop.vercel.app/api/states","GET","",-1,"jvtlr-1747355501995-e49263f9a50d","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_9sV9AwkADwQyWYNxoqUs1B89UQoS",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:31:42",1747355502959,"indiebookshop.vercel.app/api/bookstores","GET","",-1,"nlllh-1747355501995-15f78e555f49","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_9sV9AwkADwQyWYNxoqUs1B89UQoS",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/google-sheets' imported from /var/task/server/sheets-storage.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/google-sheets'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:31:42",1747355502323,"indiebookshop.vercel.app/favicon.ico","GET","",500,"pvmh5-1747355502318-54b9a34233c9","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_9sV9AwkADwQyWYNxoqUs1B89UQoS",237,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:31:42",1747355502007,"indiebookshop.vercel.app/api/bookstores","GET","",500,"nlllh-1747355501995-15f78e555f49","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_9sV9AwkADwQyWYNxoqUs1B89UQoS",221,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:31:42",1747355502002,"indiebookshop.vercel.app/api/states","GET","",500,"jvtlr-1747355501995-e49263f9a50d","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_9sV9AwkADwQyWYNxoqUs1B89UQoS",235,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 00:31:42",1747355502001,"indiebookshop.vercel.app/api/features","GET","",500,"ks56q-1747355501995-e4230b9e20d6","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_9sV9AwkADwQyWYNxoqUs1B89UQoS",234,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
