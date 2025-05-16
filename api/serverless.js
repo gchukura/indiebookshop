@@ -4,7 +4,8 @@
 import express from 'express';
 import { createServer } from 'http';
 import { parse } from 'url';
-import { GoogleSheetsStorage } from '../server/sheets-storage.js';
+// Import serverless-specific implementation of Google Sheets storage
+import { GoogleSheetsStorage } from './sheets-storage-serverless.js';
 import { storage } from '../server/storage.js';
 import { registerRoutes } from '../server/routes.js';
 import { dataPreloadMiddleware } from '../server/dataPreloading.js';
