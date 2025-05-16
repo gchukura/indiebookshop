@@ -71,6 +71,24 @@ function App() {
       initGA();
     }
   }, []);
+  
+  // Add passive touch listeners for better mobile scrolling
+  useEffect(() => {
+    // Add passive event listeners to improve scroll performance
+    document.addEventListener('touchstart', () => {}, { passive: true });
+    document.addEventListener('touchmove', () => {}, { passive: true });
+    
+    // Add a class to the body based on device type
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      document.body.classList.add('is-mobile-device');
+    }
+    
+    return () => {
+      document.removeEventListener('touchstart', () => {});
+      document.removeEventListener('touchmove', () => {});
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

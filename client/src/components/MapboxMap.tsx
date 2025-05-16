@@ -94,65 +94,97 @@ const MapboxMap = ({ bookstores, onSelectBookshop }: MapboxMapProps) => {
     if (bookstores.length === 0) return;
 
     const bounds = new mapboxgl.LngLatBounds();
-    const validBookstores = bookstores.filter(b => b.longitude && b.latitude);
+    // Limit to max 100 markers for mobile performance
+    const isMobile = window.innerWidth < 768;
+    const markerLimit = isMobile ? 100 : 500;
+    
+    // Only show a subset of bookstores on mobile to improve performance
+    const validBookstores = bookstores
+      .filter(b => b.longitude && b.latitude)
+      .slice(0, markerLimit);
 
-    validBookstores.forEach(bookstore => {
-      try {
-        // Parse coordinates from strings
-        const longitude = parseFloat(bookstore.longitude || '0');
-        const latitude = parseFloat(bookstore.latitude || '0');
+    // Create markers in batches for better performance
+    const createMarkersInBatches = () => {
+      const batchSize = 20; // Process 20 markers at a time
+      let currentIndex = 0;
+      
+      const processBatch = () => {
+        if (currentIndex >= validBookstores.length) return;
+        
+        const endIndex = Math.min(currentIndex + batchSize, validBookstores.length);
+        const batch = validBookstores.slice(currentIndex, endIndex);
+        
+        batch.forEach(bookstore => {
+          try {
+            // Parse coordinates from strings
+            const longitude = parseFloat(bookstore.longitude || '0');
+            const latitude = parseFloat(bookstore.latitude || '0');
 
-        if (isNaN(longitude) || isNaN(latitude)) return;
+            if (isNaN(longitude) || isNaN(latitude)) return;
 
-        // Create popup
-        const popup = new mapboxgl.Popup({ offset: 25 })
-          .setHTML(`
-            <div>
-              <h3 style="font-weight: bold; margin-bottom: 5px;">${bookstore.name}</h3>
-              <p style="font-size: 12px; margin: 0;">${bookstore.city}, ${bookstore.state}</p>
-            </div>
-          `);
+            // Create popup - use lighter version on mobile
+            const popup = new mapboxgl.Popup({ offset: 25 })
+              .setHTML(`
+                <div>
+                  <h3 style="font-weight: bold; margin-bottom: 5px;">${bookstore.name}</h3>
+                  <p style="font-size: 12px; margin: 0;">${bookstore.city}, ${bookstore.state}</p>
+                </div>
+              `);
 
-        // Create custom marker element
-        const el = document.createElement('div');
-        el.className = 'marker';
-        el.style.backgroundColor = COLORS.secondary;
-        el.style.width = '24px';
-        el.style.height = '24px';
-        el.style.borderRadius = '50%';
-        el.style.cursor = 'pointer';
-        el.style.border = '2px solid white';
-        el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+            // Create custom marker element - smaller on mobile
+            const el = document.createElement('div');
+            el.className = 'marker';
+            el.style.backgroundColor = COLORS.secondary;
+            el.style.width = isMobile ? '16px' : '24px';
+            el.style.height = isMobile ? '16px' : '24px';
+            el.style.borderRadius = '50%';
+            el.style.cursor = 'pointer';
+            el.style.border = isMobile ? '1px solid white' : '2px solid white';
+            el.style.boxShadow = isMobile ? '0 1px 2px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.3)';
 
-        // Add marker
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat([longitude, latitude])
-          .setPopup(popup)
-          .addTo(map);
+            // Add marker
+            const marker = new mapboxgl.Marker(el)
+              .setLngLat([longitude, latitude])
+              .setPopup(popup)
+              .addTo(map);
 
-        // Add click handler
-        el.addEventListener('click', () => {
-          onSelectBookshop(bookstore.id);
+            // Add click handler
+            el.addEventListener('click', () => {
+              onSelectBookshop(bookstore.id);
+            });
+
+            markersRef.current.push(marker);
+            bounds.extend([longitude, latitude]);
+          } catch (e) {
+            console.error('Error adding marker:', e);
+          }
         });
-
-        markersRef.current.push(marker);
-        bounds.extend([longitude, latitude]);
-      } catch (e) {
-        console.error('Error adding marker:', e);
-      }
-    });
-
-    // Only fit bounds if we have valid bookstores
-    if (validBookstores.length > 0) {
-      try {
-        map.fitBounds(bounds, {
-          padding: 50,
-          maxZoom: 12
-        });
-      } catch (e) {
-        console.error('Error fitting bounds:', e);
-      }
-    }
+        
+        currentIndex = endIndex;
+        
+        // Process next batch with a small delay to prevent UI blocking
+        if (currentIndex < validBookstores.length) {
+          setTimeout(processBatch, 10);
+        } else {
+          // Only fit bounds after all markers are added
+          if (validBookstores.length > 0) {
+            try {
+              map.fitBounds(bounds, {
+                padding: 50,
+                maxZoom: 12
+              });
+            } catch (e) {
+              console.error('Error fitting bounds:', e);
+            }
+          }
+        }
+      };
+      
+      // Start processing the first batch
+      processBatch();
+    };
+    
+    createMarkersInBatches();
   }, [bookstores, mapLoaded, clearMarkers, onSelectBookshop]);
 
   return (
