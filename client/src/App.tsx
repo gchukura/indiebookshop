@@ -64,9 +64,12 @@ function Router() {
 function App() {
   // Initialize Google Analytics when app loads
   useEffect(() => {
-    // Use environment variable or hardcoded ID as fallback
-    initGA();
-    console.log('Google Analytics initialized with ID:', import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-KK1N43FCQZ');
+    // Verify required environment variable is present
+    if (!import.meta.env.VITE_GA_MEASUREMENT_ID) {
+      console.warn('Missing required Google Analytics key: VITE_GA_MEASUREMENT_ID');
+    } else {
+      initGA();
+    }
   }, []);
 
   return (
