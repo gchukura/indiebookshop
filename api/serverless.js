@@ -7,7 +7,7 @@ import { parse } from 'url';
 // Import serverless-specific implementations
 import { GoogleSheetsStorage } from './sheets-storage-serverless.js';
 import { storage } from './storage-serverless.js';
-import { registerRoutes } from '../server/routes.js';
+import { registerRoutes } from './routes-serverless.js';
 import { dataPreloadMiddleware } from './dataPreloading-serverless.js';
 import { htmlInjectionMiddleware } from './htmlInjectionMiddleware-serverless.js';
 
@@ -18,8 +18,8 @@ app.use(express.urlencoded({ extended: false }));
 
 // Import environment configuration
 import { ENV } from './env-config.js';
-import { DataRefreshManager } from '../server/dataRefresh.js';
-import { registerRefreshRoutes } from '../server/refreshRoutes.js';
+import { DataRefreshManager } from './dataRefresh-serverless.js';
+import { registerRefreshRoutes } from './refreshRoutes-serverless.js';
 
 // Set up environment variables from config
 process.env.NODE_ENV = ENV.NODE_ENV;
@@ -46,47 +46,78 @@ let refreshManager;
 
 async function setupServer() {
   if (!isSetup) {
-    server = createServer();
-    await registerRoutes(app, storageImplementation);
-    
-    // Create and configure data refresh manager
-    refreshManager = new DataRefreshManager(storageImplementation, {
-      baseInterval: parseInt(ENV.REFRESH_INTERVAL, 10),
-      minRefreshInterval: parseInt(ENV.MIN_REFRESH_INTERVAL, 10),
-      initialDelay: ENV.NODE_ENV === 'production' ? 300000 : 60000,
-    });
-    
-    // Enable or disable auto-refresh based on environment
-    if (ENV.DISABLE_AUTO_REFRESH === 'true') {
-      refreshManager.setEnabled(false);
-      console.log('Automatic data refresh is disabled via DISABLE_AUTO_REFRESH environment variable');
-    } else {
-      console.log('Automatic data refresh is enabled - data will be refreshed periodically');
-    }
-    
-    // Register refresh API routes
-    registerRefreshRoutes(app, refreshManager);
-    
-    // Add middleware
-    app.use(dataPreloadMiddleware);
-    app.use(htmlInjectionMiddleware);
-    
-    // Error handling
-    app.use((err, _req, res, _next) => {
-      const status = err.status || err.statusCode || 500;
-      const message = err.message || "Internal Server Error";
-      console.error(err);
-      res.status(status).json({ message });
-    });
-    
-    // Serve static files for production
-    if (process.env.NODE_ENV === 'production') {
-      app.use(express.static('dist/public'));
+    try {
+      server = createServer();
       
-      // Handle client-side routing
-      app.get('*', (req, res) => {
-        res.sendFile('dist/public/index.html', { root: '.' });
+      // Add middleware first
+      app.use(dataPreloadMiddleware);
+      app.use(htmlInjectionMiddleware);
+      
+      // Create and configure data refresh manager
+      refreshManager = new DataRefreshManager(storageImplementation, {
+        baseInterval: parseInt(ENV.REFRESH_INTERVAL, 10),
+        minRefreshInterval: parseInt(ENV.MIN_REFRESH_INTERVAL, 10),
+        initialDelay: ENV.NODE_ENV === 'production' ? 300000 : 60000,
       });
+      
+      // Enable or disable auto-refresh based on environment
+      if (ENV.DISABLE_AUTO_REFRESH === 'true') {
+        refreshManager.setEnabled(false);
+        console.log('Serverless: Automatic data refresh is disabled via DISABLE_AUTO_REFRESH environment variable');
+      } else {
+        console.log('Serverless: Automatic data refresh is enabled');
+      }
+      
+      // Register refresh API routes
+      registerRefreshRoutes(app, refreshManager);
+      
+      // Register API routes
+      await registerRoutes(app, storageImplementation);
+      
+      // Error handling
+      app.use((err, _req, res, _next) => {
+        const status = err.status || err.statusCode || 500;
+        const message = err.message || "Internal Server Error";
+        console.error('Serverless Error:', err);
+        res.status(status).json({ message });
+      });
+      
+      // Serve static files for production
+      if (process.env.NODE_ENV === 'production') {
+        // In Vercel serverless functions, we don't serve static files directly
+        // Instead, we rely on Vercel's file routing
+        
+        // Handle client-side routing for non-API routes
+        app.get('*', (req, res) => {
+          if (!req.path.startsWith('/api/')) {
+            res.status(200).send(`
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <title>IndiebookShop.com - Connecting Book Lovers with Local Bookshops</title>
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <script>
+                    window.ENV = {
+                      MAPBOX_ACCESS_TOKEN: "${process.env.MAPBOX_ACCESS_TOKEN || ''}",
+                      IS_SERVERLESS: true
+                    };
+                  </script>
+                </head>
+                <body>
+                  <div id="root">
+                    <p>Loading IndiebookShop.com...</p>
+                    <p>If this message persists, please ensure JavaScript is enabled in your browser.</p>
+                  </div>
+                </body>
+              </html>
+            `);
+          } else {
+            res.status(404).json({ error: 'API endpoint not found' });
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Serverless server setup error:', error);
     }
     
     isSetup = true;
