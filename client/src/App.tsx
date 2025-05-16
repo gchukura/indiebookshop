@@ -15,6 +15,7 @@ import CategoriesListPage from "@/pages/CategoriesListPage";
 import BookshopDetailPage from "@/pages/BookshopDetailPage";
 import SubmitBookshop from "@/pages/SubmitBookshop";
 import SubmitEvent from "@/pages/SubmitEvent";
+import TestBookshops from "@/pages/TestBookshops";
 import Blog from "@/pages/Blog";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
