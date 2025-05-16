@@ -1,0 +1,489 @@
+"TimeUTC","timestampInMs","requestPath","requestMethod","requestQueryString","responseStatusCode","requestId","requestUserAgent","level","environment","branch","vercelCache","type","function","host","deploymentDomain","deploymentId","durationMs","region","maxMemoryUsed","memorySize","message","projectId","traceId","sessionId"
+"2025-05-16 01:05:56",1747357556191,"indiebookshop-git-main-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"5v628-1747357555954-c390c89691b9","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-git-main-gini-chukuras-projects.vercel.app","indiebookshop-git-main-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:55",1747357555961,"indiebookshop-git-main-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"5v628-1747357555954-c390c89691b9","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-git-main-gini-chukuras-projects.vercel.app","indiebookshop-git-main-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",216,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:55",1747357555845,"indiebookshop-git-main-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"k87ht-1747357555589-2e2eea7239f8","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-git-main-gini-chukuras-projects.vercel.app","indiebookshop-git-main-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:55",1747357555830,"indiebookshop-git-main-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"dt8zz-1747357555587-0d5c5f7e825f","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-git-main-gini-chukuras-projects.vercel.app","indiebookshop-git-main-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:55",1747357555827,"indiebookshop-git-main-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"vj7th-1747357555588-3d2e18283069","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-git-main-gini-chukuras-projects.vercel.app","indiebookshop-git-main-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:55",1747357555605,"indiebookshop-git-main-gini-chukuras-projects.vercel.app/api/bookstores","GET","",500,"k87ht-1747357555589-2e2eea7239f8","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-git-main-gini-chukuras-projects.vercel.app","indiebookshop-git-main-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",218,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:55",1747357555604,"indiebookshop-git-main-gini-chukuras-projects.vercel.app/api/states","GET","",500,"dt8zz-1747357555587-0d5c5f7e825f","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-git-main-gini-chukuras-projects.vercel.app","indiebookshop-git-main-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",211,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:55",1747357555592,"indiebookshop-git-main-gini-chukuras-projects.vercel.app/api/features","GET","",500,"vj7th-1747357555588-3d2e18283069","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-git-main-gini-chukuras-projects.vercel.app","indiebookshop-git-main-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",217,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:50",1747357550477,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"68xzx-1747357550223-3cfe5bc0a2b6","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:50",1747357550324,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"4n6jc-1747357550082-f30729cc7a68","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:50",1747357550323,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"tptpk-1747357550084-f94f600ea92c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:50",1747357550320,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9hmkz-1747357550082-9545f0496bba","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:50",1747357550234,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"68xzx-1747357550223-3cfe5bc0a2b6","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",222,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:50",1747357550096,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/bookstores","GET","",500,"tptpk-1747357550084-f94f600ea92c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",210,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:50",1747357550095,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/states","GET","",500,"9hmkz-1747357550082-9545f0496bba","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",209,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:50",1747357550086,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/features","GET","",500,"4n6jc-1747357550082-f30729cc7a68","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",221,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:21",1747357521423,"indiebookshop.vercel.app/favicon.ico","GET","",-1,"8fjrs-1747357521154-a9d29dcc275e","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:21",1747357521223,"indiebookshop.vercel.app/api/bookstores","GET","",-1,"cg4mj-1747357520861-1bc4d3afb96f","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:21",1747357521220,"indiebookshop.vercel.app/api/features","GET","",-1,"b4nkd-1747357520860-2e305cbef291","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:21",1747357521215,"indiebookshop.vercel.app/api/states","GET","",-1,"xhvqr-1747357520860-2d53289bb976","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:21",1747357521185,"indiebookshop.vercel.app/favicon.ico","GET","",500,"8fjrs-1747357521154-a9d29dcc275e","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",221,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:20",1747357520984,"indiebookshop.vercel.app/api/states","GET","",500,"xhvqr-1747357520860-2d53289bb976","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",209,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:20",1747357520980,"indiebookshop.vercel.app/api/features","GET","",500,"b4nkd-1747357520860-2e305cbef291","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",217,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:05:20",1747357520980,"indiebookshop.vercel.app/api/bookstores","GET","",500,"cg4mj-1747357520861-1bc4d3afb96f","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop.vercel.app","indiebookshop.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",216,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:52",1747357432460,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.png","GET","",-1,"gkm4h-1747357432181-c8facc06ce9a","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:52",1747357432224,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.png","GET","",500,"gkm4h-1747357432181-c8facc06ce9a","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",220,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:50",1747357430057,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.png","GET","",-1,"8287z-1747357429782-821b22cb41c9","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:49",1747357429828,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.png","GET","",500,"8287z-1747357429782-821b22cb41c9","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",214,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:48",1747357428663,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.png","GET","",-1,"6cxrz-1747357428378-7223696de33e","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:48",1747357428423,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.png","GET","",500,"6cxrz-1747357428378-7223696de33e","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",221,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:48",1747357428328,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"fxxm9-1747357428047-28535230b51f","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:48",1747357428090,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"fxxm9-1747357428047-28535230b51f","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",221,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:46",1747357426002,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"9x2w9-1747357425727-b07257af9a81","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:45",1747357425773,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"9x2w9-1747357425727-b07257af9a81","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",214,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:44",1747357424639,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"kd22w-1747357424359-a721cb48386d","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:03:44",1747357424408,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"kd22w-1747357424359-a721cb48386d","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",215,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:39",1747357299356,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"pqr8n-1747357298371-7114c8b54c73","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:39",1747357299261,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"mzs8m-1747357298305-1bce29be8e0d","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:39",1747357299239,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"9c9bs-1747357298501-1ecad77fb608","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:39",1747357299163,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",-1,"dfnh7-1747357298413-f4f57de4ecc5","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:39",1747357299157,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"kvjs5-1747357298307-f0af1ffa4d2e","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:39",1747357299129,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"vkdrc-1747357298371-eebeccd19cd1","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:39",1747357299096,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"gg25r-1747357298370-a6eb5a37c614","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:38",1747357298701,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"q9vtk-1747357298307-c3a1371bdae3","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",-1,"iad1",-1,-1,"Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/var/task/server/storage' imported from /var/task/server/routes.js
+    at finalizeResolution (node:internal/modules/esm/resolve:281:11)
+    at moduleResolve (node:internal/modules/esm/resolve:866:10)
+    at moduleResolveWithNodePath (node:internal/modules/esm/resolve:990:14)
+    at defaultResolve (node:internal/modules/esm/resolve:1033:79)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:685:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:634:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:617:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:273:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:135:49) {
+  code: 'ERR_MODULE_NOT_FOUND',
+  url: 'file:///var/task/server/storage'
+}
+Node.js process exited with exit status: 1. The logs above can help with debugging the issue.","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:38",1747357298549,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"9c9bs-1747357298501-1ecad77fb608","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",222,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:38",1747357298481,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/bookstores","GET","",500,"pqr8n-1747357298371-7114c8b54c73","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",221,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:38",1747357298481,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/states","GET","",500,"mzs8m-1747357298305-1bce29be8e0d","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",232,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:38",1747357298473,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/favicon.ico","GET","",500,"dfnh7-1747357298413-f4f57de4ecc5","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",228,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:38",1747357298472,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/features","GET","",500,"kvjs5-1747357298307-f0af1ffa4d2e","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",227,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:38",1747357298469,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/states","GET","",500,"gg25r-1747357298370-a6eb5a37c614","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",198,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:38",1747357298469,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/features","GET","",500,"vkdrc-1747357298371-eebeccd19cd1","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",218,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-16 01:01:38",1747357298468,"indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app/api/bookstores","GET","",500,"q9vtk-1747357298307-c3a1371bdae3","vercel-screenshot/1.0","error","production","main","MISS","lambda","/api/serverless.js","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","indiebookshop-ofe0uvok8-gini-chukuras-projects.vercel.app","dpl_A2X4h3jZw7MDHgpLqEg7gRjrKxiV",214,"iad1",91,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""

@@ -4,12 +4,12 @@
 import express from 'express';
 import { createServer } from 'http';
 import { parse } from 'url';
-// Import serverless-specific implementation of Google Sheets storage
+// Import serverless-specific implementations
 import { GoogleSheetsStorage } from './sheets-storage-serverless.js';
-import { storage } from '../server/storage.js';
+import { storage } from './storage-serverless.js';
 import { registerRoutes } from '../server/routes.js';
-import { dataPreloadMiddleware } from '../server/dataPreloading.js';
-import { htmlInjectionMiddleware } from '../server/htmlInjectionMiddleware.js';
+import { dataPreloadMiddleware } from './dataPreloading-serverless.js';
+import { htmlInjectionMiddleware } from './htmlInjectionMiddleware-serverless.js';
 
 // Create our Express app
 const app = express();
