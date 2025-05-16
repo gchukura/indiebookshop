@@ -21,24 +21,41 @@ const CityDirectory = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [view, setView] = useState<"map" | "list">("map");
   
-  // Fetch bookshops for this city
-  const { data: bookshops = [], isLoading, isError } = useQuery<Bookstore[]>({
-    queryKey: ['filteredBookshops', 'city', city],
-    queryFn: async () => {
-      console.log(`Fetching bookshops for city: ${city}`);
-      const encodedCity = encodeURIComponent(city || '');
-      const response = await fetch(`/api/bookstores/filter?city=${encodedCity}`);
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API error: ${errorText}`);
-        throw new Error(`Failed to fetch bookshops: ${response.status}`);
+  // State to hold data
+  const [bookshops, setBookshops] = useState<Bookstore[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  
+  // Fetch data on component mount
+  useEffect(() => {
+    if (!city) return;
+    
+    setIsLoading(true);
+    setIsError(false);
+    
+    const fetchBookshops = async () => {
+      try {
+        console.log(`Fetching bookshops for city: ${city}`);
+        const encodedCity = encodeURIComponent(city);
+        const response = await fetch(`/api/bookstores/filter?city=${encodedCity}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch bookshops: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log(`Found ${data.length} bookshops for city: ${city}`);
+        setBookshops(data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching bookshops:", error);
+        setIsError(true);
+        setIsLoading(false);
       }
-      const data = await response.json();
-      console.log(`Found ${data.length} bookshops for city: ${city}`);
-      return data;
-    },
-    enabled: !!city
-  });
+    };
+    
+    fetchBookshops();
+  }, [city]);
 
   // Get state from the first bookshop (assuming all bookshops in a city are in the same state)
   const state = bookshops.length > 0 ? bookshops[0].state : '';

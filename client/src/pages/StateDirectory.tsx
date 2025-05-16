@@ -26,23 +26,40 @@ const StateDirectory = () => {
   const stateAbbr = state || '';
   const fullStateName = getFullStateName(stateAbbr);
   
-  // Fetch bookshops for this state
-  const { data: bookshops = [], isLoading, isError } = useQuery<Bookstore[]>({
-    queryKey: ['filteredBookshops', stateAbbr],
-    queryFn: async () => {
-      console.log(`Fetching bookshops for state: ${stateAbbr}`);
-      const response = await fetch(`/api/bookstores/filter?state=${stateAbbr}`);
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API error: ${errorText}`);
-        throw new Error(`Failed to fetch bookshops: ${response.status}`);
+  // State to hold data
+  const [bookshops, setBookshops] = useState<Bookstore[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  
+  // Fetch data on component mount
+  useEffect(() => {
+    if (!stateAbbr) return;
+    
+    setIsLoading(true);
+    setIsError(false);
+    
+    const fetchBookshops = async () => {
+      try {
+        console.log(`Fetching bookshops for state: ${stateAbbr}`);
+        const response = await fetch(`/api/bookstores/filter?state=${stateAbbr}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch bookshops: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log(`Found ${data.length} bookshops for state: ${stateAbbr}`);
+        setBookshops(data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching bookshops:", error);
+        setIsError(true);
+        setIsLoading(false);
       }
-      const data = await response.json();
-      console.log(`Found ${data.length} bookshops for state: ${stateAbbr}`);
-      return data;
-    },
-    enabled: !!stateAbbr
-  });
+    };
+    
+    fetchBookshops();
+  }, [stateAbbr]);
 
   // Fetch cities in this state
   const { data: cities = [] } = useQuery<string[]>({
