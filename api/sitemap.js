@@ -31,6 +31,29 @@ export default async function handler(req, res) {
       storage.getFeatures()
     ]);
     
+    // State abbreviation to full name mapping
+    const stateMap = {
+      'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 
+      'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 
+      'DE': 'Delaware', 'DC': 'District of Columbia', 'FL': 'Florida', 
+      'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 
+      'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas', 'KY': 'Kentucky', 
+      'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland', 
+      'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 
+      'MS': 'Mississippi', 'MO': 'Missouri', 'MT': 'Montana', 
+      'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 
+      'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York', 
+      'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 
+      'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 
+      'RI': 'Rhode Island', 'SC': 'South Carolina', 'SD': 'South Dakota', 
+      'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 
+      'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 
+      'WI': 'Wisconsin', 'WY': 'Wyoming',
+      'BC': 'British Columbia', 'ON': 'Ontario', 'QC': 'Quebec',
+      'AB': 'Alberta', 'MB': 'Manitoba', 'NS': 'Nova Scotia',
+      'NB': 'New Brunswick', 'SK': 'Saskatchewan'
+    };
+
     // Get unique states and cities
     const states = [...new Set(bookstores.map(b => b.state))].sort();
     
@@ -84,19 +107,30 @@ export default async function handler(req, res) {
       addUrl(`/bookshop/${bookshop.id}`, 0.7, 'weekly');
     }
     
-    // Add state directory pages
+    // Helper function to create URL-friendly slugs
+    const createSlug = (text) => {
+      return text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+    };
+    
+    // Add state directory pages (both abbreviation and full name)
     for (const state of states) {
-      // URL-friendly state name
-      const stateSlug = state.toLowerCase().replace(/\s+/g, '-');
-      addUrl(`/directory/state/${stateSlug}`, 0.6, 'weekly');
+      // Add the state abbreviation URL
+      addUrl(`/directory/state/${state}`, 0.6, 'weekly');
+      
+      // If we have a full state name mapping, add that URL too
+      if (stateMap[state]) {
+        const fullStateSlug = createSlug(stateMap[state]);
+        addUrl(`/directory/state/${fullStateSlug}`, 0.6, 'weekly');
+      }
     }
     
     // Add city directory pages
     for (const { state, city } of cities) {
-      // URL-friendly names
-      const stateSlug = state.toLowerCase().replace(/\s+/g, '-');
-      const citySlug = city.toLowerCase().replace(/\s+/g, '-');
-      addUrl(`/directory/city/${stateSlug}/${citySlug}`, 0.6, 'weekly');
+      // URL-friendly city name
+      const citySlug = createSlug(city);
+      
+      // Add city with state abbreviation
+      addUrl(`/directory/city/${citySlug}`, 0.6, 'weekly');
     }
     
     // Add category pages
