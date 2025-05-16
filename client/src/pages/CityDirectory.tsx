@@ -23,7 +23,14 @@ const CityDirectory = () => {
   
   // Fetch bookshops for this city
   const { data: bookshops = [], isLoading, isError } = useQuery<Bookstore[]>({
-    queryKey: [`/api/bookstores/filter?city=${city}`],
+    queryKey: [`/api/bookstores/filter`, { city }],
+    queryFn: async () => {
+      const response = await fetch(`/api/bookstores/filter?city=${city}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch bookshops');
+      }
+      return response.json();
+    }
   });
 
   // Get state from the first bookshop (assuming all bookshops in a city are in the same state)
