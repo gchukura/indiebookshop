@@ -78,13 +78,13 @@ const StateDirectory = () => {
   
   const seoTitle = `${stateName} Bookshops | Independent Bookshops in ${stateName}`;
   const seoDescription = generateDescription(
-    DESCRIPTION_TEMPLATES.state, 
+    DESCRIPTION_TEMPLATES.states, 
     { state: stateName }
   );
   const seoKeywords = generateLocationKeywords(null, stateName, 'all', 15);
   const canonicalUrl = `${BASE_URL}/directory/state/${generateSlug(stateName)}`;
 
-  const handleShowDetails = (id: number) => {
+  const handleSelectBookshop = (id: number) => {
     setSelectedBookshopId(id);
     setIsDetailOpen(true);
   };
@@ -134,11 +134,12 @@ const StateDirectory = () => {
         {/* Map Section - conditionally rendered based on view */}
         {view === "map" && bookshops.length > 0 && (
           <div className="md:col-span-6 h-[500px] lg:h-[600px] bg-gray-100 rounded-lg overflow-hidden">
-            <MapboxMap 
-              bookshops={bookshops} 
-              height="100%" 
-              onMarkerClick={handleShowDetails}
-            />
+            <div style={{ height: "100%", width: "100%" }}>
+              <MapboxMap 
+                bookstores={bookshops} 
+                onSelectBookshop={handleSelectBookshop}
+              />
+            </div>
           </div>
         )}
         
@@ -179,7 +180,7 @@ const StateDirectory = () => {
                   <BookshopCard 
                     key={bookshop.id} 
                     bookstore={bookshop} 
-                    showDetails={handleShowDetails} 
+                    showDetails={handleSelectBookshop} 
                   />
                 ))}
               </div>
