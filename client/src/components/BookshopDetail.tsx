@@ -23,7 +23,7 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Fetch bookshop details
-  const { data: bookshop, isLoading: isLoadingBookshop } = useQuery<Bookshop>({
+  const { data: bookshop, isLoading: isLoadingBookshop, isError: isErrorBookshop } = useQuery<Bookshop>({
     queryKey: [`/api/bookstores/${bookshopId}`],
     enabled: isOpen && bookshopId > 0,
   });
@@ -142,9 +142,15 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
             <div className="p-8 text-center">
               <p>Loading bookshop details...</p>
             </div>
-          ) : !bookshop ? (
+          ) : isErrorBookshop || !bookshop ? (
             <div className="p-8 text-center">
               <p>Could not load bookshop details. Please try again.</p>
+              <button 
+                onClick={onClose}
+                className="mt-4 px-4 py-2 bg-[#2A6B7C] text-white rounded hover:bg-[#2A6B7C]/90"
+              >
+                Return to Directory
+              </button>
             </div>
           ) : (
             <div className="bg-[#F7F3E8]">
