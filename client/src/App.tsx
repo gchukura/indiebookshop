@@ -52,13 +52,18 @@ function Router() {
           <Route path="/bookshops/:state" component={StateRedirector} />
           <Route path="/bookshops/:state" component={StateDirectory} />
           
-          {/* SEO-friendly URL structure for cities */}
+          {/* SEO-friendly URL structure for counties */}
+          <Route path="/bookshops/:state/:county" component={StateDirectory} />
+          
+          {/* SEO-friendly URL structure for cities (with and without county) */}
+          <Route path="/bookshops/:state/:county/:city" component={CityDirectory} />
           <Route path="/bookshops/:state/:city" component={CityDirectory} />
           
           {/* SEO-friendly URL structure for categories */}
           <Route path="/bookshops/category/:categoryName/:featureId" component={CategoryDirectory} />
           
-          {/* SEO-friendly URL structure for individual bookshops (without ID) */}
+          {/* SEO-friendly URL structure for individual bookshops (with and without county) */}
+          <Route path="/bookshop/:state/:county/:city/:name" component={SEOBookshopDetailPage} />
           <Route path="/bookshop/:state/:city/:name" component={SEOBookshopDetailPage} />
           
           {/* Legacy route with redirect handler */}

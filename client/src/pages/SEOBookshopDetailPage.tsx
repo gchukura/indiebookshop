@@ -13,15 +13,36 @@ import { SEO } from '@/components/SEO';
 import { BASE_URL } from '@/lib/seo';
 
 const SEOBookshopDetailPage = () => {
-  // Extract parameters from the URL path - now without ID
+  // Extract parameters from the URL path - supporting county structure
   const params = useParams<{ 
     state: string,
+    county?: string,
     city: string,
     name: string
   }>();
   
-  const { state, city, name } = params;
   const [location, setLocation] = useLocation();
+  
+  // Determine which URL structure we're using based on segment count
+  const urlSegments = location.split('/').filter(Boolean);
+  const hasCounty = urlSegments.length === 5; // /bookshop/state/county/city/name
+  
+  // Extract params based on URL structure
+  let state = params.state;
+  let county = params.county;
+  let city = params.city;
+  let name = params.name;
+  
+  if (hasCounty) {
+    // Using /bookshop/state/county/city/name format
+    // Params are already correctly assigned
+  } else {
+    // Using /bookshop/state/city/name format (county is in city position)
+    // Shift parameters to correct places
+    name = city;
+    city = county;
+    county = undefined;
+  }
   
   // Find bookshop by URL parameters
   const { data: allBookshops, isLoading: isLoadingAllBookshops } = useQuery<Bookshop[]>({
@@ -29,11 +50,23 @@ const SEOBookshopDetailPage = () => {
   });
   
   // Find the matching bookshop based on URL parameters
-  const matchedBookshop = allBookshops?.find(shop => 
-    createSlug(shop.name) === name && 
-    createSlug(shop.city) === city && 
-    (createSlug(getStateNameFromAbbreviation(shop.state)) === state || shop.state.toLowerCase() === state)
-  );
+  const matchedBookshop = allBookshops?.find(shop => {
+    // Match by name
+    const nameMatch = createSlug(shop.name) === name;
+    
+    // Match by city
+    const cityMatch = createSlug(shop.city) === city;
+    
+    // Match by state (either full name or abbreviation)
+    const stateMatch = createSlug(getStateNameFromAbbreviation(shop.state)) === state || 
+                      shop.state.toLowerCase() === state;
+    
+    // Match by county if present in URL and bookshop data
+    const countyMatch = !hasCounty || !shop.county || 
+                        createSlug(shop.county) === county;
+    
+    return nameMatch && cityMatch && stateMatch && countyMatch;
+  });
   
   // Use the matched bookshop directly
   const bookshop = matchedBookshop;
@@ -294,16 +327,7 @@ const SEOBookshopDetailPage = () => {
                     </div>
                   )}
                   
-                  {bookshop.email && (
-                    <div className="mb-4">
-                      <h4 className="font-bold text-[#5F4B32] mb-1">Email</h4>
-                      <p className="text-gray-700">
-                        <a href={`mailto:${bookshop.email}`} className="hover:text-[#2A6B7C]">
-                          {bookshop.email}
-                        </a>
-                      </p>
-                    </div>
-                  )}
+                  {/* Email section removed as it's not in our data model */}
                   
                   {bookshop.website && (
                     <div>
