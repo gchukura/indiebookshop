@@ -136,11 +136,6 @@ const CountyDirectory = () => {
   return (
     <div className="container mx-auto p-4">
       <SEO title={title} description={description} />
-      <SchemaOrg
-        type="CollectionPage"
-        name={`Bookshops in ${displayCountyName}, ${displayStateName}`}
-        description={description}
-      />
       
       <Breadcrumbs
         items={[
