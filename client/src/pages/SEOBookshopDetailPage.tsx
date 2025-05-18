@@ -150,10 +150,9 @@ const SEOBookshopDetailPage = () => {
     return phone;
   };
   
-  // Handle email (optional field that might be added in future)
-  const handleEmailDisplay = () => {
-    // Email is not currently part of the schema but could be added later
-    return null;
+  // Helper function for contact info display
+  const getContactInfo = () => {
+    return null; // No additional contact info display logic needed currently
   };
 
   // SEO metadata
@@ -344,16 +343,7 @@ const SEOBookshopDetailPage = () => {
                     </div>
                   )}
                   
-                  {bookshop.email && (
-                    <div className="mb-4">
-                      <h4 className="font-bold text-[#5F4B32] mb-1">Email</h4>
-                      <p className="text-gray-700">
-                        <a href={`mailto:${bookshop.email}`} className="hover:text-[#2A6B7C]">
-                          {bookshop.email}
-                        </a>
-                      </p>
-                    </div>
-                  )}
+                    {/* Email section removed as it's not part of the current schema */}
                   
                   {bookshop.website && (
                     <div>

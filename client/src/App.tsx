@@ -67,13 +67,11 @@ function Router() {
           {/* SEO-friendly URL structure for categories */}
           <Route path="/bookshops/category/:categoryName/:featureId" component={CategoryDirectory} />
           
-          {/* Add the unified handler for all bookshop detail URL patterns */}
-          <Route path="/bookshop/*" component={UnifiedBookshopDetailHandler} />
-          
-          {/* All bookshop detail patterns should render the same component */}
-          <Route path="/bookshop/:name" component={SEOBookshopDetailPage} />
-          <Route path="/bookshop/:state/:city/:name" component={SEOBookshopDetailPage} />
+          {/* Bookshop detail routes - order matters! */}
+          <Route path="/bookshop/:id(\d+)" component={BookshopRedirectHandler} />
           <Route path="/bookshop/:state/:county/:city/:name" component={SEOBookshopDetailPage} />
+          <Route path="/bookshop/:state/:city/:name" component={SEOBookshopDetailPage} />
+          <Route path="/bookshop/:name" component={SEOBookshopDetailPage} />
           
           {/* Regular routes */}
           <Route path="/submit" component={SubmitBookshop} />
