@@ -97,6 +97,13 @@ const Header = () => {
                       >
                         Bookshops by Category
                       </Link>
+                      <Link 
+                        href="/directory/counties" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowStatesDropdown(false)}
+                      >
+                        Bookshops by County (US)
+                      </Link>
                     </div>
                   </div>
                 )}
@@ -187,6 +194,13 @@ const Header = () => {
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Bookshops by Category
+                      </Link>
+                      <Link 
+                        href="/directory/counties" 
+                        className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        Bookshops by County (US)
                       </Link>
                     </div>
                   </div>
