@@ -113,10 +113,10 @@ const CityDirectory = () => {
       
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          Independent Bookshops in {cityName}{stateName ? `, ${stateName}` : ''}
+          Independent Bookshops in {cityName}{stateFullName ? `, ${stateFullName}` : ''}
         </h1>
         <p className="text-gray-600 mb-6">
-          Discover local independent bookshops and indie bookstores in {cityName}{stateName ? `, ${stateName}` : ''}. Browse our comprehensive directory to find your next literary destination.
+          Discover local independent bookshops and indie bookstores in {cityName}{stateFullName ? `, ${stateFullName}` : ''}. Browse our comprehensive directory to find your next literary destination.
         </p>
         
         {/* View Toggle */}
@@ -158,12 +158,12 @@ const CityDirectory = () => {
               {bookshops.length} Independent Bookshops in {cityName}
             </h2>
             <h3 className="text-md text-gray-600 mb-3">
-              A guide to local bookshops and indie bookstores in {cityName}{stateName ? `, ${stateName}` : ''}
+              A guide to local bookshops and indie bookstores in {cityName}{stateFullName ? `, ${stateFullName}` : ''}
             </h3>
             
             {isLoading ? (
               <div className="text-center py-10">
-                <p>Loading indie bookshops in {cityName}...</p>
+                <p>Loading indie bookshops in {cityName}{stateFullName ? `, ${stateFullName}` : ''}...</p>
               </div>
             ) : isError ? (
               <div className="text-center py-10">
@@ -171,8 +171,8 @@ const CityDirectory = () => {
               </div>
             ) : bookshops.length === 0 ? (
               <div className="text-center py-10">
-                <p>No local bookshops found in {cityName}.</p>
-                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {cityName}.</p>
+                <p>No local bookshops found in {cityName}{stateFullName ? `, ${stateFullName}` : ''}.</p>
+                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {cityName}{stateFullName ? `, ${stateFullName}` : ''}.</p>
                 <Link href="/directory">
                   <Button className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
                     View All Indie Bookshops
@@ -182,7 +182,7 @@ const CityDirectory = () => {
             ) : (
               <div className="space-y-4">
                 <p className="text-gray-600 mb-4">
-                  Browse our list of {bookshops.length} independent bookshops in {cityName}. Click on any bookshop for more details, including location, hours, and special features.
+                  Browse our list of {bookshops.length} independent bookshops in {cityName}{stateFullName ? `, ${stateFullName}` : ''}. Click on any bookshop for more details, including location, hours, and special features.
                 </p>
                 {bookshops.map((bookshop) => (
                   <BookshopCard 
