@@ -18,7 +18,7 @@ import StatesListPage from "@/pages/StatesListPage";
 import CitiesListPage from "@/pages/CitiesListPage";
 import CategoriesListPage from "@/pages/CategoriesListPage";
 import UnifiedBookshopDetail from "@/components/UnifiedBookshopDetail";
-import BookshopDetail from "@/pages/BookshopDetail";
+import TestBookshopPage from "@/pages/TestBookshopPage";
 import SubmitBookshop from "@/pages/SubmitBookshop";
 import SubmitEvent from "@/pages/SubmitEvent";
 import TestBookshops from "@/pages/TestBookshops";
@@ -68,6 +68,9 @@ function Router() {
           {/* SEO-friendly URL structure for categories */}
           <Route path="/bookshops/category/:categoryName/:featureId" component={CategoryDirectory} />
           
+          {/* Test route for direct bookshop access */}
+          <Route path="/test-bookshop/:id" component={TestBookshopPage} />
+
           {/* Standalone bookshop detail page by ID for direct access */}
           <Route path="/bookshop/:id(\d+)" component={UnifiedBookshopDetail} />
           
