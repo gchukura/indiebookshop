@@ -64,42 +64,105 @@ const UnifiedBookshopDetail: React.FC = () => {
   const exactNumericMatch = urlPath.match(/^\/bookshop\/(\d+)$/);
   const directBookshopId = exactNumericMatch ? parseInt(exactNumericMatch[1]) : null;
   
+  // Log comprehensive debug information
   console.log("DEBUG UnifiedBookshopDetail:", {
     urlPath,
     directBookshopId,
     id,
     name,
-    segmentCount
+    state,
+    city,
+    county,
+    segmentCount,
+    params: JSON.stringify(params)
   });
   
-  // Use effect to fetch bookshop directly when we have a numeric ID
+  // Use effect to fetch bookshops - either by ID or name
   useEffect(() => {
-    const fetchBookshopDirectly = async () => {
-      // Only proceed if we have an ID from the URL
-      if (!directBookshopId) return;
-      
+    const fetchBookshopData = async () => {
       try {
         setIsLoadingDirect(true);
-        console.log(`DIRECT FETCH: Fetching bookshop ID ${directBookshopId}`);
+        setDirectBookshop(null);
         
-        // Make a direct API request using window.fetch for reliability
-        const response = await window.fetch(`/api/bookstores/${directBookshopId}`);
-        
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
+        // CASE 1: Direct ID-based fetch
+        if (directBookshopId) {
+          console.log(`DIRECT FETCH BY ID: Fetching bookshop ID ${directBookshopId}`);
+          
+          const response = await window.fetch(`/api/bookstores/${directBookshopId}`);
+          
+          if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          console.log(`DIRECT FETCH success for ID ${directBookshopId}:`, data);
+          
+          if (data && data.name) {
+            setDirectBookshop(data);
+            setIsErrorDirect(false);
+            return; // Exit early on success
+          }
         }
         
-        const data = await response.json();
-        console.log(`DIRECT FETCH success for ID ${directBookshopId}:`, data);
-        
-        if (data && data.name) {
-          setDirectBookshop(data);
-          setIsErrorDirect(false);
-        } else {
-          throw new Error("Invalid bookshop data");
+        // CASE 2: Name-based fetch (for specific problematic bookshops)
+        // Special handling for common name-based issues
+        if (name && segmentCount === 2) {
+          // List of specific problematic bookshops that we know need special handling
+          const specialCases: { slug: string, id?: number, partialName?: string } [] = [
+            { slug: 'athena-books-llc', id: 144 },
+            { slug: 'a-sanctuary-cafe', partialName: 'sanctuary' },
+            { slug: 'treat-yo-shelf-books', partialName: 'treat yo' },
+            { slug: '51st-ward-books', id: 15 }
+          ];
+          
+          // Find if current URL matches any special case
+          const specialCase = specialCases.find(sc => sc.slug === name);
+          
+          if (specialCase) {
+            console.log(`SPECIAL CASE: Found special handling for ${name}`);
+            
+            // If we have a known ID, fetch directly
+            if (specialCase.id) {
+              console.log(`DIRECT FETCH BY SPECIAL CASE ID: ${specialCase.id}`);
+              
+              const response = await window.fetch(`/api/bookstores/${specialCase.id}`);
+              
+              if (response.ok) {
+                const data = await response.json();
+                console.log(`SPECIAL CASE fetch success:`, data);
+                
+                if (data && data.name) {
+                  setDirectBookshop(data);
+                  setIsErrorDirect(false);
+                  return; // Exit early on success
+                }
+              }
+            }
+            
+            // If we have a partial name to match, search all bookshops
+            if (specialCase.partialName && allBookshops) {
+              console.log(`SPECIAL CASE: Searching by partial name "${specialCase.partialName}"`);
+              const nameMatch = allBookshops.find(b => 
+                b.name.toLowerCase().includes(specialCase.partialName!)
+              );
+              
+              if (nameMatch) {
+                console.log(`SPECIAL CASE: Found match by partial name:`, nameMatch);
+                setDirectBookshop(nameMatch);
+                setIsErrorDirect(false);
+                return; // Exit early on success
+              }
+            }
+          }
         }
-      } catch (err) {
-        console.error("DIRECT FETCH error:", err);
+        
+        // If we get here, we couldn't find the bookshop through direct methods
+        if (name) {
+          console.log(`No direct match found for name slug: ${name}`);
+        }
+        
+      } catch (err: any) {
+        console.error("FETCH error:", err);
         setIsErrorDirect(true);
         setDirectBookshop(null);
       } finally {
@@ -107,9 +170,8 @@ const UnifiedBookshopDetail: React.FC = () => {
       }
     };
     
-    // Always try to fetch
-    fetchBookshopDirectly();
-  }, [directBookshopId]);
+    fetchBookshopData();
+  }, [directBookshopId, name, segmentCount, allBookshops]);
   
   // If we have a bookshop from direct fetch, use it
   if (directBookshop) {
