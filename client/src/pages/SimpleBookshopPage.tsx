@@ -28,10 +28,12 @@ const SimpleBookshopPage: React.FC = () => {
         
         // Extract ID directly from URL if needed
         const urlPath = window.location.pathname;
-        const urlId = urlPath.match(/\/bookshop\/(\d+)/)?.[1];
         
-        // Determine which ID to use
-        const bookshopId = id || urlId;
+        // Check if URL is exactly in /bookshop/{digits} format
+        const exactNumericMatch = urlPath.match(/^\/bookshop\/(\d+)$/);
+        
+        // If exact numeric match, use that ID
+        const bookshopId = exactNumericMatch?.[1] || id;
         
         console.log(`SIMPLE: Fetching bookshop with ID ${bookshopId}`);
         
