@@ -89,7 +89,7 @@ const StateDirectory = () => {
     DESCRIPTION_TEMPLATES.states, 
     { state: stateFullName }
   );
-  const seoKeywords = generateLocationKeywords('', stateFullName, 'all', 15);
+  const seoKeywords = generateLocationKeywords('', stateFullName || '', 'all', 15);
   const canonicalUrl = `${BASE_URL}/bookshops/${createSlug(stateFullName)}`;
 
   const handleSelectBookshop = (id: number) => {

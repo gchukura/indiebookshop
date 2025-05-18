@@ -9,15 +9,20 @@ import { SEO } from "@/components/SEO";
 import { 
   BASE_URL, 
   DESCRIPTION_TEMPLATES, 
-  generateSlug, 
   generateLocationKeywords, 
   generateDescription 
 } from "@/lib/seo";
+import {
+  getStateNameFromAbbreviation,
+  createSlug,
+  createCityDirectoryUrl
+} from "@/lib/urlUtils";
 
 const CityDirectory = () => {
-  // Get city from URL params
-  const params = useParams();
-  const city = params.city;
+  // Get city and state from URL params
+  const params = useParams<{ state: string, city: string }>();
+  const cityParam = params.city || '';
+  const stateParam = params.state || '';
   
   // Component state
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
@@ -27,11 +32,11 @@ const CityDirectory = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   
-  // Fetch data when component mounts or city changes
+  // Fetch data when component mounts or city/state changes
   useEffect(() => {
-    if (!city) return;
+    if (!cityParam) return;
     
-    console.log(`Loading data for city: ${city}`);
+    console.log(`Loading data for city: ${cityParam}, state: ${stateParam}`);
     setIsLoading(true);
     setIsError(false);
     
@@ -39,16 +44,22 @@ const CityDirectory = () => {
     const fetchData = async () => {
       try {
         // Make sure the city is URL-encoded
-        const encodedCity = encodeURIComponent(city);
+        const encodedCity = encodeURIComponent(cityParam);
+        
+        // Create query URL - if we have a state param, include it
+        let queryUrl = `/api/bookstores/filter?city=${encodedCity}`;
+        if (stateParam) {
+          queryUrl += `&state=${encodeURIComponent(stateParam)}`;
+        }
         
         // Fetch bookshops
-        const response = await fetch(`/api/bookstores/filter?city=${encodedCity}`);
+        const response = await fetch(queryUrl);
         if (!response.ok) {
           throw new Error(`Failed to fetch bookshops: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log(`Found ${data.length} bookshops for city: ${city}`);
+        console.log(`Found ${data.length} bookshops for city: ${cityParam}`);
         setBookshops(data);
         setIsLoading(false);
       } catch (error) {
@@ -59,17 +70,17 @@ const CityDirectory = () => {
     };
     
     fetchData();
-  }, [city]);
+  }, [cityParam, stateParam]);
   
-  // Get state from the first bookshop (assuming all bookshops in a city are in the same state)
-  const state = bookshops.length > 0 ? bookshops[0].state : '';
+  // Use state from URL param if available, otherwise get from the first bookshop
+  const stateAbbr = stateParam || (bookshops.length > 0 ? bookshops[0].state : '');
   
   // Generate SEO metadata
-  const cityName = city || '';
-  const stateName = state || '';
+  const cityName = cityParam || '';
+  const stateFullName = getStateNameFromAbbreviation(stateAbbr) || stateAbbr;
   
-  const seoTitle = stateName 
-    ? `${cityName} Local Bookshops | Independent Bookshops in ${cityName}, ${stateName}`
+  const seoTitle = stateFullName 
+    ? `${cityName} Local Bookshops | Independent Bookshops in ${cityName}, ${stateFullName}`
     : `${cityName} Local Bookshops | Indie Bookshops in ${cityName}`;
   
   const seoDescription = generateDescription(
@@ -77,9 +88,9 @@ const CityDirectory = () => {
     { city: cityName }
   );
   
-  const seoKeywords = generateLocationKeywords(cityName, stateName, 'all', 15);
+  const seoKeywords = generateLocationKeywords(cityName, stateFullName, 'all', 15);
   
-  const canonicalUrl = `${BASE_URL}/directory/city/${generateSlug(cityName)}`;
+  const canonicalUrl = `${BASE_URL}/bookshops/${createSlug(stateFullName)}/${createSlug(cityName)}`;
 
   const handleSelectBookshop = (id: number) => {
     setSelectedBookshopId(id);
