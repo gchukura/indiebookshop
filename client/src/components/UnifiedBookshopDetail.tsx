@@ -54,15 +54,38 @@ const UnifiedBookshopDetail: React.FC = () => {
   // Find the matching bookshop based on URL parameters
   let bookshop: Bookshop | undefined;
   
-  // Create a direct fetch query for bookshop with ID or name
-  // This is more reliable than trying to search through all bookshops
+  // If we have a direct ID path, try to fetch directly from API
   const directBookshopId = id && !isNaN(parseInt(id)) ? parseInt(id) : null;
   
-  // If we have a direct ID, use that
-  const { data: directBookshop } = useQuery<Bookshop>({
+  // Make this a direct fetch by ID - with detailed logging
+  const { data: directBookshop, isLoading: isLoadingDirect, isError: isErrorDirect } = useQuery<Bookshop>({
     queryKey: directBookshopId ? [`/api/bookstores/${directBookshopId}`] : ['skip-query'],
     enabled: directBookshopId !== null,
   });
+  
+  // Log detailed diagnostics about direct ID fetch
+  useEffect(() => {
+    if (directBookshopId) {
+      console.log(`DIAGNOSING: Direct ID fetch for bookshop ID ${directBookshopId}`);
+      console.log(`- Is loading: ${isLoadingDirect}`);
+      console.log(`- Is error: ${isErrorDirect}`);
+      console.log(`- Has data: ${directBookshop ? 'YES' : 'NO'}`);
+      if (directBookshop) {
+        console.log(`- Bookshop name: ${directBookshop.name}`);
+      }
+      
+      // Make a direct browser fetch to compare results
+      fetch(`/api/bookstores/${directBookshopId}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log(`DIRECT FETCH result for ID ${directBookshopId}:`, data);
+          console.log(`Is valid bookshop object: ${data && data.name ? 'YES' : 'NO'}`);
+        })
+        .catch(err => {
+          console.error(`DIRECT FETCH error:`, err);
+        });
+    }
+  }, [directBookshopId, directBookshop, isLoadingDirect, isErrorDirect]);
   
   // If we have a bookshop from direct ID query, use it
   if (directBookshop) {
