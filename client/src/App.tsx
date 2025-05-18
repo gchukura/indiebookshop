@@ -16,6 +16,7 @@ import StatesListPage from "@/pages/StatesListPage";
 import CitiesListPage from "@/pages/CitiesListPage";
 import CategoriesListPage from "@/pages/CategoriesListPage";
 import BookshopDetailPage from "@/pages/BookshopDetailPage";
+import SEOBookshopDetailPage from "@/pages/SEOBookshopDetailPage";
 import SubmitBookshop from "@/pages/SubmitBookshop";
 import SubmitEvent from "@/pages/SubmitEvent";
 import TestBookshops from "@/pages/TestBookshops";
@@ -26,6 +27,7 @@ import Events from "@/pages/Events";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BookshopProvider } from "@/context/BookshopContext";
+import BookshopRedirectHandler, { StateNameRedirectHandler } from "@/components/BookshopRedirectHandler";
 
 function Router() {
   // Track page views when routes change
