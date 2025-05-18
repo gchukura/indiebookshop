@@ -3,42 +3,42 @@ import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Bookstore as Bookshop, Feature, Event } from '@shared/schema';
-import { extractBookshopIdFromPath } from '@/lib/urlUtils';
+import { createSlug, getStateNameFromAbbreviation } from '@/lib/urlUtils';
 import SingleLocationMap from '@/components/SingleLocationMap';
 import BookshopIcon from '@/components/BookshopIcon';
-// Import the newly created components
 import ExternalLink from '@/components/ExternalLink';
 import EventCard from '@/components/EventCard';
 import { MapPin, Clock, Phone, Globe, Mail, Calendar } from 'lucide-react';
 import { SEO } from '@/components/SEO';
-import { generateSlug, BASE_URL } from '@/lib/seo';
+import { BASE_URL } from '@/lib/seo';
 
 const SEOBookshopDetailPage = () => {
-  // Extract parameters from the URL path
+  // Extract parameters from the URL path - now without ID
   const params = useParams<{ 
     state: string,
     city: string,
-    name: string,
-    id: string 
+    name: string
   }>();
   
+  const { state, city, name } = params;
   const [location, setLocation] = useLocation();
   
-  // Extract the ID from the URL path
-  const bookshopId = parseInt(params.id);
-
-  // Redirect to directory if id is invalid
-  useEffect(() => {
-    if (isNaN(bookshopId)) {
-      setLocation('/directory');
-    }
-  }, [bookshopId, setLocation]);
-
-  // Fetch bookshop details
-  const { data: bookshop, isLoading: isLoadingBookshop, isError: isErrorBookshop } = useQuery<Bookshop>({
-    queryKey: [`/api/bookstores/${bookshopId}`],
-    enabled: !isNaN(bookshopId),
+  // Find bookshop by URL parameters
+  const { data: allBookshops, isLoading: isLoadingAllBookshops } = useQuery<Bookshop[]>({
+    queryKey: ["/api/bookstores"],
   });
+  
+  // Find the matching bookshop based on URL parameters
+  const matchedBookshop = allBookshops?.find(shop => 
+    createSlug(shop.name) === name && 
+    createSlug(shop.city) === city && 
+    (createSlug(getStateNameFromAbbreviation(shop.state)) === state || shop.state.toLowerCase() === state)
+  );
+  
+  // Use the matched bookshop directly
+  const bookshop = matchedBookshop;
+  const isLoadingBookshop = isLoadingAllBookshops;
+  const isErrorBookshop = false;
 
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
@@ -47,8 +47,8 @@ const SEOBookshopDetailPage = () => {
 
   // Fetch events for this bookshop
   const { data: events } = useQuery<Event[]>({
-    queryKey: [`/api/bookstores/${bookshopId}/events`],
-    enabled: !isNaN(bookshopId),
+    queryKey: [`/api/bookstores/${bookshop?.id}/events`],
+    enabled: !!bookshop?.id,
   });
 
   // Get feature names for the bookshop
