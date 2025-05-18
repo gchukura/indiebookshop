@@ -12,6 +12,7 @@ import Directory from "@/pages/Directory";
 import StateDirectory from "@/pages/StateDirectory";
 import CityDirectory from "@/pages/CityDirectory";
 import CountyDirectory from "@/pages/CountyDirectory";
+import CountiesDirectory from "@/pages/CountiesDirectory";
 import CategoryDirectory from "@/pages/CategoryDirectory";
 import StatesListPage from "@/pages/StatesListPage";
 import CitiesListPage from "@/pages/CitiesListPage";
@@ -45,6 +46,7 @@ function Router() {
           <Route path="/directory/browse" component={StatesListPage} />
           <Route path="/directory/cities" component={CitiesListPage} />
           <Route path="/directory/categories" component={CategoriesListPage} />
+          <Route path="/directory/counties" component={CountiesDirectory} />
           <Route path="/directory/state/:state" component={StateDirectory} />
           <Route path="/directory/city/:city" component={CityDirectory} />
           <Route path="/directory/category/:featureId" component={CategoryDirectory} />
