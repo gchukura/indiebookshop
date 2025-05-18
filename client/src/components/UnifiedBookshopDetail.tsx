@@ -47,31 +47,60 @@ const UnifiedBookshopDetail: React.FC = () => {
   // Find the matching bookshop based on URL parameters
   let bookshop: Bookshop | undefined;
   
-  if (allBookshops) {
-    // Case 1: Numeric ID in the URL
-    if (id && !isNaN(parseInt(id))) {
-      const numericId = parseInt(id);
-      bookshop = allBookshops.find(b => b.id === numericId);
-      console.log(`Looking up by ID ${id}, found: ${bookshop?.name || 'none'}`);
-    }
-    // Case 2: Direct name lookup (/bookshop/:name)
-    else if (name && segmentCount === 2) {
+  // Create a direct fetch query for bookshop with ID or name
+  // This is more reliable than trying to search through all bookshops
+  const directBookshopId = id && !isNaN(parseInt(id)) ? parseInt(id) : null;
+  
+  // If we have a direct ID, use that
+  const { data: directBookshop } = useQuery<Bookshop>({
+    queryKey: directBookshopId ? [`/api/bookstores/${directBookshopId}`] : ['skip-query'],
+    enabled: directBookshopId !== null,
+  });
+  
+  // If we have a bookshop from direct ID query, use it
+  if (directBookshop) {
+    bookshop = directBookshop;
+    console.log(`Found bookshop by direct ID: ${bookshop.name}`);
+  }
+  // Otherwise, search through all bookshops to match by URL parameters
+  else if (allBookshops && allBookshops.length > 0) {
+    // Case 1: Simple name lookup for /bookshop/:name URL pattern
+    if (name && segmentCount === 2) {
+      console.log(`Looking for bookshop by name slug: ${name}`);
+      
       // Try to find an exact match first
       bookshop = allBookshops.find(b => createSlug(b.name) === name);
       
-      // If no exact match, try with less strict matching
+      // If no exact match, try with more flexible matching
       if (!bookshop) {
-        // Normalize the slugs for more flexible matching
-        const normalizedNameSlug = name.toLowerCase().replace(/-+/g, ' ').trim();
-        bookshop = allBookshops.find(b => {
-          const bookshopNameSlug = createSlug(b.name).toLowerCase().replace(/-+/g, ' ').trim();
-          return bookshopNameSlug === normalizedNameSlug || bookshopNameSlug.includes(normalizedNameSlug);
-        });
+        // First try a loose match where the slug is contained in the name
+        for (const shop of allBookshops) {
+          if (createSlug(shop.name).includes(name) || name.includes(createSlug(shop.name))) {
+            bookshop = shop;
+            console.log(`Found bookshop by name partial match: ${bookshop.name}`);
+            break;
+          }
+        }
+        
+        // If still no match, try matching words
+        if (!bookshop) {
+          const nameWords = name.split('-').filter(w => w.length > 0);
+          for (const shop of allBookshops) {
+            const shopNameSlug = createSlug(shop.name);
+            const shopWords = shopNameSlug.split('-').filter(w => w.length > 0);
+            
+            // Check if at least half of the words match
+            const matchingWords = nameWords.filter(w => shopWords.includes(w));
+            if (matchingWords.length >= Math.ceil(nameWords.length / 2)) {
+              bookshop = shop;
+              console.log(`Found bookshop by word matching: ${bookshop.name}`);
+              break;
+            }
+          }
+        }
       }
-      
-      console.log(`Looking up by name only: ${name}, found: ${bookshop?.name || 'none'}`);
     } 
-    // Case 3: State/city/name pattern
+    // Case 2: State/city/name pattern
     else if (name && state && city && segmentCount === 4) {
       bookshop = allBookshops.find(b => 
         createSlug(b.name) === name && 
@@ -81,7 +110,7 @@ const UnifiedBookshopDetail: React.FC = () => {
       );
       console.log(`Looking up by state/city/name, found: ${bookshop?.name || 'none'}`);
     }
-    // Case 4: State/county/city/name pattern
+    // Case 3: State/county/city/name pattern
     else if (name && state && county && city && segmentCount === 5) {
       bookshop = allBookshops.find(b => {
         const nameMatch = createSlug(b.name) === name;
