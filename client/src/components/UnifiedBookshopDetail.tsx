@@ -15,6 +15,7 @@ import { SchemaOrg } from "./SchemaOrg";
 import { createSlug, getStateNameFromAbbreviation } from "@/lib/urlUtils";
 import { BASE_URL } from "../lib/seo";
 import { generateBookshopImageAlt, optimizeImageUrl } from "../lib/imageUtils";
+import { trackEvent } from "../lib/analytics";
 
 /**
  * A unified component for displaying bookshop details

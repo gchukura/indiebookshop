@@ -125,18 +125,21 @@ const Header = () => {
               <Link 
                 href="/events" 
                 className={`${isActiveRoute('/events') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+                onClick={() => trackNavigation('events', 'main_nav')}
               >
                 Events
               </Link>
               <Link 
                 href="/blog" 
                 className={`${isActiveRoute('/blog') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+                onClick={() => trackNavigation('blog', 'main_nav')}
               >
                 Blog
               </Link>
               <Link 
                 href="/contact" 
                 className={`${isActiveRoute('/contact') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+                onClick={() => trackNavigation('contact', 'main_nav')}
               >
                 Contact
               </Link>
@@ -145,12 +148,12 @@ const Header = () => {
           <div className="flex items-center space-x-3">
             {/* Only show buttons on desktop */}
             <div className="hidden md:flex space-x-3">
-              <Link href="/submit">
+              <Link href="/submit" onClick={() => trackNavigation('submit_bookshop', 'cta_button')}>
                 <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white">
                   Add Bookshop
                 </Button>
               </Link>
-              <Link href="/submit-event">
+              <Link href="/submit-event" onClick={() => trackNavigation('submit_event', 'cta_button')}>
                 <Button className="bg-[#4A7C59] hover:bg-[#4A7C59]/90 text-white">
                   Add Event
                 </Button>
