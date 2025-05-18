@@ -9,7 +9,6 @@ import { SEO } from "@/components/SEO";
 import { 
   BASE_URL, 
   DESCRIPTION_TEMPLATES, 
-  generateSlug, 
   generateLocationKeywords, 
   generateDescription 
 } from "@/lib/seo";
@@ -24,10 +23,11 @@ import {
 const StateDirectory = () => {
   // Get state from URL params
   const params = useParams<{ state: string }>();
-  const stateParam = params.state;
+  const stateParam = params.state || '';
   
   // Get state abbreviation from the URL parameter using utility functions
-  const state = stateParam ? (getStateAbbreviationFromName(stateParam) || stateParam.toUpperCase()) : '';
+  const stateAbbr = stateParam ? (getStateAbbreviationFromName(stateParam) || stateParam.toUpperCase()) : '';
+  const stateFullName = stateAbbr ? getStateNameFromAbbreviation(stateAbbr) || stateParam : '';
   
   // Component state
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
@@ -40,9 +40,9 @@ const StateDirectory = () => {
   
   // Fetch data when component mounts or state changes
   useEffect(() => {
-    if (!state) return;
+    if (!stateAbbr) return;
     
-    console.log(`Loading data for state: ${state}`);
+    console.log(`Loading data for state: ${stateAbbr}`);
     setIsLoading(true);
     setIsError(false);
     
@@ -50,7 +50,7 @@ const StateDirectory = () => {
     const fetchData = async () => {
       try {
         // Make sure the state is URL-encoded
-        const encodedState = encodeURIComponent(state);
+        const encodedState = encodeURIComponent(stateAbbr);
         
         // Fetch bookshops
         const response = await fetch(`/api/bookstores/filter?state=${encodedState}`);
@@ -59,7 +59,7 @@ const StateDirectory = () => {
         }
         
         const data = await response.json();
-        console.log(`Found ${data.length} bookshops for state: ${state}`);
+        console.log(`Found ${data.length} bookshops for state: ${stateAbbr}`);
         setBookshops(data);
         
         // Fetch cities in this state
@@ -69,7 +69,7 @@ const StateDirectory = () => {
         }
         
         const citiesData = await citiesResponse.json();
-        console.log(`Found ${citiesData.length} cities in ${state}`);
+        console.log(`Found ${citiesData.length} cities in ${stateAbbr}`);
         setCities(citiesData);
         
         setIsLoading(false);
@@ -81,18 +81,16 @@ const StateDirectory = () => {
     };
     
     fetchData();
-  }, [state]);
+  }, [stateAbbr]);
   
   // Generate SEO metadata
-  const displayStateName = getStateNameFromAbbreviation(state) || stateParam || '';
-  
-  const seoTitle = `${displayStateName} Bookshops | Independent Bookshops in ${displayStateName}`;
+  const seoTitle = `${stateFullName} Bookshops | Independent Bookshops in ${stateFullName}`;
   const seoDescription = generateDescription(
     DESCRIPTION_TEMPLATES.states, 
-    { state: displayStateName }
+    { state: stateFullName }
   );
-  const seoKeywords = generateLocationKeywords(null, displayStateName, 'all', 15);
-  const canonicalUrl = `${BASE_URL}/bookshops/${createSlug(displayStateName)}`;
+  const seoKeywords = generateLocationKeywords('', stateFullName, 'all', 15);
+  const canonicalUrl = `${BASE_URL}/bookshops/${createSlug(stateFullName)}`;
 
   const handleSelectBookshop = (id: number) => {
     setSelectedBookshopId(id);
@@ -115,10 +113,10 @@ const StateDirectory = () => {
       
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          Independent Bookshops in {stateName}
+          Independent Bookshops in {stateFullName}
         </h1>
         <p className="text-gray-600 mb-6">
-          Discover local independent bookshops and indie bookstores in {stateName}. Browse our comprehensive directory to find your next literary destination.
+          Discover local independent bookshops and indie bookstores in {stateFullName}. Browse our comprehensive directory to find your next literary destination.
         </p>
         
         {/* View Toggle */}
@@ -157,15 +155,15 @@ const StateDirectory = () => {
         <div className={`w-full ${view === "map" ? "md:col-span-6" : "md:col-span-12"}`}>
           <div className="bg-white rounded-lg shadow-md p-4">
             <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
-              {bookshops.length} Independent Bookshops in {stateName}
+              {bookshops.length} Independent Bookshops in {stateFullName}
             </h2>
             <h3 className="text-md text-gray-600 mb-3">
-              A guide to local bookshops and indie bookstores in {stateName}
+              A guide to local bookshops and indie bookstores in {stateFullName}
             </h3>
             
             {isLoading ? (
               <div className="text-center py-10">
-                <p>Loading indie bookshops in {stateName}...</p>
+                <p>Loading indie bookshops in {stateFullName}...</p>
               </div>
             ) : isError ? (
               <div className="text-center py-10">
@@ -173,8 +171,8 @@ const StateDirectory = () => {
               </div>
             ) : bookshops.length === 0 ? (
               <div className="text-center py-10">
-                <p>No local bookshops found in {stateName}.</p>
-                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {stateName}.</p>
+                <p>No local bookshops found in {stateFullName}.</p>
+                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {stateFullName}.</p>
                 <Link href="/directory">
                   <Button className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
                     View All Indie Bookshops
@@ -184,7 +182,7 @@ const StateDirectory = () => {
             ) : (
               <div className="space-y-4">
                 <p className="text-gray-600 mb-4">
-                  Browse our list of {bookshops.length} independent bookshops in {stateName}. Click on any bookshop for more details, including location, hours, and special features.
+                  Browse our list of {bookshops.length} independent bookshops in {stateFullName}. Click on any bookshop for more details, including location, hours, and special features.
                 </p>
                 {bookshops.map((bookshop) => (
                   <BookshopCard 
@@ -203,14 +201,17 @@ const StateDirectory = () => {
       {cities.length > 0 && !isLoading && !isError && (
         <div className="mt-12">
           <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-            Cities in {stateName} with Independent Bookshops
+            Cities in {stateFullName} with Independent Bookshops
           </h2>
           <p className="text-gray-600 mb-6">
-            Browse indie bookshops by city in {stateName}:
+            Browse indie bookshops by city in {stateFullName}:
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {cities.map((city) => (
-              <Link key={city} href={`/directory/city/${generateSlug(city)}`}>
+              <Link 
+                key={city} 
+                href={createCityDirectoryUrl(stateAbbr, city)}
+              >
                 <Button 
                   variant="outline" 
                   className="w-full justify-start py-2 px-4 hover:bg-[#2A6B7C]/10"
