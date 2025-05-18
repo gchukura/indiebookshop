@@ -59,18 +59,20 @@ const UnifiedBookshopDetail: React.FC = () => {
   const [isLoadingDirect, setIsLoadingDirect] = React.useState(false);
   const [isErrorDirect, setIsErrorDirect] = React.useState(false);
   
-  // If we have a direct ID, use native fetch instead of react-query (which seems to have issues)
+  // Extract ID from URL parameter if numeric
   const directBookshopId = id && !isNaN(parseInt(id)) ? parseInt(id) : null;
   
-  // Use effect to fetch bookshop directly
+  // Use effect to fetch bookshop directly when we have a numeric ID
   useEffect(() => {
     const fetchBookshopDirectly = async () => {
+      // Only proceed if we have a numeric ID
       if (!directBookshopId) return;
       
       try {
         setIsLoadingDirect(true);
         console.log(`DIRECT FETCH: Fetching bookshop ID ${directBookshopId}`);
         
+        // Make a direct API request
         const response = await fetch(`/api/bookstores/${directBookshopId}`);
         
         if (!response.ok) {
@@ -96,6 +98,7 @@ const UnifiedBookshopDetail: React.FC = () => {
       }
     };
     
+    // Run the fetch
     fetchBookshopDirectly();
   }, [directBookshopId]);
   

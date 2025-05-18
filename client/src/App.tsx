@@ -73,7 +73,7 @@ function Router() {
           <Route path="/test-bookshop/:id" component={TestBookshopPage} />
 
           {/* Standalone bookshop detail page by ID for direct access */}
-          <Route path="/bookshop/:id(\d+)" component={SimpleBookshopPage} />
+          <Route path="/bookshop/:id(\d+)" component={UnifiedBookshopDetail} />
           
           {/* Redirect legacy ID URLs to SEO-friendly URLs */}
           <Route path="/bookshop-redirect/:id(\d+)" component={BookshopRedirectHandler} />
