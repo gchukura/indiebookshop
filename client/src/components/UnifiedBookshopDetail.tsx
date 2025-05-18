@@ -15,7 +15,6 @@ import { SchemaOrg } from "./SchemaOrg";
 import { createSlug, getStateNameFromAbbreviation } from "@/lib/urlUtils";
 import { BASE_URL } from "../lib/seo";
 import { generateBookshopImageAlt, optimizeImageUrl } from "../lib/imageUtils";
-import { trackEvent } from "../lib/analytics";
 
 /**
  * A unified component for displaying bookshop details
@@ -386,11 +385,7 @@ const UnifiedBookshopDetail: React.FC = () => {
                     <p className="font-bold">Phone</p>
                     <div className="flex items-center">
                       <Phone className="h-4 w-4 mr-2 text-[#E16D3D]" />
-                      <a 
-                        href={`tel:${bookshop.phone}`} 
-                        className="hover:text-[#2A6B7C]"
-                        onClick={() => trackEvent('call_bookshop', 'engagement', bookshop.name)}
-                      >
+                      <a href={`tel:${bookshop.phone}`} className="hover:text-[#2A6B7C]">
                         {formatPhone(bookshop.phone)}
                       </a>
                     </div>
@@ -402,11 +397,7 @@ const UnifiedBookshopDetail: React.FC = () => {
                     <p className="font-bold">Website</p>
                     <div className="flex items-center">
                       <Globe className="h-4 w-4 mr-2 text-[#E16D3D]" />
-                      <ExternalLink 
-                        href={bookshop.website} 
-                        className="hover:text-[#2A6B7C] break-words"
-                        trackingLabel={`website_visit_${bookshop.name}`}
-                      >
+                      <ExternalLink href={bookshop.website} className="hover:text-[#2A6B7C] break-words">
                         {bookshop.website.replace(/^https?:\/\/(www\.)?/, '')}
                       </ExternalLink>
                     </div>
@@ -452,7 +443,6 @@ const UnifiedBookshopDetail: React.FC = () => {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="block w-full"
-                    onClick={() => trackEvent('get_directions', 'engagement', bookshop.name)}
                   >
                     <Button className="w-full bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white py-2 rounded-md font-medium">
                       <Navigation className="h-4 w-4 mr-2" /> Get Directions

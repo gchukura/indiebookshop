@@ -8,7 +8,6 @@ import {
   optimizeImageUrl 
 } from "../lib/imageUtils";
 import { createSlug } from "../lib/urlUtils";
-import { trackEvent } from "../lib/analytics";
 
 interface BookshopCardProps {
   bookstore: Bookstore; // using bookstore for backward compatibility, but will be renamed to bookshop in the prop
@@ -16,10 +15,6 @@ interface BookshopCardProps {
 }
 
 const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) => {
-  // Track when a user clicks on a bookshop
-  const handleBookshopClick = () => {
-    trackEvent('view_bookshop', 'engagement', bookshop.name);
-  };
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
@@ -36,8 +31,7 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
         <div className="sm:w-1/3">
           <Link 
             href={`/bookshop/${createSlug(bookshop.name)}`}
-            className="w-full h-40 sm:h-full cursor-pointer block"
-            onClick={handleBookshopClick}
+            className="w-full h-40 sm:h-full cursor-pointer block" 
           >
             {bookshop.imageUrl ? (
               <OptimizedImage 
@@ -65,7 +59,6 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
             <Link 
               href={`/bookshop/${createSlug(bookshop.name)}`}
               className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C] block"
-              onClick={handleBookshopClick}
             >
               {bookshop.name}
             </Link>
