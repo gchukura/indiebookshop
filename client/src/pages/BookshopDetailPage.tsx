@@ -37,9 +37,24 @@ const BookshopDetailPage = () => {
   });
 
   // Get feature names for the bookshop
-  const bookshopFeatures = features?.filter(feature => 
-    bookshop?.featureIds?.includes(feature.id) || false
-  ) || [];
+  const bookshopFeatures = features?.filter(feature => {
+    // Handle both array and single value featureIds formats
+    if (!bookshop?.featureIds) return false;
+    
+    if (Array.isArray(bookshop.featureIds)) {
+      return bookshop.featureIds.includes(feature.id);
+    } else {
+      // Handle case where featureIds might be a single number or comma-separated string
+      if (typeof bookshop.featureIds === 'number') {
+        return bookshop.featureIds === feature.id;
+      } else if (typeof bookshop.featureIds === 'string') {
+        // Parse comma-separated string of featureIds
+        const featureIdArray = bookshop.featureIds.split(',').map(id => parseInt(id.trim()));
+        return featureIdArray.includes(feature.id);
+      }
+    }
+    return false;
+  }) || [];
 
   if (isLoadingBookshop) {
     return (

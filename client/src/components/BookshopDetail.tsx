@@ -62,9 +62,26 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
   if (!isOpen) return null;
 
   // Get feature names for the bookshop
-  const bookshopFeatures = features?.filter(feature => 
-    bookshop?.featureIds && bookshop.featureIds.includes(feature.id)
-  ) || [];
+  const bookshopFeatures = features?.filter(feature => {
+    // Handle both array and single value featureIds formats
+    if (!bookshop?.featureIds) return false;
+    
+    // Convert any format of featureIds to array for processing
+    let featureIdArray: number[] = [];
+    
+    if (Array.isArray(bookshop.featureIds)) {
+      featureIdArray = bookshop.featureIds;
+    } else if (typeof bookshop.featureIds === 'string') {
+      // Parse comma-separated string of featureIds
+      featureIdArray = bookshop.featureIds.split(',')
+        .map(id => parseInt(id.trim()))
+        .filter(id => !isNaN(id));
+    } else if (typeof bookshop.featureIds === 'number') {
+      featureIdArray = [bookshop.featureIds];
+    }
+    
+    return featureIdArray.includes(feature.id);
+  }) || [];
 
   // Create breadcrumb items
   const breadcrumbItems: BreadcrumbItem[] = bookshop ? [
@@ -168,11 +185,15 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                     <div className="mt-6">
                       <h3 className="font-serif font-bold text-xl mb-4">Features & Specialties</h3>
                       <div className="flex flex-wrap gap-2">
-                        {bookshopFeatures.map(feature => (
-                          <span key={feature.id} className="store-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
-                            {feature.name}
-                          </span>
-                        ))}
+                        {bookshopFeatures && bookshopFeatures.length > 0 ? (
+                          bookshopFeatures.map(feature => (
+                            <span key={feature.id} className="store-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
+                              {feature.name}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-500 text-sm">No special features listed</span>
+                        )}
                       </div>
                     </div>
                     
