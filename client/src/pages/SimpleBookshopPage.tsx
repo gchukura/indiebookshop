@@ -19,11 +19,28 @@ const SimpleBookshopPage: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        // Log fetch attempt
-        console.log(`SIMPLE: Fetching bookshop with ID ${id}`);
+        // Debug URL params
+        console.log("SIMPLE DEBUG: URL params", {
+          id: id,
+          paramType: typeof id,
+          location: window.location.pathname
+        });
+        
+        // Extract ID directly from URL if needed
+        const urlPath = window.location.pathname;
+        const urlId = urlPath.match(/\/bookshop\/(\d+)/)?.[1];
+        
+        // Determine which ID to use
+        const bookshopId = id || urlId;
+        
+        console.log(`SIMPLE: Fetching bookshop with ID ${bookshopId}`);
+        
+        if (!bookshopId) {
+          throw new Error("No bookshop ID found in URL");
+        }
         
         // Direct fetch from API
-        const response = await fetch(`/api/bookstores/${id}`);
+        const response = await fetch(`/api/bookstores/${bookshopId}`);
         
         // Handle API errors
         if (!response.ok) {
@@ -49,13 +66,8 @@ const SimpleBookshopPage: React.FC = () => {
       }
     };
     
-    // Start fetch if ID is available
-    if (id) {
-      fetchBookshop();
-    } else {
-      setError("No bookshop ID provided");
-      setLoading(false);
-    }
+    // Always try to fetch, we'll extract ID from URL if params fail
+    fetchBookshop();
   }, [id]);
   
   // Loading state
