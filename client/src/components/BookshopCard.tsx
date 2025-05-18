@@ -7,15 +7,14 @@ import {
   generateBookshopImageAlt, 
   optimizeImageUrl 
 } from "../lib/imageUtils";
-import { createBookshopUrl, createBookshopDirectUrl, createBookshopUrlWithCounty } from "../lib/urlUtils";
+import { createSlug } from "../lib/urlUtils";
 
 interface BookshopCardProps {
   bookstore: Bookstore; // using bookstore for backward compatibility, but will be renamed to bookshop in the prop
   showDetails?: (id: number) => void;
-  urlCreator?: (bookshop: Bookstore) => string;
 }
 
-const BookshopCard = ({ bookstore: bookshop, showDetails, urlCreator = createBookshopDirectUrl }: BookshopCardProps) => {
+const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) => {
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
@@ -31,7 +30,7 @@ const BookshopCard = ({ bookstore: bookshop, showDetails, urlCreator = createBoo
       <div className="flex flex-col sm:flex-row">
         <div className="sm:w-1/3">
           <Link 
-            href={urlCreator(bookshop)}
+            href={`/bookshop/${createSlug(bookshop.name)}`}
             className="w-full h-40 sm:h-full cursor-pointer block" 
           >
             {bookshop.imageUrl ? (
@@ -58,7 +57,7 @@ const BookshopCard = ({ bookstore: bookshop, showDetails, urlCreator = createBoo
         <div className="p-4 sm:w-2/3">
           <div>
             <Link 
-              href={urlCreator(bookshop)}
+              href={`/bookshop/${createSlug(bookshop.name)}`}
               className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C] block"
             >
               {bookshop.name}
