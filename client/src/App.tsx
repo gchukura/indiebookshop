@@ -17,7 +17,7 @@ import CategoryDirectory from "@/pages/CategoryDirectory";
 import StatesListPage from "@/pages/StatesListPage";
 import CitiesListPage from "@/pages/CitiesListPage";
 import CategoriesListPage from "@/pages/CategoriesListPage";
-import SEOBookshopDetailPage from "@/pages/SEOBookshopDetailPage";
+import UnifiedBookshopDetail from "@/components/UnifiedBookshopDetail";
 import SubmitBookshop from "@/pages/SubmitBookshop";
 import SubmitEvent from "@/pages/SubmitEvent";
 import TestBookshops from "@/pages/TestBookshops";
@@ -67,11 +67,11 @@ function Router() {
           {/* SEO-friendly URL structure for categories */}
           <Route path="/bookshops/category/:categoryName/:featureId" component={CategoryDirectory} />
           
-          {/* Bookshop detail routes - order matters! */}
+          {/* Unified bookshop detail route handling all URL patterns */}
           <Route path="/bookshop/:id(\d+)" component={BookshopRedirectHandler} />
-          <Route path="/bookshop/:state/:county/:city/:name" component={SEOBookshopDetailPage} />
-          <Route path="/bookshop/:state/:city/:name" component={SEOBookshopDetailPage} />
-          <Route path="/bookshop/:name" component={SEOBookshopDetailPage} />
+          <Route path="/bookshop/:state/:county/:city/:name" component={UnifiedBookshopDetail} />
+          <Route path="/bookshop/:state/:city/:name" component={UnifiedBookshopDetail} />
+          <Route path="/bookshop/:name" component={UnifiedBookshopDetail} />
           
           {/* Regular routes */}
           <Route path="/submit" component={SubmitBookshop} />
