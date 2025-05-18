@@ -27,7 +27,8 @@ import Events from "@/pages/Events";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BookshopProvider } from "@/context/BookshopContext";
-import BookshopRedirectHandler, { StateNameRedirectHandler } from "@/components/BookshopRedirectHandler";
+import BookshopRedirectHandler from "@/components/BookshopRedirectHandler";
+import StateRedirector from "@/components/StateRedirector";
 
 function Router() {
   // Track page views when routes change
@@ -47,7 +48,8 @@ function Router() {
           <Route path="/directory/city/:city" component={CityDirectory} />
           <Route path="/directory/category/:featureId" component={CategoryDirectory} />
           
-          {/* SEO-friendly URL structure for states */}
+          {/* SEO-friendly URL structure for states with redirect handler */}
+          <Route path="/bookshops/:state" component={StateRedirector} />
           <Route path="/bookshops/:state" component={StateDirectory} />
           
           {/* SEO-friendly URL structure for cities */}

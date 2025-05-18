@@ -13,59 +13,21 @@ import {
   generateLocationKeywords, 
   generateDescription 
 } from "@/lib/seo";
+import {
+  getStateAbbreviationFromName,
+  getStateNameFromAbbreviation,
+  createStateDirectoryUrl,
+  createCityDirectoryUrl,
+  createSlug
+} from "@/lib/urlUtils";
 
 const StateDirectory = () => {
   // Get state from URL params
-  const params = useParams();
+  const params = useParams<{ state: string }>();
   const stateParam = params.state;
   
-  // Convert state param to abbreviation if it's a full name
-  // This allows URLs like /directory/state/New-Hampshire to work
-  const getStateAbbreviation = (stateParam) => {
-    if (!stateParam) return '';
-    
-    // If the state is already an abbreviation, return it directly
-    if (stateParam.length <= 2) {
-      return stateParam.toUpperCase();
-    }
-    
-    // Import state mappings
-    const stateMap = {
-      'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 
-      'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 
-      'DE': 'Delaware', 'DC': 'District of Columbia', 'FL': 'Florida', 
-      'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 
-      'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas', 'KY': 'Kentucky', 
-      'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland', 
-      'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 
-      'MS': 'Mississippi', 'MO': 'Missouri', 'MT': 'Montana', 
-      'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 
-      'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York', 
-      'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 
-      'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 
-      'RI': 'Rhode Island', 'SC': 'South Carolina', 'SD': 'South Dakota', 
-      'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 
-      'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 
-      'WI': 'Wisconsin', 'WY': 'Wyoming',
-      // Canadian provinces
-      'BC': 'British Columbia', 'ON': 'Ontario', 'QC': 'Quebec',
-      'AB': 'Alberta', 'MB': 'Manitoba', 'NS': 'Nova Scotia',
-      'NB': 'New Brunswick', 'SK': 'Saskatchewan'
-    };
-    
-    // Create a reverse map (full name -> abbreviation)
-    const reverseStateMap = {};
-    Object.entries(stateMap).forEach(([abbr, fullName]) => {
-      reverseStateMap[fullName.toLowerCase().replace(/\s+/g, '-')] = abbr;
-    });
-    
-    // Look up the abbreviation from the normalized state name
-    const normalizedStateName = stateParam.toLowerCase().replace(/\s+/g, '-');
-    return reverseStateMap[normalizedStateName] || stateParam;
-  };
-  
-  // Get state abbreviation from URL parameter
-  const state = getStateAbbreviation(stateParam);
+  // Get state abbreviation from the URL parameter using utility functions
+  const state = stateParam ? (getStateAbbreviationFromName(stateParam) || stateParam.toUpperCase()) : '';
   
   // Component state
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
@@ -122,15 +84,15 @@ const StateDirectory = () => {
   }, [state]);
   
   // Generate SEO metadata
-  const stateName = state || '';
+  const displayStateName = getStateNameFromAbbreviation(state) || stateParam || '';
   
-  const seoTitle = `${stateName} Bookshops | Independent Bookshops in ${stateName}`;
+  const seoTitle = `${displayStateName} Bookshops | Independent Bookshops in ${displayStateName}`;
   const seoDescription = generateDescription(
     DESCRIPTION_TEMPLATES.states, 
-    { state: stateName }
+    { state: displayStateName }
   );
-  const seoKeywords = generateLocationKeywords(null, stateName, 'all', 15);
-  const canonicalUrl = `${BASE_URL}/directory/state/${generateSlug(stateName)}`;
+  const seoKeywords = generateLocationKeywords(null, displayStateName, 'all', 15);
+  const canonicalUrl = `${BASE_URL}/bookshops/${createSlug(displayStateName)}`;
 
   const handleSelectBookshop = (id: number) => {
     setSelectedBookshopId(id);
