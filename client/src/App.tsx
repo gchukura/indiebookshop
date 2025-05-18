@@ -17,7 +17,6 @@ import CategoryDirectory from "@/pages/CategoryDirectory";
 import StatesListPage from "@/pages/StatesListPage";
 import CitiesListPage from "@/pages/CitiesListPage";
 import CategoriesListPage from "@/pages/CategoriesListPage";
-import BookshopDetailPage from "@/pages/BookshopDetailPage";
 import SEOBookshopDetailPage from "@/pages/SEOBookshopDetailPage";
 import SubmitBookshop from "@/pages/SubmitBookshop";
 import SubmitEvent from "@/pages/SubmitEvent";
@@ -29,8 +28,9 @@ import Events from "@/pages/Events";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BookshopProvider } from "@/context/BookshopContext";
-import BookshopRedirectHandler from "@/components/BookshopRedirectHandler";
+import UnifiedBookshopDetailHandler from "@/components/UnifiedBookshopDetailHandler";
 import StateRedirector from "@/components/StateRedirector";
+import BookshopRedirectHandler from "@/components/BookshopRedirectHandler";
 
 function Router() {
   // Track page views when routes change
@@ -67,17 +67,13 @@ function Router() {
           {/* SEO-friendly URL structure for categories */}
           <Route path="/bookshops/category/:categoryName/:featureId" component={CategoryDirectory} />
           
-          {/* Direct bookshop lookup by name (simplest URL structure) */}
+          {/* Add the unified handler for all bookshop detail URL patterns */}
+          <Route path="/bookshop/*" component={UnifiedBookshopDetailHandler} />
+          
+          {/* All bookshop detail patterns should render the same component */}
           <Route path="/bookshop/:name" component={SEOBookshopDetailPage} />
-          
-          {/* SEO-friendly URL structure for individual bookshops (without ID) */}
           <Route path="/bookshop/:state/:city/:name" component={SEOBookshopDetailPage} />
-          
-          {/* SEO-friendly URL structure for individual bookshops (with county) */}
           <Route path="/bookshop/:state/:county/:city/:name" component={SEOBookshopDetailPage} />
-          
-          {/* Legacy route with redirect handler */}
-          <Route path="/bookshop/:id" component={BookshopRedirectHandler} />
           
           {/* Regular routes */}
           <Route path="/submit" component={SubmitBookshop} />
