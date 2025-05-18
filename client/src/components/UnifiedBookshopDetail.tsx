@@ -108,9 +108,25 @@ const UnifiedBookshopDetail: React.FC = () => {
   const isErrorBookshop = !bookshop && !isLoadingBookshop;
   
   // Get feature names for the bookshop
-  const bookshopFeatures = features?.filter(feature => 
-    bookshop?.featureIds?.includes(feature.id) || false
-  ) || [];
+  const bookshopFeatures = features?.filter(feature => {
+    if (!bookshop?.featureIds) return false;
+    
+    // Convert any format of featureIds to an array for processing
+    let featureIdArray: number[] = [];
+    
+    if (Array.isArray(bookshop.featureIds)) {
+      featureIdArray = bookshop.featureIds;
+    } else if (typeof bookshop.featureIds === 'string') {
+      const idStrings = (bookshop.featureIds as string).split(',');
+      featureIdArray = idStrings
+        .map((id: string) => parseInt(id.trim()))
+        .filter((id: number) => !isNaN(id));
+    } else if (typeof bookshop.featureIds === 'number') {
+      featureIdArray = [bookshop.featureIds];
+    }
+    
+    return featureIdArray.includes(feature.id);
+  }) || [];
   
   // Format address for display
   const formatAddress = () => {

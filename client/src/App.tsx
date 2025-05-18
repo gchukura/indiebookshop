@@ -31,6 +31,7 @@ import { BookshopProvider } from "@/context/BookshopContext";
 import UnifiedBookshopDetailHandler from "@/components/UnifiedBookshopDetailHandler";
 import StateRedirector from "@/components/StateRedirector";
 import BookshopRedirectHandler from "@/components/BookshopRedirectHandler";
+import BookshopDetailPage from "@/pages/BookstoreDetailPage";
 
 function Router() {
   // Track page views when routes change

@@ -41,19 +41,22 @@ const BookshopDetailPage = () => {
     // Handle both array and single value featureIds formats
     if (!bookshop?.featureIds) return false;
     
+    // Convert any format of featureIds to an array for processing
+    let featureIdArray: number[] = [];
+    
     if (Array.isArray(bookshop.featureIds)) {
-      return bookshop.featureIds.includes(feature.id);
-    } else {
-      // Handle case where featureIds might be a single number or comma-separated string
-      if (typeof bookshop.featureIds === 'number') {
-        return bookshop.featureIds === feature.id;
-      } else if (typeof bookshop.featureIds === 'string') {
-        // Parse comma-separated string of featureIds
-        const featureIdArray = bookshop.featureIds.split(',').map(id => parseInt(id.trim()));
-        return featureIdArray.includes(feature.id);
-      }
+      featureIdArray = bookshop.featureIds;
+    } else if (typeof bookshop.featureIds === 'string') {
+      // Parse comma-separated string of featureIds
+      const idStrings = (bookshop.featureIds as string).split(',');
+      featureIdArray = idStrings
+        .map((id: string) => parseInt(id.trim()))
+        .filter((id: number) => !isNaN(id));
+    } else if (typeof bookshop.featureIds === 'number') {
+      featureIdArray = [bookshop.featureIds];
     }
-    return false;
+    
+    return featureIdArray.includes(feature.id);
   }) || [];
 
   if (isLoadingBookshop) {
