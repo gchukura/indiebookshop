@@ -15,7 +15,7 @@ const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1Qa3AW5Zmu0X4yT3fXjmoU62
 // Default configuration
 const DEFAULT_CONFIG: SheetsConfig = {
   spreadsheetId: SPREADSHEET_ID,
-  bookshopRange: 'Bookstores!A2:O', // Added an additional column for 'live' field
+  bookshopRange: 'Bookstores!A2:P', // Updated range to include county column
   featuresRange: 'Features!A2:B',    // Assumes headers are in row 1
   eventsRange: 'Events!A2:F'         // Assumes headers are in row 1
 };
@@ -90,7 +90,7 @@ export class GoogleSheetsService {
       const bookshops: Bookstore[] = rows.map((row, index) => {
         try {
           // Assuming columns are in this order:
-          // id, name, street, city, state, zip, description, imageUrl, website, phone, hours (JSON), latitude, longitude, featureIds (comma-separated)
+          // id, name, street, city, state, zip, description, imageUrl, website, phone, hours, latitude, longitude, featureIds, live, county
           const id = parseInt(row[0] || '0');
           const name = row[1] || '';
           const street = row[2] || '';
@@ -136,6 +136,9 @@ export class GoogleSheetsService {
           } catch (e) {
             console.error(`Error parsing live status for bookshop ${id}:`, e);
           }
+          
+          // Get county information (column P)
+          const county = row[15] || null;
 
           return {
             id,
@@ -143,6 +146,7 @@ export class GoogleSheetsService {
             street,
             city,
             state,
+            county,
             zip,
             description,
             imageUrl,

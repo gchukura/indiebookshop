@@ -67,6 +67,15 @@ export function getStateAbbreviationFromName(name: string): string | null {
 }
 
 /**
+ * Create a bookshop URL with the format /bookshop/{name}
+ * Direct lookup without geographic context
+ */
+export function createBookshopDirectUrl(bookshop: Bookstore): string {
+  const nameSlug = createSlug(bookshop.name);
+  return `/bookshop/${nameSlug}`;
+}
+
+/**
  * Create a bookshop URL with the format /bookshop/{state}/{city}/{name}
  * without including the ID in the URL for cleaner URLs
  */
@@ -76,6 +85,23 @@ export function createBookshopUrl(bookshop: Bookstore): string {
   const nameSlug = createSlug(bookshop.name);
   
   return `/bookshop/${stateSlug}/${citySlug}/${nameSlug}`;
+}
+
+/**
+ * Create a bookshop URL with the format /bookshop/{state}/{county}/{city}/{name}
+ * including county information for enhanced SEO
+ */
+export function createBookshopUrlWithCounty(bookshop: Bookstore): string {
+  if (!bookshop.county) {
+    return createBookshopUrl(bookshop);
+  }
+  
+  const stateSlug = createSlug(getStateNameFromAbbreviation(bookshop.state));
+  const countySlug = createSlug(bookshop.county);
+  const citySlug = createSlug(bookshop.city);
+  const nameSlug = createSlug(bookshop.name);
+  
+  return `/bookshop/${stateSlug}/${countySlug}/${citySlug}/${nameSlug}`;
 }
 
 /**
@@ -100,6 +126,17 @@ export function createStateDirectoryUrl(stateAbbr: string): string {
 }
 
 /**
+ * Create a county directory URL
+ */
+export function createCountyDirectoryUrl(stateAbbr: string, county: string): string {
+  const stateName = getStateNameFromAbbreviation(stateAbbr);
+  const stateSlug = createSlug(stateName);
+  const countySlug = createSlug(county);
+  
+  return `/bookshops/${stateSlug}/${countySlug}`;
+}
+
+/**
  * Create a city directory URL
  */
 export function createCityDirectoryUrl(stateAbbr: string, city: string): string {
@@ -108,6 +145,18 @@ export function createCityDirectoryUrl(stateAbbr: string, city: string): string 
   const citySlug = createSlug(city);
   
   return `/bookshops/${stateSlug}/${citySlug}`;
+}
+
+/**
+ * Create a city directory URL with county
+ */
+export function createCityDirectoryUrlWithCounty(stateAbbr: string, county: string, city: string): string {
+  const stateName = getStateNameFromAbbreviation(stateAbbr);
+  const stateSlug = createSlug(stateName);
+  const countySlug = createSlug(county);
+  const citySlug = createSlug(city);
+  
+  return `/bookshops/${stateSlug}/${countySlug}/${citySlug}`;
 }
 
 /**

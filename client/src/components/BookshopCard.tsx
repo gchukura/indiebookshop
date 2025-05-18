@@ -7,14 +7,15 @@ import {
   generateBookshopImageAlt, 
   optimizeImageUrl 
 } from "../lib/imageUtils";
-import { createBookshopUrl } from "../lib/urlUtils";
+import { createBookshopUrl, createBookshopDirectUrl, createBookshopUrlWithCounty } from "../lib/urlUtils";
 
 interface BookshopCardProps {
   bookstore: Bookstore; // using bookstore for backward compatibility, but will be renamed to bookshop in the prop
-  showDetails: (id: number) => void;
+  showDetails?: (id: number) => void;
+  urlCreator?: (bookshop: Bookstore) => string;
 }
 
-const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) => {
+const BookshopCard = ({ bookstore: bookshop, showDetails, urlCreator = createBookshopDirectUrl }: BookshopCardProps) => {
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
