@@ -46,7 +46,23 @@ function Router() {
           <Route path="/directory/state/:state" component={StateDirectory} />
           <Route path="/directory/city/:city" component={CityDirectory} />
           <Route path="/directory/category/:featureId" component={CategoryDirectory} />
-          <Route path="/bookshop/:id" component={BookshopDetailPage} />
+          
+          {/* SEO-friendly URL structure for states */}
+          <Route path="/bookshops/:state" component={StateDirectory} />
+          
+          {/* SEO-friendly URL structure for cities */}
+          <Route path="/bookshops/:state/:city" component={CityDirectory} />
+          
+          {/* SEO-friendly URL structure for categories */}
+          <Route path="/bookshops/category/:categoryName/:featureId" component={CategoryDirectory} />
+          
+          {/* SEO-friendly URL structure for individual bookshops */}
+          <Route path="/bookshop/:state/:city/:name/:id" component={SEOBookshopDetailPage} />
+          
+          {/* Legacy route with redirect handler */}
+          <Route path="/bookshop/:id" component={BookshopRedirectHandler} />
+          
+          {/* Regular routes */}
           <Route path="/submit" component={SubmitBookshop} />
           <Route path="/submit-event" component={SubmitEvent} />
           <Route path="/blog" component={Blog} />
@@ -54,6 +70,7 @@ function Router() {
           <Route path="/contact" component={Contact} />
           <Route path="/events" component={Events} />
           <Route path="/test-bookshops" component={TestBookshops} />
+          
           {/* Fallback to 404 */}
           <Route component={NotFound} />
         </Switch>

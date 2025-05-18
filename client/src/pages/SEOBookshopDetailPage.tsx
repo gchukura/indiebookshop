@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Bookstore as Bookshop, Feature, Event } from '@shared/schema';
 import { extractBookshopIdFromPath } from '@/lib/urlUtils';
 import SingleLocationMap from '@/components/SingleLocationMap';
-import ExternalLink from '@/components/ExternalLink';
 import BookshopIcon from '@/components/BookshopIcon';
+// Import the newly created components
+import ExternalLink from '@/components/ExternalLink';
 import EventCard from '@/components/EventCard';
 import { MapPin, Clock, Phone, Globe, Mail, Calendar } from 'lucide-react';
 import { SEO } from '@/components/SEO';
@@ -98,6 +99,12 @@ const SEOBookshopDetailPage = () => {
     }
     return phone;
   };
+  
+  // Handle email (optional field that might be added in future)
+  const handleEmailDisplay = () => {
+    // Email is not currently part of the schema but could be added later
+    return null;
+  };
 
   // SEO metadata
   const pageTitle = `${bookshop.name} - Independent Bookshop in ${bookshop.city}, ${bookshop.state}`;
@@ -179,15 +186,6 @@ const SEOBookshopDetailPage = () => {
                   </div>
                 )}
                 
-                {bookshop.email && (
-                  <div className="flex items-center text-gray-700 mb-4">
-                    <Mail className="h-4 w-4 mr-1 text-[#E16D3D]" />
-                    <a href={`mailto:${bookshop.email}`} className="hover:text-[#2A6B7C]">
-                      {bookshop.email}
-                    </a>
-                  </div>
-                )}
-                
                 {/* Features Tags */}
                 {bookshopFeatures.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-3">
@@ -231,7 +229,11 @@ const SEOBookshopDetailPage = () => {
                     Hours
                   </h3>
                   <div className="bg-[rgba(79,105,95,0.05)] p-4 rounded-md">
-                    <pre className="whitespace-pre-wrap font-sans text-gray-700">{bookshop.hours}</pre>
+                    <pre className="whitespace-pre-wrap font-sans text-gray-700">
+                      {typeof bookshop.hours === 'string' 
+                        ? bookshop.hours 
+                        : bookshop.hours ? JSON.stringify(bookshop.hours, null, 2) : 'Hours not available'}
+                    </pre>
                   </div>
                 </div>
               )}

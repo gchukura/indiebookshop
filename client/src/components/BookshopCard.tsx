@@ -7,6 +7,7 @@ import {
   generateBookshopImageAlt, 
   optimizeImageUrl 
 } from "../lib/imageUtils";
+import { createBookshopUrl } from "../lib/urlUtils";
 
 interface BookshopCardProps {
   bookstore: Bookstore; // using bookstore for backward compatibility, but will be renamed to bookshop in the prop
