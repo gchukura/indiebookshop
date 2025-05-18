@@ -13,27 +13,77 @@ import { SEO } from '@/components/SEO';
 import { BASE_URL } from '@/lib/seo';
 
 const SEOBookshopDetailPage = () => {
-  // Extract parameters from the URL path - now without ID
+  // Extract parameters from the URL path
   const params = useParams<{ 
-    state: string,
-    city: string,
-    name: string
+    state?: string,
+    county?: string,
+    city?: string,
+    name: string,
+    id?: string
   }>();
   
-  const { state, city, name } = params;
+  const { state, county, city, name, id } = params;
   const [location, setLocation] = useLocation();
+  
+  // Extract path segments to determine the URL pattern
+  const pathSegments = location.split('/').filter(Boolean);
+  const isBookshopPath = pathSegments[0] === 'bookshop';
+  const segmentCount = pathSegments.length;
+  
+  console.log(`Bookshop detail page: URL has ${segmentCount} segments, looking for name: ${name}`);
   
   // Find bookshop by URL parameters
   const { data: allBookshops, isLoading: isLoadingAllBookshops } = useQuery<Bookshop[]>({
     queryKey: ["/api/bookstores"],
   });
   
-  // Find the matching bookshop based on URL parameters
-  const matchedBookshop = allBookshops?.find(shop => 
-    createSlug(shop.name) === name && 
-    createSlug(shop.city) === city && 
-    (createSlug(getStateNameFromAbbreviation(shop.state)) === state || shop.state.toLowerCase() === state)
-  );
+  // Find the matching bookshop based on URL pattern
+  let matchedBookshop: Bookshop | undefined;
+  
+  if (allBookshops) {
+    if (id && !isNaN(parseInt(id))) {
+      // ID-based lookup (legacy pattern)
+      matchedBookshop = allBookshops.find(shop => shop.id === parseInt(id));
+      console.log(`Looking up by ID ${id}, found: ${matchedBookshop?.name || 'none'}`);
+    } 
+    else if (segmentCount === 2) {
+      // Direct name-based lookup: /bookshop/:name
+      matchedBookshop = allBookshops.find(shop => createSlug(shop.name) === name);
+      console.log(`Looking up by name ${name}, found: ${matchedBookshop?.name || 'none'}`);
+    }
+    else if (segmentCount === 4 && state && city) {
+      // Standard geography pattern: /bookshop/:state/:city/:name
+      matchedBookshop = allBookshops.find(shop => 
+        createSlug(shop.name) === name && 
+        createSlug(shop.city) === city && 
+        (createSlug(getStateNameFromAbbreviation(shop.state)) === state || shop.state.toLowerCase() === state)
+      );
+      console.log(`Looking up by state/city/name, found: ${matchedBookshop?.name || 'none'}`);
+    }
+    else if (segmentCount === 5 && state && county && city) {
+      // County-enhanced pattern: /bookshop/:state/:county/:city/:name
+      matchedBookshop = allBookshops.find(shop => {
+        const shopNameMatch = createSlug(shop.name) === name;
+        const shopCityMatch = createSlug(shop.city) === city;
+        const shopStateMatch = 
+          createSlug(getStateNameFromAbbreviation(shop.state)) === state || 
+          shop.state.toLowerCase() === state;
+        
+        // County matching is more flexible
+        let shopCountyMatch = false;
+        if (shop.county) {
+          const shopCountySlug = createSlug(shop.county);
+          shopCountyMatch = 
+            shopCountySlug.includes(county) || 
+            county.includes(shopCountySlug);
+        }
+        
+        return shopNameMatch && shopCityMatch && shopStateMatch && 
+               (shopCountyMatch || !shop.county);
+      });
+      console.log(`Looking up by state/county/city/name, found: ${matchedBookshop?.name || 'none'}`);
+    }
+  }
   
   // Use the matched bookshop directly
   const bookshop = matchedBookshop;
