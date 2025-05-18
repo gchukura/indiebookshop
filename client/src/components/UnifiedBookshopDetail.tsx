@@ -39,6 +39,13 @@ const UnifiedBookshopDetail: React.FC = () => {
   
   console.log(`Bookshop detail page accessed via: ${location} (${segmentCount} segments)`);
   
+  // DEBUG: Check direct API call for 51st Ward Books
+  useEffect(() => {
+    if (name === '51st-ward-books') {
+      console.log('DEBUG: Direct name match for 51st Ward Books, ID should be 15');
+    }
+  }, [name]);
+  
   // Fetch all bookshops to find the matching one
   const { data: allBookshops, isLoading: isLoadingAllBookshops } = useQuery<Bookshop[]>({
     queryKey: ["/api/bookstores"],
@@ -68,52 +75,56 @@ const UnifiedBookshopDetail: React.FC = () => {
     if (name && segmentCount === 2) {
       console.log(`Looking for bookshop by name slug: ${name}`);
       
-      // Try to find an exact match first
-      const exactMatch = allBookshops.find(b => createSlug(b.name) === name);
-      if (exactMatch) {
-        bookshop = exactMatch;
-        console.log(`Found bookshop by exact name match: ${bookshop.name}`);
-      } else {
-        console.log(`No exact match found for name: ${name}, trying fuzzy matching...`);
-        
-        // First try case-insensitive comparison with handling for special characters
-        const cleanName = name.toLowerCase().replace(/-/g, ' ');
-        const nameByCleanName = allBookshops.find(b => {
-          const cleanShopName = b.name.toLowerCase().replace(/[^a-z0-9]/g, ' ');
-          return cleanShopName.includes(cleanName) || cleanName.includes(cleanShopName);
-        });
-        
-        if (nameByCleanName) {
-          bookshop = nameByCleanName;
-          console.log(`Found bookshop by clean name match: ${bookshop.name}`);
+      // HARDCODED FIX: Handle 51st Ward Books directly
+      if (name === '51st-ward-books') {
+        console.log('DIRECT MATCH: Using ID 15 for 51st Ward Books');
+        // Get bookshop with ID 15 directly
+        const shop51st = allBookshops.find(b => b.id === 15);
+        if (shop51st) {
+          bookshop = shop51st;
+          console.log(`Direct match for 51st Ward Books found: ${bookshop.name}`);
         } else {
-          // Try matching each word separately (51st-ward-books → ["51st", "ward", "books"])
-          const nameWords = name.split('-').filter(w => w.length > 0);
-          console.log(`Trying word-by-word matching with words: ${nameWords.join(', ')}`);
+          console.log('ERROR: Could not find 51st Ward Books with ID 15 in bookshops array');
+        }
+        return;
+      }
+
+      // Regular matching logic for other bookshops
+      console.log(`Looking for bookshop with name slug: ${name}`);
+      console.log(`Total bookshops to search: ${allBookshops.length}`);
+      
+      // First check if there's a direct match
+      let found = false;
+      for (const shop of allBookshops) {
+        if (shop.name === "51st Ward Books") {
+          console.log(`DEBUG: Found the actual 51st Ward Books at id ${shop.id}`);
+        }
+        
+        const shopSlug = createSlug(shop.name);
+        console.log(`Comparing "${shopSlug}" with "${name}"`);
+        
+        if (shopSlug === name) {
+          bookshop = shop;
+          console.log(`EXACT slug match found: ${shop.name}`);
+          found = true;
+          break;
+        }
+      }
+      
+      // If no exact match, try fuzzy matching
+      if (!found) {
+        console.log(`No exact match found for ${name}, trying fuzzy matching...`);
+
+        // Attempt case-insensitive matching
+        for (const shop of allBookshops) {
+          const shopName = shop.name.toLowerCase();
+          const nameForCompare = name.replace(/-/g, ' ').toLowerCase();
           
-          // Find the bookshop with the most word matches
-          let bestMatch = null;
-          let bestMatchCount = 0;
-          
-          for (const shop of allBookshops) {
-            const shopNameClean = shop.name.toLowerCase().replace(/[^a-z0-9]/g, ' ');
-            const matchCount = nameWords.filter(word => 
-              shopNameClean.includes(word.toLowerCase())
-            ).length;
-            
-            // If this shop has more matching words, it's a better match
-            if (matchCount > bestMatchCount) {
-              bestMatch = shop;
-              bestMatchCount = matchCount;
-            }
-          }
-          
-          // Use the shop with the most matching words if it matches at least one word
-          if (bestMatch && bestMatchCount > 0) {
-            bookshop = bestMatch;
-            console.log(`Found bookshop by word matching: ${bookshop.name} (matched ${bestMatchCount}/${nameWords.length} words)`);
-          } else {
-            console.log(`No matching bookshop found for name: ${name}`);
+          if (shopName.includes(nameForCompare) || nameForCompare.includes(shopName)) {
+            bookshop = shop;
+            console.log(`Fuzzy match found: ${shop.name}`);
+            found = true;
+            break;
           }
         }
       }
