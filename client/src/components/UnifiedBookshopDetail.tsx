@@ -59,36 +59,45 @@ const UnifiedBookshopDetail: React.FC = () => {
   const [isLoadingDirect, setIsLoadingDirect] = React.useState(false);
   const [isErrorDirect, setIsErrorDirect] = React.useState(false);
   
-  // Extract ID from URL parameter if numeric
-  const directBookshopId = id && !isNaN(parseInt(id)) ? parseInt(id) : null;
+  // Extract ID from URL parameter if in /bookshop/15 format
+  const urlPath = window.location.pathname;
+  const exactNumericMatch = urlPath.match(/^\/bookshop\/(\d+)$/);
+  const directBookshopId = exactNumericMatch ? parseInt(exactNumericMatch[1]) : null;
+  
+  console.log("DEBUG UnifiedBookshopDetail:", {
+    urlPath,
+    directBookshopId,
+    id,
+    name,
+    segmentCount
+  });
   
   // Use effect to fetch bookshop directly when we have a numeric ID
   useEffect(() => {
     const fetchBookshopDirectly = async () => {
-      // Only proceed if we have a numeric ID
+      // Only proceed if we have an ID from the URL
       if (!directBookshopId) return;
       
       try {
         setIsLoadingDirect(true);
         console.log(`DIRECT FETCH: Fetching bookshop ID ${directBookshopId}`);
         
-        // Make a direct API request
-        const response = await fetch(`/api/bookstores/${directBookshopId}`);
+        // Make a direct API request using window.fetch for reliability
+        const response = await window.fetch(`/api/bookstores/${directBookshopId}`);
         
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log(`DIRECT FETCH success:`, data);
+        console.log(`DIRECT FETCH success for ID ${directBookshopId}:`, data);
         
         if (data && data.name) {
           setDirectBookshop(data);
+          setIsErrorDirect(false);
         } else {
           throw new Error("Invalid bookshop data");
         }
-        
-        setIsErrorDirect(false);
       } catch (err) {
         console.error("DIRECT FETCH error:", err);
         setIsErrorDirect(true);
@@ -98,7 +107,7 @@ const UnifiedBookshopDetail: React.FC = () => {
       }
     };
     
-    // Run the fetch
+    // Always try to fetch
     fetchBookshopDirectly();
   }, [directBookshopId]);
   
