@@ -11,6 +11,7 @@ import Home from "@/pages/Home";
 import Directory from "@/pages/Directory";
 import StateDirectory from "@/pages/StateDirectory";
 import CityDirectory from "@/pages/CityDirectory";
+import CountyDirectory from "@/pages/CountyDirectory";
 import CategoryDirectory from "@/pages/CategoryDirectory";
 import StatesListPage from "@/pages/StatesListPage";
 import CitiesListPage from "@/pages/CitiesListPage";
@@ -52,14 +53,26 @@ function Router() {
           <Route path="/bookshops/:state" component={StateRedirector} />
           <Route path="/bookshops/:state" component={StateDirectory} />
           
-          {/* SEO-friendly URL structure for cities */}
+          {/* SEO-friendly URL structure with county information */}
+          <Route path="/bookshops/:state/:county" component={CountyDirectory} />
+          
+          {/* SEO-friendly URL structure for cities (without county) */}
           <Route path="/bookshops/:state/:city" component={CityDirectory} />
+          
+          {/* SEO-friendly URL structure for cities (with county) */}
+          <Route path="/bookshops/:state/:county/:city" component={CityDirectory} />
           
           {/* SEO-friendly URL structure for categories */}
           <Route path="/bookshops/category/:categoryName/:featureId" component={CategoryDirectory} />
           
+          {/* Direct bookshop lookup by name (simplest URL structure) */}
+          <Route path="/bookshop/:name" component={SEOBookshopDetailPage} />
+          
           {/* SEO-friendly URL structure for individual bookshops (without ID) */}
           <Route path="/bookshop/:state/:city/:name" component={SEOBookshopDetailPage} />
+          
+          {/* SEO-friendly URL structure for individual bookshops (with county) */}
+          <Route path="/bookshop/:state/:county/:city/:name" component={SEOBookshopDetailPage} />
           
           {/* Legacy route with redirect handler */}
           <Route path="/bookshop/:id" component={BookshopRedirectHandler} />

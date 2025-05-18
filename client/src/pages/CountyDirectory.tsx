@@ -152,7 +152,7 @@ const CountyDirectory = () => {
           {bookshopsInCounty.map(bookshop => (
             <BookshopCard 
               key={bookshop.id} 
-              bookshop={bookshop} 
+              bookstore={bookshop} 
               urlCreator={createBookshopUrlWithCounty}
             />
           ))}

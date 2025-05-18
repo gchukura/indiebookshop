@@ -31,7 +31,7 @@ const BookshopCard = ({ bookstore: bookshop, showDetails, urlCreator = createBoo
       <div className="flex flex-col sm:flex-row">
         <div className="sm:w-1/3">
           <Link 
-            href={createBookshopUrl(bookshop)}
+            href={urlCreator(bookshop)}
             className="w-full h-40 sm:h-full cursor-pointer block" 
           >
             {bookshop.imageUrl ? (
@@ -58,7 +58,7 @@ const BookshopCard = ({ bookstore: bookshop, showDetails, urlCreator = createBoo
         <div className="p-4 sm:w-2/3">
           <div>
             <Link 
-              href={createBookshopUrl(bookshop)}
+              href={urlCreator(bookshop)}
               className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C] block"
             >
               {bookshop.name}
