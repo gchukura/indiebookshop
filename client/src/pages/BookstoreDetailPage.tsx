@@ -11,19 +11,43 @@ import {
   DESCRIPTION_TEMPLATES
 } from '../lib/seo';
 
-const BookshopDetailPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const [_, setLocation] = useLocation();
-  const bookshopId = parseInt(id);
+// Export both component names to support dual naming pattern in the codebase
+export const BookstoreDetailPage = BookshopDetailPage;
+export const BookshopDetailPage = () => {
+  // Extract all possible URL parameters
+  const params = useParams<{ 
+    id?: string;
+    name?: string;
+    state?: string;
+    county?: string;
+    city?: string;
+  }>();
+  const { id, name, state, county, city } = params;
+  const [location, setLocation] = useLocation();
+  
+  // Get the path segments to figure out which URL pattern we're using
+  const pathSegments = location.split('/').filter(Boolean);
+  const segmentCount = pathSegments.length;
+  
+  // If we have a numeric ID, use it directly
+  const directBookshopId = id && !isNaN(parseInt(id)) ? parseInt(id) : undefined;
+  
+  // Get all bookshops to lookup by name if needed
+  const { data: allBookshops } = useQuery<Bookstore[]>({
+    queryKey: ["/api/bookstores"],
+    enabled: !!name && !directBookshopId, // Only needed when looking up by name
+  });
 
-  // Redirect to directory if id is invalid
+  // Redirect to directory if id is invalid (when using numeric ID mode)
   useEffect(() => {
-    if (isNaN(bookshopId)) {
+    // Only redirect if we were trying to use a numeric ID but failed
+    if (id && isNaN(parseInt(id))) {
       setLocation('/directory');
     }
-  }, [bookshopId, setLocation]);
+  }, [id, setLocation]);
 
-  // Fetch bookshop details
+  // Fetch bookshop details - explicitly log the query to debug
+  console.log(`Fetching bookshop with ID: ${bookshopId}`);
   const { data: bookshop, isLoading: isLoadingBookshop, isError: isErrorBookshop } = useQuery<Bookstore>({
     queryKey: [`/api/bookstores/${bookshopId}`],
     enabled: !isNaN(bookshopId),

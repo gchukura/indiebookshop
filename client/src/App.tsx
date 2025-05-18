@@ -68,11 +68,16 @@ function Router() {
           {/* SEO-friendly URL structure for categories */}
           <Route path="/bookshops/category/:categoryName/:featureId" component={CategoryDirectory} />
           
-          {/* Unified bookshop detail route handling all URL patterns */}
-          <Route path="/bookshop/:id(\d+)" component={BookshopRedirectHandler} />
-          <Route path="/bookshop/:state/:county/:city/:name" component={UnifiedBookshopDetail} />
-          <Route path="/bookshop/:state/:city/:name" component={UnifiedBookshopDetail} />
-          <Route path="/bookshop/:name" component={UnifiedBookshopDetail} />
+          {/* Standalone bookshop detail page by ID for direct access */}
+          <Route path="/bookshop/:id(\d+)" component={BookshopDetailPage} />
+          
+          {/* Redirect legacy ID URLs to SEO-friendly URLs */}
+          <Route path="/bookshop-redirect/:id(\d+)" component={BookshopRedirectHandler} />
+          
+          {/* SEO-friendly bookshop detail URLs */}
+          <Route path="/bookshop/:state/:county/:city/:name" component={BookshopDetailPage} />
+          <Route path="/bookshop/:state/:city/:name" component={BookshopDetailPage} />
+          <Route path="/bookshop/:name" component={BookshopDetailPage} />
           
           {/* Regular routes */}
           <Route path="/submit" component={SubmitBookshop} />
