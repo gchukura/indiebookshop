@@ -23,7 +23,7 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
   const modalRef = useRef<HTMLDivElement>(null);
 
   // Fetch bookshop details
-  const { data: bookshop, isLoading: isLoadingBookshop, isError: isErrorBookshop } = useQuery<Bookshop>({
+  const { data: bookshop, isLoading: isLoadingBookshop } = useQuery<Bookshop>({
     queryKey: [`/api/bookstores/${bookshopId}`],
     enabled: isOpen && bookshopId > 0,
   });
@@ -62,27 +62,9 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
   if (!isOpen) return null;
 
   // Get feature names for the bookshop
-  const bookshopFeatures = features?.filter(feature => {
-    // If no featureIds, return false
-    if (!bookshop?.featureIds) return false;
-    
-    // Convert any format of featureIds to array for processing
-    let featureIdArray: number[] = [];
-    
-    if (Array.isArray(bookshop.featureIds)) {
-      featureIdArray = bookshop.featureIds;
-    } else if (typeof bookshop.featureIds === 'string') {
-      // Parse comma-separated string of featureIds
-      const idStrings = (bookshop.featureIds as string).split(',');
-      featureIdArray = idStrings
-        .map((id: string) => parseInt(id.trim()))
-        .filter((id: number) => !isNaN(id));
-    } else if (typeof bookshop.featureIds === 'number') {
-      featureIdArray = [bookshop.featureIds];
-    }
-    
-    return featureIdArray.includes(feature.id);
-  }) || [];
+  const bookshopFeatures = features?.filter(feature => 
+    bookshop?.featureIds && bookshop.featureIds.includes(feature.id)
+  ) || [];
 
   // Create breadcrumb items
   const breadcrumbItems: BreadcrumbItem[] = bookshop ? [
@@ -142,15 +124,9 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
             <div className="p-8 text-center">
               <p>Loading bookshop details...</p>
             </div>
-          ) : isErrorBookshop || !bookshop ? (
+          ) : !bookshop ? (
             <div className="p-8 text-center">
               <p>Could not load bookshop details. Please try again.</p>
-              <button 
-                onClick={onClose}
-                className="mt-4 px-4 py-2 bg-[#2A6B7C] text-white rounded hover:bg-[#2A6B7C]/90"
-              >
-                Return to Directory
-              </button>
             </div>
           ) : (
             <div className="bg-[#F7F3E8]">
@@ -192,15 +168,11 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                     <div className="mt-6">
                       <h3 className="font-serif font-bold text-xl mb-4">Features & Specialties</h3>
                       <div className="flex flex-wrap gap-2">
-                        {bookshopFeatures && bookshopFeatures.length > 0 ? (
-                          bookshopFeatures.map(feature => (
-                            <span key={feature.id} className="store-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
-                              {feature.name}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-gray-500 text-sm">No special features listed</span>
-                        )}
+                        {bookshopFeatures.map(feature => (
+                          <span key={feature.id} className="store-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
+                            {feature.name}
+                          </span>
+                        ))}
                       </div>
                     </div>
                     

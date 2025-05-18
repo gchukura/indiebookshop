@@ -17,7 +17,6 @@ import {
   getStateNameFromAbbreviation,
   createStateDirectoryUrl,
   createCityDirectoryUrl,
-  createCountyDirectoryUrl,
   createSlug
 } from "@/lib/urlUtils";
 
@@ -36,7 +35,6 @@ const StateDirectory = () => {
   const [view, setView] = useState<"map" | "list">("map");
   const [bookshops, setBookshops] = useState<Bookstore[]>([]);
   const [cities, setCities] = useState<string[]>([]);
-  const [counties, setCounties] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   
@@ -73,15 +71,6 @@ const StateDirectory = () => {
         const citiesData = await citiesResponse.json();
         console.log(`Found ${citiesData.length} cities in ${stateAbbr}`);
         setCities(citiesData);
-        
-        // Extract counties from bookshops
-        const uniqueCounties = Array.from(new Set(
-          data.filter(shop => shop.county)
-              .map(shop => shop.county)
-        )).sort();
-        
-        console.log(`Found ${uniqueCounties.length} counties in ${stateAbbr}`);
-        setCounties(uniqueCounties as string[]);
         
         setIsLoading(false);
       } catch (error) {
@@ -207,33 +196,6 @@ const StateDirectory = () => {
           </div>
         </div>
       </div>
-      
-      {/* Counties List Section */}
-      {counties.length > 0 && !isLoading && !isError && (
-        <div className="mt-12">
-          <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-            Counties in {stateFullName} with Independent Bookshops
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Browse indie bookshops by county in {stateFullName}:
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {counties.map((county) => (
-              <Link 
-                key={county} 
-                href={createCountyDirectoryUrl(stateAbbr, county)}
-              >
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start py-2 px-4 hover:bg-[#2A6B7C]/10"
-                >
-                  {county}
-                </Button>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
       
       {/* Cities List Section */}
       {cities.length > 0 && !isLoading && !isError && (

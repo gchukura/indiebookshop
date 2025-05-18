@@ -7,11 +7,11 @@ import {
   generateBookshopImageAlt, 
   optimizeImageUrl 
 } from "../lib/imageUtils";
-import { createSlug } from "../lib/urlUtils";
+import { createBookshopUrl } from "../lib/urlUtils";
 
 interface BookshopCardProps {
   bookstore: Bookstore; // using bookstore for backward compatibility, but will be renamed to bookshop in the prop
-  showDetails?: (id: number) => void;
+  showDetails: (id: number) => void;
 }
 
 const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) => {
@@ -21,32 +21,16 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
   });
 
   // Get feature names for the bookshop
-  const bookshopFeatures = features?.filter(feature => {
-    if (!bookshop?.featureIds) return false;
-    
-    // Convert any format of featureIds to an array for processing
-    let featureIdArray: number[] = [];
-    
-    if (Array.isArray(bookshop.featureIds)) {
-      featureIdArray = bookshop.featureIds;
-    } else if (typeof bookshop.featureIds === 'string') {
-      const idStrings = (bookshop.featureIds as string).split(',');
-      featureIdArray = idStrings
-        .map((id: string) => parseInt(id.trim()))
-        .filter((id: number) => !isNaN(id));
-    } else if (typeof bookshop.featureIds === 'number') {
-      featureIdArray = [bookshop.featureIds];
-    }
-    
-    return featureIdArray.includes(feature.id);
-  }) || [];
+  const bookshopFeatures = features?.filter(feature => 
+    bookshop.featureIds?.includes(feature.id) || false
+  ) || [];
 
   return (
     <div className="bookshop-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
       <div className="flex flex-col sm:flex-row">
         <div className="sm:w-1/3">
           <Link 
-            href={`/bookshop/${createSlug(bookshop.name)}`}
+            href={createBookshopUrl(bookshop)}
             className="w-full h-40 sm:h-full cursor-pointer block" 
           >
             {bookshop.imageUrl ? (
@@ -73,7 +57,7 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
         <div className="p-4 sm:w-2/3">
           <div>
             <Link 
-              href={`/bookshop/${createSlug(bookshop.name)}`}
+              href={createBookshopUrl(bookshop)}
               className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C] block"
             >
               {bookshop.name}

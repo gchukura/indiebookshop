@@ -13,77 +13,27 @@ import { SEO } from '@/components/SEO';
 import { BASE_URL } from '@/lib/seo';
 
 const SEOBookshopDetailPage = () => {
-  // Extract parameters from the URL path
+  // Extract parameters from the URL path - now without ID
   const params = useParams<{ 
-    state?: string,
-    county?: string,
-    city?: string,
-    name: string,
-    id?: string
+    state: string,
+    city: string,
+    name: string
   }>();
   
-  const { state, county, city, name, id } = params;
+  const { state, city, name } = params;
   const [location, setLocation] = useLocation();
-  
-  // Extract path segments to determine the URL pattern
-  const pathSegments = location.split('/').filter(Boolean);
-  const isBookshopPath = pathSegments[0] === 'bookshop';
-  const segmentCount = pathSegments.length;
-  
-  console.log(`Bookshop detail page: URL has ${segmentCount} segments, looking for name: ${name}`);
   
   // Find bookshop by URL parameters
   const { data: allBookshops, isLoading: isLoadingAllBookshops } = useQuery<Bookshop[]>({
     queryKey: ["/api/bookstores"],
   });
   
-  // Find the matching bookshop based on URL pattern
-  let matchedBookshop: Bookshop | undefined;
-  
-  if (allBookshops) {
-    if (id && !isNaN(parseInt(id))) {
-      // ID-based lookup (legacy pattern)
-      matchedBookshop = allBookshops.find(shop => shop.id === parseInt(id));
-      console.log(`Looking up by ID ${id}, found: ${matchedBookshop?.name || 'none'}`);
-    } 
-    else if (segmentCount === 2) {
-      // Direct name-based lookup: /bookshop/:name
-      matchedBookshop = allBookshops.find(shop => createSlug(shop.name) === name);
-      console.log(`Looking up by name ${name}, found: ${matchedBookshop?.name || 'none'}`);
-    }
-    else if (segmentCount === 4 && state && city) {
-      // Standard geography pattern: /bookshop/:state/:city/:name
-      matchedBookshop = allBookshops.find(shop => 
-        createSlug(shop.name) === name && 
-        createSlug(shop.city) === city && 
-        (createSlug(getStateNameFromAbbreviation(shop.state)) === state || shop.state.toLowerCase() === state)
-      );
-      console.log(`Looking up by state/city/name, found: ${matchedBookshop?.name || 'none'}`);
-    }
-    else if (segmentCount === 5 && state && county && city) {
-      // County-enhanced pattern: /bookshop/:state/:county/:city/:name
-      matchedBookshop = allBookshops.find(shop => {
-        const shopNameMatch = createSlug(shop.name) === name;
-        const shopCityMatch = createSlug(shop.city) === city;
-        const shopStateMatch = 
-          createSlug(getStateNameFromAbbreviation(shop.state)) === state || 
-          shop.state.toLowerCase() === state;
-        
-        // County matching is more flexible
-        let shopCountyMatch = false;
-        if (shop.county) {
-          const shopCountySlug = createSlug(shop.county);
-          shopCountyMatch = 
-            shopCountySlug.includes(county) || 
-            county.includes(shopCountySlug);
-        }
-        
-        return shopNameMatch && shopCityMatch && shopStateMatch && 
-               (shopCountyMatch || !shop.county);
-      });
-      console.log(`Looking up by state/county/city/name, found: ${matchedBookshop?.name || 'none'}`);
-    }
-  }
+  // Find the matching bookshop based on URL parameters
+  const matchedBookshop = allBookshops?.find(shop => 
+    createSlug(shop.name) === name && 
+    createSlug(shop.city) === city && 
+    (createSlug(getStateNameFromAbbreviation(shop.state)) === state || shop.state.toLowerCase() === state)
+  );
   
   // Use the matched bookshop directly
   const bookshop = matchedBookshop;
@@ -150,9 +100,10 @@ const SEOBookshopDetailPage = () => {
     return phone;
   };
   
-  // Helper function for contact info display
-  const getContactInfo = () => {
-    return null; // No additional contact info display logic needed currently
+  // Handle email (optional field that might be added in future)
+  const handleEmailDisplay = () => {
+    // Email is not currently part of the schema but could be added later
+    return null;
   };
 
   // SEO metadata
@@ -343,7 +294,16 @@ const SEOBookshopDetailPage = () => {
                     </div>
                   )}
                   
-                    {/* Email section removed as it's not part of the current schema */}
+                  {bookshop.email && (
+                    <div className="mb-4">
+                      <h4 className="font-bold text-[#5F4B32] mb-1">Email</h4>
+                      <p className="text-gray-700">
+                        <a href={`mailto:${bookshop.email}`} className="hover:text-[#2A6B7C]">
+                          {bookshop.email}
+                        </a>
+                      </p>
+                    </div>
+                  )}
                   
                   {bookshop.website && (
                     <div>

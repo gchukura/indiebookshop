@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation, useSearch, Link } from "wouter";
+import { useLocation, useSearch } from "wouter";
 import Hero from "@/components/Hero";
 import FilterControls from "@/components/FilterControls";
 import BookshopDetail from "@/components/BookshopDetail";
@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Bookstore as Bookshop } from "@shared/schema";
 import { SEO } from "../components/SEO";
 import { BASE_URL, MAIN_KEYWORDS } from "../lib/seo";
-import { createCountyDirectoryUrl, getStateAbbreviationFromName } from "@/lib/urlUtils";
 
 // Type for bookshop with flexible featureIds handling
 type BookshopWithFeatures = Bookshop & {
@@ -33,7 +32,6 @@ const Directory = () => {
   // State for filters managed directly in this component
   const [selectedState, setSelectedState] = useState<string>("");
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
-  const [counties, setCounties] = useState<Array<{state: string, county: string}>>([]);
   
   // Fetch all bookshops initially
   const { data: allBookshops, isLoading, isError } = useQuery<BookshopWithFeatures[]>({
@@ -46,32 +44,6 @@ const Directory = () => {
       return response.json();
     }
   });
-  
-  // Extract counties from bookshops
-  useEffect(() => {
-    if (allBookshops && allBookshops.length > 0) {
-      const countyData = allBookshops
-        .filter(shop => shop.county) // Filter out shops without county data
-        .map(shop => ({
-          state: shop.state,
-          county: shop.county as string
-        }));
-      
-      // Get unique county entries
-      const uniqueCounties = Array.from(
-        new Set(countyData.map(item => `${item.state}|${item.county}`))
-      ).map(combined => {
-        const [state, county] = combined.split('|');
-        return { state, county };
-      }).sort((a, b) => {
-        // Sort by state first, then by county
-        if (a.state !== b.state) return a.state.localeCompare(b.state);
-        return a.county.localeCompare(b.county);
-      });
-      
-      setCounties(uniqueCounties);
-    }
-  }, [allBookshops]);
   
   // Apply filtering logic
   const filteredBookshops = useMemo(() => {
@@ -250,54 +222,6 @@ const Directory = () => {
           />
         </div>
       </div>
-      
-      {/* Browse by County section - only show if counties data exists */}
-      {counties.length > 0 && (
-        <div className="bg-slate-50 py-10">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4 text-center">
-              Browse Independent Bookshops by County
-            </h2>
-            <p className="text-gray-600 mb-6 text-center max-w-3xl mx-auto">
-              Discover local independent bookshops in counties across the United States. 
-              Each county offers its own unique collection of indie bookstores with diverse selections and community events.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 mt-6">
-              {counties.slice(0, 60).map((item) => (
-                <Link 
-                  key={`${item.state}-${item.county}`} 
-                  href={createCountyDirectoryUrl(
-                    getStateAbbreviationFromName(item.state) || item.state,
-                    item.county
-                  )}
-                >
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start py-2 px-4 hover:bg-[#2A6B7C]/10 text-sm"
-                  >
-                    {item.county}, {item.state}
-                  </Button>
-                </Link>
-              ))}
-            </div>
-            
-            {counties.length > 60 && (
-              <div className="text-center mt-6">
-                <p className="text-gray-500 text-sm mb-2">
-                  Showing 60 of {counties.length} counties with independent bookshops
-                </p>
-                <Button 
-                  className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white"
-                  onClick={() => window.location.href = "/counties"}
-                >
-                  View All Counties
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
       
       {/* Controls and bookshop table */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">

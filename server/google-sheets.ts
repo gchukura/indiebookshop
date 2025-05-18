@@ -10,12 +10,12 @@ interface SheetsConfig {
 
 // Get spreadsheet ID from environment variable or use default
 // You can set GOOGLE_SHEETS_ID as an environment variable in your Replit Secrets
-const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1JUCiom4eXWoVdwqMGhCJwjGzVWVYCaj_oRc0VQEX2CQ'; // Using the ID from the environment logs
+const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1Qa3AW5Zmu0X4yT3fXjmoU62Drqz0oMKRsXsm3a7JiQs';
 
 // Default configuration
 const DEFAULT_CONFIG: SheetsConfig = {
   spreadsheetId: SPREADSHEET_ID,
-  bookshopRange: 'Bookstores!A2:P', // Updated range to include county column
+  bookshopRange: 'Bookstores!A2:O', // Added an additional column for 'live' field
   featuresRange: 'Features!A2:B',    // Assumes headers are in row 1
   eventsRange: 'Events!A2:F'         // Assumes headers are in row 1
 };
@@ -74,38 +74,6 @@ export class GoogleSheetsService {
   // Fetch all bookshops from the Google Sheet
   async getBookstores(): Promise<Bookstore[]> {
     try {
-      // First fetch the header row to determine column positions
-      console.log(`Fetching headers from Google Sheets`);
-      const headerResponse = await this.sheets.spreadsheets.values.get({
-        spreadsheetId: this.config.spreadsheetId,
-        range: 'Bookstores!A1:Z1', // Get all potential headers in the first row
-      });
-      
-      const headers = headerResponse.data.values?.[0] || [];
-      if (!headers || headers.length === 0) {
-        console.error('No headers found in the spreadsheet');
-        return [];
-      }
-      
-      // Create a map of column names to their indices
-      const columnMap: Record<string, number> = {};
-      headers.forEach((header, index) => {
-        if (header && typeof header === 'string') {
-          columnMap[header.toLowerCase().trim()] = index;
-        }
-      });
-      
-      console.log(`Found headers: ${JSON.stringify(headers)}`);
-      console.log(`Column mapping: ${JSON.stringify(columnMap)}`);
-      
-      // Check for required columns
-      const requiredColumns = ['id', 'name', 'street', 'city', 'state', 'zip', 'description'];
-      const missingColumns = requiredColumns.filter(col => columnMap[col] === undefined);
-      if (missingColumns.length > 0) {
-        console.error(`Missing required columns in spreadsheet: ${missingColumns.join(', ')}`);
-      }
-      
-      // Now fetch all the data
       console.log(`Fetching bookshops from Google Sheets range: ${this.config.bookshopRange}`);
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: this.config.spreadsheetId,
@@ -118,76 +86,40 @@ export class GoogleSheetsService {
         return [];
       }
 
-      // Log data retrieval info
-      console.log(`Retrieved ${rows.length} rows from Google Sheets`);
-      
-      // Check for county data
-      const countyIndex = columnMap['county'];
-      if (countyIndex !== undefined) {
-        console.log(`Found 'county' column at index ${countyIndex}`);
-        
-        // Count rows with county data
-        const rowsWithCountyData = rows.filter(row => row.length > countyIndex && row[countyIndex]);
-        console.log(`Found ${rowsWithCountyData.length} rows with county data`);
-        
-        if (rowsWithCountyData.length > 0) {
-          const countySamples = rowsWithCountyData.slice(0, 3)
-            .map(row => `${row[columnMap['name'] || 1]} (${row[columnMap['state'] || 4]}): ${row[countyIndex]}`)
-            .join(', ');
-          console.log(`County samples: ${countySamples}`);
-        }
-      } else {
-        console.log('No county column found in the spreadsheet headers');
-      }
-      
-      // Convert rows to Bookstore objects using column mapping
+      // Convert rows to Bookstore objects
       const bookshops: Bookstore[] = rows.map((row, index) => {
         try {
-          // Get values using column indices from the map
-          const getValue = (columnName: string, defaultValue: any = '') => {
-            const idx = columnMap[columnName];
-            return idx !== undefined && idx < row.length ? row[idx] : defaultValue;
-          };
-          
-          const id = parseInt(getValue('id', '0'));
-          const name = getValue('name', '');
-          const street = getValue('street', '');
-          const city = getValue('city', '');
-          const state = getValue('state', '');
-          const zip = getValue('zip', '');
-          const description = getValue('description', '');
-          const imageUrl = getValue('imageurl', null);
-          const website = getValue('website', null);
-          const phone = getValue('phone', null);
+          // Assuming columns are in this order:
+          // id, name, street, city, state, zip, description, imageUrl, website, phone, hours (JSON), latitude, longitude, featureIds (comma-separated)
+          const id = parseInt(row[0] || '0');
+          const name = row[1] || '';
+          const street = row[2] || '';
+          const city = row[3] || '';
+          const state = row[4] || '';
+          const zip = row[5] || '';
+          const description = row[6] || '';
+          const imageUrl = row[7] || null;
+          const website = row[8] || null;
+          const phone = row[9] || null;
           
           // Parse hours (if provided in JSON format)
           let hours = null;
           try {
-            const hoursValue = getValue('hours', null);
-            if (hoursValue && typeof hoursValue === 'string') {
-              // Only attempt to parse if it looks like JSON (starts with { and ends with })
-              if (hoursValue.trim().startsWith('{') && hoursValue.trim().endsWith('}')) {
-                hours = JSON.parse(hoursValue);
-              } else {
-                // If not valid JSON format, store as-is
-                hours = hoursValue;
-              }
+            if (row[10]) {
+              hours = JSON.parse(row[10]);
             }
           } catch (e) {
-            // Instead of logging the error, just use the raw value
-            hours = getValue('hours', null);
-            console.log(`Using raw hours value for bookshop ${id}`);
+            console.error(`Error parsing hours for bookshop ${id}:`, e);
           }
 
-          const latitude = getValue('latitude', null);
-          const longitude = getValue('longitude', null);
+          const latitude = row[11] || null;
+          const longitude = row[12] || null;
           
           // Parse feature IDs (comma-separated string of IDs)
           let featureIds: number[] | null = null;
           try {
-            const featureIdsValue = getValue('featureids', null);
-            if (featureIdsValue) {
-              featureIds = featureIdsValue.split(',').map((idStr: string) => parseInt(idStr.trim()));
+            if (row[13]) {
+              featureIds = row[13].split(',').map((idStr: string) => parseInt(idStr.trim()));
             }
           } catch (e) {
             console.error(`Error parsing featureIds for bookshop ${id}:`, e);
@@ -196,18 +128,14 @@ export class GoogleSheetsService {
           // Parse live status (default to true if not provided)
           let live = true;
           try {
-            const liveValue = getValue('live', 'true');
-            if (liveValue !== undefined) {
+            if (row[14] !== undefined) {
               // Convert various string formats to boolean
-              const liveStr = String(liveValue).trim().toLowerCase();
+              const liveStr = String(row[14]).trim().toLowerCase();
               live = liveStr === 'yes' || liveStr === 'true' || liveStr === '1';
             }
           } catch (e) {
             console.error(`Error parsing live status for bookshop ${id}:`, e);
           }
-          
-          // Get county information from the county column
-          const county = getValue('county', null);
 
           return {
             id,
@@ -215,7 +143,6 @@ export class GoogleSheetsService {
             street,
             city,
             state,
-            county,
             zip,
             description,
             imageUrl,

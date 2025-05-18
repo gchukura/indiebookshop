@@ -1,90 +1,32 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Bookstore, Feature, Event } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import SingleLocationMap from '@/components/SingleLocationMap';
 import { SEO } from '../components/SEO';
-import { createSlug } from '../lib/urlUtils';
 import { 
   BASE_URL, 
   generateDescription,
   DESCRIPTION_TEMPLATES
 } from '../lib/seo';
 
-/**
- * Bookshop Detail Page - displays information about a single bookshop
- * Supports multiple URL patterns:
- * - /bookshop/123 (numeric ID)
- * - /bookshop/bookshop-name (slug)
- * - /bookshop/state/city/bookshop-name (location-based)
- * - /bookshop/state/county/city/bookshop-name (full location path)
- */
-const BookshopDetailPage: React.FC = () => {
-  // Extract all possible URL parameters
-  const params = useParams<{ 
-    id?: string;
-    name?: string;
-    state?: string;
-    county?: string;
-    city?: string;
-  }>();
-  const { id, name, state, county, city } = params;
-  const [location, setLocation] = useLocation();
-  
-  // Get the path segments to figure out which URL pattern we're using
-  const pathSegments = location.split('/').filter(Boolean);
-  const segmentCount = pathSegments.length;
-  
-  // Determine if we have a direct ID path (/bookshop/123)
-  const hasNumericId = id && !isNaN(parseInt(id));
-  const directBookshopId = hasNumericId ? parseInt(id) : undefined;
-  
-  // Fetch all bookshops for name-based lookup
-  const { data: allBookshops } = useQuery<Bookstore[]>({
-    queryKey: ["/api/bookstores"],
-    enabled: !hasNumericId, // Only fetch all books if we're not using a direct ID
-  });
-  
-  // Find bookshop by name if we're using a name-based URL
-  let bookshopId: number | undefined = directBookshopId;
-  
-  // If we have a name parameter but no direct ID, try to find the bookshop by name
-  if (!hasNumericId && name && allBookshops && allBookshops.length > 0) {
-    console.log(`Looking up bookshop by name: ${name}`);
-    
-    // Try exact match first
-    const bookshopByExactName = allBookshops.find(b => createSlug(b.name) === name);
-    
-    if (bookshopByExactName) {
-      console.log(`Found bookshop by exact name: ${bookshopByExactName.name}`);
-      bookshopId = bookshopByExactName.id;
-    } else {
-      // Try partial match
-      const bookshopByPartialName = allBookshops.find(b => 
-        createSlug(b.name).includes(name) || name.includes(createSlug(b.name))
-      );
-      
-      if (bookshopByPartialName) {
-        console.log(`Found bookshop by partial name: ${bookshopByPartialName.name}`);
-        bookshopId = bookshopByPartialName.id;
-      }
-    }
-  }
-  
-  // Redirect to directory if we couldn't find a bookshop
+const BookshopDetailPage = () => {
+  const { id } = useParams<{ id: string }>();
+  const [_, setLocation] = useLocation();
+  const bookshopId = parseInt(id);
+
+  // Redirect to directory if id is invalid
   useEffect(() => {
-    if (id && !hasNumericId && !bookshopId) {
-      console.log('No bookshop found, redirecting to directory');
+    if (isNaN(bookshopId)) {
       setLocation('/directory');
     }
-  }, [id, hasNumericId, bookshopId, setLocation]);
-  
+  }, [bookshopId, setLocation]);
+
   // Fetch bookshop details
-  console.log(`Fetching bookshop with ID: ${bookshopId}`);
   const { data: bookshop, isLoading: isLoadingBookshop, isError: isErrorBookshop } = useQuery<Bookstore>({
     queryKey: [`/api/bookstores/${bookshopId}`],
-    enabled: bookshopId !== undefined,
+    enabled: !isNaN(bookshopId),
   });
 
   // Fetch all features to match with bookshop.featureIds
