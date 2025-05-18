@@ -98,48 +98,113 @@ const SimpleBookshopPage: React.FC = () => {
     );
   }
   
-  // Success state - very minimal display
+  // Success state - enhanced display
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="p-4 md:p-8 max-w-5xl mx-auto">
       <div className="bg-white rounded-lg shadow-lg p-6">
+        {/* Breadcrumbs navigation */}
+        <div className="mb-4 text-sm text-gray-500">
+          <a href="/" className="hover:underline">Home</a> &gt; 
+          <a href="/directory" className="hover:underline ml-1">Directory</a> &gt; 
+          <a href={`/directory/state/${bookshop.state}`} className="hover:underline ml-1">{bookshop.state}</a> &gt; 
+          <span className="ml-1 font-medium">{bookshop.name}</span>
+        </div>
+        
         <h1 className="text-3xl font-bold mb-4">{bookshop.name}</h1>
         
-        <div className="mb-6 text-lg">
-          <p>{bookshop.street}</p>
-          <p>{bookshop.city}, {bookshop.state} {bookshop.zip}</p>
-        </div>
-        
-        <div className="mb-6">
-          <p className="whitespace-pre-line">{bookshop.description}</p>
-        </div>
-        
-        {bookshop.website && (
-          <div className="mb-4">
-            <a 
-              href={bookshop.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
-            >
-              Visit Website
-            </a>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Left column: Main info */}
+          <div className="md:col-span-2">
+            <div className="mb-6 text-lg">
+              <p>{bookshop.street}</p>
+              <p>{bookshop.city}, {bookshop.state} {bookshop.zip}</p>
+              {bookshop.county && <p className="text-sm text-gray-600">{bookshop.county}</p>}
+            </div>
+            
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">About This Bookshop</h2>
+              <p className="whitespace-pre-line">{bookshop.description}</p>
+            </div>
+            
+            <div className="flex flex-wrap gap-2 mb-6">
+              {bookshop.featureIds && Array.isArray(bookshop.featureIds) && bookshop.featureIds.map((id) => (
+                <span key={id} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                  Feature #{id}
+                </span>
+              ))}
+            </div>
           </div>
-        )}
-        
-        <div className="mt-8">
-          <button
-            onClick={() => setLocation('/directory')}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4"
-          >
-            Back to Directory
-          </button>
           
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Reload Page
-          </button>
+          {/* Right column: Contact & links */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
+            
+            {bookshop.phone && (
+              <div className="mb-3">
+                <p className="text-sm text-gray-600">Phone:</p>
+                <p className="font-medium">{bookshop.phone}</p>
+              </div>
+            )}
+            
+            {bookshop.hours && (
+              <div className="mb-3">
+                <p className="text-sm text-gray-600">Hours:</p>
+                <p className="font-medium">{bookshop.hours}</p>
+              </div>
+            )}
+            
+            {bookshop.website && (
+              <div className="mt-6">
+                <a 
+                  href={bookshop.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded w-full"
+                >
+                  Visit Website
+                </a>
+              </div>
+            )}
+            
+            {/* Map link if coordinates available */}
+            {bookshop.latitude && bookshop.longitude && bookshop.latitude !== "Loading..." && (
+              <div className="mt-3">
+                <a 
+                  href={`https://www.google.com/maps/search/?api=1&query=${bookshop.latitude},${bookshop.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-center bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full"
+                >
+                  View on Map
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="mt-8 border-t pt-6">
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => setLocation('/directory')}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Back to Directory
+            </button>
+            
+            <button
+              onClick={() => setLocation(`/directory/state/${bookshop.state}`)}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              More Bookshops in {bookshop.state}
+            </button>
+            
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Reload Page
+            </button>
+          </div>
         </div>
       </div>
     </div>
