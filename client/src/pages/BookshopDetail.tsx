@@ -13,15 +13,15 @@ import {
 } from '../lib/seo';
 
 /**
- * Bookshop Detail Page - displays information about a single bookshop
+ * BookshopDetail - displays information about a single bookshop
  * Supports multiple URL patterns:
  * - /bookshop/123 (numeric ID)
  * - /bookshop/bookshop-name (slug)
  * - /bookshop/state/city/bookshop-name (location-based)
  * - /bookshop/state/county/city/bookshop-name (full location path)
  */
-const BookshopDetailPage: React.FC = () => {
-  // Extract all possible URL parameters
+const BookshopDetail: React.FC = () => {
+  // Get URL parameters
   const params = useParams<{ 
     id?: string;
     name?: string;
@@ -30,80 +30,85 @@ const BookshopDetailPage: React.FC = () => {
     city?: string;
   }>();
   const { id, name, state, county, city } = params;
-  const [location, setLocation] = useLocation();
+  const [_, setLocation] = useLocation();
   
-  // Get the path segments to figure out which URL pattern we're using
-  const pathSegments = location.split('/').filter(Boolean);
-  const segmentCount = pathSegments.length;
+  // State to track resolved bookshop ID
+  const [bookshopId, setBookshopId] = useState<number | undefined>(
+    id && !isNaN(parseInt(id)) ? parseInt(id) : undefined
+  );
   
-  // Determine if we have a direct ID path (/bookshop/123)
-  const hasNumericId = id && !isNaN(parseInt(id));
-  const directBookshopId = hasNumericId ? parseInt(id) : undefined;
-  
-  // Fetch all bookshops for name-based lookup
+  // Fetch all bookshops (only needed for name-based lookup)
   const { data: allBookshops } = useQuery<Bookstore[]>({
     queryKey: ["/api/bookstores"],
-    enabled: !hasNumericId, // Only fetch all books if we're not using a direct ID
+    enabled: !bookshopId && !!name, // Only fetch if we need to resolve by name
   });
   
-  // Find bookshop by name if we're using a name-based URL
-  let bookshopId: number | undefined = directBookshopId;
-  
-  // If we have a name parameter but no direct ID, try to find the bookshop by name
-  if (!hasNumericId && name && allBookshops && allBookshops.length > 0) {
+  // Find bookshop by name when using name-based URLs
+  useEffect(() => {
+    // Skip if we already have a direct ID
+    if (bookshopId || !name || !allBookshops?.length) return;
+    
     console.log(`Looking up bookshop by name: ${name}`);
     
     // Try exact match first
-    const bookshopByExactName = allBookshops.find(b => createSlug(b.name) === name);
+    const exactMatch = allBookshops.find(b => createSlug(b.name) === name);
+    if (exactMatch) {
+      console.log(`Found exact name match: ${exactMatch.name}`);
+      setBookshopId(exactMatch.id);
+      return;
+    }
     
-    if (bookshopByExactName) {
-      console.log(`Found bookshop by exact name: ${bookshopByExactName.name}`);
-      bookshopId = bookshopByExactName.id;
-    } else {
-      // Try partial match
-      const bookshopByPartialName = allBookshops.find(b => 
-        createSlug(b.name).includes(name) || name.includes(createSlug(b.name))
-      );
-      
-      if (bookshopByPartialName) {
-        console.log(`Found bookshop by partial name: ${bookshopByPartialName.name}`);
-        bookshopId = bookshopByPartialName.id;
-      }
+    // Try partial match
+    const partialMatch = allBookshops.find(b => 
+      createSlug(b.name).includes(name) || name.includes(createSlug(b.name))
+    );
+    if (partialMatch) {
+      console.log(`Found partial name match: ${partialMatch.name}`);
+      setBookshopId(partialMatch.id);
+      return;
     }
-  }
+    
+    // No match found, redirect to directory
+    console.log('No matching bookshop found for name:', name);
+    setLocation('/directory');
+  }, [name, allBookshops, bookshopId, setLocation]);
   
-  // Redirect to directory if we couldn't find a bookshop
-  useEffect(() => {
-    if (id && !hasNumericId && !bookshopId) {
-      console.log('No bookshop found, redirecting to directory');
-      setLocation('/directory');
-    }
-  }, [id, hasNumericId, bookshopId, setLocation]);
-  
-  // Fetch bookshop details
-  console.log(`Fetching bookshop with ID: ${bookshopId}`);
-  const { data: bookshop, isLoading: isLoadingBookshop, isError: isErrorBookshop } = useQuery<Bookstore>({
-    queryKey: [`/api/bookstores/${bookshopId}`],
+  // Fetch bookshop details using the resolved ID
+  const { data: bookshop, isLoading, isError } = useQuery<Bookstore>({
+    queryKey: bookshopId ? [`/api/bookstores/${bookshopId}`] : ['skip-bookstore-query'],
     enabled: bookshopId !== undefined,
   });
-
-  // Fetch all features to match with bookshop.featureIds
+  
+  // Fetch additional data needed for the page
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
   });
-
-  // Fetch events for this bookshop
-  const { data: events } = useQuery<Event[]>({
-    queryKey: [`/api/bookstores/${bookshopId}/events`],
-    enabled: !isNaN(bookshopId),
-  });
-
-  // Get feature names for the bookshop
-  const bookshopFeatures = features?.filter(feature => 
-    bookshop?.featureIds?.includes(feature.id) || false
-  ) || [];
   
-  // SEO metadata - only generate when bookshop data is available
+  const { data: events } = useQuery<Event[]>({
+    queryKey: bookshopId ? [`/api/bookstores/${bookshopId}/events`] : ['skip-events-query'],
+    enabled: bookshopId !== undefined,
+  });
+  
+  // Get feature names for the bookshop
+  const bookshopFeatures = useMemo(() => {
+    if (!features || !bookshop || !bookshop.featureIds) return [];
+    
+    // Safely handle different types of featureIds
+    let featureIdArray: number[] = [];
+    
+    if (Array.isArray(bookshop.featureIds)) {
+      featureIdArray = bookshop.featureIds;
+    } else if (typeof bookshop.featureIds === 'string') {
+      // Parse the string of comma-separated IDs
+      featureIdArray = (bookshop.featureIds as string).split(',')
+        .map((idStr: string) => parseInt(idStr.trim()))
+        .filter((id: number) => !isNaN(id));
+    }
+    
+    return features.filter(feature => featureIdArray.includes(feature.id));
+  }, [features, bookshop]);
+  
+  // SEO metadata
   const seoTitle = useMemo(() => {
     if (!bookshop) return "Bookshop Details | IndieBookShop.com";
     return `${bookshop.name} | Independent Bookshop in ${bookshop.city}, ${bookshop.state}`;
@@ -149,20 +154,21 @@ const BookshopDetailPage: React.FC = () => {
     return `${BASE_URL}/bookshop/${bookshop.id}`;
   }, [bookshop]);
   
-  // Used for ogImage, ensures we handle null values correctly
   const getImageUrl = useMemo(() => {
     return bookshop?.imageUrl || undefined;
   }, [bookshop]);
-
-  if (isLoadingBookshop) {
+  
+  // Loading state
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <p>Loading bookshop details...</p>
       </div>
     );
   }
-
-  if (isErrorBookshop || !bookshop) {
+  
+  // Error state
+  if (isError || !bookshop) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <p>Error loading bookshop. The bookshop may not exist or there was a problem with the connection.</p>
@@ -175,7 +181,7 @@ const BookshopDetailPage: React.FC = () => {
       </div>
     );
   }
-
+  
   return (
     <div className="bg-[#F7F3E8] min-h-screen">
       {/* SEO Component */}
@@ -230,7 +236,6 @@ const BookshopDetailPage: React.FC = () => {
               <div className="mt-8">
                 <h3 className="font-serif font-bold text-xl mb-4">Photo Gallery</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {/* Gallery images would be loaded from API in a real implementation */}
                   <img src="https://pixabay.com/get/g19250fbdac2034d9a52598452a015110ca00e8a72f6f106864355fe192e17a2f7b06bb3391d499dc2b825b670440e97c837b67954aaaa898a198fa05df311386_1280.jpg" alt="Bookstore interior shelves" className="rounded-md h-40 w-full object-cover" />
                   <img src="https://images.unsplash.com/photo-1524578271613-d550eacf6090?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" alt="Book display with staff recommendations" className="rounded-md h-40 w-full object-cover" />
                   <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=200" alt="Reading area with comfortable seating" className="rounded-md h-40 w-full object-cover" />
@@ -303,7 +308,6 @@ const BookshopDetailPage: React.FC = () => {
                   longitude={bookshop.longitude} 
                 />
               </div>
-
             </div>
           </div>
         </div>
@@ -312,4 +316,7 @@ const BookshopDetailPage: React.FC = () => {
   );
 };
 
-export default BookshopDetailPage;
+// Export as both BookshopDetailPage and BookstoreDetailPage to support both naming conventions
+export const BookshopDetailPage = BookshopDetail;
+export const BookstoreDetailPage = BookshopDetail;
+export default BookshopDetail;

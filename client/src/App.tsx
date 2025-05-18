@@ -18,6 +18,7 @@ import StatesListPage from "@/pages/StatesListPage";
 import CitiesListPage from "@/pages/CitiesListPage";
 import CategoriesListPage from "@/pages/CategoriesListPage";
 import UnifiedBookshopDetail from "@/components/UnifiedBookshopDetail";
+import BookshopDetail from "@/pages/BookshopDetail";
 import SubmitBookshop from "@/pages/SubmitBookshop";
 import SubmitEvent from "@/pages/SubmitEvent";
 import TestBookshops from "@/pages/TestBookshops";
@@ -31,7 +32,6 @@ import { BookshopProvider } from "@/context/BookshopContext";
 import UnifiedBookshopDetailHandler from "@/components/UnifiedBookshopDetailHandler";
 import StateRedirector from "@/components/StateRedirector";
 import BookshopRedirectHandler from "@/components/BookshopRedirectHandler";
-import BookshopDetailPage from "@/pages/BookstoreDetailPage";
 
 function Router() {
   // Track page views when routes change
@@ -69,15 +69,15 @@ function Router() {
           <Route path="/bookshops/category/:categoryName/:featureId" component={CategoryDirectory} />
           
           {/* Standalone bookshop detail page by ID for direct access */}
-          <Route path="/bookshop/:id(\d+)" component={BookshopDetailPage} />
+          <Route path="/bookshop/:id(\d+)" component={UnifiedBookshopDetail} />
           
           {/* Redirect legacy ID URLs to SEO-friendly URLs */}
           <Route path="/bookshop-redirect/:id(\d+)" component={BookshopRedirectHandler} />
           
           {/* SEO-friendly bookshop detail URLs */}
-          <Route path="/bookshop/:state/:county/:city/:name" component={BookshopDetailPage} />
-          <Route path="/bookshop/:state/:city/:name" component={BookshopDetailPage} />
-          <Route path="/bookshop/:name" component={BookshopDetailPage} />
+          <Route path="/bookshop/:state/:county/:city/:name" component={UnifiedBookshopDetail} />
+          <Route path="/bookshop/:state/:city/:name" component={UnifiedBookshopDetail} />
+          <Route path="/bookshop/:name" component={UnifiedBookshopDetail} />
           
           {/* Regular routes */}
           <Route path="/submit" component={SubmitBookshop} />
