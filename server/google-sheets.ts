@@ -10,7 +10,7 @@ interface SheetsConfig {
 
 // Get spreadsheet ID from environment variable or use default
 // You can set GOOGLE_SHEETS_ID as an environment variable in your Replit Secrets
-const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1Qa3AW5Zmu0X4yT3fXjmoU62Drqz0oMKRsXsm3a7JiQs';
+const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1JUCiom4eXWoVdwqMGhCJwjGzVWVYCaj_oRc0VQEX2CQ'; // Using the ID from the environment logs
 
 // Default configuration
 const DEFAULT_CONFIG: SheetsConfig = {
@@ -87,6 +87,16 @@ export class GoogleSheetsService {
       }
 
       // Convert rows to Bookstore objects
+      // Log the first few rows to debug column positions
+      if (rows.length > 0) {
+        console.log('First row structure:', JSON.stringify(rows[0]));
+        if (rows.length > 1) {
+          console.log('Second row values:', JSON.stringify(rows[1]));
+        }
+        console.log('Column count in first row:', rows[0].length);
+        console.log('Looking for county data in column index 15');
+      }
+      
       const bookshops: Bookstore[] = rows.map((row, index) => {
         try {
           // Assuming columns are in this order:
