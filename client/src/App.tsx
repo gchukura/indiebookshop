@@ -58,8 +58,8 @@ function Router() {
           {/* SEO-friendly URL structure for categories */}
           <Route path="/bookshops/category/:categoryName/:featureId" component={CategoryDirectory} />
           
-          {/* SEO-friendly URL structure for individual bookshops */}
-          <Route path="/bookshop/:state/:city/:name/:id" component={SEOBookshopDetailPage} />
+          {/* SEO-friendly URL structure for individual bookshops (without ID) */}
+          <Route path="/bookshop/:state/:city/:name" component={SEOBookshopDetailPage} />
           
           {/* Legacy route with redirect handler */}
           <Route path="/bookshop/:id" component={BookshopRedirectHandler} />

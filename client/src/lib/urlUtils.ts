@@ -68,23 +68,25 @@ export function getStateAbbreviationFromName(name: string): string | null {
 
 /**
  * Create a bookshop URL with the format /bookshop/{state}/{city}/{name}
+ * without including the ID in the URL for cleaner URLs
  */
 export function createBookshopUrl(bookshop: Bookstore): string {
   const stateSlug = createSlug(getStateNameFromAbbreviation(bookshop.state));
   const citySlug = createSlug(bookshop.city);
   const nameSlug = createSlug(bookshop.name);
   
-  return `/bookshop/${stateSlug}/${citySlug}/${nameSlug}/${bookshop.id}`;
+  return `/bookshop/${stateSlug}/${citySlug}/${nameSlug}`;
 }
 
 /**
  * Create a bookshop URL with the abbreviated state format (for legacy support)
+ * without including the ID in the URL for cleaner URLs
  */
 export function createBookshopUrlWithStateAbbreviation(bookshop: Bookstore): string {
   const citySlug = createSlug(bookshop.city);
   const nameSlug = createSlug(bookshop.name);
   
-  return `/bookshop/${bookshop.state}/${citySlug}/${nameSlug}/${bookshop.id}`;
+  return `/bookshop/${bookshop.state}/${citySlug}/${nameSlug}`;
 }
 
 /**
