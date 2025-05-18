@@ -31,13 +31,50 @@ const CountyDirectory = () => {
   
   useEffect(() => {
     if (bookshops) {
-      // Filter bookshops in this county
-      const filteredBookshops = bookshops.filter(bookshop => 
-        bookshop.live !== false && 
-        (bookshop.state.toLowerCase() === decodedState.toLowerCase() || 
-         getStateNameFromAbbreviation(bookshop.state).toLowerCase() === decodedState.toLowerCase()) &&
-        bookshop.county?.toLowerCase() === decodedCounty.toLowerCase()
-      );
+      console.log(`Searching for bookshops in ${decodedState}, county: ${decodedCounty}`);
+      
+      // Convert URL formatted county name to possible database formats
+      const countyNameVariations = [
+        decodedCounty.toLowerCase(),                      // sussex-county
+        decodedCounty.replace(/-/g, ' ').toLowerCase(),   // sussex county
+        decodedCounty.replace(/-county$/, '').toLowerCase() // sussex
+      ];
+      
+      const formattedCountyName = decodedCounty
+        .replace(/-/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      
+      // Add capitalized versions
+      countyNameVariations.push(formattedCountyName.toLowerCase()); // Sussex County
+      
+      console.log(`Trying county variations: ${countyNameVariations.join(', ')}`);
+      
+      // Filter bookshops in this county, trying different county name formats
+      const filteredBookshops = bookshops.filter(bookshop => {
+        const stateMatch = 
+          bookshop.state.toLowerCase() === decodedState.toLowerCase() || 
+          getStateNameFromAbbreviation(bookshop.state).toLowerCase() === decodedState.toLowerCase();
+        
+        // If county is missing, skip this bookshop
+        if (!bookshop.county) return false;
+        
+        // Check if any of our county name variations match
+        const countyMatch = countyNameVariations.some(variation => 
+          bookshop.county?.toLowerCase().includes(variation)
+        );
+        
+        return bookshop.live !== false && stateMatch && countyMatch;
+      });
+      
+      console.log(`Found ${filteredBookshops.length} bookshops in ${formattedCountyName}`);
+      
+      if (filteredBookshops.length > 0) {
+        // Log a few examples to help with debugging
+        console.log(`Example matches: ${filteredBookshops.slice(0, 3).map(b => 
+          `${b.name} (${b.county})`).join(', ')}`);
+      }
       
       setBookshopsInCounty(filteredBookshops);
       
@@ -53,7 +90,13 @@ const CountyDirectory = () => {
   // Find state abbreviation for display
   const stateAbbreviation = bookshopsInCounty[0]?.state || '';
   const displayStateName = getStateNameFromAbbreviation(stateAbbreviation).replace(/-/g, ' ');
-  const displayCountyName = decodedCounty.replace(/-/g, ' ');
+  
+  // Properly capitalize the county name (first letter of each word)
+  const displayCountyName = decodedCounty
+    .replace(/-/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
   
   // SEO metadata
   const title = `Bookshops in ${displayCountyName}, ${displayStateName} | IndiebookShop`;
