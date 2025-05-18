@@ -136,25 +136,42 @@ const UnifiedBookshopDetail: React.FC = () => {
         return;
       }
 
-      // Regular matching logic for other bookshops
+      // Improved matching logic for bookshops by name
       console.log(`Looking for bookshop with name slug: ${name}`);
       console.log(`Total bookshops to search: ${allBookshops.length}`);
       
-      // First check if there's a direct match
+      // Try direct match first
       let found = false;
-      for (const shop of allBookshops) {
-        if (shop.name === "51st Ward Books") {
-          console.log(`DEBUG: Found the actual 51st Ward Books at id ${shop.id}`);
-        }
+      
+      // First let's try to find a specific match for athena-books-llc
+      // This is known to be problematic, so we'll handle it directly
+      if (name === 'athena-books-llc') {
+        // Direct lookup by name
+        const athenaBooks = allBookshops.find(b => 
+          b.name.toLowerCase().includes('athena books') || 
+          b.name.toLowerCase() === 'athena books llc'
+        );
         
-        const shopSlug = createSlug(shop.name);
-        console.log(`Comparing "${shopSlug}" with "${name}"`);
-        
-        if (shopSlug === name) {
-          bookshop = shop;
-          console.log(`EXACT slug match found: ${shop.name}`);
+        if (athenaBooks) {
+          bookshop = athenaBooks;
+          console.log(`DIRECT MATCH: Found Athena Books LLC (id: ${athenaBooks.id})`);
           found = true;
-          break;
+        }
+      }
+      
+      // If still not found, use our standard matching logic
+      if (!found) {
+        for (const shop of allBookshops) {
+          // Create slug for comparison
+          const shopSlug = createSlug(shop.name);
+          
+          // Try exact match
+          if (shopSlug === name) {
+            bookshop = shop;
+            console.log(`EXACT slug match found: ${shop.name}`);
+            found = true;
+            break;
+          }
         }
       }
       
@@ -162,14 +179,30 @@ const UnifiedBookshopDetail: React.FC = () => {
       if (!found) {
         console.log(`No exact match found for ${name}, trying fuzzy matching...`);
 
-        // Attempt case-insensitive matching
+        // Break name into tokens for more flexible matching
+        const nameTokens = name.replace(/-/g, ' ').toLowerCase().split(' ');
+        
         for (const shop of allBookshops) {
           const shopName = shop.name.toLowerCase();
           const nameForCompare = name.replace(/-/g, ' ').toLowerCase();
           
+          // Try two approaches: direct inclusion or token matching
           if (shopName.includes(nameForCompare) || nameForCompare.includes(shopName)) {
             bookshop = shop;
             console.log(`Fuzzy match found: ${shop.name}`);
+            found = true;
+            break;
+          }
+          
+          // Count how many tokens from our target name appear in this shop name
+          const matchingTokens = nameTokens.filter(token => 
+            token.length > 2 && shopName.includes(token)
+          );
+          
+          // If more than half the tokens match, consider it a match
+          if (matchingTokens.length >= nameTokens.length * 0.5) {
+            bookshop = shop;
+            console.log(`Token match found: ${shop.name} (${matchingTokens.length}/${nameTokens.length} tokens)`);
             found = true;
             break;
           }
