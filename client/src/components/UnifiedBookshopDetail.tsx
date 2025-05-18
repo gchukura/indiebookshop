@@ -56,7 +56,19 @@ const UnifiedBookshopDetail: React.FC = () => {
     }
     // Case 2: Direct name lookup (/bookshop/:name)
     else if (name && segmentCount === 2) {
+      // Try to find an exact match first
       bookshop = allBookshops.find(b => createSlug(b.name) === name);
+      
+      // If no exact match, try with less strict matching
+      if (!bookshop) {
+        // Normalize the slugs for more flexible matching
+        const normalizedNameSlug = name.toLowerCase().replace(/-+/g, ' ').trim();
+        bookshop = allBookshops.find(b => {
+          const bookshopNameSlug = createSlug(b.name).toLowerCase().replace(/-+/g, ' ').trim();
+          return bookshopNameSlug === normalizedNameSlug || bookshopNameSlug.includes(normalizedNameSlug);
+        });
+      }
+      
       console.log(`Looking up by name only: ${name}, found: ${bookshop?.name || 'none'}`);
     } 
     // Case 3: State/city/name pattern
