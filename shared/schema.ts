@@ -21,6 +21,7 @@ export const bookstores = pgTable("bookstores", {
   city: text("city").notNull(),
   state: text("state").notNull(),
   zip: text("zip").notNull(),
+  county: text("county"),  // Added county field
   description: text("description").notNull(),
   imageUrl: text("image_url"),
   website: text("website"),
