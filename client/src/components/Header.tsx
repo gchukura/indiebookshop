@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Feature } from "@shared/schema";
 import Logo from "@/components/Logo";
+import { trackEvent } from "@/lib/analytics";
 
 const Header = () => {
   const [location] = useLocation();
@@ -14,6 +15,11 @@ const Header = () => {
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
   const statesDropdownRef = useRef<HTMLDivElement>(null);
   const categoriesDropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Handle navigation tracking
+  const trackNavigation = (destination: string, navType: string) => {
+    trackEvent('navigation', navType, destination);
+  };
 
   // Fetch states for dropdown
   const { data: states = [] } = useQuery<string[]>({
@@ -112,6 +118,7 @@ const Header = () => {
               <Link 
                 href="/about" 
                 className={`${isActiveRoute('/about') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+                onClick={() => trackNavigation('about', 'main_nav')}
               >
                 About
               </Link>
