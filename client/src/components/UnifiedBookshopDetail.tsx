@@ -69,33 +69,51 @@ const UnifiedBookshopDetail: React.FC = () => {
       console.log(`Looking for bookshop by name slug: ${name}`);
       
       // Try to find an exact match first
-      bookshop = allBookshops.find(b => createSlug(b.name) === name);
-      
-      // If no exact match, try with more flexible matching
-      if (!bookshop) {
-        // First try a loose match where the slug is contained in the name
-        for (const shop of allBookshops) {
-          if (createSlug(shop.name).includes(name) || name.includes(createSlug(shop.name))) {
-            bookshop = shop;
-            console.log(`Found bookshop by name partial match: ${bookshop.name}`);
-            break;
-          }
-        }
+      const exactMatch = allBookshops.find(b => createSlug(b.name) === name);
+      if (exactMatch) {
+        bookshop = exactMatch;
+        console.log(`Found bookshop by exact name match: ${bookshop.name}`);
+      } else {
+        console.log(`No exact match found for name: ${name}, trying fuzzy matching...`);
         
-        // If still no match, try matching words
-        if (!bookshop) {
+        // First try case-insensitive comparison with handling for special characters
+        const cleanName = name.toLowerCase().replace(/-/g, ' ');
+        const nameByCleanName = allBookshops.find(b => {
+          const cleanShopName = b.name.toLowerCase().replace(/[^a-z0-9]/g, ' ');
+          return cleanShopName.includes(cleanName) || cleanName.includes(cleanShopName);
+        });
+        
+        if (nameByCleanName) {
+          bookshop = nameByCleanName;
+          console.log(`Found bookshop by clean name match: ${bookshop.name}`);
+        } else {
+          // Try matching each word separately (51st-ward-books → ["51st", "ward", "books"])
           const nameWords = name.split('-').filter(w => w.length > 0);
+          console.log(`Trying word-by-word matching with words: ${nameWords.join(', ')}`);
+          
+          // Find the bookshop with the most word matches
+          let bestMatch = null;
+          let bestMatchCount = 0;
+          
           for (const shop of allBookshops) {
-            const shopNameSlug = createSlug(shop.name);
-            const shopWords = shopNameSlug.split('-').filter(w => w.length > 0);
+            const shopNameClean = shop.name.toLowerCase().replace(/[^a-z0-9]/g, ' ');
+            const matchCount = nameWords.filter(word => 
+              shopNameClean.includes(word.toLowerCase())
+            ).length;
             
-            // Check if at least half of the words match
-            const matchingWords = nameWords.filter(w => shopWords.includes(w));
-            if (matchingWords.length >= Math.ceil(nameWords.length / 2)) {
-              bookshop = shop;
-              console.log(`Found bookshop by word matching: ${bookshop.name}`);
-              break;
+            // If this shop has more matching words, it's a better match
+            if (matchCount > bestMatchCount) {
+              bestMatch = shop;
+              bestMatchCount = matchCount;
             }
+          }
+          
+          // Use the shop with the most matching words if it matches at least one word
+          if (bestMatch && bestMatchCount > 0) {
+            bookshop = bestMatch;
+            console.log(`Found bookshop by word matching: ${bookshop.name} (matched ${bestMatchCount}/${nameWords.length} words)`);
+          } else {
+            console.log(`No matching bookshop found for name: ${name}`);
           }
         }
       }
