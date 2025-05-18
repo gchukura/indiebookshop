@@ -19,6 +19,7 @@ import CitiesListPage from "@/pages/CitiesListPage";
 import CategoriesListPage from "@/pages/CategoriesListPage";
 import UnifiedBookshopDetail from "@/components/UnifiedBookshopDetail";
 import TestBookshopPage from "@/pages/TestBookshopPage";
+import SimpleBookshopPage from "@/pages/SimpleBookshopPage";
 import SubmitBookshop from "@/pages/SubmitBookshop";
 import SubmitEvent from "@/pages/SubmitEvent";
 import TestBookshops from "@/pages/TestBookshops";
@@ -72,7 +73,7 @@ function Router() {
           <Route path="/test-bookshop/:id" component={TestBookshopPage} />
 
           {/* Standalone bookshop detail page by ID for direct access */}
-          <Route path="/bookshop/:id(\d+)" component={UnifiedBookshopDetail} />
+          <Route path="/bookshop/:id(\d+)" component={SimpleBookshopPage} />
           
           {/* Redirect legacy ID URLs to SEO-friendly URLs */}
           <Route path="/bookshop-redirect/:id(\d+)" component={BookshopRedirectHandler} />
