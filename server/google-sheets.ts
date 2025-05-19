@@ -86,55 +86,82 @@ export class GoogleSheetsService {
         return [];
       }
 
-      // Convert rows to Bookstore objects
-      const bookshops: Bookstore[] = rows.map((row, index) => {
+      // Extract header row and create a mapping of column names to indices
+      const headers = rows[0].map((header: string) => header.toLowerCase().trim());
+      const columnMap: Record<string, number> = {};
+      headers.forEach((header: string, index: number) => {
+        columnMap[header] = index;
+      });
+
+      console.log('Column mapping from headers:', columnMap);
+
+      // Convert rows to Bookstore objects, starting from the second row (index 1)
+      const bookshops: Bookstore[] = rows.slice(1).map((row, rowIndex) => {
         try {
-          // Assuming columns are in this order:
-          // id, name, street, city, state, zip, description, imageUrl, website, phone, hours (JSON), latitude, longitude, featureIds (comma-separated)
-          const id = parseInt(row[0] || '0');
-          const name = row[1] || '';
-          const street = row[2] || '';
-          const city = row[3] || '';
-          const state = row[4] || '';
-          const zip = row[5] || '';
-          const description = row[6] || '';
-          const imageUrl = row[7] || null;
-          const website = row[8] || null;
-          const phone = row[9] || null;
+          // Helper function to get values by column name
+          const getValue = (columnName: string): string => {
+            const index = columnMap[columnName.toLowerCase().trim()];
+            return index !== undefined && index < row.length ? row[index] : '';
+          };
+
+          // Get required fields with fallbacks
+          const id = parseInt(getValue('id') || '0');
+          const name = getValue('name') || '';
+          const street = getValue('street') || '';
+          const city = getValue('city') || '';
+          const state = getValue('state') || '';
+          const zip = getValue('zip') || '';
+          const description = getValue('description') || '';
+          const imageUrl = getValue('imageurl') || getValue('image_url') || getValue('image') || null;
+          const website = getValue('website') || getValue('url') || null;
+          const phone = getValue('phone') || getValue('phone_number') || null;
           
-          // Parse hours (if provided in JSON format)
+          // Handle hours with more flexibility
           let hours = null;
           try {
-            if (row[10]) {
-              hours = JSON.parse(row[10]);
+            const hoursValue = getValue('hours') || getValue('opening_hours');
+            if (hoursValue) {
+              // Try parsing as JSON, but fall back to using the string as-is
+              try {
+                hours = JSON.parse(hoursValue);
+              } catch (e) {
+                // If not valid JSON, just use the string value
+                hours = hoursValue;
+                console.log(`Using hours as string for bookshop ${id}: ${hoursValue}`);
+              }
             }
           } catch (e) {
-            console.error(`Error parsing hours for bookshop ${id}:`, e);
+            console.error(`Error handling hours for bookshop ${id} (row ${rowIndex + 2}):`, e);
           }
 
-          const latitude = row[11] || null;
-          const longitude = row[12] || null;
+          // Parse geographic coordinates
+          const latitude = getValue('latitude') || getValue('lat') || null;
+          const longitude = getValue('longitude') || getValue('lng') || getValue('long') || null;
           
-          // Parse feature IDs (comma-separated string of IDs)
+          // Parse feature IDs with flexibility
           let featureIds: number[] | null = null;
           try {
-            if (row[13]) {
-              featureIds = row[13].split(',').map((idStr: string) => parseInt(idStr.trim()));
+            const featureIdsValue = getValue('featureids') || getValue('feature_ids') || getValue('features');
+            if (featureIdsValue) {
+              featureIds = featureIdsValue.split(',')
+                .map((idStr: string) => parseInt(idStr.trim()))
+                .filter((id: number) => !isNaN(id)); // Filter out NaN values
             }
           } catch (e) {
-            console.error(`Error parsing featureIds for bookshop ${id}:`, e);
+            console.error(`Error parsing featureIds for bookshop ${id} (row ${rowIndex + 2}):`, e);
           }
           
-          // Parse live status (default to true if not provided)
-          let live = true;
+          // Parse live status with flexibility
+          let live = true; // Default to true
           try {
-            if (row[14] !== undefined) {
-              // Convert various string formats to boolean
-              const liveStr = String(row[14]).trim().toLowerCase();
-              live = liveStr === 'yes' || liveStr === 'true' || liveStr === '1';
+            const liveValue = getValue('live') || getValue('active') || getValue('published');
+            if (liveValue !== '') {
+              const liveStr = String(liveValue).trim().toLowerCase();
+              // Consider "no", "false", "0" as false, everything else as true
+              live = !(liveStr === 'no' || liveStr === 'false' || liveStr === '0');
             }
           } catch (e) {
-            console.error(`Error parsing live status for bookshop ${id}:`, e);
+            console.error(`Error parsing live status for bookshop ${id} (row ${rowIndex + 2}):`, e);
           }
 
           return {
@@ -155,7 +182,7 @@ export class GoogleSheetsService {
             live,
           };
         } catch (error) {
-          console.error(`Error processing bookshop row ${index}:`, error);
+          console.error(`Error processing bookshop at row ${rowIndex + 2}:`, error);
           return null;
         }
       }).filter(Boolean) as Bookstore[];
