@@ -67,7 +67,7 @@ export default function NotFound() {
               
               <Button 
                 className="bg-white border border-[#2A6B7C] text-[#2A6B7C] hover:bg-[#F0F7F9] flex items-center justify-center gap-2 h-12"
-                onClick={() => navigate("/states")}
+                onClick={() => navigate("/directory/browse")}
               >
                 <MapPin className="h-4 w-4" /> 
                 Find Bookshops by State
@@ -75,7 +75,7 @@ export default function NotFound() {
               
               <Button 
                 className="bg-white border border-[#E16D3D] text-[#E16D3D] hover:bg-[#FDF6F3] flex items-center justify-center gap-2 h-12"
-                onClick={() => navigate("/categories")}
+                onClick={() => navigate("/directory/categories")}
               >
                 <BookOpen className="h-4 w-4" /> 
                 Browse by Category

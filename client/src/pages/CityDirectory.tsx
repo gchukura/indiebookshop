@@ -27,11 +27,26 @@ const CityDirectory = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   
+  // Format city name for better compatibility with data
+  const formattedCity = useMemo(() => {
+    if (!city) return '';
+    
+    // Replace hyphens with spaces
+    let formatted = city.replace(/-/g, ' ');
+    
+    // Convert to Title Case for consistent formatting
+    formatted = formatted.split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+      
+    return formatted;
+  }, [city]);
+
   // Fetch data when component mounts or city changes
   useEffect(() => {
     if (!city) return;
     
-    console.log(`Loading data for city: ${city}`);
+    console.log(`Loading data for city: ${formattedCity}`);
     setIsLoading(true);
     setIsError(false);
     
@@ -39,7 +54,7 @@ const CityDirectory = () => {
     const fetchData = async () => {
       try {
         // Make sure the city is URL-encoded
-        const encodedCity = encodeURIComponent(city);
+        const encodedCity = encodeURIComponent(formattedCity);
         
         // Fetch bookshops
         const response = await fetch(`/api/bookstores/filter?city=${encodedCity}`);
@@ -48,7 +63,7 @@ const CityDirectory = () => {
         }
         
         const data = await response.json();
-        console.log(`Found ${data.length} bookshops for city: ${city}`);
+        console.log(`Found ${data.length} bookshops for city: ${formattedCity}`);
         setBookshops(data);
         setIsLoading(false);
       } catch (error) {
@@ -59,13 +74,13 @@ const CityDirectory = () => {
     };
     
     fetchData();
-  }, [city]);
+  }, [city, formattedCity]);
   
   // Get state from the first bookshop (assuming all bookshops in a city are in the same state)
   const state = bookshops.length > 0 ? bookshops[0].state : '';
   
   // Generate SEO metadata
-  const cityName = city || '';
+  const cityName = formattedCity || '';
   const stateName = state || '';
   
   const seoTitle = useMemo(() => {
