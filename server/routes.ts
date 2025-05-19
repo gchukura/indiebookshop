@@ -31,6 +31,34 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       let state = undefined;
       if (req.query.state && typeof req.query.state === 'string' && req.query.state !== 'all') {
         state = req.query.state;
+        
+        // Convert state name to abbreviation if needed (longer than 2 chars)
+        if (state.length > 2) {
+          // Import would create circular dependency, so hardcode a simple mapping
+          const stateMap: {[key: string]: string} = {
+            'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+            'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+            'district of columbia': 'DC', 'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI',
+            'idaho': 'ID', 'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+            'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+            'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+            'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+            'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+            'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+            'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+            'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+            'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+            'wisconsin': 'WI', 'wyoming': 'WY',
+            'british columbia': 'BC', 'ontario': 'ON', 'quebec': 'QC', 'alberta': 'AB',
+            'manitoba': 'MB', 'nova scotia': 'NS', 'new brunswick': 'NB', 'saskatchewan': 'SK'
+          };
+          
+          const abbr = stateMap[state.toLowerCase()];
+          if (abbr) {
+            state = abbr;
+            console.log(`Converted state name "${req.query.state}" to abbreviation "${state}"`);
+          }
+        }
       }
       
       // Get the city filter - not used in current UI but kept for API compatibility

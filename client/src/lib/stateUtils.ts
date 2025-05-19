@@ -71,6 +71,15 @@ export const stateMap: {[key: string]: string} = {
   'MP': 'Northern Mariana Islands'
 };
 
+// Build the reverse mapping (full name to abbreviation)
+export const stateNameMap: {[key: string]: string} = Object.entries(stateMap).reduce(
+  (acc, [abbr, name]) => {
+    acc[name.toLowerCase()] = abbr;
+    return acc;
+  }, 
+  {} as {[key: string]: string}
+);
+
 /**
  * Get the full state name from the abbreviation
  * @param abbreviation - The state abbreviation (e.g., "CA")
@@ -78,5 +87,38 @@ export const stateMap: {[key: string]: string} = {
  */
 export function getFullStateName(abbreviation: string | null | undefined): string {
   if (!abbreviation) return '';
-  return stateMap[abbreviation] || abbreviation;
+  return stateMap[abbreviation.toUpperCase()] || abbreviation;
+}
+
+/**
+ * Get the state abbreviation from the full name
+ * @param stateName - The full state name (e.g., "California")
+ * @returns The state abbreviation (e.g., "CA") or null if not found
+ */
+export function getStateAbbreviation(stateName: string | null | undefined): string | null {
+  if (!stateName) return null;
+  
+  // If it's already an abbreviation (2 characters), return it
+  if (stateName.length === 2) {
+    return stateName.toUpperCase();
+  }
+  
+  // Check if we have a mapping for this state name
+  const abbr = stateNameMap[stateName.toLowerCase()];
+  return abbr || null;
+}
+
+/**
+ * Generate a slug from a state name
+ * @param stateName - The state name to slugify
+ * @returns A URL-friendly slug 
+ */
+export function generateStateSlug(stateName: string): string {
+  return stateName
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
 }
