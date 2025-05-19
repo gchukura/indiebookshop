@@ -5,7 +5,7 @@ import BookshopCard from "@/components/BookshopCard";
 import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
 import { Button } from "@/components/ui/button";
-import { getFullStateName } from "@/lib/stateUtils";
+import { getFullStateName, getStateAbbreviation } from "@/lib/stateUtils";
 import { SEO } from "../components/SEO";
 import { 
   BASE_URL, 
@@ -29,36 +29,47 @@ const StateDirectory = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   
-  // Get full state name
-  const stateAbbr = state || '';
+  // Handle both full state names and abbreviations
+  const stateParam = state || '';
+  
+  // Get state abbreviation and full name
+  // If it's already an abbreviation, this will return that abbreviation
+  // If it's a full name, this will return the corresponding abbreviation
+  const stateAbbr = stateParam.length > 2 ? 
+    getStateAbbreviation(stateParam) || stateParam : 
+    stateParam;
+    
+  // Get the full state name for display
   const fullStateName = getFullStateName(stateAbbr);
   
   // Fetch data when component mounts or state changes
   useEffect(() => {
-    if (!stateAbbr) return;
+    if (!stateParam) return;
     
-    console.log(`Loading data for state: ${stateAbbr}`);
+    console.log(`Loading data for state: ${stateParam}`);
     setIsLoading(true);
     setIsError(false);
     
     // Fetch bookshops for this state
     const fetchData = async () => {
       try {
-        // Fetch bookshops
-        const response = await fetch(`/api/bookstores/filter?state=${stateAbbr}`);
+        // Use the original state parameter from the URL
+        // The server will handle converting it to an abbreviation if needed
+        const response = await fetch(`/api/bookstores/filter?state=${encodeURIComponent(stateParam)}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch bookshops: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log(`Found ${data.length} bookshops for state: ${stateAbbr}`);
+        console.log(`Found ${data.length} bookshops for state: ${stateParam}`);
         setBookshops(data);
         
         // Fetch cities in this state
+        // For the cities endpoint, we need to use the abbreviation
         const citiesResponse = await fetch(`/api/states/${stateAbbr}/cities`);
         if (citiesResponse.ok) {
           const citiesData = await citiesResponse.json();
-          console.log(`Found ${citiesData.length} cities in ${stateAbbr}`);
+          console.log(`Found ${citiesData.length} cities in ${stateParam}`);
           setCities(citiesData);
         }
         
@@ -91,8 +102,16 @@ const StateDirectory = () => {
   }, [fullStateName]);
   
   const canonicalUrl = useMemo(() => {
-    return `${BASE_URL}/directory/state/${stateAbbr}`;
-  }, [stateAbbr]);
+    // Use the full state name for SEO-friendly URLs
+    // First check if we have a valid full state name
+    if (fullStateName && fullStateName !== stateParam) {
+      // Generate slug from full state name for the URL
+      const stateSlug = generateSlug(fullStateName);
+      return `${BASE_URL}/directory/state/${stateSlug}`;
+    }
+    // Fallback to original parameter
+    return `${BASE_URL}/directory/state/${stateParam}`;
+  }, [fullStateName, stateParam]);
 
   const handleShowDetails = (id: number) => {
     setSelectedBookshopId(id);
