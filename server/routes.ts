@@ -32,8 +32,12 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       if (req.query.state && typeof req.query.state === 'string' && req.query.state !== 'all') {
         state = req.query.state;
         
+        // Handle case sensitivity for state abbreviations (e.g., "ca" -> "CA")
+        if (state.length === 2) {
+          state = state.toUpperCase();
+        }
         // Convert state name to abbreviation if needed (longer than 2 chars)
-        if (state.length > 2) {
+        else if (state.length > 2) {
           // Import would create circular dependency, so hardcode a simple mapping
           const stateMap: {[key: string]: string} = {
             'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
@@ -250,7 +254,38 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   // Get all cities in a state with bookstores
   app.get("/api/states/:state/cities", async (req, res) => {
     try {
-      const state = req.params.state;
+      let state = req.params.state;
+      
+      // Handle case sensitivity for state abbreviations (e.g., "ca" -> "CA")
+      if (state.length === 2) {
+        state = state.toUpperCase();
+      }
+      // Handle full state names (e.g., "california" -> "CA")
+      else if (state.length > 2) {
+        const stateMap: {[key: string]: string} = {
+          'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+          'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+          'district of columbia': 'DC', 'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI',
+          'idaho': 'ID', 'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+          'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+          'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+          'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+          'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+          'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+          'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+          'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+          'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+          'wisconsin': 'WI', 'wyoming': 'WY',
+          'british columbia': 'BC', 'ontario': 'ON', 'quebec': 'QC', 'alberta': 'AB',
+          'manitoba': 'MB', 'nova scotia': 'NS', 'new brunswick': 'NB', 'saskatchewan': 'SK'
+        };
+        
+        const abbr = stateMap[state.toLowerCase()];
+        if (abbr) {
+          state = abbr;
+        }
+      }
+      
       const bookstores = await storageImpl.getBookstoresByState(state);
       
       // Use array-based filtering for better compatibility
