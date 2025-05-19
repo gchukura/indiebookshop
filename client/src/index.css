@@ -55,35 +55,6 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
-  
-  /* Improve mobile scrolling performance */
-  .is-mobile-device {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-    text-size-adjust: 100%;
-  }
-  
-  /* Optimize animations on mobile */
-  @media (max-width: 767px) {
-    * {
-      /* Ensure transitions run on compositor thread */
-      transform: translateZ(0);
-      backface-visibility: hidden;
-      perspective: 1000px;
-    }
-    
-    /* Reduce animation complexity on mobile */
-    .hover\:shadow-lg,
-    .hover\:-translate-y-1,
-    .transition-transform {
-      transition-property: none !important;
-    }
-    
-    /* Disable hover effects on mobile */
-    .hover\:bg-gray-50:hover {
-      background-color: inherit !important;
-    }
-  }
 }
 
 /* Custom Calendar Styles */

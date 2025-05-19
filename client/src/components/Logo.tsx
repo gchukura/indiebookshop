@@ -15,20 +15,22 @@ const LOGO_COLORS = {
   GRAY: COLORS.dark,           // Dark text color
 };
 
-const Logo = ({ width = 200, height = 60, showDotCom = true, className = "" }: LogoProps & { className?: string }) => {
+const Logo = ({ width = 200, height = 60, showDotCom = true }: LogoProps) => {
   // Calculate display dimensions while maintaining proportions
   const originalAspectRatio = 600 / 200; // Increased width to accommodate larger text
   const calculatedWidth = height * originalAspectRatio;
   
+  // Scale factor for fonts and positioning - keeps original SVG proportions
+  const scaleFactor = height / 60;
+  
   return (
-    <div className={`flex items-center overflow-visible ${className}`}>
+    <div style={{ width: calculatedWidth, height }} className="flex items-center">
       <svg 
         width={calculatedWidth} 
         height={height} 
         viewBox="0 0 600 200" 
         xmlns="http://www.w3.org/2000/svg"
-        className="mr-2 overflow-visible"
-        preserveAspectRatio="xMinYMid meet"
+        className="mr-2"
       >
         {/* Book stack - keeping original proportions */}
         <g transform="translate(55, 20)">
@@ -42,21 +44,21 @@ const Logo = ({ width = 200, height = 60, showDotCom = true, className = "" }: L
           <rect x="10" y="10" width="90" height="30" rx="2" ry="2" fill={LOGO_COLORS.BROWN} />
         </g>
         
-        {/* Company name with font-weight adjustment for better mobile rendering */}
+        {/* Company name - adjusted positioning with more space between books and text */}
         <g transform="translate(170, 92)">
           {/* Indie */}
-          <text fontFamily="serif" fontWeight="900" fontSize="42" fill={LOGO_COLORS.BLUE} textRendering="geometricPrecision">
+          <text fontFamily="serif" fontWeight="bold" fontSize="42" fill={LOGO_COLORS.BLUE}>
             Indie
           </text>
           
           {/* Bookshop */}
-          <text x="90" fontFamily="serif" fontWeight="900" fontSize="42" fill={LOGO_COLORS.ORANGE} textRendering="geometricPrecision">
+          <text x="90" fontFamily="serif" fontWeight="bold" fontSize="42" fill={LOGO_COLORS.ORANGE}>
             Bookshop
           </text>
           
           {/* .com */}
           {showDotCom && (
-            <text x="270" fontFamily="serif" fontWeight="900" fontSize="28" fill={LOGO_COLORS.GRAY} textRendering="geometricPrecision">
+            <text x="270" fontFamily="serif" fontWeight="bold" fontSize="28" fill={LOGO_COLORS.GRAY}>
               .com
             </text>
           )}

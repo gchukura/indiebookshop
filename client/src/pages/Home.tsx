@@ -174,10 +174,10 @@ const Home = () => {
           {/* Featured section with border and heading that intersects with the border */}
           <div className="mb-8">
             {/* Full border box with top border and heading that intersects */}
-            <div className={`relative border-4 border-[#2A6B7C] rounded-lg p-8 pt-10 md:pt-6 shadow-sm transition-all duration-300 ${isRefreshing ? 'bg-[rgba(42,107,124,0.05)]' : ''}`}>
-              {/* Heading centered on the top border - different styling for mobile */}
-              <div className="absolute -top-4 md:-top-5 left-0 w-full flex justify-center z-10">
-                <h2 className="inline-block bg-white px-3 md:px-5 text-xl md:text-3xl font-serif font-bold text-[#5F4B32] text-center">
+            <div className={`relative border-4 border-[#2A6B7C] rounded-lg p-8 pt-6 shadow-sm transition-all duration-300 ${isRefreshing ? 'bg-[rgba(42,107,124,0.05)]' : ''}`}>
+              {/* Heading centered on the top border */}
+              <div className="absolute -top-5 left-0 w-full flex justify-center">
+                <h2 className="inline-block bg-white px-5 text-3xl font-serif font-bold text-[#5F4B32]">
                   ⭐ Featured Independent Bookshops
                 </h2>
               </div>

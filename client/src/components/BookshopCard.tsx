@@ -7,7 +7,6 @@ import {
   generateBookshopImageAlt, 
   optimizeImageUrl 
 } from "../lib/imageUtils";
-import { createBookshopUrl } from "../lib/urlUtils";
 
 interface BookshopCardProps {
   bookstore: Bookstore; // using bookstore for backward compatibility, but will be renamed to bookshop in the prop
@@ -29,9 +28,9 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
     <div className="bookshop-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
       <div className="flex flex-col sm:flex-row">
         <div className="sm:w-1/3">
-          <Link 
-            href={createBookshopUrl(bookshop)}
-            className="w-full h-40 sm:h-full cursor-pointer block" 
+          <div 
+            className="w-full h-40 sm:h-full cursor-pointer" 
+            onClick={() => showDetails(bookshop.id)}
           >
             {bookshop.imageUrl ? (
               <OptimizedImage 
@@ -52,16 +51,16 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
                 <BookshopIcon size={100} />
               </div>
             )}
-          </Link>
+          </div>
         </div>
         <div className="p-4 sm:w-2/3">
           <div>
-            <Link 
-              href={createBookshopUrl(bookshop)}
-              className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C] block"
+            <h3 
+              className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C]"
+              onClick={() => showDetails(bookshop.id)}
             >
               {bookshop.name}
-            </Link>
+            </h3>
           </div>
           <div className="text-sm text-gray-600 mb-2">
             <MapPin className="h-4 w-4 inline mr-1" /> {bookshop.city}, {bookshop.state}

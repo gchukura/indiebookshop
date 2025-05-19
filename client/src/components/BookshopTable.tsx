@@ -31,20 +31,11 @@ const BookshopTable = ({
     queryKey: ["/api/features"],
   });
 
-  // Define a memoized features map for performance
-  const featuresMap = useMemo(() => {
-    if (!features) return new Map();
-    return new Map(features.map(feature => [feature.id, feature]));
-  }, [features]);
-  
-  // Get feature names for a bookshop - optimized version
+  // Get feature names for a bookshop
   const getBookshopFeatures = (bookshop: Bookstore) => {
-    if (!features || !bookshop.featureIds) return [];
-    
-    // Using the map for O(1) lookups instead of filtering the array each time
-    return bookshop.featureIds
-      .map(id => featuresMap.get(id))
-      .filter(Boolean) as Feature[];
+    return features?.filter(feature => 
+      bookshop.featureIds?.includes(feature.id) || false
+    ) || [];
   };
 
   return (

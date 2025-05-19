@@ -15,9 +15,9 @@ const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1Qa3AW5Zmu0X4yT3fXjmoU62
 // Default configuration
 const DEFAULT_CONFIG: SheetsConfig = {
   spreadsheetId: SPREADSHEET_ID,
-  bookshopRange: 'Bookstores!A1:P', // Include headers (A1) and all columns including county
-  featuresRange: 'Features!A1:B',    // Include headers in row 1
-  eventsRange: 'Events!A1:F'         // Include headers in row 1
+  bookshopRange: 'Bookstores!A2:O', // Added an additional column for 'live' field
+  featuresRange: 'Features!A2:B',    // Assumes headers are in row 1
+  eventsRange: 'Events!A2:F'         // Assumes headers are in row 1
 };
 
 export class GoogleSheetsService {
@@ -86,85 +86,40 @@ export class GoogleSheetsService {
         return [];
       }
 
-      // The first row contains headers
-      const headers = rows[0].map((header: string) => 
-        header.toLowerCase().trim().replace(/\s+/g, '_')
-      );
-      
-      console.log('Bookstore headers:', headers);
-      
-      // Create a function to get column index by header name
-      const getColumnIndex = (name: string) => {
-        const index = headers.indexOf(name);
-        return index >= 0 ? index : null;
-      };
-      
-      // Map column headers to indices
-      const columnMap = {
-        id: getColumnIndex('id'),
-        name: getColumnIndex('name'),
-        street: getColumnIndex('street'),
-        city: getColumnIndex('city'),
-        state: getColumnIndex('state'),
-        zip: getColumnIndex('zip'),
-        county: getColumnIndex('county'), // New county field
-        description: getColumnIndex('description'),
-        imageUrl: getColumnIndex('imageurl') || getColumnIndex('image_url'),
-        website: getColumnIndex('website'),
-        phone: getColumnIndex('phone'),
-        hours: getColumnIndex('hours'),
-        latitude: getColumnIndex('latitude') || getColumnIndex('lat'),
-        longitude: getColumnIndex('longitude') || getColumnIndex('lng'),
-        featureIds: getColumnIndex('featureids') || getColumnIndex('feature_ids'),
-        live: getColumnIndex('live')
-      };
-      
-      // Log column mapping for debugging
-      console.log('Column mapping:', columnMap);
-      
-      // Skip header row
-      const dataRows = rows.slice(1);
-      
       // Convert rows to Bookstore objects
-      const bookshops: Bookstore[] = dataRows.map((row, index) => {
+      const bookshops: Bookstore[] = rows.map((row, index) => {
         try {
-          // Get values using column indices from our map
-          const getValue = (key: string, defaultValue: any = '') => {
-            const colIndex = columnMap[key as keyof typeof columnMap];
-            return colIndex !== null && row[colIndex] !== undefined ? row[colIndex] : defaultValue;
-          };
-          
-          const id = parseInt(getValue('id', '0'));
-          const name = getValue('name', '');
-          const street = getValue('street', '');
-          const city = getValue('city', '');
-          const state = getValue('state', '');
-          const zip = getValue('zip', '');
-          const description = getValue('description', '');
-          const imageUrl = getValue('imageUrl', null);
-          const website = getValue('website', null);
-          const phone = getValue('phone', null);
+          // Assuming columns are in this order:
+          // id, name, street, city, state, zip, description, imageUrl, website, phone, hours (JSON), latitude, longitude, featureIds (comma-separated)
+          const id = parseInt(row[0] || '0');
+          const name = row[1] || '';
+          const street = row[2] || '';
+          const city = row[3] || '';
+          const state = row[4] || '';
+          const zip = row[5] || '';
+          const description = row[6] || '';
+          const imageUrl = row[7] || null;
+          const website = row[8] || null;
+          const phone = row[9] || null;
           
           // Parse hours (if provided in JSON format)
           let hours = null;
           try {
-            const hoursValue = getValue('hours', null);
-            if (hoursValue) {
-              hours = JSON.parse(hoursValue);
+            if (row[10]) {
+              hours = JSON.parse(row[10]);
             }
           } catch (e) {
             console.error(`Error parsing hours for bookshop ${id}:`, e);
           }
 
-          const latitude = getValue('latitude', null);
-          const longitude = getValue('longitude', null);
+          const latitude = row[11] || null;
+          const longitude = row[12] || null;
           
           // Parse feature IDs (comma-separated string of IDs)
           let featureIds: number[] | null = null;
           try {
-            const featureIdsValue = getValue('featureIds', null);
-            if (featureIdsValue) {
-              featureIds = featureIdsValue.split(',').map((idStr: string) => parseInt(idStr.trim()));
+            if (row[13]) {
+              featureIds = row[13].split(',').map((idStr: string) => parseInt(idStr.trim()));
             }
           } catch (e) {
             console.error(`Error parsing featureIds for bookshop ${id}:`, e);
@@ -173,21 +128,16 @@ export class GoogleSheetsService {
           // Parse live status (default to true if not provided)
           let live = true;
           try {
-            const liveValue = getValue('live');
-            if (liveValue !== '') {
+            if (row[14] !== undefined) {
               // Convert various string formats to boolean
-              const liveStr = String(liveValue).trim().toLowerCase();
+              const liveStr = String(row[14]).trim().toLowerCase();
               live = liveStr === 'yes' || liveStr === 'true' || liveStr === '1';
             }
           } catch (e) {
             console.error(`Error parsing live status for bookshop ${id}:`, e);
           }
-          
-          // Get county value (new field)
-          const county = getValue('county', null);
 
-          // Build the bookshop object with standard fields
-          const bookshop: any = {
+          return {
             id,
             name,
             street,
@@ -204,13 +154,6 @@ export class GoogleSheetsService {
             featureIds,
             live,
           };
-          
-          // Add county if it exists
-          if (county) {
-            bookshop.county = county;
-          }
-
-          return bookshop;
         } catch (error) {
           console.error(`Error processing bookshop row ${index}:`, error);
           return null;
@@ -239,40 +182,13 @@ export class GoogleSheetsService {
         console.log('No feature data found in the spreadsheet');
         return [];
       }
-      
-      // The first row contains headers
-      const headers = rows[0].map((header: string) => 
-        header.toLowerCase().trim().replace(/\s+/g, '_')
-      );
-      
-      console.log('Feature headers:', headers);
-      
-      // Create a function to get column index by header name
-      const getColumnIndex = (name: string) => {
-        const index = headers.indexOf(name);
-        return index >= 0 ? index : null;
-      };
-      
-      // Map column headers to indices
-      const columnMap = {
-        id: getColumnIndex('id'),
-        name: getColumnIndex('name')
-      };
-      
-      // Skip header row
-      const dataRows = rows.slice(1);
 
       // Convert rows to Feature objects
-      const features: Feature[] = dataRows.map((row, index) => {
+      const features: Feature[] = rows.map((row, index) => {
         try {
-          // Get values using column indices from our map
-          const getValue = (key: string, defaultValue: any = '') => {
-            const colIndex = columnMap[key as keyof typeof columnMap];
-            return colIndex !== null && row[colIndex] !== undefined ? row[colIndex] : defaultValue;
-          };
-          
-          const id = parseInt(getValue('id', '0'));
-          const name = getValue('name', '');
+          // Assuming columns are in this order: id, name
+          const id = parseInt(row[0] || '0');
+          const name = row[1] || '';
 
           return { id, name };
         } catch (error) {
@@ -303,54 +219,33 @@ export class GoogleSheetsService {
         console.log('No event data found in the spreadsheet');
         return [];
       }
+
+      console.log('First row headers:', rows[0]); // Log headers to understand structure
       
-      // The first row contains headers
-      const headers = rows[0].map((header: string) => 
-        header.toLowerCase().trim().replace(/\s+/g, '_')
-      );
+      // Check if we have headers
+      const headers = rows[0].map((header: string) => header.toLowerCase());
+      const hasHeaders = headers.includes('id') && headers.includes('bookshopid');
       
-      console.log('Event headers:', headers);
+      // If first row contains headers, skip it
+      const dataRows = hasHeaders ? rows.slice(1) : rows;
       
-      // Create a function to get column index by header name
-      const getColumnIndex = (name: string) => {
-        const index = headers.indexOf(name);
-        return index >= 0 ? index : null;
-      };
-      
-      // Map column headers to indices
-      const columnMap = {
-        id: getColumnIndex('id'),
-        bookshopId: getColumnIndex('bookshopid') || getColumnIndex('bookshop_id'),
-        title: getColumnIndex('title'),
-        description: getColumnIndex('description'),
-        date: getColumnIndex('date'),
-        time: getColumnIndex('time'),
-      };
-      
-      // Skip header row
-      const dataRows = rows.slice(1);
+      // Expected column structure based on user input:
+      // id, bookshopId, title, description, date, time
       
       // Convert rows to Event objects
       const events: Event[] = dataRows.map((row, index) => {
         try {
-          // Get values using column indices from our map
-          const getValue = (key: string, defaultValue: any = '') => {
-            const colIndex = columnMap[key as keyof typeof columnMap];
-            return colIndex !== null && row[colIndex] !== undefined ? row[colIndex] : defaultValue;
-          };
-          
-          // Check if essential fields are available
-          if (!columnMap.title || !columnMap.description) {
-            console.warn(`Row ${index} missing essential columns, skipping`);
+          if (row.length < 4) {
+            console.warn(`Row ${index} has insufficient data, skipping`);
             return null;
           }
           
-          const id = parseInt(getValue('id', '0'));
-          const bookshopId = parseInt(getValue('bookshopId', '0'));
-          const title = getValue('title', '');
-          const description = getValue('description', '');
-          const date = getValue('date', '');
-          const time = getValue('time', '');
+          const id = parseInt(row[0] || '0');
+          const bookshopId = parseInt(row[1] || '0');
+          const title = row[2] || '';
+          const description = row[3] || '';
+          const date = row[4] || '';
+          const time = row[5] || '';
 
           return {
             id,

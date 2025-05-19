@@ -15,26 +15,7 @@ export async function registerRoutes(app, storageImpl) {
     }
   });
 
-  // IMPORTANT: Get filtered bookshops - THIS MUST COME BEFORE THE ID ROUTE
-  app.get('/api/bookstores/filter', async (req, res) => {
-    try {
-      console.log('Serverless: Filtering bookshops with:', req.query);
-      const filters = {
-        state: req.query.state,
-        city: req.query.city,
-        featureIds: req.query.features ? req.query.features.split(',').map(f => parseInt(f)) : undefined
-      };
-      
-      const bookstores = await storageImpl.getFilteredBookstores(filters);
-      console.log(`Serverless: Found ${bookstores.length} bookshops with filters`);
-      res.json(bookstores);
-    } catch (error) {
-      console.error('Serverless Error filtering bookstores:', error);
-      res.status(500).json({ error: 'Failed to filter bookstores' });
-    }
-  });
-
-  // Get a specific bookshop by ID - MUST COME AFTER THE FILTER ROUTE
+  // Get a specific bookshop by ID
   app.get('/api/bookstores/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -54,9 +35,7 @@ export async function registerRoutes(app, storageImpl) {
   // Get bookshops by state
   app.get('/api/states/:state/bookstores', async (req, res) => {
     try {
-      console.log(`Serverless: Getting bookshops for state ${req.params.state}`);
       const bookstores = await storageImpl.getBookstoresByState(req.params.state);
-      console.log(`Serverless: Found ${bookstores.length} bookshops for state ${req.params.state}`);
       res.json(bookstores);
     } catch (error) {
       console.error(`Serverless Error getting bookstores for state ${req.params.state}:`, error);
@@ -67,9 +46,7 @@ export async function registerRoutes(app, storageImpl) {
   // Get bookshops by city
   app.get('/api/cities/:city/bookstores', async (req, res) => {
     try {
-      console.log(`Serverless: Getting bookshops for city ${req.params.city}`);
       const bookstores = await storageImpl.getBookstoresByCity(req.params.city);
-      console.log(`Serverless: Found ${bookstores.length} bookshops for city ${req.params.city}`);
       res.json(bookstores);
     } catch (error) {
       console.error(`Serverless Error getting bookstores for city ${req.params.city}:`, error);
@@ -81,13 +58,28 @@ export async function registerRoutes(app, storageImpl) {
   app.get('/api/features/:featureId/bookstores', async (req, res) => {
     try {
       const featureId = parseInt(req.params.featureId);
-      console.log(`Serverless: Getting bookshops for feature ${featureId}`);
       const bookstores = await storageImpl.getBookstoresByFeatures([featureId]);
-      console.log(`Serverless: Found ${bookstores.length} bookshops for feature ${featureId}`);
       res.json(bookstores);
     } catch (error) {
       console.error(`Serverless Error getting bookstores for feature ${req.params.featureId}:`, error);
       res.status(500).json({ error: 'Failed to fetch bookstores for feature' });
+    }
+  });
+
+  // Get filtered bookshops
+  app.get('/api/bookstores/filter', async (req, res) => {
+    try {
+      const filters = {
+        state: req.query.state,
+        city: req.query.city,
+        featureIds: req.query.features ? req.query.features.split(',').map(f => parseInt(f)) : undefined
+      };
+      
+      const bookstores = await storageImpl.getFilteredBookstores(filters);
+      res.json(bookstores);
+    } catch (error) {
+      console.error('Serverless Error filtering bookstores:', error);
+      res.status(500).json({ error: 'Failed to filter bookstores' });
     }
   });
 
@@ -159,10 +151,8 @@ export async function registerRoutes(app, storageImpl) {
   // Get all cities with bookshops
   app.get('/api/cities', async (req, res) => {
     try {
-      console.log('Serverless: Fetching all cities');
       const bookstores = await storageImpl.getBookstores();
       const cities = [...new Set(bookstores.map(b => b.city))].sort();
-      console.log(`Serverless: Found ${cities.length} cities`);
       res.json(cities);
     } catch (error) {
       console.error('Serverless Error getting cities:', error);
@@ -173,10 +163,8 @@ export async function registerRoutes(app, storageImpl) {
   // Get cities for a specific state
   app.get('/api/states/:state/cities', async (req, res) => {
     try {
-      console.log(`Serverless: Fetching cities for state ${req.params.state}`);
       const bookstores = await storageImpl.getBookstoresByState(req.params.state);
       const cities = [...new Set(bookstores.map(b => b.city))].sort();
-      console.log(`Serverless: Found ${cities.length} cities for state ${req.params.state}`);
       res.json(cities);
     } catch (error) {
       console.error(`Serverless Error getting cities for state ${req.params.state}:`, error);
