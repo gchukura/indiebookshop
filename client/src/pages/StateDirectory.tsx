@@ -42,6 +42,24 @@ const StateDirectory = () => {
   // Get the full state name for display
   const fullStateName = getFullStateName(stateAbbr);
   
+  // Handle redirection for SEO - redirect abbreviations to full state names
+  useEffect(() => {
+    // Only redirect if we have a state parameter AND it's an abbreviation (2 characters)
+    // AND we have a valid full state name to redirect to
+    if (stateParam && stateParam.length === 2 && fullStateName && fullStateName !== stateParam) {
+      // Create SEO-friendly URL with the full state name
+      const seoUrl = `/directory/state/${generateSlug(fullStateName)}`;
+      
+      // Only redirect if we're not already at the full name URL
+      if (window.location.pathname !== seoUrl) {
+        console.log(`Redirecting from ${stateParam} to ${fullStateName} for better SEO`);
+        
+        // Use history.replaceState to change the URL without causing a page reload
+        window.history.replaceState(null, '', seoUrl);
+      }
+    }
+  }, [stateParam, fullStateName]);
+  
   // Fetch data when component mounts or state changes
   useEffect(() => {
     if (!stateParam) return;
