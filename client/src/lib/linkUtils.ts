@@ -12,9 +12,9 @@ import { Bookstore as Bookshop, Feature } from "@shared/schema";
  * @returns URL-friendly string with format: /bookshop/bookshop-name
  */
 export function generateBookshopSlug(id: number, name: string): string {
-  // Use a hybrid approach that includes both ID and name
-  // This is more reliable while still SEO-friendly
-  return `/bookshop/${id}-${generateSlugFromName(name)}`;
+  // Use only the name in the URL for maximum SEO benefit
+  // The ID is not included in the URL, but is used in the component for data fetching
+  return `/bookshop/${generateSlugFromName(name)}`;
 }
 
 /**

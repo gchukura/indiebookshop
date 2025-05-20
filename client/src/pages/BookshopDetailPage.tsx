@@ -11,25 +11,17 @@ const BookshopDetailPage = () => {
   const { idslug } = useParams<{ idslug: string }>();
   const [_, setLocation] = useLocation();
   
-  // Extract the ID from the URL parameter (e.g., "123-book-shop-name")
-  const idMatch = idslug?.match(/^(\d+)-/);
-  const bookshopId = idMatch ? parseInt(idMatch[1], 10) : NaN;
-  
-  // Redirect to directory if ID is invalid
-  useEffect(() => {
-    if (isNaN(bookshopId)) {
-      setLocation('/directory');
-    }
-  }, [bookshopId, setLocation]);
+  // The URL parameter is now just the bookshop name slug
+  const bookshopSlug = idslug || '';
 
-  // Fetch bookshop details by ID (more reliable than by slug)
+  // Fetch bookshop details by slug
   const { 
     data: bookshop, 
     isLoading: isLoadingBookshop, 
     isError: isErrorBookshop 
   } = useQuery<Bookshop>({
-    queryKey: [`/api/bookstores/${bookshopId}`],
-    enabled: !isNaN(bookshopId),
+    queryKey: [`/api/bookstores/by-slug/${bookshopSlug}`],
+    enabled: !!bookshopSlug,
     retry: 1,
     staleTime: 10 * 60 * 1000, // 10 minutes
   });

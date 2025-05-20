@@ -63,6 +63,9 @@ export class MemStorage implements IStorage {
     this.initializeBookstores();
     // Initialize with some events
     this.initializeEvents();
+    
+    // Generate slug mappings after all bookstores are loaded
+    this.initializeSlugMappings();
   }
 
   // User methods
@@ -107,52 +110,20 @@ export class MemStorage implements IStorage {
   
   async getBookstoreBySlug(slug: string): Promise<Bookstore | undefined> {
     try {
-      // Only show bookstores that are live
-      const liveBookstores = Array.from(this.bookstores.values())
-        .filter(bookstore => bookstore.live !== false);
+      console.log(`Looking up bookstore with slug: ${slug}`);
       
-      console.log(`Searching for bookstore with slug: ${slug} among ${liveBookstores.length} live bookstores`);
+      // Fast lookup using our slug mapping
+      const bookstoreId = this.slugToBookstoreId.get(slug);
       
-      // Let's check a sample of bookstores to debug the slugification process
-      const sampleBookstores = liveBookstores.slice(0, 5);
-      console.log("Sample bookstores and their slugs:");
-      sampleBookstores.forEach(bookstore => {
-        const bookstoreSlug = this.generateSlugFromName(bookstore.name);
-        console.log(`- "${bookstore.name}" -> "${bookstoreSlug}"`);
-      });
-      
-      // Look for a special case - if we're looking for "artbook-hauser-wirth-los-angeles"
-      if (slug === "artbook-hauser-wirth-los-angeles") {
-        console.log("Looking for 'ARTBOOK @ HAUSER & WIRTH LOS ANGELES'");
-        const specialMatch = liveBookstores.find(b => 
-          b.name.includes("ARTBOOK") && b.name.includes("HAUSER") && b.name.includes("LOS ANGELES"));
-        if (specialMatch) {
-          console.log(`Found special match: ${specialMatch.name} (ID: ${specialMatch.id})`);
-          return specialMatch;
-        }
+      if (bookstoreId) {
+        // We found a matching bookstore in our mapping
+        const bookstore = this.bookstores.get(bookstoreId);
+        console.log(`Found bookstore by slug: "${bookstore?.name}" (ID: ${bookstoreId})`);
+        return bookstore;
       }
       
-      // Generate clean slugs for each bookstore and find a match
-      const match = liveBookstores.find(bookstore => {
-        // Create a slug from the bookstore name
-        const bookstoreSlug = this.generateSlugFromName(bookstore.name);
-        
-        // For debugging, log some of the comparisons
-        if (Math.random() < 0.01) { // Only log about 1% to avoid flooding
-          console.log(`Comparing slug "${slug}" with generated "${bookstoreSlug}" for "${bookstore.name}"`);
-        }
-        
-        // Compare with requested slug
-        return bookstoreSlug === slug;
-      });
-      
-      if (match) {
-        console.log(`Found matching bookstore: ${match.name} (ID: ${match.id})`);
-      } else {
-        console.log(`No match found for slug: ${slug}`);
-      }
-      
-      return match;
+      console.log(`No bookstore found with slug: ${slug}`);
+      return undefined;
     } catch (error) {
       console.error("Error in getBookstoreBySlug:", error);
       // Re-throw the error so it can be caught by the route handler
@@ -168,6 +139,32 @@ export class MemStorage implements IStorage {
       .replace(/\s+/g, '-')     // Replace spaces with hyphens
       .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
       .trim();                  // Trim leading/trailing spaces
+  }
+  
+  // Initialize our slug mapping system for fast lookups
+  private initializeSlugMappings(): void {
+    console.log('Initializing bookshop slug mappings...');
+    this.slugToBookstoreId.clear();
+    
+    // Process all bookshops
+    Array.from(this.bookstores.values()).forEach(bookstore => {
+      if (bookstore.live !== false) { // Only create mappings for live bookshops
+        const slug = this.generateSlugFromName(bookstore.name);
+        
+        // Log only if this is overwriting an existing slug
+        if (this.slugToBookstoreId.has(slug)) {
+          const existingId = this.slugToBookstoreId.get(slug);
+          const existingStore = this.bookstores.get(existingId!);
+          console.log(`Duplicate slug "${slug}" detected. Previous: "${existingStore?.name}" (ID: ${existingId}), New: "${bookstore.name}" (ID: ${bookstore.id})`);
+        }
+        
+        // Always set the mapping - in case of duplicates, last one wins
+        // This keeps URLs clean with just the bookshop name
+        this.slugToBookstoreId.set(slug, bookstore.id);
+      }
+    });
+    
+    console.log(`Created ${this.slugToBookstoreId.size} slug mappings for bookshops`);
   }
 
   async getBookstoresByState(state: string): Promise<Bookstore[]> {
