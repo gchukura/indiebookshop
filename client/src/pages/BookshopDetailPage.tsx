@@ -29,11 +29,11 @@ const BookshopDetailPage = () => {
   // Show a "not found" message if the bookshop couldn't be found
   // Only redirect to directory if there was an actual error
   useEffect(() => {
-    if (isErrorBookshop && !isNaN(bookshopId)) {
+    if (isErrorBookshop && bookshopSlug) {
       // If there was an error (like a 500), redirect to directory
       setLocation('/directory');
     }
-  }, [isErrorBookshop, bookshopId, setLocation]);
+  }, [isErrorBookshop, bookshopSlug, setLocation]);
 
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({

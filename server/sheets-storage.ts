@@ -7,6 +7,7 @@ export class GoogleSheetsStorage implements IStorage {
   private features: Feature[] = [];
   private events: Event[] = [];
   private users: Map<number, User> = new Map();
+  private slugToBookstoreId: Map<string, number> = new Map(); // Map slugs to bookstore IDs
   private userIdCounter: number = 1;
   private isInitialized: boolean = false;
   
