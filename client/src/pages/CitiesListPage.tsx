@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Bookstore } from "@shared/schema";
 import { SEO } from "../components/SEO";
-import { BASE_URL, generateLocationKeywords } from "../lib/seo";
+import { BASE_URL, generateLocationKeywords, generateSlug } from "../lib/seo";
 
 // Define major metro areas by region
 const METRO_AREAS = {
