@@ -26,7 +26,6 @@ const StateDirectory = () => {
   const fullStateName = getFullStateName(state);
   
   // Component state
-  const [view, setView] = useState<"map" | "list">("map");
   const [bookshops, setBookshops] = useState<Bookstore[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -139,20 +138,6 @@ const StateDirectory = () => {
         
         {/* View toggle */}
         <div className="flex flex-wrap gap-4 items-center mb-6">
-          <div className="bg-gray-100 rounded-lg p-1">
-            <button 
-              className={`px-4 py-2 rounded-md ${view === 'map' ? 'bg-white shadow-sm' : ''}`}
-              onClick={() => setView('map')}
-            >
-              Map View
-            </button>
-            <button 
-              className={`px-4 py-2 rounded-md ${view === 'list' ? 'bg-white shadow-sm' : ''}`}
-              onClick={() => setView('list')}
-            >
-              List View
-            </button>
-          </div>
           <span className="text-sm text-gray-500">
             {bookshops.length} bookshop{bookshops.length !== 1 ? 's' : ''} found in {fullStateName}
           </span>

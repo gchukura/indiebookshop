@@ -64,7 +64,6 @@ const CityDirectory = () => {
   const stateFromUrl = stateParam ? stateParam.toUpperCase() : '';
   
   // Component state
-  const [view, setView] = useState<"map" | "list">("map");
   const [bookshops, setBookshops] = useState<Bookstore[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
