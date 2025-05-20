@@ -224,13 +224,7 @@ const CityDirectory = () => {
           Discover local bookshops in {cityName}{stateName ? `, ${stateName}` : ''}. Browse our directory of independent bookstores in this city.
         </p>
         
-        {/* Bookshop count */}
-        <div className="mb-6">
-          <span className="text-sm text-gray-500">
-            {bookshops.length} bookshop{bookshops.length !== 1 ? 's' : ''} found in {cityName}
-            {stateName ? `, ${stateName}` : ''}
-          </span>
-        </div>
+        {/* No bookshop count needed since it's in the main heading */}
       </div>
 
       {/* Bookshop Detail Modal */}

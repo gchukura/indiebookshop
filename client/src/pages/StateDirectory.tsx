@@ -136,12 +136,7 @@ const StateDirectory = () => {
           Discover local independent bookshops across {fullStateName}. Browse our comprehensive directory of indie bookstores in this state.
         </p>
         
-        {/* View toggle */}
-        <div className="flex flex-wrap gap-4 items-center mb-6">
-          <span className="text-sm text-gray-500">
-            {bookshops.length} bookshop{bookshops.length !== 1 ? 's' : ''} found in {fullStateName}
-          </span>
-        </div>
+        {/* No bookshop count needed since it's in the main heading */}
         
         {/* Cities dropdown/list section */}
         {cities && cities.length > 0 && (
