@@ -82,6 +82,9 @@ export class GoogleSheetsStorage implements IStorage {
           this.events = events;
         }
         
+        // Initialize slug mappings for SEO-friendly URLs
+        this.initializeSlugMappings();
+        
         console.log(`Successfully loaded ${this.bookstores.length} bookstores, ${this.features.length} features, and ${this.events.length} events (with supplements from sample data if needed)`);
       } catch (googleError) {
         console.error('Error loading from Google Sheets, falling back to sample data:', googleError);
