@@ -4,6 +4,7 @@ import { Bookstore } from "@shared/schema";
 import BookshopCard from "@/components/BookshopCard";
 import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
+import BookshopTable from "@/components/BookshopTable";
 import { Button } from "@/components/ui/button";
 import { getFullStateName, getStateAbbreviation } from "@/lib/stateUtils";
 import { SEO } from "../components/SEO";
@@ -32,6 +33,10 @@ const StateDirectory = () => {
   const [isError, setIsError] = useState(false);
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const bookshopsPerPage = 50;
   
   // Fetch bookshops based on state
   useEffect(() => {
@@ -238,15 +243,16 @@ const StateDirectory = () => {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {bookshops.map(bookshop => (
-                <BookshopCard 
-                  key={bookshop.id} 
-                  bookstore={bookshop} 
-                  showDetails={() => handleShowDetails(bookshop.id)}
-                />
-              ))}
-            </div>
+            <BookshopTable 
+              bookshops={bookshops}
+              showDetails={handleShowDetails}
+              currentPage={currentPage}
+              totalPages={Math.ceil(bookshops.length / bookshopsPerPage)}
+              onPageChange={(page) => {
+                setCurrentPage(page);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
           )}
         </div>
       </div>
