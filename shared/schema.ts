@@ -78,5 +78,6 @@ export const addToFavoritesSchema = z.object({
 export const bookstoreFiltersSchema = z.object({
   state: z.string().optional(),
   city: z.string().optional(),
+  county: z.string().optional(),
   features: z.array(z.number()).optional(),
 });

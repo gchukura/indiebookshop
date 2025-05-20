@@ -147,9 +147,9 @@ const CountyDirectory = () => {
     const bookshop = bookshops.find(b => b.id === id);
     
     if (bookshop) {
-      // Use the proper slug generation from linkUtils
-      const bookshopUrl = generateBookshopSlug(bookshop.id, bookshop.name);
-      setLocation(bookshopUrl);
+      // Navigate to the bookshop detail page
+      const slug = generateSlug(bookshop.name);
+      window.location.href = `/bookshop/${slug}`;
     }
   };
   
