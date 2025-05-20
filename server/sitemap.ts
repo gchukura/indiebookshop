@@ -63,13 +63,42 @@ export async function generateSitemap(req: Request, res: Response) {
       }
     });
 
-    // Add city directory pages
+    // Add city directory pages with state in the path for disambiguation
+    bookstores.forEach(bookstore => {
+      if (bookstore.city && bookstore.state) {
+        // Create a clean slug for the city
+        const citySlug = bookstore.city
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/--+/g, '-')
+          .trim();
+        
+        // Create the state-specific city URL
+        const stateAbbr = bookstore.state.toLowerCase();
+        
+        xml += `  <url>\n`;
+        xml += `    <loc>${BASE_URL}/directory/city/${stateAbbr}/${citySlug}</loc>\n`;
+        xml += `    <changefreq>monthly</changefreq>\n`;
+        xml += `    <priority>0.7</priority>\n`;
+        xml += `  </url>\n`;
+      }
+    });
+    
+    // Also include the legacy city URLs for backward compatibility
     cities.forEach(city => {
       if (city) {
+        const citySlug = city
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/--+/g, '-')
+          .trim();
+        
         xml += `  <url>\n`;
-        xml += `    <loc>${BASE_URL}/directory/city/${encodeURIComponent(city)}</loc>\n`;
+        xml += `    <loc>${BASE_URL}/directory/city/${citySlug}</loc>\n`;
         xml += `    <changefreq>monthly</changefreq>\n`;
-        xml += `    <priority>0.6</priority>\n`;
+        xml += `    <priority>0.5</priority>\n`; // Lower priority than the state-specific URLs
         xml += `  </url>\n`;
       }
     });
