@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { storage } from './storage';
 
 /**
  * Middleware to handle 301 redirects from legacy URL patterns to canonical formats
@@ -15,36 +14,16 @@ export function redirectMiddleware(req: Request, res: Response, next: NextFuncti
     return next();
   }
 
-  // Case 1: Redirect city pages without state to state-specific city pages
+  // Case 1: Redirect old city URLs without state to the directory page
+  // We can't automatically determine the state, so we redirect to the directory
+  // which will help users find the correct city
   if (path.match(/^\/directory\/city\/([^\/]+)$/)) {
-    const citySlug = path.split('/').pop() as string;
-    
-    // Convert slug back to city name for matching
-    // This is a simplified conversion - in reality we should have a proper slug-to-name mapping
-    const cityName = citySlug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-    
-    // Find the first bookstore with this city to get its state
-    storage.getBookstoresByCity(cityName)
-      .then(bookstores => {
-        if (bookstores.length > 0 && bookstores[0].state) {
-          // Get the state abbreviation
-          const stateAbbr = bookstores[0].state.toLowerCase();
-          
-          // Redirect to the canonical URL with state in path
-          return res.redirect(301, `/directory/city/${stateAbbr}/${citySlug}`);
-        }
-        // If we can't determine the state, proceed normally
-        return next();
-      })
-      .catch(err => {
-        console.error('Error in redirect middleware:', err);
-        return next();
-      });
-    
-    return; // Important: return here to prevent next() from being called immediately
+    // Don't redirect if the URL already includes a state prefix (like /oh/columbus)
+    const pathParts = path.split('/');
+    // If there are 4 parts (/directory/city/boston), redirect to directory
+    if (pathParts.length === 4) {
+      return res.redirect(301, '/directory/cities');
+    }
   }
   
   // Case 2: Handle old bookstore URLs if you had them (e.g., /bookstore/123 -> /bookshop/123)

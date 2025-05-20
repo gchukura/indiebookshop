@@ -19,15 +19,9 @@ export interface IStorage {
   getBookstoreBySlug(slug: string): Promise<Bookstore | undefined>;
   getBookstoresByState(state: string): Promise<Bookstore[]>;
   getBookstoresByCity(city: string): Promise<Bookstore[]>;
-  getBookstoresByCounty(county: string): Promise<Bookstore[]>; // New: Get bookstores by county
-  getBookstoresByCountyState(county: string, state: string): Promise<Bookstore[]>; // New: Get bookstores by county and state
   getBookstoresByFeatures(featureIds: number[]): Promise<Bookstore[]>;
   getFilteredBookstores(filters: { state?: string, city?: string, county?: string, featureIds?: number[] }): Promise<Bookstore[]>;
   createBookstore(bookstore: InsertBookstore): Promise<Bookstore>;
-  
-  // County operations
-  getAllCounties(): Promise<string[]>; // New: Get all counties
-  getCountiesByState(state: string): Promise<string[]>; // New: Get counties by state
   
   // Feature operations
   getFeatures(): Promise<Feature[]>;
@@ -38,6 +32,12 @@ export interface IStorage {
   getEvents(): Promise<Event[]>;
   getEventsByBookshop(bookshopId: number): Promise<Event[]>;
   createEvent(event: InsertEvent): Promise<Event>;
+  
+  // Optional county operations - not required for all implementations
+  getBookstoresByCounty?(county: string): Promise<Bookstore[]>;
+  getBookstoresByCountyState?(county: string, state: string): Promise<Bookstore[]>;
+  getAllCounties?(): Promise<string[]>;
+  getCountiesByState?(state: string): Promise<string[]>;
 }
 
 export class MemStorage implements IStorage {

@@ -85,6 +85,10 @@ if (process.env.DISABLE_AUTO_REFRESH === 'true') {
   log(`Using ${USE_GOOGLE_SHEETS ? 'Google Sheets' : 'in-memory'} storage implementation`);
   log('Data refresh system initialized - data will automatically update from Google Sheets');
 
+  // Add redirectMiddleware before other middlewares
+  // This ensures redirects happen before rendering the page
+  app.use(redirectMiddleware);
+
   // Add SSR middlewares before Vite setup
   // They only run for page requests, not API requests
   app.use(dataPreloadMiddleware);   // Preload data on the server
