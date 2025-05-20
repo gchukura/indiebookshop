@@ -4,6 +4,7 @@ import {
   features, type Feature, type InsertFeature,
   events, type Event, type InsertEvent
 } from "@shared/schema";
+import { populateCountyData, lookupCounty } from "./countyLookup";
 
 export interface IStorage {
   // User operations
@@ -103,9 +104,13 @@ export class MemStorage implements IStorage {
 
   // Bookstore methods
   async getBookstores(): Promise<Bookstore[]> {
-    return Array.from(this.bookstores.values()).filter(
+    // Get all active bookstores
+    const activeBookstores = Array.from(this.bookstores.values()).filter(
       (bookstore) => bookstore.live !== false // Show all bookstores except those explicitly marked as not live
     );
+    
+    // Populate missing county data where possible
+    return populateCountyData(activeBookstores);
   }
 
   async getBookstore(id: number): Promise<Bookstore | undefined> {
@@ -237,26 +242,31 @@ export class MemStorage implements IStorage {
     // Normalize the search county name - remove "County" suffix if present
     const searchCounty = county.toLowerCase().replace(/\s+county$/, '');
     
-    return Array.from(this.bookstores.values()).filter(
-      (bookstore) => {
-        if (bookstore.live === false) return false; // Skip non-live bookstores
-        
-        // Handle null county field
-        if (!bookstore.county) return false;
-        
-        // Normalize stored county name - remove "County" suffix if present
-        const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
-        
-        // Match with several variants, being as flexible as possible:
-        // 1. Exact match after normalization
-        // 2. Partial match (county name contains search term or vice versa)
-        return (
-          storedCounty === searchCounty ||
-          storedCounty.includes(searchCounty) ||
-          searchCounty.includes(storedCounty)
-        );
-      }
+    // Get all active bookstores first
+    const activeBookstores = Array.from(this.bookstores.values()).filter(
+      bookstore => bookstore.live !== false
     );
+    
+    // Populate missing county data where possible
+    const bookstoresWithCounty = populateCountyData(activeBookstores);
+    
+    // Filter based on county name with flexible matching
+    return bookstoresWithCounty.filter(bookstore => {
+      // Skip if still no county data after population attempt
+      if (!bookstore.county) return false;
+      
+      // Normalize stored county name - remove "County" suffix if present
+      const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
+        
+      // Match with several variants, being as flexible as possible:
+      // 1. Exact match after normalization
+      // 2. Partial match (county name contains search term or vice versa)
+      return (
+        storedCounty === searchCounty ||
+        storedCounty.includes(searchCounty) ||
+        searchCounty.includes(storedCounty)
+      );
+    });
   }
   
   async getBookstoresByCountyState(county: string, state: string): Promise<Bookstore[]> {
@@ -264,29 +274,33 @@ export class MemStorage implements IStorage {
     const searchCounty = county.toLowerCase().replace(/\s+county$/, '');
     const searchState = state.toLowerCase();
     
-    return Array.from(this.bookstores.values()).filter(
-      (bookstore) => {
-        if (bookstore.live === false) return false; // Skip non-live bookstores
-        
-        // State must match exactly
-        if (bookstore.state.toLowerCase() !== searchState) return false;
-        
-        // Handle null county field
-        if (!bookstore.county) return false;
-        
-        // Normalize stored county name - remove "County" suffix if present
-        const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
-        
-        // Match with several variants, being as flexible as possible:
-        // 1. Exact match after normalization
-        // 2. Partial match (county name contains search term or vice versa)
-        return (
-          storedCounty === searchCounty ||
-          storedCounty.includes(searchCounty) ||
-          searchCounty.includes(storedCounty)
-        );
-      }
+    // First get all bookstores in the state
+    const stateBookstores = Array.from(this.bookstores.values()).filter(
+      bookstore => 
+        bookstore.live !== false && 
+        bookstore.state.toLowerCase() === searchState
     );
+    
+    // Populate missing county data where possible
+    const bookstoresWithCounty = populateCountyData(stateBookstores);
+    
+    // Now filter by county using flexible matching
+    return bookstoresWithCounty.filter(bookstore => {
+      // Skip if still no county data after population attempt
+      if (!bookstore.county) return false;
+      
+      // Normalize stored county name - remove "County" suffix if present
+      const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
+      
+      // Match with several variants, being as flexible as possible:
+      // 1. Exact match after normalization
+      // 2. Partial match (county name contains search term or vice versa)
+      return (
+        storedCounty === searchCounty ||
+        storedCounty.includes(searchCounty) ||
+        searchCounty.includes(storedCounty)
+      );
+    });
   }
   
   async getAllCounties(): Promise<string[]> {
