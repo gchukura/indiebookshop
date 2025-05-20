@@ -95,25 +95,7 @@ const CountiesListPage = () => {
           Our directory includes counties with independent bookstores and indie bookshops across all states. 
           Discover local booksellers in your county today.
         </p>
-        
-        {/* Navigation links */}
-        <div className="flex flex-wrap gap-3 mb-8">
-          <Link to="/directory" className="text-blue-600 hover:text-blue-800 hover:underline">
-            All Bookshops
-          </Link>
-          <span className="text-gray-400">•</span>
-          <Link to="/directory/browse" className="text-blue-600 hover:text-blue-800 hover:underline">
-            Bookshops by State
-          </Link>
-          <span className="text-gray-400">•</span>
-          <Link to="/directory/cities" className="text-blue-600 hover:text-blue-800 hover:underline">
-            Bookshops by City
-          </Link>
-          <span className="text-gray-400">•</span>
-          <Link to="/directory/categories" className="text-blue-600 hover:text-blue-800 hover:underline">
-            Bookshops by Category
-          </Link>
-        </div>
+
         
         {isLoading ? (
           <div className="flex justify-center py-16">
@@ -145,7 +127,7 @@ const CountiesListPage = () => {
                       to={`/directory/county/${stateData.state.toLowerCase()}/${generateSlug(county)}`}
                       className="text-blue-600 hover:text-blue-800 hover:underline"
                     >
-                      {county} County 
+                      {county}
                       <span className="text-gray-400 text-sm ml-1">
                         ({getFullStateName(stateData.state)})
                       </span>
