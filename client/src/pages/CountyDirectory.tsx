@@ -55,12 +55,12 @@ const CountyDirectory = () => {
         let endpoint = '';
         
         if (stateFromUrl) {
-          // If we have a state, use county-state endpoint
-          endpoint = `/api/bookstores/county-state/${generateSlug(county!)}-${generateSlug(stateFromUrl)}`;
+          // If we have a state, use filter endpoint with county and state
+          endpoint = `/api/bookstores/filter?county=${encodeURIComponent(county!)}&state=${encodeURIComponent(stateFromUrl)}`;
           console.log(`Loading data for county: ${county}, state: ${stateFromUrl}`);
         } else {
-          // Otherwise just use county endpoint
-          endpoint = `/api/bookstores/county/${county}`;
+          // Otherwise just use filter with county only
+          endpoint = `/api/bookstores/filter?county=${encodeURIComponent(county!)}`;
           console.log(`Loading data for county: ${county}`);
         }
         

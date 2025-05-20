@@ -249,34 +249,46 @@ export class MemStorage implements IStorage {
   
   // County operations
   async getBookstoresByCounty(county: string): Promise<Bookstore[]> {
-    // Normalize the search county name - remove "County" suffix if present
-    const searchCounty = county.toLowerCase().replace(/\s+county$/, '');
-    
-    // Get all active bookstores first
-    const activeBookstores = Array.from(this.bookstores.values()).filter(
-      bookstore => bookstore.live !== false
-    );
-    
-    // Populate missing county data where possible
-    const bookstoresWithCounty = populateCountyData(activeBookstores);
-    
-    // Filter based on county name with flexible matching
-    return bookstoresWithCounty.filter(bookstore => {
-      // Skip if still no county data after population attempt
-      if (!bookstore.county) return false;
+    try {
+      console.log(`Looking up bookstores for county: ${county}`);
       
-      // Normalize stored county name - remove "County" suffix if present
-      const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
-        
-      // Match with several variants, being as flexible as possible:
-      // 1. Exact match after normalization
-      // 2. Partial match (county name contains search term or vice versa)
-      return (
-        storedCounty === searchCounty ||
-        storedCounty.includes(searchCounty) ||
-        searchCounty.includes(storedCounty)
+      // Normalize the search county name - remove "County" suffix if present and hyphens
+      const searchCounty = county.toLowerCase().replace(/\s+county$/, '').replace(/-/g, ' ');
+      
+      // Get all active bookstores first
+      const activeBookstores = Array.from(this.bookstores.values()).filter(
+        bookstore => bookstore.live !== false
       );
-    });
+      
+      console.log(`Found ${activeBookstores.length} active bookstores total`);
+      
+      // Populate missing county data where possible
+      const bookstoresWithCounty = populateCountyData(activeBookstores);
+      
+      // Filter based on county name with flexible matching
+      const results = bookstoresWithCounty.filter(bookstore => {
+        // Skip if still no county data after population attempt
+        if (!bookstore.county) return false;
+        
+        // Normalize stored county name - remove "County" suffix if present
+        const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
+          
+        // Match with several variants, being as flexible as possible:
+        // 1. Exact match after normalization
+        // 2. Partial match (county name contains search term or vice versa)
+        return (
+          storedCounty === searchCounty ||
+          storedCounty.includes(searchCounty) ||
+          searchCounty.includes(storedCounty)
+        );
+      });
+      
+      console.log(`Found ${results.length} bookstores in county: ${county}`);
+      return results;
+    } catch (error) {
+      console.error(`Error in getBookstoresByCounty for ${county}:`, error);
+      return [];
+    }
   }
   
   async getBookstoresByCountyState(county: string, state: string): Promise<Bookstore[]> {
