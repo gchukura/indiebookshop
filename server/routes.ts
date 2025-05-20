@@ -143,6 +143,59 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   });
 
   // Get environment configuration (API keys, etc.)
+  // Get bookstores by city-state combination (SEO-friendly URLs)
+  app.get("/api/bookstores/city-state/:cityState", async (req, res) => {
+    try {
+      const cityStateCombined = req.params.cityState;
+      const parts = cityStateCombined.split('-');
+      
+      if (parts.length < 2) {
+        return res.status(400).json({ message: 'Invalid city-state format' });
+      }
+      
+      // Last part is the state
+      const stateIndex = parts.length - 1;
+      const state = parts[stateIndex];
+      
+      // Everything before is the city (handle multi-word cities like "san-francisco")
+      const city = parts.slice(0, stateIndex).join(' ').replace(/-/g, ' ');
+      
+      console.log(`Looking up bookstores in city: ${city}, state: ${state}`);
+      
+      // Get bookstores that match both city and state
+      const bookstores = await storageImpl.getFilteredBookstores({ 
+        city: city,
+        state: state 
+      });
+      
+      res.json(bookstores);
+    } catch (error) {
+      console.error('Error in city-state endpoint:', error);
+      res.status(500).json({ message: 'Error fetching bookstores by city and state' });
+    }
+  });
+  
+  // Get bookstores by county (backend support for future county pages)
+  app.get("/api/bookstores/county/:county", async (req, res) => {
+    try {
+      const county = req.params.county;
+      
+      // Get all bookstores
+      const allBookstores = await storageImpl.getBookstores();
+      
+      // Filter by county field
+      const bookstoresByCounty = allBookstores.filter(bookstore => {
+        // @ts-ignore - county field exists in the data but might not be in the type yet
+        return bookstore.county && bookstore.county.toLowerCase() === county.toLowerCase();
+      });
+      
+      res.json(bookstoresByCounty);
+    } catch (error) {
+      console.error('Error fetching bookstores by county:', error);
+      res.status(500).json({ message: 'Error fetching bookstores by county' });
+    }
+  });
+  
   app.get("/api/config", (req, res) => {
     res.json({
       mapboxAccessToken: process.env.MAPBOX_ACCESS_TOKEN || ''

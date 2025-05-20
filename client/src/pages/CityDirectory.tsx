@@ -31,8 +31,8 @@ const CityDirectory = () => {
       const stateIndex = parts.length - 1;
       stateFromUrl = parts[stateIndex];
       
-      // Everything before the last part is the city
-      city = parts.slice(0, stateIndex).join('-');
+      // Everything before the last part is the city, replace hyphens with spaces
+      city = parts.slice(0, stateIndex).join(' ').replace(/-/g, ' ');
       
       console.log(`Parsed city-state URL: city=${city}, state=${stateFromUrl}`);
     } else {
