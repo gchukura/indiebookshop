@@ -5,6 +5,7 @@ interface LogoProps {
   width?: number;
   height?: number;
   showDotCom?: boolean;
+  className?: string;
 }
 
 // Logo color constants - matching the website theme

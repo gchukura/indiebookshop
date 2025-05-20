@@ -248,6 +248,10 @@ export const DESCRIPTION_TEMPLATES = {
   
   city_state: 'Explore local bookshops in {city}, {state}. Find indie bookshops and independent bookshops in {city} {state} with our complete directory of the best bookshops in the area.',
   
+  county: 'Discover local bookshops in {county} County. Find indie bookshops and independent bookshops in {county} County with our comprehensive directory of the best bookshops in the area.',
+  
+  county_state: 'Browse local bookshops in {county} County, {state}. Find indie bookshops and independent bookshops in {county} County, {state} with our comprehensive directory.',
+  
   categories: 'Browse bookshops by category. Find specialized indie bookshops including vintage bookshops, alternative bookshops, and other unique independent bookshops across America.',
   
   vintage: 'Discover vintage bookshops across America. Find the best vintage bookshops with our complete directory of rare and antiquarian bookshops specializing in collectible volumes.',
@@ -290,7 +294,8 @@ export const generateDescription = (template: string, replacements: Record<strin
   let description = template;
   
   Object.entries(replacements).forEach(([key, value]) => {
-    description = description.replace(`{${key}}`, value);
+    const regex = new RegExp(`{${key}}`, 'g');
+    description = description.replace(regex, value);
   });
   
   return description;

@@ -91,6 +91,13 @@ const Header = () => {
                         Bookshops by City
                       </Link>
                       <Link 
+                        href="/directory/counties" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowStatesDropdown(false)}
+                      >
+                        Bookshops by County
+                      </Link>
+                      <Link 
                         href="/directory/categories" 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowStatesDropdown(false)}

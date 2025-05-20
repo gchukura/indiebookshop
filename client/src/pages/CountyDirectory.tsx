@@ -101,18 +101,16 @@ const CountyDirectory = () => {
   
   const pageDescription = useMemo(() => {
     if (stateFromUrl) {
-      return generateDescription([
-        `Discover ${bookshopCount} independent bookshops in ${countyName} County, ${stateName}.`,
-        `Browse our directory of local indie bookstores in ${countyName} County.`,
-        `Find hours, locations, events, and contact information for bookshops in ${countyName} County.`
-      ]);
+      return generateDescription(
+        DESCRIPTION_TEMPLATES.county_state,
+        { county: countyName, state: stateName }
+      );
     }
     
-    return generateDescription([
-      `Browse our directory of independent bookshops in ${countyName} County.`,
-      `Find local bookstores, their locations, and special features in ${countyName} County.`,
-      `Discover ${bookshopCount} unique indie bookstores throughout ${countyName} County.`
-    ]);
+    return generateDescription(
+      DESCRIPTION_TEMPLATES.county,
+      { county: countyName }
+    );
   }, [bookshopCount, countyName, stateName, stateFromUrl]);
   
   const seoKeywords = useMemo(() => {

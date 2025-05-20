@@ -29,6 +29,11 @@ const BookshopCard = ({ bookshop, onViewDetails }: BookshopCardProps) => {
   
   // Generate the bookshop URL using only the name slug (no ID)
   const bookshopUrl = generateBookshopSlug(bookshop.id, bookshop.name);
+  
+  // Handle view details click
+  const handleViewDetails = () => {
+    onViewDetails();
+  };
 
   return (
     <div className="bookshop-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
