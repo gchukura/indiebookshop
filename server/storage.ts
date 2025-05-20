@@ -15,6 +15,7 @@ export interface IStorage {
   // Bookstore operations
   getBookstores(): Promise<Bookstore[]>;
   getBookstore(id: number): Promise<Bookstore | undefined>;
+  getBookstoreBySlug(slug: string): Promise<Bookstore | undefined>;
   getBookstoresByState(state: string): Promise<Bookstore[]>;
   getBookstoresByCity(city: string): Promise<Bookstore[]>;
   getBookstoresByFeatures(featureIds: number[]): Promise<Bookstore[]>;
@@ -100,6 +101,22 @@ export class MemStorage implements IStorage {
     const bookstore = this.bookstores.get(id);
     // Individual bookstore can be viewed even if not live (for admin/preview purposes)
     return bookstore;
+  }
+  
+  async getBookstoreBySlug(slug: string): Promise<Bookstore | undefined> {
+    // Generate clean slugs for each bookstore and find a match
+    return Array.from(this.bookstores.values()).find(bookstore => {
+      // Create a slug from the bookstore name
+      const bookstoreSlug = bookstore.name
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-')     // Replace spaces with hyphens
+        .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
+        .trim();                  // Trim leading/trailing spaces
+      
+      // Compare with requested slug
+      return bookstoreSlug === slug;
+    });
   }
 
   async getBookstoresByState(state: string): Promise<Bookstore[]> {

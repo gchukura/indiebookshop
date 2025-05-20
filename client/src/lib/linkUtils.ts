@@ -5,9 +5,9 @@
 import { Bookstore as Bookshop, Feature } from "@shared/schema";
 
 /**
- * Generate an SEO-friendly URL slug for a bookshop
+ * Generate a clean SEO-friendly URL slug for a bookshop
  * 
- * @param id The bookshop ID
+ * @param id The bookshop ID (retained for data tracking but not used in URL)
  * @param name The bookshop name
  * @returns URL-friendly string with format: /bookshop/bookshop-name
  */
@@ -20,9 +20,23 @@ export function generateBookshopSlug(id: number, name: string): string {
     .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
     .trim();                  // Trim leading/trailing spaces
     
-  // Use the name in the URL but hide ID at the end with a prefix 
-  // for better SEO while maintaining ability to find the right bookshop
-  return `/bookshop/${nameSlug}-id${id}`;
+  // Use only the name in the URL for maximum SEO benefit
+  return `/bookshop/${nameSlug}`;
+}
+
+/**
+ * Extracts a clean slug from a bookshop name
+ * 
+ * @param name The bookshop name
+ * @returns A URL-friendly slug
+ */
+export function generateSlugFromName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-')     // Replace spaces with hyphens
+    .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
+    .trim();                  // Trim leading/trailing spaces
 }
 
 /**
