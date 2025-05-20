@@ -38,6 +38,7 @@ export class MemStorage implements IStorage {
   private bookstores: Map<number, Bookstore>;
   private features: Map<number, Feature>;
   private events: Map<number, Event>;
+  private slugToBookstoreId: Map<string, number>; // For fast slug-based lookups
   
   private userCurrentId: number;
   private bookstoreCurrentId: number;
@@ -49,6 +50,7 @@ export class MemStorage implements IStorage {
     this.bookstores = new Map();
     this.features = new Map();
     this.events = new Map();
+    this.slugToBookstoreId = new Map();
     
     this.userCurrentId = 1;
     this.bookstoreCurrentId = 1;
