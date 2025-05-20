@@ -74,23 +74,26 @@ const CountiesListPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <SEO 
-        title="Bookshops by County | Find Independent Bookstores in Your County"
+        title="Browse Independent Bookshops by County | Find Local Bookstores Near You"
         description="Discover independent bookshops and local bookstores in your county. Browse our comprehensive directory organized by counties across all states."
         keywords={["bookshops by county", "local bookstores", "independent bookshops", "county bookshop directory", "find bookstore in county"]}
         canonicalUrl={`${BASE_URL}/directory/counties`}
       />
       
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#3d6a80] mb-4">
-          Browse Bookshops by County
+        <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#5F4B32] mb-4">
+          Search for Independent Bookshops by County
         </h1>
         
-        <div className="bg-[#F7F3E8] p-4 md:p-6 rounded-lg mb-8">
-          <p className="text-lg text-gray-800">
-            Explore our directory of independent bookshops organized by county. Find local bookstores in your county 
-            or discover new places to explore in counties across the United States and Canada.
-          </p>
-        </div>
+        <p className="text-gray-600 mb-6">
+          Explore our directory of independent bookshops organized by county. Find local bookstores in your county 
+          or discover new places to explore in counties across the United States and Canada.
+        </p>
+        
+        <p className="text-gray-600 mb-6">
+          Our directory includes counties with independent bookstores and indie bookshops across all states. 
+          Discover local booksellers in your county today.
+        </p>
         
         {/* Navigation links */}
         <div className="flex flex-wrap gap-3 mb-8">
@@ -130,8 +133,8 @@ const CountiesListPage = () => {
         ) : (
           <div className="grid grid-cols-1 gap-8">
             {countiesByState.map(stateData => (
-              <div key={stateData.state}>
-                <h2 className="text-2xl font-serif text-[#3d6a80] border-b-2 border-[#F7F3E8] pb-2 mb-4">
+              <div key={stateData.state} className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 className="text-2xl font-serif font-bold text-[#5F4B32] border-b border-gray-200 pb-3 mb-4">
                   Counties in {stateData.state}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-y-3 gap-x-4">
@@ -154,19 +157,19 @@ const CountiesListPage = () => {
         )}
         
         <div className="mt-12 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-serif font-bold text-[#3d6a80] mb-4">
+          <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
             About Our County Bookshops Directory
           </h2>
-          <p className="mb-4">
+          <p className="text-gray-600 mb-4">
             Our county-based directory makes it easier to find independent bookshops in your local area or 
             when traveling. Counties often represent distinct cultural regions with their own unique literary scenes.
           </p>
-          <p className="mb-4">
+          <p className="text-gray-600 mb-4">
             Each county page provides a curated list of independent bookshops, their locations, special features, 
             and upcoming events. Whether you're looking for bookstores with coffee shops, rare book collections, or 
             children's book selections, our directory helps you find the perfect local bookshop.
           </p>
-          <p>
+          <p className="text-gray-600">
             Our county directory complements our existing state and city directories, offering you multiple ways to 
             discover independent bookshops in your area. This additional organization helps readers find bookshops 
             that might be located in rural areas outside major cities but still within accessible counties.
