@@ -138,7 +138,7 @@ const CountiesListPage = () => {
                   {stateData.counties.map(county => (
                     <Link
                       key={`${stateData.state}-${county}`}
-                      to={`/directory/county-state/${generateSlug(county)}-${generateSlug(stateData.state)}`}
+                      to={`/directory/county/${stateData.state.toLowerCase()}/${generateSlug(county)}`}
                       className="text-blue-600 hover:text-blue-800 hover:underline"
                     >
                       {county} County 

@@ -19,13 +19,23 @@ const CountyDirectory = () => {
   const [multipleStatesWarning, setMultipleStatesWarning] = useState(false);
   const [matchingStates, setMatchingStates] = useState<string[]>([]);
   
-  // Handle both routing patterns
-  let county = params.county;
+  // Handle all routing patterns
+  let county: string | null = null;
   let stateFromUrl: string | undefined;
   
-  // If we're using the county-state combined format
-  if (params.countystate && !county) {
-    // Parse the combined parameter (orange-california)
+  // New URL format: /directory/county/:state/:county
+  if (params.state && params.county) {
+    stateFromUrl = params.state;
+    // Convert county slug to display name
+    county = params.county.replace(/-/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+    
+    console.log(`Parsed county URL: county=${county}, state=${stateFromUrl}`);
+  }
+  // Legacy URL format: /directory/county-state/:countystate
+  else if (params.countystate) {
     const parts = params.countystate.split('-');
     if (parts.length >= 2) {
       // Last part is the state
@@ -33,11 +43,17 @@ const CountyDirectory = () => {
       stateFromUrl = parts[stateIndex];
       
       // Everything before the last part is the county, replace hyphens with spaces
-      county = parts.slice(0, stateIndex).join(' ').replace(/-/g, ' ');
+      county = parts.slice(0, stateIndex).join(' ').replace(/-/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
       
-      console.log(`Parsed county-state URL: county=${county}, state=${stateFromUrl}`);
+      console.log(`Parsed legacy county-state URL: county=${county}, state=${stateFromUrl}`);
     } else {
-      county = params.countystate;
+      county = params.countystate.replace(/-/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
     }
   }
   

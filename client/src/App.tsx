@@ -41,8 +41,26 @@ function Router() {
           <Route path="/directory/city/:city" component={CityDirectory} />
           <Route path="/directory/city-state/:citystate" component={CityDirectory} />
           <Route path="/directory/counties" component={CountiesListPage} />
-          {/* Removed standalone county route since these need state context for disambiguation */}
-          <Route path="/directory/county-state/:countystate" component={CountyDirectory} />
+          {/* Updated to more logical URL structure for counties */}
+          <Route path="/directory/county/:state/:county" component={CountyDirectory} />
+          
+          {/* Keep old route format for backward compatibility and redirect */}
+          <Route path="/directory/county-state/:countystate">
+            {(params) => {
+              // Parse county and state from combined parameter
+              const parts = params.countystate.split('-');
+              if (parts.length >= 2) {
+                const county = parts.slice(0, -1).join('-');
+                const state = parts[parts.length - 1];
+                // Redirect to new URL format
+                window.location.href = `/directory/county/${state}/${county}`;
+              } else {
+                // If parsing fails, redirect to counties list
+                window.location.href = '/directory/counties';
+              }
+              return null;
+            }}
+          </Route>
           <Route path="/directory/category/:featureId" component={CategoryDirectory} />
           <Route path="/bookshop/:idslug" component={BookshopDetailPage} />
           <Route path="/submit" component={SubmitBookshop} />
