@@ -153,6 +153,13 @@ const CountyDirectory = () => {
     }
   };
   
+  // Helper to safely handle bookshop details
+  const handleBookshopDetails = (bookshop: any) => {
+    if (bookshop && bookshop.id) {
+      handleShowDetails(bookshop.id);
+    }
+  };
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <SEO 
@@ -245,7 +252,7 @@ const CountyDirectory = () => {
                   <BookshopCard 
                     key={bookshop.id} 
                     bookshop={bookshop} 
-                    onViewDetails={() => handleShowDetails(bookshop.id)}
+                    onViewDetails={() => handleBookshopDetails(bookshop)}
                   />
                 ))}
               </div>
