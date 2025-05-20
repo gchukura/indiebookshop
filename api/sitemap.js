@@ -43,11 +43,30 @@ export default async function handler(req, res) {
       citiesByState[bookstore.state].add(bookstore.city);
     }
     
+    // Create a map of counties by state
+    const countiesByState = {};
+    for (const bookstore of bookstores) {
+      if (bookstore.county && bookstore.state) {
+        if (!countiesByState[bookstore.state]) {
+          countiesByState[bookstore.state] = new Set();
+        }
+        countiesByState[bookstore.state].add(bookstore.county);
+      }
+    }
+    
     // Convert to array of city objects with state
     const cities = [];
     for (const state in citiesByState) {
       for (const city of citiesByState[state]) {
         cities.push({ state, city });
+      }
+    }
+    
+    // Convert to array of county objects with state
+    const counties = [];
+    for (const state in countiesByState) {
+      for (const county of countiesByState[state]) {
+        counties.push({ state, county });
       }
     }
     
@@ -79,9 +98,19 @@ export default async function handler(req, res) {
     addUrl('/events', 0.8, 'daily');
     addUrl('/submit-bookshop', 0.6, 'monthly');
     
-    // Add bookshop pages
+    // Add bookshop pages with name-based slugs
     for (const bookshop of bookstores) {
-      addUrl(`/bookshop/${bookshop.id}`, 0.7, 'weekly');
+      if (bookshop.name) {
+        // Create a clean slug for the bookshop name
+        const bookshopSlug = bookshop.name
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/--+/g, '-')
+          .trim();
+        
+        addUrl(`/bookshop/${bookshopSlug}`, 0.7, 'weekly');
+      }
     }
     
     // Add state directory pages
@@ -91,12 +120,39 @@ export default async function handler(req, res) {
       addUrl(`/directory/state/${stateSlug}`, 0.6, 'weekly');
     }
     
-    // Add city directory pages
+    // Add city directory pages with state in the path (preferred format)
     for (const { state, city } of cities) {
-      // URL-friendly names
-      const stateSlug = state.toLowerCase().replace(/\s+/g, '-');
-      const citySlug = city.toLowerCase().replace(/\s+/g, '-');
-      addUrl(`/directory/city/${stateSlug}/${citySlug}`, 0.6, 'weekly');
+      if (state && city) {
+        // URL-friendly names
+        const stateSlug = state.toLowerCase().replace(/\s+/g, '-');
+        const citySlug = city.toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/--+/g, '-')
+          .trim();
+        
+        // Add the preferred format with higher priority
+        addUrl(`/directory/city/${stateSlug}/${citySlug}`, 0.7, 'monthly');
+        
+        // Also add the legacy format with lower priority
+        addUrl(`/directory/city/${citySlug}`, 0.5, 'monthly');
+      }
+    }
+    
+    // Add county directory pages
+    for (const { state, county } of counties) {
+      if (state && county) {
+        // URL-friendly names
+        const stateSlug = state.toLowerCase().replace(/\s+/g, '-');
+        const countySlug = county.toLowerCase()
+          .replace(/\s+county$/i, '') // Remove "County" suffix
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/--+/g, '-')
+          .trim();
+        
+        addUrl(`/directory/county/${stateSlug}/${countySlug}`, 0.7, 'monthly');
+      }
     }
     
     // Add category pages
