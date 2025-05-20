@@ -18,8 +18,8 @@ import { getFullStateName } from "../lib/stateUtils";
 const CityDirectory = () => {
   // Get city name from URL
   const params = useParams();
-  const cityParam = params.city;
-  const cityFromUrl = cityParam 
+  const cityParam = params.city || '';
+  const cityFromUrl = cityParam
     ? cityParam.replace(/-/g, ' ')
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -27,7 +27,7 @@ const CityDirectory = () => {
     : '';
   
   // Get potential state from URL
-  const stateParam = params.state;
+  const stateParam = params.state || '';
   const stateFromUrl = stateParam ? stateParam.toUpperCase() : '';
   
   // Component state
@@ -102,22 +102,27 @@ const CityDirectory = () => {
   }, [cityName, stateName, stateFromUrl]);
   
   const seoDescription = useMemo(() => {
-    return stateFromUrl
-      ? generateDescription(
-          DESCRIPTION_TEMPLATES.city_state,
-          {
-            city: cityName,
-            state: stateName,
-            bookshopCount: bookshops.length
-          }
-        )
-      : generateDescription(
-          DESCRIPTION_TEMPLATES.city,
-          {
-            city: cityName,
-            bookshopCount: bookshops.length
-          }
-        );
+    if (stateFromUrl && DESCRIPTION_TEMPLATES.city_state) {
+      return generateDescription(
+        DESCRIPTION_TEMPLATES.city_state,
+        {
+          city: cityName,
+          state: stateName,
+          bookshopCount: String(bookshops.length)
+        }
+      );
+    } else if (DESCRIPTION_TEMPLATES.city) {
+      return generateDescription(
+        DESCRIPTION_TEMPLATES.city,
+        {
+          city: cityName,
+          bookshopCount: String(bookshops.length)
+        }
+      );
+    }
+    
+    // Fallback description
+    return `Browse our directory of ${bookshops.length} independent bookshops in ${cityName}${stateName ? `, ${stateName}` : ''}. Find local indie bookstores, view their locations, and discover their unique offerings.`;
   }, [cityName, stateName, stateFromUrl, bookshops.length]);
   
   const seoKeywords = useMemo(() => {

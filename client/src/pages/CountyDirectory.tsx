@@ -28,16 +28,20 @@ const CountyDirectory = () => {
   if (params.state && params.county) {
     stateFromUrl = params.state;
     // Convert county slug to display name
-    county = params.county.replace(/-/g, ' ')
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-    
-    console.log(`Parsed county URL: county=${county}, state=${stateFromUrl}`);
+    const countyParam = params.county;
+    if (countyParam) {
+      county = countyParam.replace(/-/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+      
+      console.log(`Parsed county URL: county=${county}, state=${stateFromUrl}`);
+    }
   }
   // Legacy URL format: /directory/county-state/:countystate
   else if (params.countystate) {
-    const parts = params.countystate.split('-');
+    const countyStateParam = params.countystate;
+    const parts = countyStateParam ? countyStateParam.split('-') : [];
     if (parts.length >= 2) {
       // Last part is the state
       const stateIndex = parts.length - 1;

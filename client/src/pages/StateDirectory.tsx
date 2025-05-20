@@ -91,16 +91,23 @@ const StateDirectory = () => {
   
   const seoDescription = useMemo(() => {
     return generateDescription(
-      DESCRIPTION_TEMPLATES.state,
+      DESCRIPTION_TEMPLATES.states,
       {
         state: fullStateName,
-        bookshopCount: bookshops.length
+        bookshopCount: String(bookshops.length)
       }
     );
   }, [fullStateName, bookshops.length]);
   
   const seoKeywords = useMemo(() => {
-    return generateLocationKeywords(fullStateName);
+    return [
+      `bookshops in ${fullStateName}`,
+      `independent bookstores ${fullStateName}`,
+      `local bookshops ${fullStateName}`,
+      `indie bookstores in ${fullStateName}`,
+      `${fullStateName} bookshops`,
+      `${fullStateName} indie bookstores`
+    ];
   }, [fullStateName]);
   
   const canonicalUrl = useMemo(() => {
