@@ -14,6 +14,31 @@ export async function registerRoutes(app, storageImpl) {
       res.status(500).json({ error: 'Failed to fetch bookstores' });
     }
   });
+  
+  // Get filtered bookshops - IMPORTANT: This must come before the :id route
+  app.get('/api/bookstores/filter', async (req, res) => {
+    try {
+      console.log('Serverless: Processing filter request with params:', req.query);
+      
+      const filters = {
+        state: req.query.state,
+        city: req.query.city,
+        county: req.query.county, // Add support for county filtering
+        featureIds: req.query.features ? req.query.features.split(',').map(f => parseInt(f)) : undefined
+      };
+      
+      if (filters.county) {
+        console.log(`Serverless: Filter request includes county: ${filters.county}`);
+      }
+      
+      const bookstores = await storageImpl.getFilteredBookstores(filters);
+      console.log(`Serverless: Filtered bookstores returned ${bookstores.length} results`);
+      res.json(bookstores);
+    } catch (error) {
+      console.error('Serverless Error filtering bookstores:', error);
+      res.status(500).json({ error: 'Failed to filter bookstores', details: error.message });
+    }
+  });
 
   // Get a specific bookshop by ID
   app.get('/api/bookstores/:id', async (req, res) => {

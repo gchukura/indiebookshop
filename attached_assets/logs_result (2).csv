@@ -1,0 +1,725 @@
+"TimeUTC","timestampInMs","requestPath","requestMethod","requestQueryString","responseStatusCode","requestId","requestUserAgent","level","environment","branch","vercelCache","type","function","host","deploymentDomain","deploymentId","durationMs","region","maxMemoryUsed","memorySize","message","projectId","traceId","sessionId"
+"2025-05-20 07:02:15",1747724535460,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"4hwjl-1747724535433-7f6fcb2fd92d","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 07:02:15",1747724535441,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",404,"4hwjl-1747724535433-7f6fcb2fd92d","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","warning","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",9,"iad1",260,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 07:02:15",1747724535281,"www.indiebookshop.com/api/config","GET","",-1,"59bfz-1747724535162-f3abafe91809","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 07:02:15",1747724535183,"www.indiebookshop.com/api/config","GET","",200,"59bfz-1747724535162-f3abafe91809","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",96,"iad1",245,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 07:02:15",1747724535140,"www.indiebookshop.com/api/config","GET","",-1,"9xsxp-1747724535049-f014f2716bb7","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 07:02:15",1747724535064,"www.indiebookshop.com/api/config","GET","",200,"9xsxp-1747724535049-f014f2716bb7","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",321,"iad1",260,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:59:12",1747724352884,"www.indiebookshop.com/api/bookstores/filter","GET","county=Colbert&state=al",-1,"spx4s-1747724352865-bb03e8db9138","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:59:12",1747724352873,"www.indiebookshop.com/api/bookstores/filter","GET","county=Colbert&state=al",404,"spx4s-1747724352865-bb03e8db9138","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","warning","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",5,"iad1",258,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:59:12",1747724352786,"www.indiebookshop.com/api/config","GET","",-1,"dspbb-1747724352771-f305be43183d","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:59:12",1747724352773,"www.indiebookshop.com/api/config","GET","",200,"dspbb-1747724352771-f305be43183d","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",6,"iad1",258,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:59:12",1747724352758,"www.indiebookshop.com/api/config","GET","",-1,"dspbb-1747724352737-021661027755","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:59:12",1747724352745,"www.indiebookshop.com/api/config","GET","",200,"dspbb-1747724352737-021661027755","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",6,"iad1",258,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:59:02",1747724342379,"www.indiebookshop.com/api/bookstores","GET","",-1,"znftd-1747724342312-6367b09ff0ff","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:59:02",1747724342359,"www.indiebookshop.com/api/bookstores","GET","",200,"znftd-1747724342312-6367b09ff0ff","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",46,"iad1",258,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:53",1747724333779,"www.indiebookshop.com/api/bookstores/filter","GET","county=Anchorage&state=ak",-1,"w9q66-1747724333757-bc7394ce40b3","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:53",1747724333765,"www.indiebookshop.com/api/bookstores/filter","GET","county=Anchorage&state=ak",404,"w9q66-1747724333757-bc7394ce40b3","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","warning","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",6,"iad1",253,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:53",1747724333731,"www.indiebookshop.com/api/config","GET","",-1,"9hqr7-1747724333706-9b8c92157e03","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:53",1747724333712,"www.indiebookshop.com/api/config","GET","",200,"9hqr7-1747724333706-9b8c92157e03","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",5,"iad1",253,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:53",1747724333697,"www.indiebookshop.com/api/config","GET","",-1,"czcvl-1747724333646-3f5f8ac42ac2","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 3130 bookshops from Google Sheets
+Serverless: No events found in Google Sheets, using sample events
+Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events
+Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:53",1747724333690,"www.indiebookshop.com/api/config","GET","",-1,"czcvl-1747724333646-3f5f8ac42ac2","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:53",1747724333657,"www.indiebookshop.com/api/config","GET","",200,"czcvl-1747724333646-3f5f8ac42ac2","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",24,"iad1",253,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:51",1747724331237,"www.indiebookshop.com/api/bookstores","GET","",-1,"dxk5n-1747724331192-4b1e1f71d021","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:51",1747724331219,"www.indiebookshop.com/api/bookstores","GET","",200,"dxk5n-1747724331192-4b1e1f71d021","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",119,"iad1",252,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:42",1747724322136,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No event data found in the spreadsheet
+Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]
+Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}
+Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O
+Serverless: Retrieved 8 features from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:42",1747724322115,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:42",1747724322115,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:42",1747724322115,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No events found in Google Sheets, using sample events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:42",1747724322115,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 3130 bookshops from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:41",1747724321317,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 8 features from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:41",1747724321227,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No event data found in the spreadsheet","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:41",1747724321222,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:41",1747724321222,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:41",1747724321221,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:40",1747724320932,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching events from Google Sheets range: Events!A2:F","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:40",1747724320932,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching features from Google Sheets range: Features!A2:B","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:40",1747724320932,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Attempting to load data from Google Sheets...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:40",1747724320932,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Initializing Google Sheets storage...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:40",1747724320931,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",-1,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:40",1747724320889,"www.indiebookshop.com/api/bookstores/filter","GET","state=ct",404,"9hqr7-1747724320839-9c3297002c7c","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","warning","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",1232,"iad1",246,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:40",1747724320718,"www.indiebookshop.com/api/config","GET","",-1,"trcz6-1747724318911-8f164cb4aa8d","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets service initialized with service account credentials
+Serverless: Google Sheets service initialized
+Serverless: Initializing Google Sheets storage...
+Serverless: Attempting to load data from Google Sheets...
+Serverless: Fetching features from Google Sheets range: Features!A2:B
+Serverless: Fetching events from Google Sheets range: Events!A2:F","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:40",1747724320692,"www.indiebookshop.com/api/config","GET","",-1,"trcz6-1747724318911-8f164cb4aa8d","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:40",1747724320670,"www.indiebookshop.com/api/config","GET","",-1,"trcz6-1747724318911-8f164cb4aa8d","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Automatic data refresh is enabled","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:38",1747724318915,"www.indiebookshop.com/api/config","GET","",200,"trcz6-1747724318911-8f164cb4aa8d","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",142,"iad1",236,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:38",1747724318820,"www.indiebookshop.com/api/config","GET","",-1,"trcz6-1747724318732-e1ac5637faaa","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:38",1747724318819,"www.indiebookshop.com/api/config","GET","",-1,"trcz6-1747724318732-e1ac5637faaa","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Automatic data refresh is enabled","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:38",1747724318758,"www.indiebookshop.com/api/config","GET","",200,"trcz6-1747724318732-e1ac5637faaa","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",303,"iad1",240,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:04",1747724284821,"www.indiebookshop.com/api/config","GET","",-1,"c8zqj-1747724284775-2257bc9c7005","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:04",1747724284809,"www.indiebookshop.com/api/config","GET","",200,"c8zqj-1747724284775-2257bc9c7005","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",5,"iad1",252,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:04",1747724284158,"www.indiebookshop.com/api/states","GET","",-1,"7qnph-1747724284098-52c4e47c024b","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Found 59 states for dropdown","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:04",1747724284157,"www.indiebookshop.com/api/features","GET","",-1,"grrvz-1747724284098-c13be5ce0dbc","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:04",1747724284157,"www.indiebookshop.com/api/states","GET","",-1,"7qnph-1747724284098-52c4e47c024b","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching all states for dropdown","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:04",1747724284157,"www.indiebookshop.com/api/states","GET","",-1,"7qnph-1747724284098-52c4e47c024b","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:04",1747724284153,"www.indiebookshop.com/api/bookstores","GET","",-1,"4zwjl-1747724284099-c49050bbd90b","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:04",1747724284140,"www.indiebookshop.com/api/features","GET","",200,"grrvz-1747724284098-c13be5ce0dbc","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",9,"iad1",250,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:04",1747724284140,"www.indiebookshop.com/api/states","GET","",200,"7qnph-1747724284098-52c4e47c024b","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",11,"iad1",302,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:04",1747724284140,"www.indiebookshop.com/api/bookstores","GET","",200,"4zwjl-1747724284099-c49050bbd90b","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36","info","production","main","MISS","lambda","/api/serverless.js","www.indiebookshop.com","www.indiebookshop.com","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",53,"iad1",252,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:01",1747724281112,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets service initialized with service account credentials
+Serverless: Google Sheets service initialized
+Serverless: Initializing Google Sheets storage...
+Serverless: Attempting to load data from Google Sheets...
+Serverless: Fetching features from Google Sheets range: Features!A2:B
+Serverless: Fetching events from Google Sheets range: Events!A2:F
+Serverless: No event data found in the spreadsheet
+Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]
+Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}
+Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O
+Serverless: Retrieved 8 features from Google Sheets
+Serverless: Retrieved 3130 bookshops from Google Sheets
+Serverless: No events found in Google Sheets, using sample events
+Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events
+Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280526,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets service initialized with service account credentials
+Serverless: Google Sheets service initialized
+Serverless: Initializing Google Sheets storage...
+Serverless: Attempting to load data from Google Sheets...
+Serverless: Fetching features from Google Sheets range: Features!A2:B
+Serverless: Fetching events from Google Sheets range: Events!A2:F
+Serverless: Retrieved 8 features from Google Sheets
+Serverless: No event data found in the spreadsheet
+Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]
+Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}
+Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O
+Serverless: Retrieved 3130 bookshops from Google Sheets
+Serverless: No events found in Google Sheets, using sample events
+Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events
+Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280498,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Found 59 states for dropdown","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280497,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280497,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280497,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No events found in Google Sheets, using sample events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280497,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 3130 bookshops from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280479,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets service initialized with service account credentials
+Serverless: Google Sheets service initialized
+Serverless: Initializing Google Sheets storage...
+Serverless: Attempting to load data from Google Sheets...
+Serverless: Fetching features from Google Sheets range: Features!A2:B
+Serverless: Fetching events from Google Sheets range: Events!A2:F
+Serverless: No event data found in the spreadsheet
+Serverless: Retrieved 8 features from Google Sheets
+Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]
+Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}
+Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O
+Serverless: Retrieved 3130 bookshops from Google Sheets
+Serverless: No events found in Google Sheets, using sample events
+Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events
+Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280398,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280398,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280398,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No events found in Google Sheets, using sample events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280398,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 3130 bookshops from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280277,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Found 59 states for dropdown","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280275,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280275,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280275,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No events found in Google Sheets, using sample events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280275,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 3130 bookshops from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280241,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets service initialized with service account credentials
+Serverless: Google Sheets service initialized
+Serverless: Initializing Google Sheets storage...
+Serverless: Attempting to load data from Google Sheets...
+Serverless: Fetching features from Google Sheets range: Features!A2:B
+Serverless: Fetching events from Google Sheets range: Events!A2:F
+Serverless: No event data found in the spreadsheet
+Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]
+Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}
+Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O
+Serverless: Retrieved 8 features from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280219,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280218,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280218,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No events found in Google Sheets, using sample events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280218,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 3130 bookshops from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280185,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets service initialized with service account credentials
+Serverless: Google Sheets service initialized
+Serverless: Initializing Google Sheets storage...
+Serverless: Attempting to load data from Google Sheets...
+Serverless: Fetching features from Google Sheets range: Features!A2:B
+Serverless: Fetching events from Google Sheets range: Events!A2:F
+Serverless: No event data found in the spreadsheet
+Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]
+Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}
+Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O
+Serverless: Retrieved 8 features from Google Sheets
+Serverless: Retrieved 3130 bookshops from Google Sheets
+Serverless: No events found in Google Sheets, using sample events
+Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events
+Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280158,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280158,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280158,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No events found in Google Sheets, using sample events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:58:00",1747724280158,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 3130 bookshops from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279695,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 8 features from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279691,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No event data found in the spreadsheet","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279537,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279537,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279537,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279536,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No event data found in the spreadsheet","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279532,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No event data found in the spreadsheet","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279525,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279525,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279525,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279524,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279524,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279524,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279519,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 8 features from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279425,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 8 features from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279276,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279276,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279276,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279260,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279260,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279259,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279256,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 8 features from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279253,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No event data found in the spreadsheet","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279201,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No event data found in the spreadsheet","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279189,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 8 features from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279036,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching events from Google Sheets range: Events!A2:F","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279035,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching features from Google Sheets range: Features!A2:B","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279035,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Attempting to load data from Google Sheets...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279035,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Initializing Google Sheets storage...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279034,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279031,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Automatic data refresh is enabled","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279017,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching events from Google Sheets range: Events!A2:F","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279017,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching features from Google Sheets range: Features!A2:B","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279016,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Attempting to load data from Google Sheets...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279016,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Initializing Google Sheets storage...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:59",1747724279001,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching all states for dropdown","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278998,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278976,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Automatic data refresh is enabled","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278968,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching events from Google Sheets range: Events!A2:F","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278968,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching features from Google Sheets range: Features!A2:B","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278968,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Attempting to load data from Google Sheets...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278968,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Initializing Google Sheets storage...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278968,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278950,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Automatic data refresh is enabled","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278795,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching events from Google Sheets range: Events!A2:F","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278795,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching features from Google Sheets range: Features!A2:B","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278795,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Attempting to load data from Google Sheets...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278795,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Initializing Google Sheets storage...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278779,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching all states for dropdown","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278778,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278775,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",-1,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Automatic data refresh is enabled","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278658,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching events from Google Sheets range: Events!A2:F","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278658,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching features from Google Sheets range: Features!A2:B","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278658,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Attempting to load data from Google Sheets...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278658,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Initializing Google Sheets storage...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278658,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278638,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",-1,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Automatic data refresh is enabled","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278356,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 8 features from Google Sheets
+Serverless: No event data found in the spreadsheet
+Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]
+Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}
+Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O
+Serverless: Retrieved 3130 bookshops from Google Sheets
+Serverless: No events found in Google Sheets, using sample events
+Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events
+Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278273,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Google Sheets storage initialized successfully","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278273,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Successfully loaded 3130 bookstores, 8 features, and 0 events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278273,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No events found in Google Sheets, using sample events","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:58",1747724278273,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 3130 bookshops from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:57",1747724277516,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: No event data found in the spreadsheet","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:57",1747724277512,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Retrieved 8 features from Google Sheets","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:57",1747724277501,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching bookshops from Google Sheets range: Bookstores!A2:O","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:57",1747724277500,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Field to column mapping: {
+  id: 0,
+  name: 1,
+  street: 2,
+  city: 3,
+  state: 4,
+  zip: 5,
+  county: 6,
+  description: 7,
+  imageUrl: 8,
+  website: 9,
+  phone: 10,
+  hours: 11,
+  latitude: 12,
+  longitude: 13,
+  featureIds: 14,
+  live: 15
+}","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:57",1747724277500,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Headers from first row: [
+  'id',
+  'name',
+  'street',
+  'city',
+  'state',
+  'zip',
+  'county',
+  'description',
+  'imageurl',
+  'website',
+  'phone',
+  'hours (json)',
+  'latitude',
+  'longitude',
+  'featureids (comma-seperated)',
+  'live'
+]","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276976,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching events from Google Sheets range: Events!A2:F","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276975,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Fetching features from Google Sheets range: Features!A2:B","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276975,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Attempting to load data from Google Sheets...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276975,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Initializing Google Sheets storage...","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276974,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Data preloading middleware running","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276971,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",-1,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",-1,"iad1",-1,-1,"Serverless: Automatic data refresh is enabled","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276834,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",200,"2dvqj-1747724276667-ec42e8c9630b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",1637,"iad1",246,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276827,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",200,"mpbns-1747724276711-39c83d2a137b","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",1658,"iad1",246,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276826,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",200,"nl27t-1747724276668-fbc8242a675d","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",1516,"iad1",251,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276825,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/states","GET","",200,"9r9wt-1747724276711-d3fbdeffdddf","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",2510,"iad1",302,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276825,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/features","GET","",200,"s5kkp-1747724276668-6dc574a26f3c","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",1341,"iad1",239,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
+"2025-05-20 06:57:56",1747724276825,"indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app/api/bookstores","GET","",200,"9nc98-1747724276722-fc548c14ff25","vercel-screenshot/1.0","info","production","main","MISS","lambda","/api/serverless.js","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","indiebookshop-nua4ori56-gini-chukuras-projects.vercel.app","dpl_Aq5xjabgSikUgsUt8JRgqQq3qE9m",1613,"iad1",250,1024,"","prj_Yq1aRIaq7Ntf1DsBf9DuXukAKF6n","",""
