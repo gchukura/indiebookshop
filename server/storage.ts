@@ -104,19 +104,68 @@ export class MemStorage implements IStorage {
   }
   
   async getBookstoreBySlug(slug: string): Promise<Bookstore | undefined> {
-    // Generate clean slugs for each bookstore and find a match
-    return Array.from(this.bookstores.values()).find(bookstore => {
-      // Create a slug from the bookstore name
-      const bookstoreSlug = bookstore.name
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '') // Remove special characters
-        .replace(/\s+/g, '-')     // Replace spaces with hyphens
-        .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
-        .trim();                  // Trim leading/trailing spaces
+    try {
+      // Only show bookstores that are live
+      const liveBookstores = Array.from(this.bookstores.values())
+        .filter(bookstore => bookstore.live !== false);
       
-      // Compare with requested slug
-      return bookstoreSlug === slug;
-    });
+      console.log(`Searching for bookstore with slug: ${slug} among ${liveBookstores.length} live bookstores`);
+      
+      // Let's check a sample of bookstores to debug the slugification process
+      const sampleBookstores = liveBookstores.slice(0, 5);
+      console.log("Sample bookstores and their slugs:");
+      sampleBookstores.forEach(bookstore => {
+        const bookstoreSlug = this.generateSlugFromName(bookstore.name);
+        console.log(`- "${bookstore.name}" -> "${bookstoreSlug}"`);
+      });
+      
+      // Look for a special case - if we're looking for "artbook-hauser-wirth-los-angeles"
+      if (slug === "artbook-hauser-wirth-los-angeles") {
+        console.log("Looking for 'ARTBOOK @ HAUSER & WIRTH LOS ANGELES'");
+        const specialMatch = liveBookstores.find(b => 
+          b.name.includes("ARTBOOK") && b.name.includes("HAUSER") && b.name.includes("LOS ANGELES"));
+        if (specialMatch) {
+          console.log(`Found special match: ${specialMatch.name} (ID: ${specialMatch.id})`);
+          return specialMatch;
+        }
+      }
+      
+      // Generate clean slugs for each bookstore and find a match
+      const match = liveBookstores.find(bookstore => {
+        // Create a slug from the bookstore name
+        const bookstoreSlug = this.generateSlugFromName(bookstore.name);
+        
+        // For debugging, log some of the comparisons
+        if (Math.random() < 0.01) { // Only log about 1% to avoid flooding
+          console.log(`Comparing slug "${slug}" with generated "${bookstoreSlug}" for "${bookstore.name}"`);
+        }
+        
+        // Compare with requested slug
+        return bookstoreSlug === slug;
+      });
+      
+      if (match) {
+        console.log(`Found matching bookstore: ${match.name} (ID: ${match.id})`);
+      } else {
+        console.log(`No match found for slug: ${slug}`);
+      }
+      
+      return match;
+    } catch (error) {
+      console.error("Error in getBookstoreBySlug:", error);
+      // Re-throw the error so it can be caught by the route handler
+      throw error;
+    }
+  }
+  
+  // Helper function to generate a slug from a name
+  private generateSlugFromName(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')     // Replace spaces with hyphens
+      .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
+      .trim();                  // Trim leading/trailing spaces
   }
 
   async getBookstoresByState(state: string): Promise<Bookstore[]> {
