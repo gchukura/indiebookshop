@@ -38,6 +38,10 @@ function Router() {
           <Route path="/directory/cities" component={CitiesListPage} />
           <Route path="/directory/categories" component={CategoriesListPage} />
           <Route path="/directory/state/:state" component={StateDirectory} />
+          {/* New URL format with state in the path */}
+          <Route path="/directory/city/:state/:city" component={CityDirectory} />
+          
+          {/* Legacy URL formats for backward compatibility */}
           <Route path="/directory/city/:city" component={CityDirectory} />
           <Route path="/directory/city-state/:citystate" component={CityDirectory} />
           <Route path="/directory/counties" component={CountiesListPage} />

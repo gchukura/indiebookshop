@@ -17,9 +17,42 @@ import {
 import { getFullStateName } from "../lib/stateUtils";
 
 const CityDirectory = () => {
-  // Get city name from URL
+  // Get parameters from URL
   const params = useParams();
-  const cityParam = params.city || '';
+  
+  // Handle all URL formats:
+  // 1. /directory/city/:state/:city
+  // 2. /directory/city/:city 
+  // 3. /directory/city-state/:citystate
+  
+  // Extract city and state parameters
+  let cityParam = '';
+  let stateParam = '';
+  
+  // Handle new format: /directory/city/:state/:city
+  if (params.state && params.city) {
+    stateParam = params.state;
+    cityParam = params.city;
+    console.log(`URL format: /directory/city/${stateParam}/${cityParam}`);
+  }
+  // Handle city-state combined format: /directory/city-state/:citystate
+  else if (params.citystate) {
+    const parts = params.citystate.split('-');
+    if (parts.length >= 2) {
+      // Last part is state
+      stateParam = parts[parts.length - 1];
+      // Rest is city
+      cityParam = parts.slice(0, parts.length - 1).join('-');
+      console.log(`URL format: /directory/city-state/${params.citystate}`);
+    }
+  }
+  // Handle city-only format: /directory/city/:city
+  else if (params.city) {
+    cityParam = params.city;
+    console.log(`URL format: /directory/city/${cityParam}`);
+  }
+  
+  // Convert slug to display name (Boston-ma → Boston)
   const cityFromUrl = cityParam
     ? cityParam.replace(/-/g, ' ')
       .split(' ')
@@ -27,8 +60,7 @@ const CityDirectory = () => {
       .join(' ') 
     : '';
   
-  // Get potential state from URL
-  const stateParam = params.state || '';
+  // Standardize state parameter (works with both 'ma' and 'massachusetts')
   const stateFromUrl = stateParam ? stateParam.toUpperCase() : '';
   
   // Component state
@@ -163,9 +195,14 @@ const CityDirectory = () => {
   }, [cityName, stateName, stateFromUrl]);
   
   const canonicalUrl = useMemo(() => {
-    return stateFromUrl 
-      ? `${BASE_URL}/directory/city/${stateFromUrl.toLowerCase()}/${generateSlug(cityName)}`
-      : `${BASE_URL}/directory/city/${generateSlug(cityName)}`;
+    // Always use the state-in-path format for canonical URLs if state is available
+    if (stateFromUrl) {
+      // Handle both full state names and abbreviations
+      const stateSlug = stateFromUrl.toLowerCase();
+      return `${BASE_URL}/directory/city/${stateSlug}/${generateSlug(cityName)}`;
+    }
+    // If no state is available, use the city-only format
+    return `${BASE_URL}/directory/city/${generateSlug(cityName)}`;
   }, [cityName, stateFromUrl]);
   
   return (

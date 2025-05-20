@@ -181,7 +181,7 @@ const CitiesListPage = () => {
                   .map((city, index) => (
                     <Link 
                       key={`${city.name}-${index}`} 
-                      href={`/directory/city/${generateSlug(city.name)}`}
+                      href={`/directory/city/${city.state.toLowerCase()}/${generateSlug(city.name)}`}
                     >
                       <Button 
                         variant="outline" 
@@ -218,7 +218,7 @@ const CitiesListPage = () => {
                   .map((city, index) => (
                     <Link 
                       key={`${city.name}-${index}`} 
-                      href={`/directory/city/${generateSlug(city.name)}`}
+                      href={`/directory/city/${city.state.toLowerCase()}/${generateSlug(city.name)}`}
                     >
                       <Button 
                         variant="outline" 
