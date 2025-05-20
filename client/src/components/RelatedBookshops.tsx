@@ -3,6 +3,7 @@ import { Link } from 'wouter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bookstore as Bookshop } from '@shared/schema';
 import { generateBookshopImageAlt } from '../lib/imageUtils';
+import { generateBookshopSlug } from '../lib/linkUtils';
 
 interface RelatedBookshopsProps {
   currentBookshop: Bookshop;
@@ -54,7 +55,7 @@ const RelatedBookshops = ({ currentBookshop }: RelatedBookshopsProps) => {
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <Link 
-          to={`/bookshop/${bookshop.id}`}
+          to={generateBookshopSlug(bookshop.id, bookshop.name)}
           className="text-blue-600 hover:text-blue-800 hover:underline text-sm"
         >
           View details →

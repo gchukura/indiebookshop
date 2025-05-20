@@ -105,7 +105,7 @@ export function generateBreadcrumbs(
     {
       position: 5,
       name: bookshop.name,
-      item: `${baseUrl}/bookshop/${bookshop.id}`
+      item: `${baseUrl}${generateBookshopSlug(bookshop.id, bookshop.name)}`
     }
   ];
 }
@@ -124,7 +124,7 @@ export function generateEventLinks(
   return [
     {
       title: `Events at ${bookshopName}`,
-      url: `/bookshop/${bookshopId}/events`,
+      url: `${generateBookshopSlug(bookshopId, bookshopName)}/events`,
       description: `View upcoming literary events, author signings, and book clubs at ${bookshopName}`
     },
     {
