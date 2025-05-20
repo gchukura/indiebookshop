@@ -12,16 +12,9 @@ import { Bookstore as Bookshop, Feature } from "@shared/schema";
  * @returns URL-friendly string with format: /bookshop/bookshop-name
  */
 export function generateBookshopSlug(id: number, name: string): string {
-  // Convert bookshop name to URL-friendly format
-  const nameSlug = name
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '-')     // Replace spaces with hyphens
-    .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
-    .trim();                  // Trim leading/trailing spaces
-    
-  // Use only the name in the URL for maximum SEO benefit
-  return `/bookshop/${nameSlug}`;
+  // Use a hybrid approach that includes both ID and name
+  // This is more reliable while still SEO-friendly
+  return `/bookshop/${id}-${generateSlugFromName(name)}`;
 }
 
 /**

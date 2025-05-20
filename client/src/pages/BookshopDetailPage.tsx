@@ -11,32 +11,37 @@ const BookshopDetailPage = () => {
   const { idslug } = useParams<{ idslug: string }>();
   const [_, setLocation] = useLocation();
   
-  // With our new approach, the URL parameter is just the bookshop slug
-  // We don't need to extract an ID anymore
-  const bookshopSlug = idslug || '';
+  // Extract the ID from the URL parameter (e.g., "123-book-shop-name")
+  const idMatch = idslug?.match(/^(\d+)-/);
+  const bookshopId = idMatch ? parseInt(idMatch[1], 10) : NaN;
+  
+  // Redirect to directory if ID is invalid
+  useEffect(() => {
+    if (isNaN(bookshopId)) {
+      setLocation('/directory');
+    }
+  }, [bookshopId, setLocation]);
 
-  // Fetch bookshop details by slug
+  // Fetch bookshop details by ID (more reliable than by slug)
   const { 
     data: bookshop, 
     isLoading: isLoadingBookshop, 
     isError: isErrorBookshop 
   } = useQuery<Bookshop>({
-    queryKey: [`/api/bookstores/by-slug/${bookshopSlug}`],
-    enabled: !!bookshopSlug,
+    queryKey: [`/api/bookstores/${bookshopId}`],
+    enabled: !isNaN(bookshopId),
     retry: 1,
-    gcTime: 0,
     staleTime: 10 * 60 * 1000, // 10 minutes
-    throwOnError: false
   });
   
   // Show a "not found" message if the bookshop couldn't be found
   // Only redirect to directory if there was an actual error
   useEffect(() => {
-    if (isErrorBookshop && bookshopSlug) {
+    if (isErrorBookshop && !isNaN(bookshopId)) {
       // If there was an error (like a 500), redirect to directory
       setLocation('/directory');
     }
-  }, [isErrorBookshop, bookshopSlug, setLocation]);
+  }, [isErrorBookshop, bookshopId, setLocation]);
 
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
