@@ -203,67 +203,71 @@ const CityDirectory = () => {
         />
       )}
 
-      <div className="md:flex md:space-x-6">
-        {/* Map Section - Styled like directory page */}
-        {view === "map" && (
-          <div className="w-full md:w-1/2 mb-6 md:mb-0">
-            <div className="bg-white h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED]">
+      {/* Interactive Map Section - Styled like directory */}
+      {view === "map" && (
+        <section className="py-12 bg-white">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+                Find Independent Bookshops in {cityName}
+                {stateName ? `, ${stateName}` : ''}
+              </h2>
+              <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-6">
+                Use our interactive map to explore indie bookshops in {cityName}
+                {stateName ? ` in ${stateName}` : ''}.
+                Click on any pin to view details about the bookshop.
+              </p>
+            </div>
+            <div className="h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-8">
               <MapboxMap 
                 bookstores={bookshops} 
                 onSelectBookshop={handleShowDetails}
               />
             </div>
-            <div className="mt-4 text-center">
-              <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-2">
-                Find Bookshops in {cityName}
-              </h2>
-              <p className="text-gray-600">
-                Use the map to explore indie bookshops in {cityName}. Click on any pin for details.
-              </p>
+          </div>
+        </section>
+      )}
+        
+      {/* Bookshop table section */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-lg shadow-md p-4">
+          <h2 className="text-xl font-serif font-bold mb-4">
+            {bookshops.length} Independent Bookshops in {cityName}
+            {stateName ? `, ${stateName}` : ''}
+          </h2>
+          <p className="text-gray-600 mb-6">
+            A guide to local bookshops and indie bookstores in {cityName}{stateName ? `, ${stateName}` : ''}
+          </p>
+          
+          {isLoading ? (
+            <div className="text-center py-10">
+              <p>Loading indie bookshops in {cityName}...</p>
             </div>
-          </div>
-        )}
-
-        {/* Bookshop Listings Section */}
-        <div className={`w-full ${view === "map" ? "md:w-1/2" : "md:w-full"}`}>
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
-              {bookshops.length} Local Bookshops in {cityName}
-            </h2>
-            <h3 className="text-md text-gray-600 mb-6">
-              A guide to independent bookshops and indie bookstores in {cityName}{stateName ? `, ${stateName}` : ''}
-            </h3>
-            
-            {isLoading ? (
-              <div className="text-center py-10">
-                <p>Loading indie bookshops in {cityName}...</p>
-              </div>
-            ) : isError ? (
-              <div className="text-center py-10">
-                <p>Error loading independent bookshops. Please try again later.</p>
-              </div>
-            ) : bookshops.length === 0 ? (
-              <div className="text-center py-10">
-                <p>No local bookshops found in {cityName}{stateName ? `, ${stateName}` : ''}.</p>
-                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {cityName}.</p>
-                <Link to="/directory">
-                  <Button className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
-                    View All Indie Bookshops
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-6">
-                {bookshops.map(bookshop => (
-                  <BookshopCard 
-                    key={bookshop.id} 
-                    bookstore={bookshop} 
-                    showDetails={() => handleShowDetails(bookshop.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          ) : isError ? (
+            <div className="text-center py-10">
+              <p>Error loading independent bookshops. Please try again later.</p>
+            </div>
+          ) : bookshops.length === 0 ? (
+            <div className="text-center py-10">
+              <p>No local bookshops found in {cityName}{stateName ? `, ${stateName}` : ''}.</p>
+              <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {cityName}.</p>
+              <Link to="/directory">
+                <Button className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
+                  View All Indie Bookshops
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {bookshops.map(bookshop => (
+                <BookshopCard 
+                  key={bookshop.id} 
+                  bookstore={bookshop} 
+                  showDetails={() => handleShowDetails(bookshop.id)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
       
