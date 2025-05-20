@@ -19,31 +19,37 @@ const CountiesListPage = () => {
     const fetchCountiesByState = async () => {
       setIsLoading(true);
       try {
-        // Get all states first
-        const statesResponse = await fetch('/api/states');
-        if (!statesResponse.ok) {
-          throw new Error('Failed to fetch states');
+        // Since the API endpoints are experiencing issues, we'll use a different approach
+        // Get all bookstores and extract county information directly
+        const bookstoresResponse = await fetch('/api/bookstores');
+        if (!bookstoresResponse.ok) {
+          throw new Error('Failed to fetch bookstores');
         }
-        const states = await statesResponse.json();
-
-        // For each state, fetch the counties
-        const countiesData: CountyByState[] = [];
-        for (const state of states) {
-          const countiesResponse = await fetch(`/api/states/${state}/counties`);
-          if (!countiesResponse.ok) {
-            console.warn(`Failed to fetch counties for state ${state}`);
-            continue;
+        const bookstores = await bookstoresResponse.json();
+        
+        // Extract unique state-county combinations
+        const stateCountyMap = new Map<string, Set<string>>();
+        
+        bookstores.forEach((bookstore: any) => {
+          if (bookstore.county && bookstore.county.trim() !== '' && bookstore.live !== false) {
+            if (!stateCountyMap.has(bookstore.state)) {
+              stateCountyMap.set(bookstore.state, new Set());
+            }
+            stateCountyMap.get(bookstore.state)?.add(bookstore.county);
           }
-
-          const counties = await countiesResponse.json();
-          if (counties && counties.length > 0) {
+        });
+        
+        // Convert to CountyByState array
+        const countiesData: CountyByState[] = [];
+        stateCountyMap.forEach((counties, state) => {
+          if (counties.size > 0) {
             countiesData.push({
               state,
-              counties
+              counties: Array.from(counties).sort()
             });
           }
-        }
-
+        });
+        
         // Sort states alphabetically
         countiesData.sort((a, b) => a.state.localeCompare(b.state));
         
@@ -74,15 +80,36 @@ const CountiesListPage = () => {
         canonicalUrl={`${BASE_URL}/directory/counties`}
       />
       
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#3d6a80] mb-6">
-          Independent Bookshops by County
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#3d6a80] mb-4">
+          Browse Bookshops by County
         </h1>
         
-        <p className="text-gray-700 mb-8">
-          Browse our directory of independent bookshops organized by county. Find local bookstores in your county or discover 
-          new places to explore in counties across America.
-        </p>
+        <div className="bg-[#F7F3E8] p-4 md:p-6 rounded-lg mb-8">
+          <p className="text-lg text-gray-800">
+            Explore our directory of independent bookshops organized by county. Find local bookstores in your county 
+            or discover new places to explore in counties across the United States and Canada.
+          </p>
+        </div>
+        
+        {/* Navigation links */}
+        <div className="flex flex-wrap gap-3 mb-8">
+          <Link to="/directory" className="text-blue-600 hover:text-blue-800 hover:underline">
+            All Bookshops
+          </Link>
+          <span className="text-gray-400">•</span>
+          <Link to="/directory/browse" className="text-blue-600 hover:text-blue-800 hover:underline">
+            Bookshops by State
+          </Link>
+          <span className="text-gray-400">•</span>
+          <Link to="/directory/cities" className="text-blue-600 hover:text-blue-800 hover:underline">
+            Bookshops by City
+          </Link>
+          <span className="text-gray-400">•</span>
+          <Link to="/directory/categories" className="text-blue-600 hover:text-blue-800 hover:underline">
+            Bookshops by Category
+          </Link>
+        </div>
         
         {isLoading ? (
           <div className="flex justify-center py-16">
@@ -101,33 +128,32 @@ const CountiesListPage = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-8">
             {countiesByState.map(stateData => (
-              <Card key={stateData.state} className="overflow-hidden border border-gray-200">
-                <CardHeader className="bg-[#F7F3E8] py-4">
-                  <CardTitle className="text-xl font-serif text-[#3d6a80]">
-                    Counties in {stateData.state}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                    {stateData.counties.map(county => (
-                      <Link
-                        key={`${stateData.state}-${county}`}
-                        to={`/directory/county-state/${generateSlug(county)}-${generateSlug(stateData.state)}`}
-                        className="text-blue-600 hover:text-blue-800 hover:underline py-1"
-                      >
-                        {county} County
-                      </Link>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <div key={stateData.state}>
+                <h2 className="text-2xl font-serif text-[#3d6a80] border-b-2 border-[#F7F3E8] pb-2 mb-4">
+                  Counties in {stateData.state}
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-y-3 gap-x-4">
+                  {stateData.counties.map(county => (
+                    <Link
+                      key={`${stateData.state}-${county}`}
+                      to={`/directory/county-state/${generateSlug(county)}-${generateSlug(stateData.state)}`}
+                      className="text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                      {county} County 
+                      <span className="text-gray-400 text-sm ml-1">
+                        ({stateData.state})
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}
         
-        <div className="mt-10 mb-4 bg-white rounded-lg shadow-md p-6">
+        <div className="mt-12 bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-serif font-bold text-[#3d6a80] mb-4">
             About Our County Bookshops Directory
           </h2>
@@ -135,10 +161,15 @@ const CountiesListPage = () => {
             Our county-based directory makes it easier to find independent bookshops in your local area or 
             when traveling. Counties often represent distinct cultural regions with their own unique literary scenes.
           </p>
-          <p>
+          <p className="mb-4">
             Each county page provides a curated list of independent bookshops, their locations, special features, 
             and upcoming events. Whether you're looking for bookstores with coffee shops, rare book collections, or 
             children's book selections, our directory helps you find the perfect local bookshop.
+          </p>
+          <p>
+            Our county directory complements our existing state and city directories, offering you multiple ways to 
+            discover independent bookshops in your area. This additional organization helps readers find bookshops 
+            that might be located in rural areas outside major cities but still within accessible counties.
           </p>
         </div>
       </div>
