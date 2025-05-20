@@ -166,7 +166,9 @@ export default async function handler(req, res) {
     
     // Set headers and send response
     res.setHeader('Content-Type', 'application/xml');
-    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // Prevent caching
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.status(200).send(xml);
     
     console.log('Serverless: Sitemap generated successfully');
