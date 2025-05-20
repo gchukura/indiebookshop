@@ -45,7 +45,8 @@ const CityDirectory = () => {
   
   // Normalized city/state names for display
   const cityName = cityFromUrl || '';
-  const stateName = stateFromUrl ? getFullStateName(stateFromUrl) : '';
+  // State name will be set once bookshops data is loaded
+  const [stateName, setStateName] = useState(stateFromUrl ? getFullStateName(stateFromUrl) : '');
   
   // Fetch bookshops based on city name
   useEffect(() => {
@@ -80,6 +81,15 @@ const CityDirectory = () => {
         const data = await response.json();
         console.log(`Found ${data.length} bookshops for city: ${cityName}`);
         setBookshops(data);
+        
+        // If we don't have a state from the URL but have bookshops with state info,
+        // use the state from the first bookshop to get the full state name
+        if (data.length > 0 && data[0].state) {
+          const bookshopState = data[0].state;
+          const fullStateName = getFullStateName(bookshopState);
+          console.log(`Derived state name from bookshop data: ${bookshopState} → ${fullStateName}`);
+          setStateName(fullStateName);
+        }
       } catch (error) {
         console.error('Error fetching bookshops:', error);
         setIsError(true);
