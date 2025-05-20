@@ -119,6 +119,26 @@ export function generateBreadcrumbs(
 }
 
 /**
+ * Generates a URL for a county directory page
+ * 
+ * @param county The county name
+ * @param state Optional state name for county-state combined URLs
+ * @returns URL string for county directory
+ */
+export function generateCountyUrl(county: string, state?: string): string {
+  // Format the county name for URL
+  const formattedCounty = county.toLowerCase().replace(/\s+/g, '-');
+  
+  if (state) {
+    // Format the state name for URL
+    const formattedState = state.toLowerCase().replace(/\s+/g, '-');
+    return `/directory/county-state/${formattedCounty}-${formattedState}`;
+  }
+  
+  return `/directory/county/${formattedCounty}`;
+}
+
+/**
  * Generates related event links for a bookshop
  * 
  * @param bookshopIdentifier ID or slug of the current bookshop

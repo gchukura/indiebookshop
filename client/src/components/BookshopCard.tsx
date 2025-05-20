@@ -10,11 +10,11 @@ import {
 import { generateBookshopSlug } from "../lib/linkUtils";
 
 interface BookshopCardProps {
-  bookstore: Bookstore; // using bookstore for backward compatibility, but will be renamed to bookshop in the prop
-  showDetails: (id: number) => void;
+  bookshop: Bookstore; // Using bookshop instead of bookstore for consistency
+  onViewDetails: () => void;
 }
 
-const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) => {
+const BookshopCard = ({ bookshop, onViewDetails }: BookshopCardProps) => {
   const [_, setLocation] = useLocation();
   
   // Fetch all features to match with bookshop.featureIds

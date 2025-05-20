@@ -295,6 +295,7 @@ export class MemStorage implements IStorage {
       city: insertBookstore.city,
       state: insertBookstore.state,
       zip: insertBookstore.zip,
+      county: insertBookstore.county || null,
       description: insertBookstore.description,
       imageUrl: insertBookstore.imageUrl || null,
       website: insertBookstore.website || null,
