@@ -120,6 +120,7 @@ export class GoogleSheetsService {
         city: ['city', 'town'],
         state: ['state', 'province', 'region'],
         zip: ['zip', 'zipcode', 'postal_code', 'postcode'],
+        county: ['county', 'parish', 'district', 'region'], // Added county mapping
         description: ['description', 'desc', 'about', 'info', 'details'],
         imageUrl: ['imageurl', 'image_url', 'image', 'img', 'photo', 'picture'],
         website: ['website', 'url', 'web', 'site', 'homepage', 'link'],
@@ -191,6 +192,7 @@ export class GoogleSheetsService {
           const city = getValue('city') || '';
           const state = getValue('state') || '';
           const zip = getValue('zip') || '';
+          const county = getValue('county') || null; // Add county extraction
           const description = getValue('description') || '';
           const imageUrl = getValue('imageUrl') || null;
           const website = getValue('website') || null;
