@@ -160,7 +160,9 @@ const CountyDirectory = () => {
   
   // For optimized SEO titles and descriptions
   const countyName = county || '';
-  const stateName = stateFromUrl || '';
+  // Get full state name for SEO benefits
+  const stateAbbr = stateFromUrl || '';
+  const stateName = stateFromUrl ? getFullStateName(stateFromUrl) : '';
   const bookshopCount = bookshops.length;
   
   // Generate SEO metadata
@@ -211,7 +213,7 @@ const CountyDirectory = () => {
       return `${BASE_URL}/directory/county/${stateFromUrl.toLowerCase()}/${generateSlug(countyName)}`;
     }
     return `${BASE_URL}/directory/county/${generateSlug(countyName)}`;
-  }, [countyName, stateName, stateFromUrl]);
+  }, [countyName, stateAbbr, stateFromUrl]);
   
   // Handle showing bookshop details (direct to bookshop page)
   const handleShowDetails = (id: number) => {
@@ -310,11 +312,11 @@ const CountyDirectory = () => {
           <div className="bg-white rounded-lg shadow-md p-4">
             <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
               {bookshopCount} Independent Bookshops in {countyName} County
-              {stateFromUrl ? `, ${stateName}` : ''}
+              {stateFromUrl ? `, ${getFullStateName(stateFromUrl)}` : ''}
             </h2>
             <h3 className="text-md text-gray-600 mb-3">
               A guide to local bookshops and indie bookstores across {countyName} County
-              {stateFromUrl ? ` in ${stateName}` : ''}
+              {stateFromUrl ? ` in ${getFullStateName(stateFromUrl)}` : ''}
             </h3>
             
             {isLoading ? (
@@ -327,8 +329,8 @@ const CountyDirectory = () => {
               </div>
             ) : bookshops.length === 0 ? (
               <div className="text-center py-10">
-                <p>No local bookshops found in {countyName} County{stateFromUrl ? `, ${stateName}` : ''}.</p>
-                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {countyName} County{stateFromUrl ? ` in ${stateName}` : ''}.</p>
+                <p>No local bookshops found in {countyName} County{stateFromUrl ? `, ${getFullStateName(stateFromUrl)}` : ''}.</p>
+                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {countyName} County{stateFromUrl ? ` in ${getFullStateName(stateFromUrl)}` : ''}.</p>
                 
                 <div className="flex flex-wrap gap-3 justify-center">
                   <Link to="/directory/counties">
@@ -339,7 +341,7 @@ const CountyDirectory = () => {
                   {stateFromUrl && (
                     <Link to={`/directory/state/${stateFromUrl.toLowerCase()}`}>
                       <Button className="bg-[#3d6a80] hover:bg-[#3d6a80]/90 text-white">
-                        Bookshops in {stateName}
+                        Bookshops in {getFullStateName(stateFromUrl)}
                       </Button>
                     </Link>
                   )}
