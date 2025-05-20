@@ -20,8 +20,28 @@ class GoogleSheetsService {
       // Check if credentials are available
       if (process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) {
         try {
-          // Parse credentials
-          const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS);
+          // Parse credentials - add more robust error handling
+          let credentials;
+          try {
+            credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS);
+          } catch (parseError) {
+            console.error('Serverless: Credentials parsing error, checking if already an object:', parseError);
+            // In some environments, the credentials might already be parsed
+            if (typeof process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS === 'object') {
+              credentials = process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS;
+            } else {
+              throw parseError;
+            }
+          }
+          
+          if (!credentials || !credentials.client_email || !credentials.private_key) {
+            console.error('Serverless: Invalid credentials format - missing required fields');
+            throw new Error('Invalid Google service account credentials format');
+          }
+          
+          // Log credential info (without exposing sensitive data)
+          console.log(`Serverless: Using service account: ${credentials.client_email}`);
+          console.log(`Serverless: Private key exists: ${!!credentials.private_key}`);
           
           // Create a JWT auth client using service account credentials
           const auth = new google.auth.JWT({
@@ -35,12 +55,13 @@ class GoogleSheetsService {
           
           console.log('Serverless: Google Sheets service initialized with service account credentials');
         } catch (credError) {
-          console.error('Serverless: Error parsing credentials:', credError);
+          console.error('Serverless: Error processing credentials:', credError);
           throw credError;
         }
       } else {
-        console.error('Serverless: No Google service account credentials found');
-        throw new Error('Google service account credentials are required');
+        console.error('Serverless: No Google service account credentials found in environment');
+        console.log('Serverless: Available environment variables:', Object.keys(process.env).join(', '));
+        throw new Error('Google service account credentials are required but missing');
       }
       
       console.log('Serverless: Google Sheets service initialized');
