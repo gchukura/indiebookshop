@@ -128,9 +128,6 @@ const CountiesListPage = () => {
                       className="text-blue-600 hover:text-blue-800 hover:underline"
                     >
                       {county}
-                      <span className="text-gray-400 text-sm ml-1">
-                        ({getFullStateName(stateData.state)})
-                      </span>
                     </Link>
                   ))}
                 </div>
