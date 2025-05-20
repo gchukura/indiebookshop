@@ -121,18 +121,29 @@ export function generateBreadcrumbs(
 /**
  * Generates related event links for a bookshop
  * 
- * @param bookshopId ID of the current bookshop
+ * @param bookshopIdentifier ID or slug of the current bookshop
  * @param bookshopName Name of the current bookshop
  * @returns Object with event-related links
  */
 export function generateEventLinks(
-  bookshopId: number,
+  bookshopIdentifier: number | string,
   bookshopName: string
 ): Array<{ title: string; url: string; description: string }> {
+  // Create the bookshop URL
+  let bookshopUrl: string;
+  
+  if (typeof bookshopIdentifier === 'number') {
+    // If it's a number, it's an ID, generate a slug from name
+    bookshopUrl = generateBookshopSlug(bookshopIdentifier, bookshopName);
+  } else {
+    // If it's a string, assume it's already a slug
+    bookshopUrl = `/bookshop/${bookshopIdentifier}`;
+  }
+  
   return [
     {
       title: `Events at ${bookshopName}`,
-      url: `${generateBookshopSlug(bookshopId, bookshopName)}/events`,
+      url: `${bookshopUrl}/events`,
       description: `View upcoming literary events, author signings, and book clubs at ${bookshopName}`
     },
     {

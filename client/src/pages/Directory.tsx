@@ -107,9 +107,24 @@ const Directory = () => {
     setLocation(`/directory?${newSearch}`, { replace: true });
   }, [view]);
 
+  // Generate a slug from bookshop name for SEO-friendly URLs
+  const generateSlug = (name: string): string => {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  };
+
   const handleShowDetails = (id: number) => {
-    setSelectedBookshopId(id);
-    setIsDetailOpen(true);
+    // Find the bookshop by ID
+    const bookshop = filteredBookshops.find(b => b.id === id);
+    
+    if (bookshop) {
+      // Navigate to the SEO-friendly permalink page
+      const slug = generateSlug(bookshop.name);
+      window.location.href = `/bookshop/${slug}`;
+    } else {
+      // Fallback to the modal if bookshop not found
+      setSelectedBookshopId(id);
+      setIsDetailOpen(true);
+    }
   };
 
   const handleCloseDetail = () => {
