@@ -197,7 +197,7 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async getFilteredBookstores(filters: { state?: string, city?: string, featureIds?: number[] }): Promise<Bookstore[]> {
+  async getFilteredBookstores(filters: { state?: string, city?: string, county?: string, featureIds?: number[] }): Promise<Bookstore[]> {
     let filteredBookstores = Array.from(this.bookstores.values()).filter(
       (bookstore) => bookstore.live !== false // Only show live bookstores
     );
@@ -214,6 +214,15 @@ export class MemStorage implements IStorage {
       );
     }
     
+    if (filters.county) {
+      filteredBookstores = filteredBookstores.filter(
+        (bookstore) => {
+          // @ts-ignore - county field exists in data but might not be fully added to type yet
+          return bookstore.county && bookstore.county.toLowerCase() === filters.county!.toLowerCase();
+        }
+      );
+    }
+    
     if (filters.featureIds && filters.featureIds.length > 0) {
       filteredBookstores = filteredBookstores.filter(
         (bookstore) => bookstore.featureIds?.some(id => filters.featureIds!.includes(id)) || false
@@ -221,6 +230,60 @@ export class MemStorage implements IStorage {
     }
     
     return filteredBookstores;
+  }
+  
+  // County operations
+  async getBookstoresByCounty(county: string): Promise<Bookstore[]> {
+    return Array.from(this.bookstores.values()).filter(
+      (bookstore) => 
+        bookstore.live !== false && // Only show live bookstores
+        // @ts-ignore - county field exists in data but might not be fully added to type yet
+        bookstore.county && bookstore.county.toLowerCase() === county.toLowerCase()
+    );
+  }
+  
+  async getBookstoresByCountyState(county: string, state: string): Promise<Bookstore[]> {
+    return Array.from(this.bookstores.values()).filter(
+      (bookstore) => 
+        bookstore.live !== false && // Only show live bookstores
+        // @ts-ignore - county field exists in data but might not be fully added to type yet
+        bookstore.county && 
+        bookstore.county.toLowerCase() === county.toLowerCase() &&
+        bookstore.state.toLowerCase() === state.toLowerCase()
+    );
+  }
+  
+  async getAllCounties(): Promise<string[]> {
+    const counties = new Set<string>();
+    
+    Array.from(this.bookstores.values())
+      .filter(bookstore => bookstore.live !== false) // Only include live bookstores
+      .forEach(bookstore => {
+        // @ts-ignore - county field exists in data but might not be fully added to type yet
+        if (bookstore.county && bookstore.county.trim() !== '') {
+          counties.add(bookstore.county);
+        }
+      });
+    
+    return Array.from(counties).sort();
+  }
+  
+  async getCountiesByState(state: string): Promise<string[]> {
+    const counties = new Set<string>();
+    
+    Array.from(this.bookstores.values())
+      .filter(bookstore => 
+        bookstore.live !== false && // Only include live bookstores
+        bookstore.state.toLowerCase() === state.toLowerCase()
+      )
+      .forEach(bookstore => {
+        // @ts-ignore - county field exists in data but might not be fully added to type yet
+        if (bookstore.county && bookstore.county.trim() !== '') {
+          counties.add(bookstore.county);
+        }
+      });
+    
+    return Array.from(counties).sort();
   }
 
   async createBookstore(insertBookstore: InsertBookstore): Promise<Bookstore> {

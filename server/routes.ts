@@ -175,24 +175,70 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
     }
   });
   
-  // Get bookstores by county (backend support for future county pages)
+  // Get bookstores by county (for county pages)
   app.get("/api/bookstores/county/:county", async (req, res) => {
     try {
       const county = req.params.county;
       
-      // Get all bookstores
-      const allBookstores = await storageImpl.getBookstores();
+      console.log(`Looking up bookstores in county: ${county}`);
+      const bookstores = await storageImpl.getBookstoresByCounty(county);
       
-      // Filter by county field
-      const bookstoresByCounty = allBookstores.filter(bookstore => {
-        // @ts-ignore - county field exists in the data but might not be in the type yet
-        return bookstore.county && bookstore.county.toLowerCase() === county.toLowerCase();
-      });
-      
-      res.json(bookstoresByCounty);
+      res.json(bookstores);
     } catch (error) {
       console.error('Error fetching bookstores by county:', error);
       res.status(500).json({ message: 'Error fetching bookstores by county' });
+    }
+  });
+  
+  // Get bookstores by county and state combination (SEO-friendly URLs)
+  app.get("/api/bookstores/county-state/:countyState", async (req, res) => {
+    try {
+      const countyStateCombined = req.params.countyState;
+      const parts = countyStateCombined.split('-');
+      
+      if (parts.length < 2) {
+        return res.status(400).json({ message: 'Invalid county-state format' });
+      }
+      
+      // Last part is the state
+      const stateIndex = parts.length - 1;
+      const state = parts[stateIndex];
+      
+      // Everything before is the county (handle multi-word counties like "los-angeles")
+      const county = parts.slice(0, stateIndex).join(' ').replace(/-/g, ' ');
+      
+      console.log(`Looking up bookstores in county: ${county}, state: ${state}`);
+      
+      // Get bookstores that match both county and state
+      const bookstores = await storageImpl.getBookstoresByCountyState(county, state);
+      
+      res.json(bookstores);
+    } catch (error) {
+      console.error('Error in county-state endpoint:', error);
+      res.status(500).json({ message: 'Error fetching bookstores by county and state' });
+    }
+  });
+  
+  // Get all counties
+  app.get("/api/counties", async (req, res) => {
+    try {
+      const counties = await storageImpl.getAllCounties();
+      res.json(counties);
+    } catch (error) {
+      console.error('Error fetching counties:', error);
+      res.status(500).json({ message: 'Error fetching counties' });
+    }
+  });
+  
+  // Get counties by state
+  app.get("/api/states/:state/counties", async (req, res) => {
+    try {
+      const state = req.params.state;
+      const counties = await storageImpl.getCountiesByState(state);
+      res.json(counties);
+    } catch (error) {
+      console.error('Error fetching counties by state:', error);
+      res.status(500).json({ message: 'Error fetching counties by state' });
     }
   });
   
