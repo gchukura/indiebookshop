@@ -190,28 +190,38 @@ const StateDirectory = () => {
         )}
       </div>
 
-      <div className="md:flex md:space-x-6">
-        {/* Map Section */}
-        {view === "map" && (
-          <div className="w-full md:w-1/2 mb-6 md:mb-0">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden map-container relative" style={{ height: "600px" }}>
+      {/* Interactive Map Section - Styled like directory */}
+      {view === "map" && (
+        <section className="py-12 bg-white">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+                Find Independent Bookshops in {fullStateName}
+              </h2>
+              <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-6">
+                Use our interactive map to explore indie bookshops in {fullStateName}. 
+                Click on any pin to view details about the bookshop.
+              </p>
+            </div>
+            <div className="h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-8">
               <MapboxMap 
                 bookstores={bookshops} 
                 onSelectBookshop={handleShowDetails}
               />
             </div>
           </div>
-        )}
-
-        {/* Bookstore Listings Section */}
-        <div className={`w-full ${view === "map" ? "md:w-1/2" : "md:w-full"}`}>
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
-              {bookshops.length} Independent Bookshops in {fullStateName}
-            </h2>
-            <h3 className="text-md text-gray-600 mb-3">
-              A guide to local bookshops and indie bookstores across {fullStateName}
-            </h3>
+        </section>
+      )}
+        
+      {/* Bookshop table section */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-lg shadow-md p-4">
+          <h2 className="text-xl font-serif font-bold mb-4">
+            {bookshops.length} Independent Bookshops in {fullStateName}
+          </h2>
+          <p className="text-gray-600 mb-6">
+            A guide to local bookshops and indie bookstores across {fullStateName}
+          </p>
             
             {isLoading ? (
               <div className="text-center py-10">

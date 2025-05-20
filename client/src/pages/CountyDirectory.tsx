@@ -296,101 +296,116 @@ const CountyDirectory = () => {
         </div>
       </div>
       
-      {/* Main content grid */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        {view === "map" && (
-          <div className="md:col-span-6 h-[500px] lg:h-[600px] bg-gray-100 rounded-lg overflow-hidden">
-            <MapboxMap 
-              bookstores={bookshops} 
-              onSelectBookshop={handleShowDetails}
-            />
+      {/* Interactive Map Section - Styled like directory */}
+      {view === "map" && (
+        <section className="py-12 bg-white">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+                Find Independent Bookshops in {countyName} County
+                {stateFromUrl ? `, ${getFullStateName(stateFromUrl)}` : ''}
+              </h2>
+              <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-6">
+                Use our interactive map to explore indie bookshops in {countyName} County
+                {stateFromUrl ? ` in ${getFullStateName(stateFromUrl)}` : ''}.
+                Click on any pin to view details about the bookshop.
+              </p>
+            </div>
+            <div className="h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-8">
+              <MapboxMap 
+                bookstores={bookshops} 
+                onSelectBookshop={handleShowDetails}
+              />
+            </div>
           </div>
-        )}
+        </section>
+      )}
         
-        {/* Bookstore Listings Section */}
-        <div className={`w-full ${view === "map" ? "md:col-span-6" : "md:col-span-12"}`}>
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
-              {bookshopCount} Independent Bookshops in {countyName} County
-              {stateFromUrl ? `, ${getFullStateName(stateFromUrl)}` : ''}
-            </h2>
-            <h3 className="text-md text-gray-600 mb-3">
-              A guide to local bookshops and indie bookstores across {countyName} County
-              {stateFromUrl ? ` in ${getFullStateName(stateFromUrl)}` : ''}
-            </h3>
-            
-            {isLoading ? (
-              <div className="text-center py-10">
-                <p>Loading indie bookshops in {countyName} County...</p>
-              </div>
-            ) : isError ? (
-              <div className="text-center py-10">
-                <p>Error loading independent bookshops. Please try again later.</p>
-              </div>
-            ) : bookshops.length === 0 ? (
-              <div className="text-center py-10">
-                <p>No local bookshops found in {countyName} County{stateFromUrl ? `, ${getFullStateName(stateFromUrl)}` : ''}.</p>
-                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {countyName} County{stateFromUrl ? ` in ${getFullStateName(stateFromUrl)}` : ''}.</p>
-                
-                <div className="flex flex-wrap gap-3 justify-center">
-                  <Link to="/directory/counties">
-                    <Button className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
-                      Browse All Counties
+      {/* Bookshop table section */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-lg shadow-md p-4">
+          <h2 className="text-xl font-serif font-bold mb-4">
+            {bookshopCount} Independent Bookshops in {countyName} County
+            {stateFromUrl ? `, ${getFullStateName(stateFromUrl)}` : ''}
+          </h2>
+          <p className="text-gray-600 mb-6">
+            A guide to local bookshops and indie bookstores across {countyName} County
+            {stateFromUrl ? ` in ${getFullStateName(stateFromUrl)}` : ''}
+          </p>
+          
+          {isLoading ? (
+            <div className="text-center py-10">
+              <p>Loading indie bookshops in {countyName} County...</p>
+            </div>
+          ) : isError ? (
+            <div className="text-center py-10">
+              <p>Error loading independent bookshops. Please try again later.</p>
+            </div>
+          ) : bookshops.length === 0 ? (
+            <div className="text-center py-10">
+              <p>No local bookshops found in {countyName} County{stateFromUrl ? `, ${getFullStateName(stateFromUrl)}` : ''}.</p>
+              <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {countyName} County{stateFromUrl ? ` in ${getFullStateName(stateFromUrl)}` : ''}.</p>
+              
+              <div className="flex flex-wrap gap-3 justify-center">
+                <Link to="/directory/counties">
+                  <Button className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
+                    Browse All Counties
+                  </Button>
+                </Link>
+                {stateFromUrl && (
+                  <Link to={`/directory/state/${stateFromUrl.toLowerCase()}`}>
+                    <Button className="bg-[#3d6a80] hover:bg-[#3d6a80]/90 text-white">
+                      Bookshops in {getFullStateName(stateFromUrl)}
                     </Button>
                   </Link>
-                  {stateFromUrl && (
-                    <Link to={`/directory/state/${stateFromUrl.toLowerCase()}`}>
-                      <Button className="bg-[#3d6a80] hover:bg-[#3d6a80]/90 text-white">
-                        Bookshops in {getFullStateName(stateFromUrl)}
-                      </Button>
-                    </Link>
-                  )}
-                </div>
+                )}
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {bookshops.map(bookshop => (
-                  <BookshopCard 
-                    key={bookshop.id} 
-                    bookstore={bookshop} 
-                    showDetails={() => handleShowDetails(bookshop.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {bookshops.map(bookshop => (
+                <BookshopCard 
+                  key={bookshop.id} 
+                  bookstore={bookshop} 
+                  showDetails={() => handleShowDetails(bookshop.id)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
       
       {/* SEO Content Section */}
       {!isLoading && !isError && bookshops.length > 0 && (
-        <div className="mt-12 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-serif font-bold mb-4">About Bookshops in {countyName} County</h2>
-          <p className="mb-4">
-            {countyName} County is home to a diverse selection of independent bookshops, each with its own unique character and literary focus.
-            From cozy neighborhood stores to larger establishments with extensive collections, book lovers will find plenty to explore in this region.
-          </p>
-          {stateFromUrl && (
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="mt-6 bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-serif font-bold mb-4">About Bookshops in {countyName} County</h2>
             <p className="mb-4">
-              The independent bookstore scene in {stateName} reflects the rich literary culture of the state, with {countyName} County
-              offering some of the most beloved local bookshops in the area.
+              {countyName} County is home to a diverse selection of independent bookshops, each with its own unique character and literary focus.
+              From cozy neighborhood stores to larger establishments with extensive collections, book lovers will find plenty to explore in this region.
             </p>
-          )}
-          <p>
-            Whether you're looking for rare books, the latest bestsellers, or a comfortable reading spot with coffee, 
-            the bookshops in {countyName} County provide welcoming spaces for readers of all interests.
-          </p>
-          
-          {stateFromUrl && (
-            <div className="mt-6">
-              <Link to={`/directory/state/${generateSlug(stateName)}`} className="text-blue-600 hover:underline mr-4">
-                All Bookshops in {stateName}
-              </Link>
-              <Link to="/directory/counties" className="text-blue-600 hover:underline">
-                Browse All Counties
-              </Link>
-            </div>
-          )}
+            {stateFromUrl && (
+              <p className="mb-4">
+                The independent bookstore scene in {stateName} reflects the rich literary culture of the state, with {countyName} County
+                offering some of the most beloved local bookshops in the area.
+              </p>
+            )}
+            <p>
+              Whether you're looking for rare books, the latest bestsellers, or a comfortable reading spot with coffee, 
+              the bookshops in {countyName} County provide welcoming spaces for readers of all interests.
+            </p>
+            
+            {stateFromUrl && (
+              <div className="mt-6">
+                <Link to={`/directory/state/${stateFromUrl.toLowerCase()}`} className="text-blue-600 hover:underline mr-4">
+                  All Bookshops in {stateName}
+                </Link>
+                <Link to="/directory/counties" className="text-blue-600 hover:underline">
+                  Browse All Counties
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
