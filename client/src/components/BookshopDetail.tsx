@@ -66,22 +66,29 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
     bookshop?.featureIds && bookshop.featureIds.includes(feature.id)
   ) || [];
 
-  // Create breadcrumb items
+  // Create breadcrumb items with SEO-friendly slug URLs
   const breadcrumbItems: BreadcrumbItem[] = bookshop ? [
     { label: 'Home', href: '/' },
     { label: 'Directory', href: '/directory' },
     { label: bookshop.state, href: `/directory/state/${bookshop.state}` },
     { label: bookshop.city, href: `/directory/city/${encodeURIComponent(bookshop.city)}` },
-    { label: bookshop.name, href: `/bookshop/${bookshop.id}`, isCurrent: true }
+    { label: bookshop.name, href: `/bookshop/${bookshop.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')}`, isCurrent: true }
   ] : [];
 
+  // Generate slug for the bookshop (for SEO-friendly URLs)
+  const generateSlug = (name: string): string => {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  };
+  
+  const bookshopSlug = bookshop ? generateSlug(bookshop.name) : '';
+
   // Prepare schema.org data when bookshop is available
-  // Bookshop schema
+  // Bookshop schema with SEO-friendly URLs
   const bookshopSchema = bookshop ? {
     type: 'bookshop' as const,
     name: bookshop.name,
     description: bookshop.description || `Independent bookshop in ${bookshop.city}, ${bookshop.state}`,
-    url: `${BASE_URL}/bookshop/${bookshop.id}`,
+    url: `${BASE_URL}/bookshop/${bookshopSlug}`,
     image: bookshop.imageUrl || undefined,
     address: {
       streetAddress: bookshop.street || '',
@@ -335,7 +342,7 @@ const BookshopDetail = ({ bookshopId, isOpen, onClose }: BookshopDetailProps) =>
                       
                       <h4 className="font-medium text-[#2A6B7C] mt-4">Event Information</h4>
                       <div className="grid gap-2">
-                        {generateEventLinks(bookshop.id, bookshop.name).map((link, index) => (
+                        {generateEventLinks(bookshopSlug, bookshop.name).map((link, index) => (
                           <Link 
                             key={index} 
                             to={link.url}
