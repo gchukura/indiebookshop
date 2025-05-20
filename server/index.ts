@@ -7,6 +7,7 @@ import { dataPreloadMiddleware } from './dataPreloading';
 import { htmlInjectionMiddleware } from './htmlInjectionMiddleware';
 import { DataRefreshManager } from './dataRefresh';
 import { registerRefreshRoutes } from './refreshRoutes';
+import { redirectMiddleware } from './redirectMiddleware';
 
 const app = express();
 app.use(express.json());
