@@ -234,7 +234,7 @@ const CountyDirectory = () => {
       />
       
       <div className="mb-6">
-        <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#3d6a80] mb-2">
+        <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#5F4B32] mb-2">
           {stateFromUrl 
             ? `Independent Bookshops in ${countyName} County, ${stateName}` 
             : `Independent Bookshops in ${countyName} County`}
@@ -307,7 +307,7 @@ const CountyDirectory = () => {
         {/* Bookstore Listings Section */}
         <div className={`w-full ${view === "map" ? "md:col-span-6" : "md:col-span-12"}`}>
           <div className="bg-white rounded-lg shadow-md p-4">
-            <h2 className="text-xl font-serif font-bold text-[#3d6a80] mb-4">
+            <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
               {bookshopCount} Independent Bookshops in {countyName} County
               {stateFromUrl ? `, ${stateName}` : ''}
             </h2>
