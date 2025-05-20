@@ -166,7 +166,7 @@ const StateDirectory = () => {
               {cities.map(city => (
                 <Link 
                   key={city}
-                  to={`/directory/city/${generateSlug(city)}`}
+                  to={`/directory/city/${stateAbbr.toLowerCase()}/${generateSlug(city)}`}
                 >
                   <Button 
                     variant="outline" 

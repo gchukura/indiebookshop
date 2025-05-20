@@ -149,7 +149,8 @@ const CityDirectory = () => {
   }, [cityName, stateName, stateFromUrl]);
   
   const seoDescription = useMemo(() => {
-    if (stateFromUrl && DESCRIPTION_TEMPLATES.city_state) {
+    if (stateFromUrl && stateName) {
+      // Use city_state template when state is available
       return generateDescription(
         DESCRIPTION_TEMPLATES.city_state,
         {
@@ -159,6 +160,7 @@ const CityDirectory = () => {
         }
       );
     } else {
+      // Use cities template when only city is available
       return generateDescription(
         DESCRIPTION_TEMPLATES.cities,
         {
