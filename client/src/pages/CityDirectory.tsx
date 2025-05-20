@@ -15,10 +15,30 @@ import {
 } from "../lib/seo";
 
 const CityDirectory = () => {
-  // Get city and state from URL params
+  // Get parameters from URL
   const params = useParams();
-  const city = params.city;
-  const stateFromUrl = params.state;
+  
+  // Handle both routing patterns
+  let city = params.city;
+  let stateFromUrl: string | undefined;
+  
+  // If we're using the city-state combined format
+  if (params.citystate && !city) {
+    // Parse the combined parameter (los-angeles-california)
+    const parts = params.citystate.split('-');
+    if (parts.length >= 2) {
+      // Last part is the state
+      const stateIndex = parts.length - 1;
+      stateFromUrl = parts[stateIndex];
+      
+      // Everything before the last part is the city
+      city = parts.slice(0, stateIndex).join('-');
+      
+      console.log(`Parsed city-state URL: city=${city}, state=${stateFromUrl}`);
+    } else {
+      city = params.citystate;
+    }
+  }
   
   // Component state
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
