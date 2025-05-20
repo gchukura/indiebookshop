@@ -9,7 +9,7 @@ import { Bookstore as Bookshop, Feature } from "@shared/schema";
  * 
  * @param id The bookshop ID
  * @param name The bookshop name
- * @returns URL-friendly string with format: /bookshop/123-bookshop-name
+ * @returns URL-friendly string with format: /bookshop/bookshop-name
  */
 export function generateBookshopSlug(id: number, name: string): string {
   // Convert bookshop name to URL-friendly format
@@ -20,8 +20,9 @@ export function generateBookshopSlug(id: number, name: string): string {
     .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
     .trim();                  // Trim leading/trailing spaces
     
-  // Combine ID with slug for SEO-friendly URL that can still be parsed for the ID
-  return `/bookshop/${id}-${nameSlug}`;
+  // Use the name in the URL but hide ID at the end with a prefix 
+  // for better SEO while maintaining ability to find the right bookshop
+  return `/bookshop/${nameSlug}-id${id}`;
 }
 
 /**

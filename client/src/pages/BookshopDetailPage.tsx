@@ -11,8 +11,10 @@ const BookshopDetailPage = () => {
   const { idslug } = useParams<{ idslug: string }>();
   const [_, setLocation] = useLocation();
   
-  // Extract ID from the slug (e.g., "123-bookshop-name" -> 123)
-  const bookshopId = parseInt(idslug?.split('-')[0]);
+  // Extract ID from the slug (e.g., "bookshop-name-id123")
+  // The ID is at the end after "id" prefix
+  const match = idslug?.match(/-id(\d+)$/);
+  const bookshopId = match ? parseInt(match[1]) : NaN;
 
   // Redirect to directory if id is invalid
   useEffect(() => {
