@@ -228,15 +228,23 @@ const Directory = () => {
       
       <Hero />
       
-      {/* Main map section - Full width */}
-      <div className="w-full bg-white">
-        <div className="map-container relative" style={{ height: "550px" }}>
-          <MapboxMap 
-            bookstores={filteredBookshops} 
-            onSelectBookshop={handleShowDetails}
-          />
+      {/* Interactive Map Section - Styled like homepage */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">Find Independent Bookshops Near You</h2>
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-6">
+              Use our interactive map to explore indie bookshops across America. Click on any pin to view details about the bookshop.
+            </p>
+          </div>
+          <div className="h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-8">
+            <MapboxMap 
+              bookstores={filteredBookshops} 
+              onSelectBookshop={handleShowDetails}
+            />
+          </div>
         </div>
-      </div>
+      </section>
       
       {/* Controls and bookshop table */}
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
