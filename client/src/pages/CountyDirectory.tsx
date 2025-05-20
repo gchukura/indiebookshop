@@ -59,9 +59,10 @@ const CountyDirectory = () => {
           endpoint = `/api/bookstores/filter?county=${encodeURIComponent(county!)}&state=${encodeURIComponent(stateFromUrl)}`;
           console.log(`Loading data for county: ${county}, state: ${stateFromUrl}`);
         } else {
-          // Otherwise just use filter with county only
-          endpoint = `/api/bookstores/filter?county=${encodeURIComponent(county!)}`;
-          console.log(`Loading data for county: ${county}`);
+          // For county-only view, we'll do direct filtering in the frontend
+          // Fetch all bookstores and filter them client-side for better matching
+          endpoint = `/api/bookstores`;
+          console.log(`Loading all bookstores to filter for county: ${county}`);
         }
         
         // Fetch access token for Mapbox API

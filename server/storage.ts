@@ -220,22 +220,35 @@ export class MemStorage implements IStorage {
     }
     
     if (filters.county) {
-      // Normalize the search county name - remove "County" suffix if present
-      const searchCounty = filters.county.toLowerCase().replace(/\s+county$/, '');
+      console.log(`Filtering bookstores by county: ${filters.county}`);
       
-      filteredBookstores = filteredBookstores.filter(bookstore => {
+      // Normalize the search county name - remove "County" suffix if present and convert hyphens to spaces
+      const searchCounty = filters.county.toLowerCase().replace(/\s+county$/, '').replace(/-/g, ' ');
+      
+      // First populate missing county data where possible
+      const enhancedBookstores = populateCountyData(filteredBookstores);
+      
+      // Then filter with the enhanced data
+      filteredBookstores = enhancedBookstores.filter(bookstore => {
         if (!bookstore.county) return false;
         
         // Normalize stored county name - remove "County" suffix if present
         const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
         
-        // More flexible matching
-        return (
+        const isMatch = (
           storedCounty === searchCounty ||
           storedCounty.includes(searchCounty) ||
           searchCounty.includes(storedCounty)
         );
+        
+        if (isMatch) {
+          console.log(`Match found: ${bookstore.name} in ${bookstore.county}, ${bookstore.state}`);
+        }
+        
+        return isMatch;
       });
+      
+      console.log(`Found ${filteredBookstores.length} bookstores matching county: ${filters.county}`);
     }
     
     if (filters.featureIds && filters.featureIds.length > 0) {

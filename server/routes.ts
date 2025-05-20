@@ -71,7 +71,14 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
         city = req.query.city;
       }
       
-      // Parse and validate filters
+      // Get the county filter
+      let county = undefined;
+      if (req.query.county && typeof req.query.county === 'string' && req.query.county !== 'all') {
+        county = req.query.county;
+        console.log(`Filter request includes county: ${county}`);
+      }
+      
+      // Parse and validate filters - note: county is not yet in schema, so pass separately
       const validatedFilters = bookstoreFiltersSchema.parse({
         state: state,
         city: city,
@@ -81,6 +88,7 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       const bookstores = await storageImpl.getFilteredBookstores({
         state: validatedFilters.state,
         city: validatedFilters.city,
+        county: county,
         featureIds: validatedFilters.features
       });
       
