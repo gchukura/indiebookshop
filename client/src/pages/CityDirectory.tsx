@@ -224,22 +224,12 @@ const CityDirectory = () => {
           Discover local bookshops in {cityName}{stateName ? `, ${stateName}` : ''}. Browse our directory of independent bookstores in this city.
         </p>
         
-        {/* Toggle View */}
-        <div className="flex space-x-2 mb-6">
-          <Button 
-            variant={view === "map" ? "default" : "outline"} 
-            onClick={() => setView("map")}
-            className={view === "map" ? "bg-[#2A6B7C] hover:bg-[#2A6B7C]/90" : ""}
-          >
-            Map View
-          </Button>
-          <Button 
-            variant={view === "list" ? "default" : "outline"} 
-            onClick={() => setView("list")}
-            className={view === "list" ? "bg-[#2A6B7C] hover:bg-[#2A6B7C]/90" : ""}
-          >
-            List View
-          </Button>
+        {/* Bookshop count */}
+        <div className="mb-6">
+          <span className="text-sm text-gray-500">
+            {bookshops.length} bookshop{bookshops.length !== 1 ? 's' : ''} found in {cityName}
+            {stateName ? `, ${stateName}` : ''}
+          </span>
         </div>
       </div>
 
@@ -253,7 +243,7 @@ const CityDirectory = () => {
       )}
 
       {/* Interactive Map Section - Styled like directory */}
-      {view === "map" && (
+      {(
         <section className="py-12 bg-white">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
