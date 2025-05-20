@@ -12,6 +12,7 @@ import {
   generateLocationKeywords,
   generateDescription 
 } from "../lib/seo";
+import { getFullStateName } from "../lib/stateUtils";
 
 const CountyDirectory = () => {
   // Get parameters from URL
@@ -236,13 +237,13 @@ const CountyDirectory = () => {
       <div className="mb-6">
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#5F4B32] mb-2">
           {stateFromUrl 
-            ? `Independent Bookshops in ${countyName} County, ${stateName}` 
+            ? `Independent Bookshops in ${countyName} County, ${getFullStateName(stateFromUrl)}` 
             : `Independent Bookshops in ${countyName} County`}
         </h1>
         
         <p className="text-gray-600 mb-6">
           {stateFromUrl
-            ? `Discover local bookshops in ${countyName} County, ${stateName}. Browse our directory of independent bookstores in this region.`
+            ? `Discover local bookshops in ${countyName} County, ${getFullStateName(stateFromUrl)}. Browse our directory of independent bookstores in this region.`
             : `Explore independent bookshops in ${countyName} County. Find local indie bookstores in your area.`}
         </p>
         
@@ -263,7 +264,7 @@ const CountyDirectory = () => {
                   to={`/directory/county-state/${generateSlug(countyName)}-${state.toLowerCase()}`}
                   className="inline-block px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-md transition-colors"
                 >
-                  {countyName} County, {state}
+                  {countyName} County, {getFullStateName(state)}
                 </Link>
               ))}
             </div>

@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SEO } from "../components/SEO";
 import { BASE_URL } from "../lib/seo";
+import { getFullStateName } from "../lib/stateUtils";
 
 interface CountyByState {
   state: string;
@@ -135,7 +136,7 @@ const CountiesListPage = () => {
             {countiesByState.map(stateData => (
               <div key={stateData.state} className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h2 className="text-2xl font-serif font-bold text-[#5F4B32] border-b border-gray-200 pb-3 mb-4">
-                  Counties in {stateData.state}
+                  Counties in {getFullStateName(stateData.state)}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-y-3 gap-x-4">
                   {stateData.counties.map(county => (
@@ -146,7 +147,7 @@ const CountiesListPage = () => {
                     >
                       {county} County 
                       <span className="text-gray-400 text-sm ml-1">
-                        ({stateData.state})
+                        ({getFullStateName(stateData.state)})
                       </span>
                     </Link>
                   ))}
