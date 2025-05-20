@@ -41,7 +41,7 @@ function Router() {
           <Route path="/directory/city/:city" component={CityDirectory} />
           <Route path="/directory/city-state/:citystate" component={CityDirectory} />
           <Route path="/directory/counties" component={CountiesListPage} />
-          <Route path="/directory/county/:county" component={CountyDirectory} />
+          {/* Removed standalone county route since these need state context for disambiguation */}
           <Route path="/directory/county-state/:countystate" component={CountyDirectory} />
           <Route path="/directory/category/:featureId" component={CategoryDirectory} />
           <Route path="/bookshop/:idslug" component={BookshopDetailPage} />
