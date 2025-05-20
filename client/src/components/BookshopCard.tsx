@@ -10,11 +10,11 @@ import {
 import { generateBookshopSlug } from "../lib/linkUtils";
 
 interface BookshopCardProps {
-  bookstore: Bookstore; // using bookstore for backward compatibility, renamed to bookshop inside component
+  bookstore: Bookstore;
   showDetails: (id: number) => void;
 }
 
-const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) => {
+const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
   const [_, setLocation] = useLocation();
   
   // Fetch all features to match with bookshop.featureIds
@@ -22,22 +22,13 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
     queryKey: ["/api/features"],
   });
 
-  // Get feature names for the bookshop with null checking
+  // Get feature names for the bookshop
   const bookshopFeatures = features?.filter(feature => 
-    bookstore?.featureIds?.includes(feature.id) || false
+    bookstore.featureIds?.includes(feature.id) || false
   ) || [];
   
   // Generate the bookshop URL using only the name slug (no ID)
-  const bookshopUrl = bookstore?.id && bookstore?.name
-    ? generateBookshopSlug(bookstore.id, bookstore.name)
-    : '/';
-    
-  // Handle click on the card to show details
-  const handleCardClick = () => {
-    if (bookstore?.id && typeof showDetails === 'function') {
-      showDetails(bookstore.id);
-    }
-  };
+  const bookshopUrl = generateBookshopSlug(bookstore.id, bookstore.name);
 
   return (
     <div className="bookshop-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
@@ -47,7 +38,7 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
             className="w-full h-40 sm:h-full cursor-pointer" 
             onClick={() => setLocation(bookshopUrl)}
           >
-            {bookstore?.imageUrl ? (
+            {bookstore.imageUrl ? (
               <OptimizedImage 
                 src={optimizeImageUrl(bookstore.imageUrl, 'card')} 
                 alt={generateBookshopImageAlt(
@@ -74,18 +65,17 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
               <h3 
                 className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C]"
               >
-                {bookstore?.name || 'Unnamed Bookshop'}
+                {bookstore.name}
               </h3>
             </Link>
           </div>
           <div className="text-sm text-gray-600 mb-2">
-            <MapPin className="h-4 w-4 inline mr-1" /> 
-            {bookstore?.city || ''}{bookstore?.city && bookstore?.state ? ', ' : ''}{bookstore?.state || ''}
-            {bookstore?.county && (
+            <MapPin className="h-4 w-4 inline mr-1" /> {bookstore.city}, {bookstore.state}
+            {bookstore.county && (
               <span className="ml-1 text-gray-500">({bookstore.county} County)</span>
             )}
           </div>
-          <p className="text-sm mb-3 line-clamp-2">{bookstore?.description || ''}</p>
+          <p className="text-sm mb-3 line-clamp-2">{bookstore.description}</p>
           {bookshopFeatures.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {bookshopFeatures.map(feature => (

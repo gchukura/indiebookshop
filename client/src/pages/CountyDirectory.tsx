@@ -147,16 +147,9 @@ const CountyDirectory = () => {
     const bookshop = bookshops.find(b => b.id === id);
     
     if (bookshop) {
-      // Navigate to the SEO-friendly permalink page
-      const slug = generateSlug(bookshop.name);
-      window.location.href = `/bookshop/${slug}`;
-    }
-  };
-  
-  // Helper to safely handle bookshop details
-  const handleBookshopDetails = (bookshop: any) => {
-    if (bookshop && bookshop.id) {
-      handleShowDetails(bookshop.id);
+      // Use the proper slug generation from linkUtils
+      const bookshopUrl = generateBookshopSlug(bookshop.id, bookshop.name);
+      setLocation(bookshopUrl);
     }
   };
   
