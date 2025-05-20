@@ -43,9 +43,17 @@ export async function generateSitemap(req: Request, res: Response) {
 
     // Add dynamic bookstore pages
     bookstores.forEach(bookstore => {
-      if (bookstore.id) {
+      if (bookstore.id && bookstore.name) {
+        // Create a clean slug for the bookshop name
+        const bookshopSlug = bookstore.name
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/--+/g, '-')
+          .trim();
+        
         xml += `  <url>\n`;
-        xml += `    <loc>${BASE_URL}/bookshop/${bookstore.id}</loc>\n`;
+        xml += `    <loc>${BASE_URL}/bookshop/${bookshopSlug}</loc>\n`;
         xml += `    <changefreq>monthly</changefreq>\n`;
         xml += `    <priority>0.7</priority>\n`;
         xml += `  </url>\n`;
