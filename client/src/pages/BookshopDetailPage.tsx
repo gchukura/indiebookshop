@@ -11,23 +11,30 @@ const BookshopDetailPage = () => {
   const { idslug } = useParams<{ idslug: string }>();
   const [_, setLocation] = useLocation();
   
-  // Extract ID from the slug (e.g., "bookshop-name-id123")
-  // The ID is at the end after "id" prefix
-  const match = idslug?.match(/-id(\d+)$/);
-  const bookshopId = match ? parseInt(match[1]) : NaN;
+  // With our new approach, the URL parameter is just the bookshop slug
+  // We don't need to extract an ID anymore
+  const bookshopSlug = idslug || '';
 
-  // Redirect to directory if id is invalid
+  // Fetch bookshop details by slug
+  const { 
+    data: bookshop, 
+    isLoading: isLoadingBookshop, 
+    isError: isErrorBookshop 
+  } = useQuery<Bookshop>({
+    queryKey: [`/api/bookstores/by-slug/${bookshopSlug}`],
+    enabled: !!bookshopSlug,
+    retry: 1,
+    gcTime: 0,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    throwOnError: false
+  });
+  
+  // Redirect if bookshop not found
   useEffect(() => {
-    if (isNaN(bookshopId)) {
+    if ((isErrorBookshop || (!isLoadingBookshop && !bookshop)) && bookshopSlug) {
       setLocation('/directory');
     }
-  }, [bookshopId, setLocation]);
-
-  // Fetch bookshop details
-  const { data: bookshop, isLoading: isLoadingBookshop, isError: isErrorBookshop } = useQuery<Bookshop>({
-    queryKey: [`/api/bookstores/${bookshopId}`],
-    enabled: !isNaN(bookshopId),
-  });
+  }, [isErrorBookshop, isLoadingBookshop, bookshop, bookshopSlug, setLocation]);
 
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
@@ -36,8 +43,8 @@ const BookshopDetailPage = () => {
 
   // Fetch events for this bookshop
   const { data: events } = useQuery<Event[]>({
-    queryKey: [`/api/bookstores/${bookshopId}/events`],
-    enabled: !isNaN(bookshopId),
+    queryKey: [`/api/bookstores/${bookshop?.id}/events`],
+    enabled: !!bookshop?.id,
   });
 
   // Get feature names for the bookshop

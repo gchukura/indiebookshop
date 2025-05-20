@@ -103,7 +103,24 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
     }
   });
 
-  // Get a specific bookstore
+  // Get a specific bookstore by slug (for SEO-friendly URLs)
+  // IMPORTANT: This must come BEFORE the :id route to prevent conflict
+  app.get("/api/bookstores/by-slug/:slug", async (req, res) => {
+    try {
+      const slug = req.params.slug;
+      
+      const bookstore = await storageImpl.getBookstoreBySlug(slug);
+      if (!bookstore) {
+        return res.status(404).json({ message: "Bookstore not found" });
+      }
+      
+      res.json(bookstore);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch bookstore by slug" });
+    }
+  });
+  
+  // Get a specific bookstore by ID
   app.get("/api/bookstores/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
