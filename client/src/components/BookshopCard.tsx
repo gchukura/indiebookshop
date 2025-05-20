@@ -7,6 +7,7 @@ import {
   generateBookshopImageAlt, 
   optimizeImageUrl 
 } from "../lib/imageUtils";
+import { generateBookshopSlug } from "../lib/linkUtils";
 
 interface BookshopCardProps {
   bookstore: Bookstore; // using bookstore for backward compatibility, but will be renamed to bookshop in the prop
@@ -55,12 +56,13 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
         </div>
         <div className="p-4 sm:w-2/3">
           <div>
-            <h3 
-              className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C]"
-              onClick={() => showDetails(bookshop.id)}
-            >
-              {bookshop.name}
-            </h3>
+            <Link to={generateBookshopSlug(bookshop.id, bookshop.name)}>
+              <h3 
+                className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C]"
+              >
+                {bookshop.name}
+              </h3>
+            </Link>
           </div>
           <div className="text-sm text-gray-600 mb-2">
             <MapPin className="h-4 w-4 inline mr-1" /> {bookshop.city}, {bookshop.state}

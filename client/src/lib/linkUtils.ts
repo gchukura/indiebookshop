@@ -5,6 +5,26 @@
 import { Bookstore as Bookshop, Feature } from "@shared/schema";
 
 /**
+ * Generate an SEO-friendly URL slug for a bookshop
+ * 
+ * @param id The bookshop ID
+ * @param name The bookshop name
+ * @returns URL-friendly string with format: /bookshop/123-bookshop-name
+ */
+export function generateBookshopSlug(id: number, name: string): string {
+  // Convert bookshop name to URL-friendly format
+  const nameSlug = name
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-')     // Replace spaces with hyphens
+    .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
+    .trim();                  // Trim leading/trailing spaces
+    
+  // Combine ID with slug for SEO-friendly URL that can still be parsed for the ID
+  return `/bookshop/${id}-${nameSlug}`;
+}
+
+/**
  * Generates a list of related links for a bookshop based on its features, city, and state
  * 
  * @param bookshop The current bookshop
