@@ -251,8 +251,8 @@ const CountyDirectory = () => {
                 {bookshops.map(bookshop => (
                   <BookshopCard 
                     key={bookshop.id} 
-                    bookshop={bookshop} 
-                    onViewDetails={() => handleBookshopDetails(bookshop)}
+                    bookstore={bookshop} 
+                    showDetails={() => handleShowDetails(bookshop.id)}
                   />
                 ))}
               </div>

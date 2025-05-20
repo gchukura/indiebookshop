@@ -10,53 +10,34 @@ import {
 import { generateBookshopSlug } from "../lib/linkUtils";
 
 interface BookshopCardProps {
-  bookshop: Bookstore; // Using bookshop instead of bookstore for consistency
-  onViewDetails: () => void;
+  bookstore: Bookstore; // using bookstore for backward compatibility, renamed to bookshop inside component
+  showDetails: (id: number) => void;
 }
 
-const BookshopCard = ({ bookshop, onViewDetails }: BookshopCardProps) => {
+const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) => {
   const [_, setLocation] = useLocation();
-  
-  // Handle invalid bookshop data
-  if (!bookshop || typeof bookshop !== 'object') {
-    return (
-      <div className="bookshop-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 p-4">
-        <p className="text-red-500">Invalid bookshop data</p>
-      </div>
-    );
-  }
   
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
   });
 
-  // Get feature names for the bookshop - with comprehensive null checking
-  const bookshopFeatures = features?.filter(feature => {
-    return feature && bookshop.featureIds && Array.isArray(bookshop.featureIds) && 
-      bookshop.featureIds.includes(feature.id);
-  }) || [];
+  // Get feature names for the bookshop with null checking
+  const bookshopFeatures = features?.filter(feature => 
+    bookstore?.featureIds?.includes(feature.id) || false
+  ) || [];
   
-  // Generate the bookshop URL using only the name slug (no ID) with robust error handling
-  const bookshopUrl = (bookshop.id && bookshop.name) 
-    ? generateBookshopSlug(bookshop.id, bookshop.name) 
+  // Generate the bookshop URL using only the name slug (no ID)
+  const bookshopUrl = bookstore?.id && bookstore?.name
+    ? generateBookshopSlug(bookstore.id, bookstore.name)
     : '/';
-
-  // Handle view details click
-  const handleViewDetails = () => {
-    if (typeof onViewDetails === 'function') {
-      onViewDetails();
+    
+  // Handle click on the card to show details
+  const handleCardClick = () => {
+    if (bookstore?.id && typeof showDetails === 'function') {
+      showDetails(bookstore.id);
     }
   };
-
-  // Get bookshop properties with defaults to prevent errors
-  const {
-    name = 'Unnamed Bookshop',
-    city = '',
-    state = '',
-    description = '',
-    imageUrl = null
-  } = bookshop;
 
   return (
     <div className="bookshop-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
@@ -66,13 +47,13 @@ const BookshopCard = ({ bookshop, onViewDetails }: BookshopCardProps) => {
             className="w-full h-40 sm:h-full cursor-pointer" 
             onClick={() => setLocation(bookshopUrl)}
           >
-            {imageUrl ? (
+            {bookstore?.imageUrl ? (
               <OptimizedImage 
-                src={optimizeImageUrl(imageUrl, 'card')} 
+                src={optimizeImageUrl(bookstore.imageUrl, 'card')} 
                 alt={generateBookshopImageAlt(
-                  name, 
-                  city, 
-                  state, 
+                  bookstore.name, 
+                  bookstore.city, 
+                  bookstore.state, 
                   bookshopFeatures.map(f => f.name)
                 )}
                 className="w-full h-full"
@@ -93,18 +74,18 @@ const BookshopCard = ({ bookshop, onViewDetails }: BookshopCardProps) => {
               <h3 
                 className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C]"
               >
-                {name}
+                {bookstore?.name || 'Unnamed Bookshop'}
               </h3>
             </Link>
           </div>
           <div className="text-sm text-gray-600 mb-2">
             <MapPin className="h-4 w-4 inline mr-1" /> 
-            {city}{city && state ? ', ' : ''}{state}
-            {bookshop.county && (
-              <span className="ml-1 text-gray-500">({bookshop.county} County)</span>
+            {bookstore?.city || ''}{bookstore?.city && bookstore?.state ? ', ' : ''}{bookstore?.state || ''}
+            {bookstore?.county && (
+              <span className="ml-1 text-gray-500">({bookstore.county} County)</span>
             )}
           </div>
-          <p className="text-sm mb-3 line-clamp-2">{description}</p>
+          <p className="text-sm mb-3 line-clamp-2">{bookstore?.description || ''}</p>
           {bookshopFeatures.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {bookshopFeatures.map(feature => (
