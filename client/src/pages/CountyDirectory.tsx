@@ -207,7 +207,7 @@ const CountyDirectory = () => {
   
   const canonicalUrl = useMemo(() => {
     if (stateFromUrl) {
-      return `${BASE_URL}/directory/county-state/${generateSlug(countyName)}-${generateSlug(stateName)}`;
+      return `${BASE_URL}/directory/county/${stateFromUrl.toLowerCase()}/${generateSlug(countyName)}`;
     }
     return `${BASE_URL}/directory/county/${generateSlug(countyName)}`;
   }, [countyName, stateName, stateFromUrl]);
@@ -307,12 +307,13 @@ const CountyDirectory = () => {
         {/* Bookstore Listings Section */}
         <div className={`w-full ${view === "map" ? "md:col-span-6" : "md:col-span-12"}`}>
           <div className="bg-white rounded-lg shadow-md p-4">
-            <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
+            <h2 className="text-xl font-serif font-bold text-[#3d6a80] mb-4">
               {bookshopCount} Independent Bookshops in {countyName} County
               {stateFromUrl ? `, ${stateName}` : ''}
             </h2>
             <h3 className="text-md text-gray-600 mb-3">
               A guide to local bookshops and indie bookstores across {countyName} County
+              {stateFromUrl ? ` in ${stateName}` : ''}
             </h3>
             
             {isLoading ? (
@@ -325,14 +326,23 @@ const CountyDirectory = () => {
               </div>
             ) : bookshops.length === 0 ? (
               <div className="text-center py-10">
-                <p>No local bookshops found in {countyName} County.</p>
-                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {countyName} County.</p>
+                <p>No local bookshops found in {countyName} County{stateFromUrl ? `, ${stateName}` : ''}.</p>
+                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops. Check back soon for indie bookstores in {countyName} County{stateFromUrl ? ` in ${stateName}` : ''}.</p>
                 
-                <Link to="/directory/counties">
-                  <Button className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
-                    Browse All Counties
-                  </Button>
-                </Link>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  <Link to="/directory/counties">
+                    <Button className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
+                      Browse All Counties
+                    </Button>
+                  </Link>
+                  {stateFromUrl && (
+                    <Link to={`/directory/state/${stateFromUrl.toLowerCase()}`}>
+                      <Button className="bg-[#3d6a80] hover:bg-[#3d6a80]/90 text-white">
+                        Bookshops in {stateName}
+                      </Button>
+                    </Link>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
