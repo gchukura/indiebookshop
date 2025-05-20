@@ -15,9 +15,10 @@ import {
 } from "../lib/seo";
 
 const CityDirectory = () => {
-  // Get city from URL params
+  // Get city and state from URL params
   const params = useParams();
   const city = params.city;
+  const stateFromUrl = params.state;
   
   // Component state
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
@@ -53,11 +54,19 @@ const CityDirectory = () => {
     // Fetch bookshops for this city
     const fetchData = async () => {
       try {
-        // Make sure the city is URL-encoded
+        // Make sure the city and state are URL-encoded
         const encodedCity = encodeURIComponent(formattedCity);
         
+        // Build the query URL with optional state parameter
+        let queryUrl = `/api/bookstores/filter?city=${encodedCity}`;
+        
+        // Add state parameter if available from URL
+        if (stateFromUrl) {
+          queryUrl += `&state=${encodeURIComponent(stateFromUrl)}`;
+        }
+        
         // Fetch bookshops
-        const response = await fetch(`/api/bookstores/filter?city=${encodedCity}`);
+        const response = await fetch(queryUrl);
         if (!response.ok) {
           throw new Error(`Failed to fetch bookshops: ${response.status}`);
         }
@@ -74,7 +83,7 @@ const CityDirectory = () => {
     };
     
     fetchData();
-  }, [city, formattedCity]);
+  }, [city, formattedCity, stateFromUrl]);
   
   // Get state from the first bookshop (assuming all bookshops in a city are in the same state)
   const state = bookshops.length > 0 ? bookshops[0].state : '';
