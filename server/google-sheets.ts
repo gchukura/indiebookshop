@@ -252,6 +252,7 @@ export class GoogleSheetsService {
             city,
             state,
             zip,
+            county, // Include county field in the returned bookstore object
             description,
             imageUrl,
             website,

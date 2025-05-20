@@ -182,26 +182,11 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       
       console.log(`Looking up bookstores in county: ${county}`);
       
-      // First, check if the county exists
-      const allCounties = await storageImpl.getAllCounties();
-      console.log(`All counties: ${allCounties.join(', ')}`);
+      // Get the bookstores by county using our enhanced matching logic
+      const bookstores = await storageImpl.getBookstoresByCounty(county);
+      console.log(`Found ${bookstores.length} bookstores in county: ${county}`);
       
-      // Try to find a close match for the county name
-      const matchingCounty = allCounties.find(c => 
-        c.toLowerCase() === county.toLowerCase() ||
-        c.toLowerCase().includes(county.toLowerCase()) ||
-        county.toLowerCase().includes(c.toLowerCase())
-      );
-      
-      console.log(`Found matching county: ${matchingCounty || 'None'}`);
-      
-      // If we have a match, use it, otherwise use the original name
-      const countyToUse = matchingCounty || county;
-      
-      // Now get the bookstores by county
-      const bookstores = await storageImpl.getBookstoresByCounty(countyToUse);
-      console.log(`Found ${bookstores.length} bookstores in county: ${countyToUse}`);
-      
+      // Even if no bookstores are found, still return success with empty array
       res.json(bookstores);
     } catch (error) {
       console.error('Error fetching bookstores by county:', error);

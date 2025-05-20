@@ -64,6 +64,12 @@ const CountyDirectory = () => {
           console.log(`Loading data for county: ${county}`);
         }
         
+        // Fetch access token for Mapbox API
+        const configResponse = await fetch('/api/config');
+        const config = await configResponse.json();
+        console.log('Access token received from API:', !!config.mapboxAccessToken);
+        
+        // Fetch bookshops for this county
         const response = await fetch(endpoint);
         
         if (!response.ok) {
@@ -72,7 +78,36 @@ const CountyDirectory = () => {
         
         const data = await response.json();
         console.log(`Found ${data.length} bookshops for county: ${county}`);
-        setBookshops(data);
+        
+        if (data.length === 0 && stateFromUrl) {
+          // If no bookshops were found and we have a state, try a fallback
+          console.log(`No bookshops found for ${county} County, trying fallback method...`);
+          
+          // Try getting all bookshops for the state and filter by county
+          const stateResponse = await fetch(`/api/bookstores/state/${stateFromUrl}`);
+          if (stateResponse.ok) {
+            const stateData = await stateResponse.json();
+            console.log(`Retrieved ${stateData.length} bookshops for state: ${stateFromUrl}`);
+            
+            // Filter for bookshops that contain this county name
+            const countyLower = county!.toLowerCase();
+            const matchingBookshops = stateData.filter(bookshop => 
+              bookshop.county && 
+              bookshop.county.toLowerCase().includes(countyLower)
+            );
+            
+            console.log(`Found ${matchingBookshops.length} bookshops that match county: ${county}`);
+            if (matchingBookshops.length > 0) {
+              setBookshops(matchingBookshops);
+            } else {
+              setBookshops(data); // Use empty results if no matches
+            }
+          } else {
+            setBookshops(data); // Use empty results if state fetch fails
+          }
+        } else {
+          setBookshops(data);
+        }
       } catch (error) {
         console.error('Error fetching bookshops:', error);
         setIsError(true);

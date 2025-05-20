@@ -234,22 +234,58 @@ export class MemStorage implements IStorage {
   
   // County operations
   async getBookstoresByCounty(county: string): Promise<Bookstore[]> {
+    // Normalize the search county name - remove "County" suffix if present
+    const searchCounty = county.toLowerCase().replace(/\s+county$/, '');
+    
     return Array.from(this.bookstores.values()).filter(
-      (bookstore) => 
-        bookstore.live !== false && // Only show live bookstores
-        // @ts-ignore - county field exists in data but might not be fully added to type yet
-        bookstore.county && bookstore.county.toLowerCase() === county.toLowerCase()
+      (bookstore) => {
+        if (bookstore.live === false) return false; // Skip non-live bookstores
+        
+        // Handle null county field
+        if (!bookstore.county) return false;
+        
+        // Normalize stored county name - remove "County" suffix if present
+        const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
+        
+        // Match with several variants, being as flexible as possible:
+        // 1. Exact match after normalization
+        // 2. Partial match (county name contains search term or vice versa)
+        return (
+          storedCounty === searchCounty ||
+          storedCounty.includes(searchCounty) ||
+          searchCounty.includes(storedCounty)
+        );
+      }
     );
   }
   
   async getBookstoresByCountyState(county: string, state: string): Promise<Bookstore[]> {
+    // Normalize the search county name - remove "County" suffix if present
+    const searchCounty = county.toLowerCase().replace(/\s+county$/, '');
+    const searchState = state.toLowerCase();
+    
     return Array.from(this.bookstores.values()).filter(
-      (bookstore) => 
-        bookstore.live !== false && // Only show live bookstores
-        // @ts-ignore - county field exists in data but might not be fully added to type yet
-        bookstore.county && 
-        bookstore.county.toLowerCase() === county.toLowerCase() &&
-        bookstore.state.toLowerCase() === state.toLowerCase()
+      (bookstore) => {
+        if (bookstore.live === false) return false; // Skip non-live bookstores
+        
+        // State must match exactly
+        if (bookstore.state.toLowerCase() !== searchState) return false;
+        
+        // Handle null county field
+        if (!bookstore.county) return false;
+        
+        // Normalize stored county name - remove "County" suffix if present
+        const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
+        
+        // Match with several variants, being as flexible as possible:
+        // 1. Exact match after normalization
+        // 2. Partial match (county name contains search term or vice versa)
+        return (
+          storedCounty === searchCounty ||
+          storedCounty.includes(searchCounty) ||
+          searchCounty.includes(storedCounty)
+        );
+      }
     );
   }
   
