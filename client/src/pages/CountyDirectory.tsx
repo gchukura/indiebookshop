@@ -77,40 +77,41 @@ const CountyDirectory = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const data = await response.json();
-        console.log(`Found ${data.length} bookshops for county: ${county}`);
+        const allBookshops = await response.json();
+        console.log(`Retrieved ${allBookshops.length} total bookshops`);
+
+        // Apply client-side filtering based on county
+        const countyLower = county!.toLowerCase().replace(/\s+county$/i, '').replace(/-/g, ' ');
+        console.log(`Filtering bookshops by county: "${countyLower}"`);
         
-        if (data.length === 0 && stateFromUrl) {
-          // If no bookshops were found and we have a state, try a fallback
-          console.log(`No bookshops found for ${county} County, trying fallback method...`);
+        // Filter bookshops by county with flexible matching
+        let filteredBookshops = allBookshops.filter((bookshop: any) => {
+          // Skip if no county data
+          if (!bookshop.county) return false;
           
-          // Try getting all bookshops for the state and filter by county
-          const stateResponse = await fetch(`/api/bookstores/state/${stateFromUrl}`);
-          if (stateResponse.ok) {
-            const stateData = await stateResponse.json();
-            console.log(`Retrieved ${stateData.length} bookshops for state: ${stateFromUrl}`);
-            
-            // Filter for bookshops that contain this county name
-            const countyLower = county!.toLowerCase();
-            const matchingBookshops = stateData.filter((bookshop) => {
-              // Cast bookshop to Bookstore type to fix TypeScript error
-              const typedBookshop = bookshop as Bookstore;
-              return typedBookshop.county && 
-                typedBookshop.county.toLowerCase().includes(countyLower);
-            });
-            
-            console.log(`Found ${matchingBookshops.length} bookshops that match county: ${county}`);
-            if (matchingBookshops.length > 0) {
-              setBookshops(matchingBookshops);
-            } else {
-              setBookshops(data); // Use empty results if no matches
-            }
-          } else {
-            setBookshops(data); // Use empty results if state fetch fails
-          }
+          // Normalize stored county name for comparison
+          const storedCounty = bookshop.county.toLowerCase().replace(/\s+county$/i, '');
+          
+          // Apply flexible matching
+          return (
+            storedCounty === countyLower ||
+            storedCounty.includes(countyLower) ||
+            countyLower.includes(storedCounty)
+          );
+        });
+
+        // If we have a state, further filter the results
+        if (stateFromUrl && filteredBookshops.length > 0) {
+          const stateLower = stateFromUrl.toLowerCase();
+          filteredBookshops = filteredBookshops.filter(
+            (bookshop: Bookstore) => bookshop.state.toLowerCase() === stateLower
+          );
+          console.log(`Found ${filteredBookshops.length} bookshops in ${county} County, ${stateFromUrl}`);
         } else {
-          setBookshops(data);
+          console.log(`Found ${filteredBookshops.length} bookshops in ${county} County`);
         }
+
+        setBookshops(filteredBookshops);
       } catch (error) {
         console.error('Error fetching bookshops:', error);
         setIsError(true);
