@@ -157,15 +157,16 @@ export class GoogleSheetsService {
         columnMap.city = 3;
         columnMap.state = 4;
         columnMap.zip = 5;
-        columnMap.description = 6;
-        columnMap.imageUrl = 7;
-        columnMap.website = 8;
-        columnMap.phone = 9;
-        columnMap.hours = 10;
-        columnMap.latitude = 11;
-        columnMap.longitude = 12;
-        columnMap.featureIds = 13;
-        columnMap.live = 14;
+        columnMap.county = 6;  // Add county in the correct position
+        columnMap.description = 7;
+        columnMap.imageUrl = 8;
+        columnMap.website = 9;
+        columnMap.phone = 10;
+        columnMap.hours = 11;
+        columnMap.latitude = 12;
+        columnMap.longitude = 13;
+        columnMap.featureIds = 14;
+        columnMap.live = 15;
       }
       
       console.log('Field to column mapping:', columnMap);

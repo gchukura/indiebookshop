@@ -91,10 +91,12 @@ const CountyDirectory = () => {
             
             // Filter for bookshops that contain this county name
             const countyLower = county!.toLowerCase();
-            const matchingBookshops = stateData.filter(bookshop => 
-              bookshop.county && 
-              bookshop.county.toLowerCase().includes(countyLower)
-            );
+            const matchingBookshops = stateData.filter((bookshop) => {
+              // Cast bookshop to Bookstore type to fix TypeScript error
+              const typedBookshop = bookshop as Bookstore;
+              return typedBookshop.county && 
+                typedBookshop.county.toLowerCase().includes(countyLower);
+            });
             
             console.log(`Found ${matchingBookshops.length} bookshops that match county: ${county}`);
             if (matchingBookshops.length > 0) {
