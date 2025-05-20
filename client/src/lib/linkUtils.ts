@@ -52,10 +52,10 @@ export function generateRelatedLinks(
     description: `Discover more independent bookshops in ${bookshop.state}`
   });
 
-  // Add link to city directory
+  // Add link to city directory with state in the path for disambiguation
   links.push({
     title: `Bookshops in ${bookshop.city}`,
-    url: `/directory/city/${encodeURIComponent(bookshop.city)}`,
+    url: `/directory/city/${bookshop.state.toLowerCase()}/${generateSlugFromName(bookshop.city)}`,
     description: `Find more indie bookshops in ${bookshop.city}, ${bookshop.state}`
   });
 
@@ -108,7 +108,7 @@ export function generateBreadcrumbs(
     {
       position: 4,
       name: bookshop.city,
-      item: `${baseUrl}/directory/city/${encodeURIComponent(bookshop.city)}`
+      item: `${baseUrl}/directory/city/${bookshop.state.toLowerCase()}/${generateSlugFromName(bookshop.city)}`
     },
     {
       position: 5,

@@ -158,9 +158,9 @@ const CityDirectory = () => {
           bookshopCount: String(bookshops.length)
         }
       );
-    } else if (DESCRIPTION_TEMPLATES.city) {
+    } else {
       return generateDescription(
-        DESCRIPTION_TEMPLATES.city,
+        DESCRIPTION_TEMPLATES.cities,
         {
           city: cityName,
           bookshopCount: String(bookshops.length)
