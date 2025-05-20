@@ -220,12 +220,22 @@ export class MemStorage implements IStorage {
     }
     
     if (filters.county) {
-      filteredBookstores = filteredBookstores.filter(
-        (bookstore) => {
-          // @ts-ignore - county field exists in data but might not be fully added to type yet
-          return bookstore.county && bookstore.county.toLowerCase() === filters.county!.toLowerCase();
-        }
-      );
+      // Normalize the search county name - remove "County" suffix if present
+      const searchCounty = filters.county.toLowerCase().replace(/\s+county$/, '');
+      
+      filteredBookstores = filteredBookstores.filter(bookstore => {
+        if (!bookstore.county) return false;
+        
+        // Normalize stored county name - remove "County" suffix if present
+        const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
+        
+        // More flexible matching
+        return (
+          storedCounty === searchCounty ||
+          storedCounty.includes(searchCounty) ||
+          searchCounty.includes(storedCounty)
+        );
+      });
     }
     
     if (filters.featureIds && filters.featureIds.length > 0) {
