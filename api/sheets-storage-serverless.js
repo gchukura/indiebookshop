@@ -156,6 +156,21 @@ export class GoogleSheetsStorage {
       filteredBookstores = filteredBookstores.filter(b => b.city === filters.city);
     }
     
+    if (filters.county) {
+      console.log(`Serverless: Filter request includes county: ${filters.county}`);
+      filteredBookstores = filteredBookstores.filter(b => {
+        // If county is missing, skip this bookstore
+        if (!b.county) return false;
+        
+        // Normalize county names by removing "County" suffix and converting to lowercase
+        const bookstoreCounty = b.county.toLowerCase().replace(/\s+county$/, '');
+        const filterCounty = filters.county.toLowerCase().replace(/\s+county$/, '');
+        
+        // Flexible matching for county names
+        return bookstoreCounty.includes(filterCounty) || filterCounty.includes(bookstoreCounty);
+      });
+    }
+    
     if (filters.featureIds && filters.featureIds.length > 0) {
       filteredBookstores = filteredBookstores.filter(bookstore => 
         bookstore.featureIds?.some(id => filters.featureIds?.includes(id)) || false
@@ -163,6 +178,96 @@ export class GoogleSheetsStorage {
     }
     
     return filteredBookstores;
+  }
+  
+  // County-specific operations
+  async getBookstoresByCounty(county) {
+    await this.ensureInitialized();
+    console.log(`Serverless: Looking up bookstores for county: ${county}`);
+    
+    // Normalize the search county name
+    const searchCounty = county.toLowerCase().replace(/\s+county$/, '').replace(/-/g, ' ');
+    
+    return this.bookstores.filter(bookstore => {
+      if (!bookstore.live || !bookstore.county) return false;
+      
+      // Normalize stored county name
+      const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
+      
+      // Match with flexible matching
+      return (
+        storedCounty === searchCounty ||
+        storedCounty.includes(searchCounty) ||
+        searchCounty.includes(storedCounty)
+      );
+    });
+  }
+  
+  async getBookstoresByCountyState(county, state) {
+    await this.ensureInitialized();
+    console.log(`Serverless: Looking up bookstores for county: ${county}, state: ${state}`);
+    
+    // Normalize the search terms
+    const searchCounty = county.toLowerCase().replace(/\s+county$/, '');
+    const searchState = state.toLowerCase();
+    
+    // First filter by state
+    const stateBookstores = this.bookstores.filter(
+      bookstore => bookstore.live !== false && 
+                  bookstore.state.toLowerCase() === searchState
+    );
+    
+    // Then filter by county
+    return stateBookstores.filter(bookstore => {
+      if (!bookstore.county) return false;
+      
+      // Normalize stored county name
+      const storedCounty = bookstore.county.toLowerCase().replace(/\s+county$/, '');
+      
+      // Match with flexible matching
+      return (
+        storedCounty === searchCounty ||
+        storedCounty.includes(searchCounty) ||
+        searchCounty.includes(storedCounty)
+      );
+    });
+  }
+  
+  async getAllCounties() {
+    await this.ensureInitialized();
+    
+    // Extract unique county values from bookstores
+    const counties = new Set();
+    
+    this.bookstores
+      .filter(bookstore => bookstore.live !== false)
+      .forEach(bookstore => {
+        if (bookstore.county && bookstore.county.trim() !== '') {
+          counties.add(bookstore.county);
+        }
+      });
+    
+    return Array.from(counties).sort();
+  }
+  
+  async getCountiesByState(state) {
+    await this.ensureInitialized();
+    
+    // Extract unique county values for the given state
+    const counties = new Set();
+    
+    this.bookstores
+      .filter(bookstore => 
+        bookstore.live !== false && 
+        bookstore.state.toLowerCase() === state.toLowerCase()
+      )
+      .forEach(bookstore => {
+        if (bookstore.county && bookstore.county.trim() !== '') {
+          counties.add(bookstore.county);
+        }
+      });
+    
+    return Array.from(counties).sort();
   }
   
   // Not implemented for read-only integration

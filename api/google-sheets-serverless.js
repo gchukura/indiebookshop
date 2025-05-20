@@ -50,9 +50,65 @@ class GoogleSheetsService {
     }
   }
 
+  // First get the header row to create a column mapping
+  async #getHeaderRow() {
+    try {
+      // First get the header row (A1:P1)
+      const headerResponse = await this.sheets.spreadsheets.values.get({
+        spreadsheetId: this.config.spreadsheetId,
+        range: 'Bookstores!A1:P1',
+      });
+      
+      // Check if header row exists
+      if (!headerResponse.data.values || headerResponse.data.values.length === 0) {
+        console.error('Serverless: Header row not found');
+        return null;
+      }
+      
+      const headers = headerResponse.data.values[0].map(h => h.toLowerCase());
+      console.log('Serverless: Headers from first row:', headers);
+      
+      // Create mapping of field names to column indices
+      const fieldToColumn = {
+        id: headers.indexOf('id'),
+        name: headers.indexOf('name'),
+        street: headers.indexOf('street'),
+        city: headers.indexOf('city'),
+        state: headers.indexOf('state'),
+        zip: headers.indexOf('zip'),
+        county: headers.indexOf('county'), // Add county field
+        description: headers.indexOf('description'),
+        imageUrl: headers.indexOf('imageurl'),
+        website: headers.indexOf('website'),
+        phone: headers.indexOf('phone'),
+        // hours might be "hours" or "hours (json)"
+        hours: headers.findIndex(h => h.startsWith('hours')),
+        latitude: headers.indexOf('latitude'),
+        longitude: headers.indexOf('longitude'),
+        // featureIds might be "featureids" or "featureids (comma-seperated)"
+        featureIds: headers.findIndex(h => h.startsWith('featureid')),
+        live: headers.indexOf('live')
+      };
+      
+      console.log('Serverless: Field to column mapping:', fieldToColumn);
+      return fieldToColumn;
+    } catch (error) {
+      console.error('Serverless: Error fetching header row:', error);
+      return null;
+    }
+  }
+
   // Fetch all bookshops from the Google Sheet
   async getBookstores() {
     try {
+      // First get the field to column mapping
+      const fieldToColumn = await this.#getHeaderRow();
+      
+      if (!fieldToColumn) {
+        console.error('Serverless: Could not determine column structure');
+        return [];
+      }
+      
       console.log(`Serverless: Fetching bookshops from Google Sheets range: ${this.config.bookshopRange}`);
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: this.config.spreadsheetId,
@@ -65,38 +121,40 @@ class GoogleSheetsService {
         return [];
       }
 
-      // Convert rows to Bookstore objects
+      // Convert rows to Bookstore objects using the field mapping
       const bookshops = rows.map((row, index) => {
         try {
-          const id = parseInt(row[0] || '0');
-          const name = row[1] || '';
-          const street = row[2] || '';
-          const city = row[3] || '';
-          const state = row[4] || '';
-          const zip = row[5] || '';
-          const description = row[6] || '';
-          const imageUrl = row[7] || null;
-          const website = row[8] || null;
-          const phone = row[9] || null;
+          // Use field mapping to extract data
+          const id = parseInt(row[fieldToColumn.id] || '0');
+          const name = row[fieldToColumn.name] || '';
+          const street = row[fieldToColumn.street] || '';
+          const city = row[fieldToColumn.city] || '';
+          const state = row[fieldToColumn.state] || '';
+          const zip = row[fieldToColumn.zip] || '';
+          const county = row[fieldToColumn.county] || null; // Get county field
+          const description = row[fieldToColumn.description] || '';
+          const imageUrl = row[fieldToColumn.imageUrl] || null;
+          const website = row[fieldToColumn.website] || null;
+          const phone = row[fieldToColumn.phone] || null;
           
           // Parse hours (if provided in JSON format)
           let hours = null;
           try {
-            if (row[10]) {
-              hours = JSON.parse(row[10]);
+            if (fieldToColumn.hours >= 0 && row[fieldToColumn.hours]) {
+              hours = JSON.parse(row[fieldToColumn.hours]);
             }
           } catch (e) {
             console.error(`Serverless: Error parsing hours for bookshop ${id}:`, e);
           }
 
-          const latitude = row[11] || null;
-          const longitude = row[12] || null;
+          const latitude = fieldToColumn.latitude >= 0 ? row[fieldToColumn.latitude] || null : null;
+          const longitude = fieldToColumn.longitude >= 0 ? row[fieldToColumn.longitude] || null : null;
           
           // Parse feature IDs (comma-separated string of IDs)
           let featureIds = null;
           try {
-            if (row[13]) {
-              featureIds = row[13].split(',').map((idStr) => parseInt(idStr.trim()));
+            if (fieldToColumn.featureIds >= 0 && row[fieldToColumn.featureIds]) {
+              featureIds = row[fieldToColumn.featureIds].split(',').map((idStr) => parseInt(idStr.trim()));
             }
           } catch (e) {
             console.error(`Serverless: Error parsing featureIds for bookshop ${id}:`, e);
@@ -105,9 +163,9 @@ class GoogleSheetsService {
           // Parse live status (default to true if not provided)
           let live = true;
           try {
-            if (row[14] !== undefined) {
+            if (fieldToColumn.live >= 0 && row[fieldToColumn.live] !== undefined) {
               // Convert various string formats to boolean
-              const liveStr = String(row[14]).trim().toLowerCase();
+              const liveStr = String(row[fieldToColumn.live]).trim().toLowerCase();
               live = liveStr === 'yes' || liveStr === 'true' || liveStr === '1';
             }
           } catch (e) {
@@ -121,6 +179,7 @@ class GoogleSheetsService {
             city,
             state,
             zip,
+            county, // Include county in returned object
             description,
             imageUrl,
             website,
