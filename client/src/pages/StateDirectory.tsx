@@ -18,113 +18,96 @@ import {
 const StateDirectory = () => {
   // Get state from URL params
   const params = useParams();
-  const state = params.state;
+  const state = params.state?.toLowerCase() || '';
+  
+  // Get full state name for display
+  const fullStateName = getFullStateName(state);
   
   // Component state
-  const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [view, setView] = useState<"map" | "list">("map");
   const [bookshops, setBookshops] = useState<Bookstore[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   
-  // Handle both full state names and abbreviations
-  const stateParam = state || '';
-  
-  // Get state abbreviation and full name
-  // If it's already an abbreviation, this will return that abbreviation
-  // If it's a full name, this will return the corresponding abbreviation
-  const stateAbbr = stateParam.length > 2 ? 
-    getStateAbbreviation(stateParam) || stateParam : 
-    stateParam;
-    
-  // Get the full state name for display
-  const fullStateName = getFullStateName(stateAbbr);
-  
-  // Fetch data when component mounts or state changes
+  // Fetch bookshops based on state
   useEffect(() => {
-    if (!stateParam) return;
-    
-    console.log(`Loading data for state: ${stateParam}`);
-    setIsLoading(true);
-    setIsError(false);
-    
-    // Fetch bookshops for this state
-    const fetchData = async () => {
+    const fetchBookshops = async () => {
+      setIsLoading(true);
+      setIsError(false);
+      
       try {
-        // Use the original state parameter from the URL
-        // The server will handle converting it to an abbreviation if needed
-        const response = await fetch(`/api/bookstores/filter?state=${encodeURIComponent(stateParam)}`);
+        // Fetch access token for Mapbox API
+        const configResponse = await fetch('/api/config');
+        const config = await configResponse.json();
+        console.log('Access token received from API:', !!config.mapboxAccessToken);
+        
+        // Fetch bookshops for this state
+        const response = await fetch(`/api/bookstores/filter?state=${state}`);
+        
         if (!response.ok) {
-          throw new Error(`Failed to fetch bookshops: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log(`Found ${data.length} bookshops for state: ${stateParam}`);
+        console.log(`Found ${data.length} bookshops for state: ${state}`);
         setBookshops(data);
         
-        // Fetch cities in this state
-        // For the cities endpoint, we need to use the abbreviation
-        const citiesResponse = await fetch(`/api/states/${stateAbbr}/cities`);
+        // Get cities in this state for the directory
+        const citiesResponse = await fetch(`/api/states/${state}/cities`);
+        
         if (citiesResponse.ok) {
           const citiesData = await citiesResponse.json();
-          console.log(`Found ${citiesData.length} cities in ${stateParam}`);
+          console.log(`Found ${citiesData.length} cities in ${state}`);
           setCities(citiesData);
         }
-        
-        setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error('Error fetching bookshops:', error);
         setIsError(true);
+      } finally {
         setIsLoading(false);
       }
     };
     
-    fetchData();
-  }, [stateAbbr]);
-  
-  // Generate SEO metadata
-  const seoTitle = useMemo(() => {
-    return `${fullStateName} Local Bookshops | Independent Bookshops in ${fullStateName}`;
-  }, [fullStateName]);
-  
-  const seoDescription = useMemo(() => {
-    return generateDescription(
-      DESCRIPTION_TEMPLATES.states, 
-      { state: fullStateName }
-    );
-  }, [fullStateName]);
-  
-  const seoKeywords = useMemo(() => {
-    // Generate location-specific keywords for the state
-    return generateLocationKeywords('', fullStateName, 'all', 15);
-  }, [fullStateName]);
-  
-  const canonicalUrl = useMemo(() => {
-    // Use the full state name for SEO-friendly URLs
-    // First check if we have a valid full state name
-    if (fullStateName && fullStateName !== stateParam) {
-      // Generate slug from full state name for the URL
-      const stateSlug = generateSlug(fullStateName);
-      return `${BASE_URL}/directory/state/${stateSlug}`;
+    if (state) {
+      console.log(`Loading data for state: ${state}`);
+      fetchBookshops();
     }
-    // Fallback to original parameter
-    return `${BASE_URL}/directory/state/${stateParam}`;
-  }, [fullStateName, stateParam]);
-
+  }, [state]);
+  
+  // Handle showing bookshop details
   const handleShowDetails = (id: number) => {
     setSelectedBookshopId(id);
     setIsDetailOpen(true);
   };
 
-  const handleCloseDetail = () => {
-    setIsDetailOpen(false);
-  };
-
+  // For optimized SEO titles and descriptions
+  const seoTitle = useMemo(() => {
+    return `Independent Bookshops in ${fullStateName} | Local Bookstore Directory`;
+  }, [fullStateName]);
+  
+  const seoDescription = useMemo(() => {
+    return generateDescription(
+      DESCRIPTION_TEMPLATES.state,
+      {
+        state: fullStateName,
+        bookshopCount: bookshops.length
+      }
+    );
+  }, [fullStateName, bookshops.length]);
+  
+  const seoKeywords = useMemo(() => {
+    return generateLocationKeywords(fullStateName);
+  }, [fullStateName]);
+  
+  const canonicalUrl = useMemo(() => {
+    return `${BASE_URL}/directory/state/${state}`;
+  }, [state]);
+  
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* SEO Component */}
+    <div className="container mx-auto px-4 py-8">
       <SEO 
         title={seoTitle}
         description={seoDescription}
@@ -132,49 +115,45 @@ const StateDirectory = () => {
         canonicalUrl={canonicalUrl}
       />
       
-      <div className="mb-8">
-        <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          {fullStateName} Local Bookshops
+      <div className="mb-6">
+        <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#5F4B32] mb-2">
+          Independent Bookshops in {fullStateName}
         </h1>
+        
         <p className="text-gray-600 mb-6">
-          Discover indie bookshops in {fullStateName}. Browse our comprehensive list of independent bookshops across {fullStateName} using our interactive map or detailed list view.
+          Discover local independent bookshops across {fullStateName}. Browse our comprehensive directory of indie bookstores in this state.
         </p>
         
-        {/* Toggle View */}
-        <div className="flex space-x-2 mb-6">
-          <Button 
-            variant={view === "map" ? "default" : "outline"} 
-            onClick={() => setView("map")}
-            className={view === "map" ? "bg-[#2A6B7C] hover:bg-[#2A6B7C]/90" : ""}
-            aria-label={`View ${fullStateName} bookshops on map`}
-          >
-            Map View
-          </Button>
-          <Button 
-            variant={view === "list" ? "default" : "outline"} 
-            onClick={() => setView("list")}
-            className={view === "list" ? "bg-[#2A6B7C] hover:bg-[#2A6B7C]/90" : ""}
-            aria-label={`View list of ${fullStateName} bookshops`}
-          >
-            List View
-          </Button>
+        {/* View toggle */}
+        <div className="flex flex-wrap gap-4 items-center mb-6">
+          <div className="bg-gray-100 rounded-lg p-1">
+            <button 
+              className={`px-4 py-2 rounded-md ${view === 'map' ? 'bg-white shadow-sm' : ''}`}
+              onClick={() => setView('map')}
+            >
+              Map View
+            </button>
+            <button 
+              className={`px-4 py-2 rounded-md ${view === 'list' ? 'bg-white shadow-sm' : ''}`}
+              onClick={() => setView('list')}
+            >
+              List View
+            </button>
+          </div>
+          <span className="text-sm text-gray-500">
+            {bookshops.length} bookshop{bookshops.length !== 1 ? 's' : ''} found in {fullStateName}
+          </span>
         </div>
-
-        {/* City Quick Links */}
-        {cities.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-3">
-              Local Bookshops by City in {fullStateName}
-            </h2>
-            <p className="text-gray-600 mb-4">
-              Browse independent bookshops in {cities.length} cities across {fullStateName}. Click on a city to discover indie bookshops in that location.
-            </p>
+        
+        {/* Cities dropdown/list section */}
+        {cities && cities.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-serif font-medium mb-4">Cities with Indie Bookshops in {fullStateName}</h2>
             <div className="flex flex-wrap gap-2">
-              {cities.map((city) => (
+              {cities.map(city => (
                 <Link 
-                  key={city} 
-                  href={`/directory/city/${city}`}
-                  title={`${city} Local Bookshops in ${fullStateName}`}
+                  key={city}
+                  to={`/directory/city/${generateSlug(city)}`}
                 >
                   <Button 
                     variant="outline" 
@@ -190,6 +169,15 @@ const StateDirectory = () => {
         )}
       </div>
 
+      {/* Bookshop Detail Modal */}
+      {selectedBookshopId && (
+        <BookshopDetail 
+          bookshopId={selectedBookshopId} 
+          isOpen={isDetailOpen}
+          onClose={() => setIsDetailOpen(false)}
+        />
+      )}
+      
       {/* Interactive Map Section - Styled like directory */}
       {view === "map" && (
         <section className="py-12 bg-white">
@@ -222,72 +210,57 @@ const StateDirectory = () => {
           <p className="text-gray-600 mb-6">
             A guide to local bookshops and indie bookstores across {fullStateName}
           </p>
-            
-            {isLoading ? (
-              <div className="text-center py-10">
-                <p>Loading indie bookshops in {fullStateName}...</p>
-              </div>
-            ) : isError ? (
-              <div className="text-center py-10">
-                <p>Error loading independent bookshops. Please try again later.</p>
-              </div>
-            ) : bookshops.length === 0 ? (
-              <div className="text-center py-10">
-                <p>No local bookshops found in {fullStateName}.</p>
-                <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops across America. Check back soon for indie bookstores in {fullStateName}.</p>
-                <Link href="/directory">
-                  <Button className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
-                    View All Indie Bookshops
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-gray-600 mb-4">
-                  Browse our list of {bookshops.length} local bookshops in {fullStateName}. Click on any bookshop for more details about these independent bookstores, including location, hours, and special features.
-                </p>
-                {bookshops.map((bookshop) => (
-                  <BookshopCard 
-                    key={bookshop.id} 
-                    bookstore={bookshop} 
-                    showDetails={handleShowDetails} 
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          
+          {isLoading ? (
+            <div className="text-center py-10">
+              <p>Loading indie bookshops in {fullStateName}...</p>
+            </div>
+          ) : isError ? (
+            <div className="text-center py-10">
+              <p>Error loading independent bookshops. Please try again later.</p>
+            </div>
+          ) : bookshops.length === 0 ? (
+            <div className="text-center py-10">
+              <p>No local bookshops found in {fullStateName}.</p>
+              <p className="mt-2 mb-4">We're constantly updating our directory of independent bookshops across America. Check back soon for indie bookstores in {fullStateName}.</p>
+              <Link to="/directory">
+                <Button className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
+                  View All Indie Bookshops
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {bookshops.map(bookshop => (
+                <BookshopCard 
+                  key={bookshop.id} 
+                  bookstore={bookshop} 
+                  showDetails={() => handleShowDetails(bookshop.id)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Bookshop Detail Modal */}
-      {selectedBookshopId && (
-        <BookshopDetail 
-          bookshopId={selectedBookshopId} 
-          isOpen={isDetailOpen} 
-          onClose={handleCloseDetail} 
-        />
-      )}
       
       {/* SEO Content Section */}
-      <section className="mt-12 bg-[#F7F3E8] rounded-lg p-6">
-        <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-          Exploring Independent Bookshops in {fullStateName}
-        </h2>
-        <div className="prose prose-p:text-gray-700 max-w-none">
-          <p>
-            {fullStateName} is home to a diverse collection of local bookshops and indie bookstores waiting to be discovered. From charming downtown locations to hidden neighborhood gems, the independent bookshops of {fullStateName} offer unique literary experiences for book lovers of all ages and interests.
-          </p>
-          <p>
-            When searching for the best bookshops in {fullStateName}, our directory provides a comprehensive guide to help you find exactly what you're looking for. Whether you're interested in rare books, children's literature, or specialty genres, these {fullStateName} independent bookshops showcase the rich diversity of the bookselling community.
-          </p>
-          <p>
-            Local bookshops in {fullStateName} are more than just retail stores—they're cultural landmarks that host author readings, book clubs, and community events. These independent bookshops support local authors, curate thoughtfully selected inventories, and provide personalized recommendations that algorithm-driven retailers simply can't match.
-          </p>
-          <p>
-            Start exploring our list of indie bookshops in {fullStateName} today to find your next literary destination!
-          </p>
+      {!isLoading && !isError && bookshops.length > 0 && (
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="mt-6 bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-serif font-bold mb-4">
+              About Independent Bookshops in {fullStateName}
+            </h2>
+            <p className="mb-4">
+              {fullStateName} is home to a diverse selection of independent bookshops, each with its own unique character and literary focus.
+              From cozy neighborhood stores to larger establishments with extensive collections, book lovers will find plenty to explore in this state.
+            </p>
+            <p>
+              Whether you're looking for rare books, the latest bestsellers, or a comfortable reading spot with coffee, 
+              the indie bookshops in {fullStateName} provide welcoming spaces for readers of all interests.
+            </p>
+          </div>
         </div>
-      </section>
+      )}
     </div>
   );
 };
