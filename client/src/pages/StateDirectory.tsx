@@ -18,7 +18,8 @@ import {
 const StateDirectory = () => {
   // Get state from URL params
   const params = useParams();
-  const state = params.state?.toLowerCase() || '';
+  const stateParam = params.state;
+  const state = stateParam ? stateParam.toLowerCase() : '';
   
   // Get full state name for display
   const fullStateName = getFullStateName(state);

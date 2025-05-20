@@ -18,13 +18,17 @@ import { getFullStateName } from "../lib/stateUtils";
 const CityDirectory = () => {
   // Get city name from URL
   const params = useParams();
-  const cityFromUrl = params.city?.replace(/-/g, ' ')
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ') || '';
+  const cityParam = params.city;
+  const cityFromUrl = cityParam 
+    ? cityParam.replace(/-/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ') 
+    : '';
   
   // Get potential state from URL
-  const stateFromUrl = params.state?.toUpperCase() || '';
+  const stateParam = params.state;
+  const stateFromUrl = stateParam ? stateParam.toUpperCase() : '';
   
   // Component state
   const [view, setView] = useState<"map" | "list">("map");
