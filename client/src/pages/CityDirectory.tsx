@@ -169,15 +169,11 @@ const CityDirectory = () => {
       
       <div className="mb-6">
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#5F4B32] mb-2">
-          {stateFromUrl 
-            ? `Independent Bookshops in ${cityName}, ${stateName}` 
-            : `Independent Bookshops in ${cityName}`}
+          Independent Bookshops in {cityName}{stateName ? `, ${stateName}` : ''}
         </h1>
         
         <p className="text-gray-600 mb-6">
-          {stateFromUrl
-            ? `Discover local bookshops in ${cityName}, ${stateName}. Browse our directory of independent bookstores in this city.`
-            : `Explore independent bookshops in ${cityName}. Find local indie bookstores in this area.`}
+          Discover local bookshops in {cityName}{stateName ? `, ${stateName}` : ''}. Browse our directory of independent bookstores in this city.
         </p>
         
         {/* Toggle View */}
@@ -237,8 +233,7 @@ const CityDirectory = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white rounded-lg shadow-md p-4">
           <h2 className="text-xl font-serif font-bold mb-4">
-            {bookshops.length} Independent Bookshops in {cityName}
-            {stateName ? `, ${stateName}` : ''}
+            {bookshops.length} Independent Bookshops in {cityName}{stateName ? `, ${stateName}` : ''}
           </h2>
           <p className="text-gray-600 mb-6">
             A guide to local bookshops and indie bookstores in {cityName}{stateName ? `, ${stateName}` : ''}
