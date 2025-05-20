@@ -111,6 +111,38 @@ export async function generateSitemap(req: Request, res: Response) {
       }
     });
 
+    // Extract unique counties for county directory pages
+    const counties = new Set<string>();
+    bookstores.forEach(bookstore => {
+      if (bookstore.county && bookstore.state) {
+        counties.add(`${bookstore.county}|${bookstore.state}`);
+      }
+    });
+
+    // Add county directory pages with state in the path
+    Array.from(counties).forEach(countyStatePair => {
+      const [county, state] = countyStatePair.split('|');
+      if (county && state) {
+        // Create a clean slug for the county
+        const countySlug = county
+          .toLowerCase()
+          .replace(/\s+county$/i, '') // Remove "County" suffix
+          .replace(/[^\w\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/--+/g, '-')
+          .trim();
+        
+        // Create the state-specific county URL
+        const stateAbbr = state.toLowerCase();
+        
+        xml += `  <url>\n`;
+        xml += `    <loc>${BASE_URL}/directory/county/${stateAbbr}/${countySlug}</loc>\n`;
+        xml += `    <changefreq>monthly</changefreq>\n`;
+        xml += `    <priority>0.7</priority>\n`;
+        xml += `  </url>\n`;
+      }
+    });
+    
     // Add feature/category pages
     features.forEach(feature => {
       xml += `  <url>\n`;
