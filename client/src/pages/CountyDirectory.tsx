@@ -16,6 +16,8 @@ import {
 const CountyDirectory = () => {
   // Get parameters from URL
   const params = useParams();
+  const [multipleStatesWarning, setMultipleStatesWarning] = useState(false);
+  const [matchingStates, setMatchingStates] = useState<string[]>([]);
   
   // Handle both routing patterns
   let county = params.county;
@@ -107,8 +109,22 @@ const CountyDirectory = () => {
             (bookshop: Bookstore) => bookshop.state.toLowerCase() === stateLower
           );
           console.log(`Found ${filteredBookshops.length} bookshops in ${county} County, ${stateFromUrl}`);
+          setMultipleStatesWarning(false); // No warning needed for state-specific pages
         } else {
           console.log(`Found ${filteredBookshops.length} bookshops in ${county} County`);
+          
+          // Check for multiple states with this county name
+          const stateSet = new Set<string>();
+          filteredBookshops.forEach((shop: Bookstore) => stateSet.add(shop.state));
+          const statesWithThisCounty = Array.from(stateSet);
+          
+          if (statesWithThisCounty.length > 1) {
+            console.log(`Multiple states (${statesWithThisCounty.join(', ')}) have a "${county}" county`);
+            setMultipleStatesWarning(true);
+            setMatchingStates(statesWithThisCounty);
+          } else {
+            setMultipleStatesWarning(false);
+          }
         }
 
         setBookshops(filteredBookshops);
@@ -213,6 +229,30 @@ const CountyDirectory = () => {
             ? `Discover local bookshops in ${countyName} County, ${stateName}. Browse our directory of independent bookstores in this region.`
             : `Explore independent bookshops in ${countyName} County. Find local indie bookstores in your area.`}
         </p>
+        
+        {/* Warning message for counties that exist in multiple states */}
+        {multipleStatesWarning && matchingStates.length > 1 && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-md p-4">
+            <h2 className="text-lg font-medium text-amber-800 mb-2">
+              <span className="mr-2">⚠️</span>
+              Multiple States Have "{countyName}" County
+            </h2>
+            <p className="text-amber-700 mb-3">
+              We found "{countyName}" County in multiple states. For a more specific view, please select the state you're interested in:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {matchingStates.map(state => (
+                <Link 
+                  key={state}
+                  to={`/directory/county-state/${generateSlug(countyName)}-${state.toLowerCase()}`}
+                  className="inline-block px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-md transition-colors"
+                >
+                  {countyName} County, {state}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
         
         {/* View toggle */}
         <div className="flex flex-wrap gap-4 items-center mb-6">
