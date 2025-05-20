@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Bookstore, Feature } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
 import BookshopIcon from "./BookshopIcon";
@@ -15,6 +15,8 @@ interface BookshopCardProps {
 }
 
 const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) => {
+  const [_, setLocation] = useLocation();
+  
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
@@ -24,6 +26,9 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
   const bookshopFeatures = features?.filter(feature => 
     bookshop.featureIds?.includes(feature.id) || false
   ) || [];
+  
+  // Generate the bookshop URL using only the name slug (no ID)
+  const bookshopUrl = generateBookshopSlug(bookshop.id, bookshop.name);
 
   return (
     <div className="bookshop-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
@@ -31,7 +36,7 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
         <div className="sm:w-1/3">
           <div 
             className="w-full h-40 sm:h-full cursor-pointer" 
-            onClick={() => showDetails(bookshop.id)}
+            onClick={() => setLocation(bookshopUrl)}
           >
             {bookshop.imageUrl ? (
               <OptimizedImage 
@@ -56,7 +61,7 @@ const BookshopCard = ({ bookstore: bookshop, showDetails }: BookshopCardProps) =
         </div>
         <div className="p-4 sm:w-2/3">
           <div>
-            <Link to={generateBookshopSlug(bookshop.id, bookshop.name)}>
+            <Link to={bookshopUrl}>
               <h3 
                 className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C]"
               >
