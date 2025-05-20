@@ -8,9 +8,11 @@ import OptimizedImage from '@/components/OptimizedImage';
 import RelatedBookshops from '@/components/RelatedBookshops';
 
 const BookshopDetailPage = () => {
-  const { id } = useParams<{ id: string }>();
+  const { idslug } = useParams<{ idslug: string }>();
   const [_, setLocation] = useLocation();
-  const bookshopId = parseInt(id);
+  
+  // Extract ID from the slug (e.g., "123-bookshop-name" -> 123)
+  const bookshopId = parseInt(idslug?.split('-')[0]);
 
   // Redirect to directory if id is invalid
   useEffect(() => {
