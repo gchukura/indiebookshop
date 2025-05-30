@@ -136,8 +136,14 @@ const CityDirectory = () => {
   
   // Handle showing bookshop details
   const handleShowDetails = (id: number) => {
-    setSelectedBookshopId(id);
-    setIsDetailOpen(true);
+    // Find the bookshop by ID
+    const bookshop = bookshops.find(b => b.id === id);
+    
+    if (bookshop) {
+      // Navigate to the bookshop detail page
+      const slug = generateSlug(bookshop.name);
+      window.location.href = `/bookshop/${slug}`;
+    }
   };
   
   // For optimized SEO titles and descriptions
