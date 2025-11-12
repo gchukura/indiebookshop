@@ -40,6 +40,26 @@ export async function registerRoutes(app, storageImpl) {
     }
   });
 
+  // Get a specific bookstore by slug (for SEO-friendly URLs)
+  // IMPORTANT: This must come BEFORE the :id route to prevent conflict
+  app.get('/api/bookstores/by-slug/:slug', async (req, res) => {
+    try {
+      const slug = req.params.slug;
+      console.log(`Serverless: Looking up bookstore with slug: ${slug}`);
+      
+      const bookstore = await storageImpl.getBookstoreBySlug(slug);
+      if (!bookstore) {
+        console.log(`Serverless: No bookstore found with slug: ${slug}`);
+        return res.status(404).json({ message: 'Bookstore not found' });
+      }
+      
+      res.json(bookstore);
+    } catch (error) {
+      console.error('Serverless Error fetching bookstore by slug:', error);
+      res.status(500).json({ message: 'Failed to fetch bookstore by slug' });
+    }
+  });
+
   // Get a specific bookshop by ID
   app.get('/api/bookstores/:id', async (req, res) => {
     try {

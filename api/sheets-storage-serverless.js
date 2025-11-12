@@ -7,6 +7,7 @@ export class GoogleSheetsStorage {
     this.features = [];
     this.events = [];
     this.users = new Map();
+    this.slugToBookstoreId = new Map(); // Map slugs to bookstore IDs
     this.userIdCounter = 1;
     this.isInitialized = false;
     
@@ -117,6 +118,49 @@ export class GoogleSheetsStorage {
   async getBookstore(id) {
     await this.ensureInitialized();
     return this.bookstores.find(b => b.id === id);
+  }
+  
+  async getBookstoreBySlug(slug) {
+    await this.ensureInitialized();
+    
+    console.log(`Serverless: Looking up bookstore with slug: ${slug}`);
+    
+    // Check if we already have this slug mapped
+    const bookstoreId = this.slugToBookstoreId.get(slug);
+    
+    if (bookstoreId) {
+      // Find the bookstore with this ID
+      const bookstore = this.bookstores.find(b => b.id === bookstoreId);
+      console.log(`Serverless: Found bookstore by slug map: "${bookstore?.name}" (ID: ${bookstoreId})`);
+      return bookstore;
+    }
+    
+    // Fallback - if no mapping exists, try direct search
+    console.log(`Serverless: No slug mapping for "${slug}", trying direct lookup`);
+    const generateSlugFromName = (name) => {
+      return name
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-')     // Replace spaces with hyphens
+        .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
+        .trim();                  // Trim leading/trailing spaces
+    };
+    
+    const bookstoreWithSlug = this.bookstores.find(b => {
+      if (b.live === false) return false; // Skip non-live bookstores
+      const nameSlug = generateSlugFromName(b.name);
+      return nameSlug === slug;
+    });
+    
+    if (bookstoreWithSlug) {
+      console.log(`Serverless: Found bookstore by direct search: "${bookstoreWithSlug.name}" (ID: ${bookstoreWithSlug.id})`);
+      // Add to map for future lookups
+      this.slugToBookstoreId.set(slug, bookstoreWithSlug.id);
+    } else {
+      console.log(`Serverless: No bookstore found with slug: ${slug}`);
+    }
+    
+    return bookstoreWithSlug;
   }
   
   async getBookstoresByState(state) {
@@ -336,5 +380,49 @@ export class GoogleSheetsStorage {
   initializeEvents() {
     // Just a placeholder empty array
     this.events = [];
+  }
+  
+  // Initialize slug mappings for fast URL-friendly lookups
+  initializeSlugMappings() {
+    console.log('Serverless: Initializing bookshop slug mappings...');
+    if (!this.slugToBookstoreId) {
+      this.slugToBookstoreId = new Map();
+    }
+    this.slugToBookstoreId.clear();
+    
+    const generateSlugFromName = (name) => {
+      return name
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-')     // Replace spaces with hyphens
+        .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
+        .trim();                  // Trim leading/trailing spaces
+    };
+    
+    // Process all bookshops to create slug mappings
+    let duplicatesFound = 0;
+    
+    this.bookstores.forEach(bookstore => {
+      if (bookstore.live !== false) { // Only create mappings for live bookshops
+        const slug = generateSlugFromName(bookstore.name);
+        
+        // Log if we're overwriting an existing slug (duplicate handling)
+        if (this.slugToBookstoreId.has(slug)) {
+          duplicatesFound++;
+          const existingId = this.slugToBookstoreId.get(slug);
+          const existingStore = this.bookstores.find(b => b.id === existingId);
+          console.log(`Serverless: Duplicate slug "${slug}" detected. Previous: "${existingStore?.name}" (ID: ${existingId}), New: "${bookstore.name}" (ID: ${bookstore.id})`);
+        }
+        
+        // Always set the mapping - in case of duplicates, last one wins
+        this.slugToBookstoreId.set(slug, bookstore.id);
+      }
+    });
+    
+    if (duplicatesFound > 0) {
+      console.log(`Serverless: Found ${duplicatesFound} duplicate slugs. In cases of duplicates, the last bookshop with that slug will be used.`);
+    }
+    
+    console.log(`Serverless: Created ${this.slugToBookstoreId.size} slug mappings for bookshops`);
   }
 }
