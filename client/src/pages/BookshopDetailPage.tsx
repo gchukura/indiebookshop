@@ -75,25 +75,30 @@ const BookshopDetailPage = () => {
   const seoKeywords = useMemo(() => {
     if (!bookshop) return [];
     
-    // Create base keywords
-    const keywords = [
-      `${bookshop.name}`,
-      `${bookshop.name} bookshop`,
-      `${bookshop.name} bookstore`,
-      `independent bookshop ${bookshop.city}`,
-      `independent bookstore ${bookshop.city}`,
-      `indie bookshop ${bookshop.city}`,
-      `bookshops in ${bookshop.city}`,
-      `bookstores in ${bookshop.city}`,
-      `${bookshop.city} ${bookshop.state} bookshops`,
-      `independent bookshops ${bookshop.state}`
-    ];
+    // Create base keywords - ensure all are strings
+    const keywords: string[] = [
+      String(bookshop.name || ''),
+      `${String(bookshop.name || '')} bookshop`,
+      `${String(bookshop.name || '')} bookshop`,
+      `independent bookshop ${String(bookshop.city || '')}`,
+      `independent bookshop ${String(bookshop.city || '')}`,
+      `indie bookshop ${String(bookshop.city || '')}`,
+      `bookshops in ${String(bookshop.city || '')}`,
+      `bookshops in ${String(bookshop.city || '')}`,
+      `${String(bookshop.city || '')} ${String(bookshop.state || '')} bookshops`,
+      `independent bookshops ${String(bookshop.state || '')}`
+    ].filter(k => k && k.trim() !== '');
     
     // Add feature-specific keywords
-    bookshopFeatures.forEach(feature => {
-      keywords.push(`${bookshop.name} ${feature.name.toLowerCase()}`);
-      keywords.push(`${feature.name.toLowerCase()} bookshops in ${bookshop.city}`);
-    });
+    if (bookshopFeatures && Array.isArray(bookshopFeatures)) {
+      bookshopFeatures.forEach(feature => {
+        if (feature && feature.name) {
+          const featureName = String(feature.name).toLowerCase();
+          keywords.push(`${String(bookshop.name || '')} ${featureName}`);
+          keywords.push(`${featureName} bookshops in ${String(bookshop.city || '')}`);
+        }
+      });
+    }
     
     return keywords;
   }, [bookshop, bookshopFeatures]);
@@ -132,14 +137,16 @@ const BookshopDetailPage = () => {
 
   return (
     <div className="bg-[#F7F3E8] min-h-screen">
-      {/* SEO Component */}
-      <SEO 
-        title={seoTitle}
-        description={seoDescription}
-        keywords={seoKeywords}
-        canonicalUrl={canonicalUrl}
-        ogImage={getImageUrl}
-      />
+      {/* SEO Component - only render when bookshop data is available */}
+      {bookshop && (
+        <SEO 
+          title={seoTitle}
+          description={seoDescription}
+          keywords={seoKeywords}
+          canonicalUrl={canonicalUrl}
+          ogImage={getImageUrl}
+        />
+      )}
       
       <div className="relative h-64 md:h-96">
         <OptimizedImage 
@@ -154,7 +161,7 @@ const BookshopDetailPage = () => {
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-white text-2xl md:text-4xl font-serif font-bold">{bookshop.name} | Independent Bookshop in {bookshop.city}</h1>
-            <p className="text-white/90 text-sm md:text-base">{bookshop.city}, {bookshop.state} • Indie Bookstore</p>
+            <p className="text-white/90 text-sm md:text-base">{bookshop.city}, {bookshop.state} • Indie Bookshop</p>
           </div>
         </div>
       </div>
@@ -167,7 +174,7 @@ const BookshopDetailPage = () => {
               <p className="mb-4">{bookshop.description}</p>
               <p className="mb-6 text-gray-700">
                 {bookshop.name} is a cherished independent bookshop located in {bookshop.city}, {bookshop.state}. 
-                As a local indie bookstore, we provide a curated selection of books and a unique shopping 
+                As a local indie bookshop, we provide a curated selection of books and a unique shopping 
                 experience that online retailers simply can't match.
               </p>
               
@@ -192,7 +199,7 @@ const BookshopDetailPage = () => {
                   <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100">
                     <img 
                       src={bookshop.imageUrl || "/images/bookshop-interior.svg"} 
-                      alt={`${bookshop.name} bookstore interior`}
+                      alt={`${bookshop.name} bookshop interior`}
                       className="h-full w-full object-cover"
                       onError={(e) => {
                         e.currentTarget.src = "/images/bookshop-interior.svg";

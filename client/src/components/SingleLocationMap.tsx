@@ -37,7 +37,7 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
         const token = config.mapboxAccessToken;
         
         if (!token) {
-          console.error('No MapBox token available for detail map');
+          // Silently handle missing token - map just won't render
           return;
         }
         

@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 
 interface SEOProps {
   title: string;
@@ -39,11 +39,16 @@ export const SEO = ({
   articleSection,
   articleTags = [],
 }: SEOProps) => {
-  // Join keywords for meta tag
-  const keywordsString = keywords.join(', ');
+  // Ensure all values are strings and filter out any invalid values
+  const safeTitle = String(title || 'IndiebookShop.com');
+  const safeDescription = String(description || '');
+  const safeKeywords = Array.isArray(keywords) 
+    ? keywords.filter(k => k != null && typeof k !== 'symbol').map(k => String(k))
+    : [];
+  const keywordsString = safeKeywords.join(', ');
   
   // Format title to include site name
-  const fullTitle = `${title} | IndiebookShop.com`;
+  const fullTitle = `${safeTitle} | IndiebookShop.com`;
   
   // Make sure we're using string values for all props
   const safeOgType = String(ogType || 'website');
@@ -56,25 +61,21 @@ export const SEO = ({
   return (
     <Helmet>
       <title>{fullTitle}</title>
-      <meta name="description" content={description} />
-      {keywords.length > 0 && <meta name="keywords" content={keywordsString} />}
+      {safeDescription && <meta name="description" content={safeDescription} />}
+      {keywordsString && <meta name="keywords" content={keywordsString} />}
       
       {/* Canonical URL */}
       {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
       
       {/* Open Graph Tags */}
       <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
+      {safeDescription && <meta property="og:description" content={safeDescription} />}
       <meta property="og:type" content={safeOgType} />
-      {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
-      {ogImage && (
-        <>
-          <meta property="og:image" content={ogImage} />
-          {ogImageAlt && <meta property="og:image:alt" content={ogImageAlt} />}
-          {ogImageWidth && <meta property="og:image:width" content={String(ogImageWidth)} />}
-          {ogImageHeight && <meta property="og:image:height" content={String(ogImageHeight)} />}
-        </>
-      )}
+      {canonicalUrl && <meta property="og:url" content={String(canonicalUrl)} />}
+      {ogImage && <meta property="og:image" content={String(ogImage)} />}
+      {ogImage && ogImageAlt && <meta property="og:image:alt" content={String(ogImageAlt)} />}
+      {ogImage && ogImageWidth && <meta property="og:image:width" content={String(ogImageWidth)} />}
+      {ogImage && ogImageHeight && <meta property="og:image:height" content={String(ogImageHeight)} />}
       
       {/* Site-wide Open Graph info */}
       <meta property="og:site_name" content="IndiebookShop.com" />
@@ -93,17 +94,19 @@ export const SEO = ({
       {isArticle && articleSection && (
         <meta property="article:section" content={String(articleSection)} />
       )}
-      {isArticle && articleTags.map((tag, index) => (
-        <meta property="article:tag" content={String(tag)} key={index} />
-      ))}
+      {isArticle && articleTags && articleTags.length > 0 && articleTags
+        .filter(tag => tag != null && typeof tag !== 'symbol')
+        .map((tag, index) => (
+          <meta property="article:tag" content={String(tag)} key={`tag-${index}`} />
+        ))}
       
       {/* Twitter Card Tags */}
       <meta name="twitter:card" content={safeTwitterCard} />
       <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
+      {safeDescription && <meta name="twitter:description" content={safeDescription} />}
       {twitterSite && <meta name="twitter:site" content={safeSite} />}
       {twitterCreator && <meta name="twitter:creator" content={safeCreator} />}
-      {ogImage && <meta name="twitter:image" content={ogImage} />}
+      {ogImage && <meta name="twitter:image" content={String(ogImage)} />}
       {ogImageAlt && <meta name="twitter:image:alt" content={String(ogImageAlt)} />}
     </Helmet>
   );

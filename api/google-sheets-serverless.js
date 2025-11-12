@@ -119,6 +119,22 @@ class GoogleSheetsService {
     }
   }
 
+  // Helper function to detect error values from Google Sheets formulas
+  #isErrorValue(value) {
+    if (!value) return false;
+    const str = String(value).trim().toUpperCase();
+    // Common Google Sheets error values
+    return str === '#ERROR!' || 
+           str === '#N/A' || 
+           str === '#VALUE!' || 
+           str === '#REF!' || 
+           str === '#DIV/0!' || 
+           str === '#NAME?' || 
+           str === '#NUM!' || 
+           str === '#NULL!' ||
+           str.startsWith('#');
+  }
+
   // Fetch all bookshops from the Google Sheet
   async getBookstores() {
     try {
@@ -157,6 +173,12 @@ class GoogleSheetsService {
           const imageUrl = row[fieldToColumn.imageUrl] || null;
           const website = row[fieldToColumn.website] || null;
           const phone = row[fieldToColumn.phone] || null;
+          
+          // Skip records with error values in critical fields
+          if (this.#isErrorValue(name) || this.#isErrorValue(city) || this.#isErrorValue(state)) {
+            console.log(`Serverless: Skipping bookshop at row ${index + 1} (ID: ${id}) due to error values in critical fields`);
+            return null;
+          }
           
           // Parse hours (if provided in JSON format)
           let hours = null;

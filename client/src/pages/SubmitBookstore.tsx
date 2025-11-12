@@ -6,25 +6,25 @@ import { BASE_URL } from "../lib/seo";
 const SubmitBookstore: FC = () => {
   // SEO metadata
   const seoTitle = useMemo(() => {
-    return "Submit a Bookstore | Add to Our Independent Bookshop Directory";
+    return "Submit a Bookshop | Add to Our Independent Bookshop Directory";
   }, []);
   
   const seoDescription = useMemo(() => {
-    return "Help grow our directory of independent bookstores across America. Submit a new indie bookshop or suggest updates to an existing one to improve our free bookstore finder service.";
+    return "Help grow our directory of independent bookshops across America. Submit a new indie bookshop or suggest updates to an existing one to improve our free bookshop finder service.";
   }, []);
   
   const seoKeywords = useMemo(() => {
     return [
-      "submit bookstore",
+      "submit bookshop",
       "add bookshop to directory",
-      "independent bookstore listing",
+      "independent bookshop listing",
       "indie bookshop submission",
-      "register bookstore",
-      "add indie bookstore information",
-      "bookstore directory submission",
+      "register bookshop",
+      "add indie bookshop information",
+      "bookshop directory submission",
       "list my bookshop",
-      "update bookstore listing",
-      "indie bookstore registration"
+      "update bookshop listing",
+      "indie bookshop registration"
     ];
   }, []);
   
@@ -44,15 +44,15 @@ const SubmitBookstore: FC = () => {
       
       <div className="max-w-3xl mx-auto mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-4 text-center text-[#5F4B32] font-serif">
-          Submit an Independent Bookstore
+          Submit an Independent Bookshop
         </h1>
         
         <p className="text-center text-gray-600 mb-4">
-          Help us grow our comprehensive directory of independent bookstores across America. Submit a new indie bookshop or suggest updates to an existing one.
+          Help us grow our comprehensive directory of independent bookshops across America. Submit a new indie bookshop or suggest updates to an existing one.
         </p>
         
         <p className="text-center text-gray-600 mb-8">
-          Our mission is to connect readers with local independent bookshops. Your submission helps support the vibrant community of indie bookstores nationwide.
+          Our mission is to connect readers with local independent bookshops. Your submission helps support the vibrant community of indie bookshops nationwide.
         </p>
         
         <BookshopSubmissionForm />

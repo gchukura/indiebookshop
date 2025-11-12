@@ -1,3 +1,6 @@
+// Load environment variables from .env file (for local development)
+import 'dotenv/config';
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -50,7 +53,8 @@ const USE_GOOGLE_SHEETS = process.env.USE_MEM_STORAGE !== 'true';
 
 // USE_SAMPLE_DATA controls whether to use sample data or try to connect to Google Sheets
 // You can override this by setting the USE_SAMPLE_DATA environment variable
-process.env.USE_SAMPLE_DATA = process.env.USE_SAMPLE_DATA || 'true';
+// Default to false to load from Google Sheets (set to 'true' only for testing)
+process.env.USE_SAMPLE_DATA = process.env.USE_SAMPLE_DATA || 'false';
 
 // GOOGLE_SHEETS_ID environment variable can be used to specify the spreadsheet ID
 // If not provided, the default ID in google-sheets.ts will be used
@@ -112,15 +116,10 @@ if (process.env.DISABLE_AUTO_REFRESH === 'true') {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
+  // Serve the app on port 3000 (changed from 5000 to avoid ControlCenter conflict)
   // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  const port = 3000;
+  server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   });
 })();

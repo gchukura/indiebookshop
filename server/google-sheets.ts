@@ -71,6 +71,22 @@ export class GoogleSheetsService {
     }
   }
 
+  // Helper function to detect error values from Google Sheets formulas
+  private isErrorValue(value: string | null | undefined): boolean {
+    if (!value) return false;
+    const str = String(value).trim().toUpperCase();
+    // Common Google Sheets error values
+    return str === '#ERROR!' || 
+           str === '#N/A' || 
+           str === '#VALUE!' || 
+           str === '#REF!' || 
+           str === '#DIV/0!' || 
+           str === '#NAME?' || 
+           str === '#NUM!' || 
+           str === '#NULL!' ||
+           str.startsWith('#');
+  }
+
   // Fetch all bookshops from the Google Sheet
   async getBookstores(): Promise<Bookstore[]> {
     try {
@@ -198,6 +214,12 @@ export class GoogleSheetsService {
           const imageUrl = getValue('imageUrl') || null;
           const website = getValue('website') || null;
           const phone = getValue('phone') || null;
+          
+          // Skip records with error values in critical fields
+          if (this.isErrorValue(name) || this.isErrorValue(city) || this.isErrorValue(state)) {
+            console.log(`Skipping bookshop at row ${rowIndex + startIndex + 1} (ID: ${id}) due to error values in critical fields`);
+            return null;
+          }
           
           // Handle hours with flexibility
           let hours = null;

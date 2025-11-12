@@ -79,7 +79,7 @@ const CitiesListPage = () => {
   // SEO metadata
   const seoTitle = useMemo(() => {
     if (searchQuery) {
-      return `Find Bookshops in ${searchQuery} | Independent Bookstore Directory by City`;
+      return `Find Bookshops in ${searchQuery} | Independent Bookshop Directory by City`;
     }
     return "Browse Independent Bookshops by City | Find Local Bookstores Near You";
   }, [searchQuery]);

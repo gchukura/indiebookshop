@@ -158,9 +158,9 @@ export const BookshopSubmissionForm = () => {
   return (
     <Card className="w-full max-w-3xl mx-auto">
       <CardHeader>
-        <CardTitle>Submit a Bookstore</CardTitle>
+        <CardTitle>Submit a Bookshop</CardTitle>
         <CardDescription>
-          Help us grow our directory of independent bookstores by submitting a new bookstore or suggesting changes to an existing one.
+          Help us grow our directory of independent bookshops by submitting a new bookshop or suggesting changes to an existing one.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -182,13 +182,13 @@ export const BookshopSubmissionForm = () => {
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="new" id="new" />
                         <label htmlFor="new" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Submit a new bookstore
+                          Submit a new bookshop
                         </label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="change" id="change" />
                         <label htmlFor="change" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Suggest changes to an existing bookstore
+                          Suggest changes to an existing bookshop
                         </label>
                       </div>
                     </RadioGroup>
@@ -251,9 +251,9 @@ export const BookshopSubmissionForm = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bookstore Name</FormLabel>
+                  <FormLabel>Bookshop Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter bookstore name" {...field} />
+                    <Input placeholder="Enter bookshop name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -444,7 +444,7 @@ export const BookshopSubmissionForm = () => {
             </div>
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Submit Bookstore"}
+              {isSubmitting ? "Submitting..." : "Submit Bookshop"}
             </Button>
           </form>
         </Form>

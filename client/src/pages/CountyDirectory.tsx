@@ -1,4 +1,4 @@
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { Bookstore } from "@shared/schema";
 import BookshopCard from "@/components/BookshopCard";
@@ -18,6 +18,7 @@ import { getFullStateName } from "../lib/stateUtils";
 const CountyDirectory = () => {
   // Get parameters from URL
   const params = useParams();
+  const [_, navigate] = useLocation();
   const [multipleStatesWarning, setMultipleStatesWarning] = useState(false);
   const [matchingStates, setMatchingStates] = useState<string[]>([]);
   
@@ -177,7 +178,7 @@ const CountyDirectory = () => {
   // Generate SEO metadata
   const pageTitle = useMemo(() => {
     if (stateFromUrl) {
-      return `Independent Bookshops in ${countyName} County, ${stateName} | Local Bookstore Directory`;
+      return `Independent Bookshops in ${countyName} County, ${stateName} | Local Bookshop Directory`;
     }
     return `Bookshops in ${countyName} County | Find Local Independent Bookstores`;
   }, [countyName, stateName, stateFromUrl]);
@@ -210,7 +211,7 @@ const CountyDirectory = () => {
         `${countyName} County ${stateName} bookstores`,
         `independent bookstores in ${countyName} County ${stateName}`,
         `local bookshops ${stateName}`,
-        `${stateName} bookstore directory`
+        `${stateName} bookshop directory`
       ]);
     }
     
@@ -230,9 +231,9 @@ const CountyDirectory = () => {
     const bookshop = bookshops.find(b => b.id === id);
     
     if (bookshop) {
-      // Navigate to the bookshop detail page
+      // Navigate to the bookshop detail page using client-side navigation
       const slug = generateSlug(bookshop.name);
-      window.location.href = `/bookshop/${slug}`;
+      navigate(`/bookshop/${slug}`);
     }
   };
   

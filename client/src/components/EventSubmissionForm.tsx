@@ -82,12 +82,12 @@ const EventSubmissionForm = () => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="bookstoreId">Bookstore ID</Label>
+        <Label htmlFor="bookstoreId">Bookshop ID</Label>
         <Input
           id="bookstoreId"
           value={bookstoreId}
           onChange={(e) => setBookstoreId(e.target.value)}
-          placeholder="Enter the bookstore ID"
+          placeholder="Enter the bookshop ID"
           type="number"
           required
         />

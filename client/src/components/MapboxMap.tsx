@@ -43,7 +43,7 @@ const MapboxMap = ({ bookstores, onSelectBookshop }: MapboxMapProps) => {
         console.log("Access token received from API:", !!accessToken);
         
         if (!accessToken) {
-          console.error('No Mapbox access token available');
+          // Silently handle missing token - map just won't render
           return;
         }
         

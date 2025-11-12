@@ -1,4 +1,4 @@
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { Bookstore } from "@shared/schema";
 import BookshopCard from "@/components/BookshopCard";
@@ -21,6 +21,7 @@ const StateDirectory = () => {
   const params = useParams();
   const stateParam = params.state;
   const state = stateParam ? stateParam.toLowerCase() : '';
+  const [_, navigate] = useLocation();
   
   // Get full state name for display
   const fullStateName = getFullStateName(state);
@@ -88,15 +89,15 @@ const StateDirectory = () => {
     const bookshop = bookshops.find(b => b.id === id);
     
     if (bookshop) {
-      // Navigate to the bookshop detail page
+      // Navigate to the bookshop detail page using client-side navigation
       const slug = generateSlug(bookshop.name);
-      window.location.href = `/bookshop/${slug}`;
+      navigate(`/bookshop/${slug}`);
     }
   };
 
   // For optimized SEO titles and descriptions
   const seoTitle = useMemo(() => {
-    return `Independent Bookshops in ${fullStateName} | Local Bookstore Directory`;
+    return `Independent Bookshops in ${fullStateName} | Local Bookshop Directory`;
   }, [fullStateName]);
   
   const seoDescription = useMemo(() => {
