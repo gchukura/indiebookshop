@@ -55,6 +55,9 @@ export class GoogleSheetsStorage {
           this.events = events;
         }
         
+        // Initialize slug mappings for SEO-friendly URLs
+        this.initializeSlugMappings();
+        
         console.log(`Serverless: Successfully loaded ${this.bookstores.length} bookstores, ${this.features.length} features, and ${this.events.length} events`);
       } catch (googleError) {
         console.error('Serverless: Error loading from Google Sheets, falling back to sample data:', googleError);
