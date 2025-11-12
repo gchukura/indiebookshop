@@ -58,14 +58,28 @@ export class GoogleSheetsStorage implements IStorage {
     try {
       try {
         // Try to get Google Sheets service (may fail if credentials are missing)
+        console.log('Getting Google Sheets service...');
         const googleSheetsService = getGoogleSheetsService();
+        console.log('Google Sheets service obtained successfully');
         
         // Try to load data from Google Sheets
+        console.log('Fetching data from Google Sheets...');
         const [bookstores, features, events] = await Promise.all([
           googleSheetsService.getBookstores(),
           googleSheetsService.getFeatures(),
           googleSheetsService.getEvents()
         ]);
+        
+        console.log(`Fetched ${bookstores.length} bookstores, ${features.length} features, ${events.length} events from Google Sheets`);
+        
+        // Check if we got any bookstores
+        if (bookstores.length === 0) {
+          console.warn('⚠️  WARNING: No bookstores were returned from Google Sheets. This might indicate:');
+          console.warn('  1. The spreadsheet is empty');
+          console.warn('  2. All rows were filtered out (e.g., due to error values)');
+          console.warn('  3. The range is incorrect');
+          console.warn('  4. The service account does not have access to the spreadsheet');
+        }
         
         this.bookstores = bookstores;
         
@@ -90,7 +104,12 @@ export class GoogleSheetsStorage implements IStorage {
         
         console.log(`Successfully loaded ${this.bookstores.length} bookstores, ${this.features.length} features, and ${this.events.length} events (with supplements from sample data if needed)`);
       } catch (googleError) {
-        console.error('Error loading from Google Sheets, falling back to sample data:', googleError);
+        console.error('Error loading from Google Sheets, falling back to sample data:');
+        console.error('Error type:', googleError instanceof Error ? googleError.constructor.name : typeof googleError);
+        console.error('Error message:', googleError instanceof Error ? googleError.message : String(googleError));
+        if (googleError instanceof Error && googleError.stack) {
+          console.error('Error stack:', googleError.stack);
+        }
         
         // Fallback to sample data if Google Sheets fails
         this.initializeFeatures();
