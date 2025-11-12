@@ -207,10 +207,10 @@ const CityDirectory = () => {
     if (stateFromUrl) {
       // Handle both full state names and abbreviations
       const stateSlug = stateFromUrl.toLowerCase();
-      return `${BASE_URL}/directory/city/${stateSlug}/${generateSlug(cityName)}`;
+      return `${BASE_URL}/directory/city/${stateSlug}/${generateSlugFromName(cityName)}`;
     }
     // If no state is available, use the city-only format
-    return `${BASE_URL}/directory/city/${generateSlug(cityName)}`;
+    return `${BASE_URL}/directory/city/${generateSlugFromName(cityName)}`;
   }, [cityName, stateFromUrl]);
   
   return (
