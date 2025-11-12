@@ -31,6 +31,8 @@ const Directory = () => {
   
   // State for filters managed directly in this component
   const [selectedState, setSelectedState] = useState<string>("");
+  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedCounty, setSelectedCounty] = useState<string>("");
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
   
   // Fetch all bookshops initially
@@ -52,6 +54,24 @@ const Directory = () => {
     // Filter by state if selected
     if (selectedState) {
       filtered = filtered.filter(bookshop => bookshop.state === selectedState);
+    }
+    
+    // Filter by city if selected
+    if (selectedCity) {
+      filtered = filtered.filter(bookshop => bookshop.city === selectedCity);
+    }
+    
+    // Filter by county if selected
+    if (selectedCounty) {
+      filtered = filtered.filter(bookshop => {
+        if (!bookshop.county) return false;
+        // Normalize county names for flexible matching
+        const bookshopCounty = bookshop.county.toLowerCase().replace(/\s+county$/i, '').trim();
+        const filterCounty = selectedCounty.toLowerCase().replace(/\s+county$/i, '').trim();
+        return bookshopCounty === filterCounty || 
+               bookshopCounty.includes(filterCounty) || 
+               filterCounty.includes(bookshopCounty);
+      });
     }
     
     // Filter by feature if selected
@@ -89,7 +109,7 @@ const Directory = () => {
     }
     
     return filtered;
-  }, [allBookshops, selectedState, selectedFeature, searchQuery]);
+  }, [allBookshops, selectedState, selectedCity, selectedCounty, selectedFeature, searchQuery]);
 
   // Set view from URL parameter on initial load
   useEffect(() => {
@@ -253,8 +273,12 @@ const Directory = () => {
           <FilterControls 
             bookshopCount={filteredBookshops.length}
             onStateChange={setSelectedState}
+            onCityChange={setSelectedCity}
+            onCountyChange={setSelectedCounty}
             onFeatureChange={setSelectedFeature}
             selectedState={selectedState}
+            selectedCity={selectedCity}
+            selectedCounty={selectedCounty}
             selectedFeature={selectedFeature}
           />
         </div>
