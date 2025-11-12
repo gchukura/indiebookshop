@@ -1,7 +1,7 @@
 # TypeScript Errors Action Plan
 
 **Status:** TODO - Not blocking current work  
-**Total Errors:** 18  
+**Total Errors:** 18 (16 remaining, 2 fixed)  
 **Last Updated:** $(date)
 
 ## Overview
@@ -12,23 +12,21 @@ This document tracks the pre-existing TypeScript errors in the codebase. These e
 
 ## Error Summary by File
 
-### 1. `client/src/pages/CityDirectory.tsx` (2 errors)
+### 1. `client/src/pages/CityDirectory.tsx` (2 errors) ✅ FIXED
 
 **Errors:**
-- Line 210: `error TS2304: Cannot find name 'generateSlug'`
-- Line 213: `error TS2304: Cannot find name 'generateSlug'`
+- Line 210: `error TS2304: Cannot find name 'generateSlug'` ✅ FIXED
+- Line 213: `error TS2304: Cannot find name 'generateSlug'` ✅ FIXED
 
 **Root Cause:**
-- `generateSlug` function is being used but not imported
+- `generateSlug` function was being used but not imported
 - Should use `generateSlugFromName` from `linkUtils.ts` instead
 
-**Fix Plan:**
-1. Replace `generateSlug` calls with `generateSlugFromName` from `../lib/linkUtils`
-2. Remove any remaining references to `generateSlug` from `seo.ts` if used incorrectly
-3. Verify all slug generation uses the shared utility function
+**Fix Applied:**
+- ✅ Replaced `generateSlug` calls with `generateSlugFromName` from `../lib/linkUtils`
+- ✅ Fixed in commit: `22f632a`
 
-**Priority:** Medium  
-**Estimated Time:** 5 minutes
+**Status:** ✅ COMPLETE
 
 ---
 
