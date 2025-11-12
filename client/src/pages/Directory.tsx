@@ -322,7 +322,13 @@ const Directory = () => {
               <p>No bookshops found matching your criteria.</p>
               <Button 
                 className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white"
-                onClick={() => setLocation("/directory")}
+                onClick={() => {
+                  setSelectedState("");
+                  setSelectedCity("");
+                  setSelectedCounty("");
+                  setSelectedFeature(null);
+                  setLocation("/directory");
+                }}
               >
                 Reset Filters
               </Button>
