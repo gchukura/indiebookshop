@@ -217,6 +217,28 @@ export async function registerRoutes(app, storageImpl) {
     }
   });
 
+  // Get all counties
+  app.get('/api/counties', async (req, res) => {
+    try {
+      const counties = await storageImpl.getAllCounties ? await storageImpl.getAllCounties() : [];
+      res.json(counties);
+    } catch (error) {
+      console.error('Serverless Error getting counties:', error);
+      res.status(500).json({ error: 'Failed to fetch counties' });
+    }
+  });
+
+  // Get counties for a specific state
+  app.get('/api/states/:state/counties', async (req, res) => {
+    try {
+      const counties = await storageImpl.getCountiesByState ? await storageImpl.getCountiesByState(req.params.state) : [];
+      res.json(counties);
+    } catch (error) {
+      console.error(`Serverless Error getting counties for state ${req.params.state}:`, error);
+      res.status(500).json({ error: 'Failed to fetch counties for state' });
+    }
+  });
+
   // Get configuration for frontend
   app.get('/api/config', (req, res) => {
     res.json({
