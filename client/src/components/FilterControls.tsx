@@ -101,11 +101,8 @@ const FilterControls = ({
   const handleStateChange = (value: string) => {
     const newState = value === "all" ? "" : value;
     onStateChange(newState);
-    // Clear city and county when state changes
-    if (newState !== selectedState) {
-      onCityChange("");
-      onCountyChange("");
-    }
+    // Note: We don't clear city/county when state changes to allow users to
+    // keep their selections and see if they match the new state
   };
 
   const handleCityChange = (value: string) => {
@@ -153,9 +150,9 @@ const FilterControls = ({
         
         <div className="flex flex-col">
           <label htmlFor="city" className="mb-1 font-medium text-sm">Filter by City</label>
-          <Select value={selectedCity || "all"} onValueChange={handleCityChange} disabled={!selectedState && cities.length === 0}>
+          <Select value={selectedCity || "all"} onValueChange={handleCityChange}>
             <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
-              <SelectValue placeholder={selectedState ? "All Cities" : "Select State First"} />
+              <SelectValue placeholder="All Cities" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Cities</SelectItem>
@@ -175,9 +172,9 @@ const FilterControls = ({
         
         <div className="flex flex-col">
           <label htmlFor="county" className="mb-1 font-medium text-sm">Filter by County</label>
-          <Select value={selectedCounty || "all"} onValueChange={handleCountyChange} disabled={!selectedState && counties.length === 0}>
+          <Select value={selectedCounty || "all"} onValueChange={handleCountyChange}>
             <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
-              <SelectValue placeholder={selectedState ? "All Counties" : "Select State First"} />
+              <SelectValue placeholder="All Counties" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Counties</SelectItem>
