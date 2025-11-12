@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Feature } from "@shared/schema";
+import { stateMap } from "@/lib/stateUtils";
 
 interface FilterControlsProps {
   bookshopCount: number;
@@ -39,6 +40,11 @@ const FilterControls = ({
   // Fetch all states with bookstores
   const { data: statesData } = useQuery<string[]>({
     queryKey: ["/api/states"],
+    queryFn: async () => {
+      const response = await fetch("/api/states");
+      if (!response.ok) return [];
+      return response.json();
+    },
   });
 
   // Fetch cities - filter by state if selected
@@ -137,12 +143,21 @@ const FilterControls = ({
               {states && states.length > 0 ? (
                 states
                   .filter(state => state && state.trim() !== "" && state !== "#ERROR!")
-                  .sort()
-                  .map((state) => (
-                    <SelectItem key={state} value={state}>
-                      {state}
-                    </SelectItem>
-                  ))
+                  .sort((a, b) => {
+                    // Sort by full state name for better UX
+                    const nameA = stateMap[a] || a;
+                    const nameB = stateMap[b] || b;
+                    return nameA.localeCompare(nameB);
+                  })
+                  .map((state) => {
+                    // Display full name but store abbreviation
+                    const fullName = stateMap[state] || state;
+                    return (
+                      <SelectItem key={state} value={state}>
+                        {fullName}
+                      </SelectItem>
+                    );
+                  })
               ) : null}
             </SelectContent>
           </Select>
