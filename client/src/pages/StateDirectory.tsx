@@ -1,6 +1,7 @@
 import { useParams, Link, useLocation } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { Bookstore } from "@shared/schema";
+import { generateSlugFromName } from "../lib/linkUtils";
 import BookshopCard from "@/components/BookshopCard";
 import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
@@ -90,7 +91,7 @@ const StateDirectory = () => {
     
     if (bookshop) {
       // Navigate to the bookshop detail page using client-side navigation
-      const slug = generateSlug(bookshop.name);
+      const slug = generateSlugFromName(bookshop.name);
       navigate(`/bookshop/${slug}`);
     }
   };

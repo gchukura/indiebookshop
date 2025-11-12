@@ -10,10 +10,10 @@ import { SEO } from "../components/SEO";
 import { 
   BASE_URL, 
   DESCRIPTION_TEMPLATES, 
-  generateSlug, 
   generateLocationKeywords,
   generateDescription 
 } from "../lib/seo";
+import { generateSlugFromName } from "../lib/linkUtils";
 import { getFullStateName } from "../lib/stateUtils";
 
 const CityDirectory = () => {
@@ -142,7 +142,7 @@ const CityDirectory = () => {
     
     if (bookshop) {
       // Navigate to the bookshop detail page using client-side navigation
-      const slug = generateSlug(bookshop.name);
+      const slug = generateSlugFromName(bookshop.name);
       navigate(`/bookshop/${slug}`);
     }
   };
