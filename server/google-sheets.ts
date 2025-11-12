@@ -29,42 +29,45 @@ export class GoogleSheetsService {
     
     try {
       // Check if credentials are available
-      if (process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) {
-        try {
-          // Parse credentials
-          const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS);
-          
-          // Create a JWT auth client using service account credentials
-          const auth = new google.auth.JWT({
-            email: credentials.client_email,
-            key: credentials.private_key,
-            scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
-          });
-          
-          // Create Google Sheets client
-          this.sheets = google.sheets({ version: 'v4', auth });
-          
-          console.log('Google Sheets service initialized with service account credentials');
-        } catch (credError) {
-          console.error('Error parsing credentials, using API key as fallback:', credError);
-          
-          // Fallback to API key
-          this.sheets = google.sheets({
-            version: 'v4',
-            auth: 'AIzaSyC9gqxl8dSZ-DU9K6MspQFvGV8rjLKUFoI' // Placeholder API key
-          });
-        }
-      } else {
-        console.warn('No Google service account credentials found, using API key');
-        
-        // Use API key if no credentials
-        this.sheets = google.sheets({
-          version: 'v4',
-          auth: 'AIzaSyC9gqxl8dSZ-DU9K6MspQFvGV8rjLKUFoI' // Placeholder API key
-        });
+      if (!process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) {
+        throw new Error(
+          'GOOGLE_SERVICE_ACCOUNT_CREDENTIALS environment variable is required. ' +
+          'Please set it in your .env file. See .env.example for format.'
+        );
       }
-      
-      console.log('Google Sheets service initialized');
+
+      try {
+        // Parse credentials
+        const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS);
+        
+        // Validate required fields
+        if (!credentials.client_email || !credentials.private_key) {
+          throw new Error(
+            'Invalid Google service account credentials: missing client_email or private_key. ' +
+            'Please check your GOOGLE_SERVICE_ACCOUNT_CREDENTIALS environment variable.'
+          );
+        }
+        
+        // Create a JWT auth client using service account credentials
+        const auth = new google.auth.JWT({
+          email: credentials.client_email,
+          key: credentials.private_key,
+          scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly']
+        });
+        
+        // Create Google Sheets client
+        this.sheets = google.sheets({ version: 'v4', auth });
+        
+        console.log('Google Sheets service initialized with service account credentials');
+      } catch (credError) {
+        if (credError instanceof Error && credError.message.includes('Invalid Google service account')) {
+          throw credError; // Re-throw validation errors
+        }
+        throw new Error(
+          `Failed to parse Google service account credentials: ${credError instanceof Error ? credError.message : 'Unknown error'}. ` +
+          'Please verify your GOOGLE_SERVICE_ACCOUNT_CREDENTIALS environment variable is valid JSON.'
+        );
+      }
     } catch (error) {
       console.error('Error initializing Google Sheets service:', error);
       throw error;
@@ -296,7 +299,14 @@ export class GoogleSheetsService {
       return bookshops;
     } catch (error) {
       console.error('Error fetching bookshops from Google Sheets:', error);
-      throw error;
+      // Don't expose internal error details to clients
+      if (error instanceof Error) {
+        // Log full error for debugging
+        console.error('Full error details:', error.stack);
+        // Throw a sanitized error message
+        throw new Error('Failed to load data from Google Sheets. Please try again later.');
+      }
+      throw new Error('Failed to load data from Google Sheets. Please try again later.');
     }
   }
 

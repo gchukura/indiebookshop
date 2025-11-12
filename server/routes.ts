@@ -544,12 +544,30 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   });
 
   // Submit a new bookstore or suggest changes to an existing one
+  // Note: Rate limiting is applied at the app level in server/index.ts
   app.post("/api/bookstores/submit", async (req, res) => {
     try {
       const { submitterEmail, submitterName, isNewSubmission, existingBookstoreId, bookstoreData } = req.body;
       
-      if (!submitterEmail) {
+      // Validate and sanitize submitter information
+      if (!submitterEmail || typeof submitterEmail !== 'string') {
         return res.status(400).json({ message: "Submitter email is required" });
+      }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const sanitizedEmail = submitterEmail.trim().toLowerCase();
+      if (!emailRegex.test(sanitizedEmail) || sanitizedEmail.length > 254) {
+        return res.status(400).json({ message: "Invalid email format" });
+      }
+      
+      // Sanitize submitter name
+      const sanitizedName = submitterName 
+        ? String(submitterName).trim().slice(0, 100) 
+        : '';
+      
+      if (sanitizedName && sanitizedName.length < 2) {
+        return res.status(400).json({ message: "Submitter name must be at least 2 characters if provided" });
       }
       
       if (isNewSubmission) {
@@ -566,10 +584,10 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
           // Send notification email to admin
           const notificationSent = await sendBookstoreSubmissionNotification(
             process.env.ADMIN_EMAIL || 'admin@indiebookshop.com',
-            submitterEmail,
+            sanitizedEmail,
             {
               ...submissionData,
-              submitterName,
+              submitterName: sanitizedName,
               submissionType: 'new'
             }
           );
@@ -604,13 +622,26 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
           return res.status(404).json({ message: "Existing bookstore not found" });
         }
         
+        // Validate bookstoreData for change suggestions
+        try {
+          insertBookstoreSchema.parse(bookstoreData);
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            return res.status(400).json({ 
+              message: "Invalid bookstore data", 
+              errors: error.errors 
+            });
+          }
+          throw error;
+        }
+        
         // Send notification email to admin about the suggested changes
         const notificationSent = await sendBookstoreSubmissionNotification(
           process.env.ADMIN_EMAIL || 'admin@indiebookshop.com',
-          submitterEmail,
+          sanitizedEmail,
           {
             ...bookstoreData,
-            submitterName,
+            submitterName: sanitizedName,
             existingBookstoreId,
             submissionType: 'change',
             existingData: bookstore

@@ -2,6 +2,7 @@
 import 'dotenv/config';
 
 import express, { type Request, Response, NextFunction } from "express";
+import rateLimit from 'express-rate-limit';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { GoogleSheetsStorage } from './sheets-storage';
@@ -11,10 +12,36 @@ import { htmlInjectionMiddleware } from './htmlInjectionMiddleware';
 import { DataRefreshManager } from './dataRefresh';
 import { registerRefreshRoutes } from './refreshRoutes';
 import { redirectMiddleware } from './redirectMiddleware';
+import { validateAndLogEnvironment } from './env-validation';
+
+// Validate environment variables on startup
+validateAndLogEnvironment();
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Rate limiting configuration
+// General API rate limiter - 100 requests per 15 minutes per IP
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Strict rate limiter for submission endpoints - 5 requests per 15 minutes per IP
+const submissionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: 'Too many submissions from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Apply general rate limiting to all API routes
+app.use('/api', generalLimiter);
 
 app.use((req, res, next) => {
   const start = Date.now();
