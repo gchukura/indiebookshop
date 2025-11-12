@@ -1,6 +1,6 @@
 import { IStorage } from './storage';
 import { Bookstore, Feature, Event, InsertBookstore, InsertFeature, InsertEvent, User, InsertUser } from '@shared/schema';
-import { googleSheetsService } from './google-sheets';
+import { getGoogleSheetsService } from './google-sheets';
 
 export class GoogleSheetsStorage implements IStorage {
   private bookstores: Bookstore[] = [];
@@ -57,6 +57,9 @@ export class GoogleSheetsStorage implements IStorage {
     
     try {
       try {
+        // Try to get Google Sheets service (may fail if credentials are missing)
+        const googleSheetsService = getGoogleSheetsService();
+        
         // Try to load data from Google Sheets
         const [bookstores, features, events] = await Promise.all([
           googleSheetsService.getBookstores(),

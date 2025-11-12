@@ -543,4 +543,19 @@ export class GoogleSheetsService {
 }
 
 // Create and export a singleton instance
-export const googleSheetsService = new GoogleSheetsService();
+// Lazy initialization - only create service when needed
+// This allows the app to start even if credentials are missing (will fallback to sample data)
+let _googleSheetsService: GoogleSheetsService | null = null;
+
+export function getGoogleSheetsService(): GoogleSheetsService {
+  if (!_googleSheetsService) {
+    try {
+      _googleSheetsService = new GoogleSheetsService();
+    } catch (error) {
+      // If initialization fails, return null and let the caller handle it
+      console.error('Failed to initialize Google Sheets service:', error);
+      throw error;
+    }
+  }
+  return _googleSheetsService;
+}
