@@ -12,6 +12,7 @@ import {
   PAGE_KEYWORDS,
   DESCRIPTION_TEMPLATES 
 } from "../lib/seo";
+import { generateSlugFromName } from "../lib/linkUtils";
 
 const Home = () => {
   // Fetch all bookshops
@@ -197,9 +198,11 @@ const Home = () => {
                       bookshop.featureIds && bookshop.featureIds.includes(feature.id)
                     ).slice(0, 3) || [];
                     
+                    const bookshopSlug = generateSlugFromName(bookshop.name);
+                    
                     return (
                       <div key={bookshop.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
-                        <Link href={`/bookshop/${bookshop.id}`}>
+                        <Link href={`/bookshop/${bookshopSlug}`}>
                           {bookshop.imageUrl ? (
                             <img 
                               src={bookshop.imageUrl} 
@@ -213,7 +216,7 @@ const Home = () => {
                           )}
                         </Link>
                         <div className="p-6">
-                          <Link href={`/bookshop/${bookshop.id}`}>
+                          <Link href={`/bookshop/${bookshopSlug}`}>
                             <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D]">{bookshop.name}</h3>
                           </Link>
                           <p className="text-sm text-gray-600 mb-4">{bookshop.city}, {bookshop.state}</p>
