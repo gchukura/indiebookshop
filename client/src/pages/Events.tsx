@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { SEO } from "../components/SEO";
 import { BASE_URL, PAGE_KEYWORDS, DESCRIPTION_TEMPLATES } from "../lib/seo";
+import { generateSlugFromName } from "../lib/linkUtils";
 
 const Events = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -32,6 +33,13 @@ const Events = () => {
   const getBookshopName = (bookshopId: number) => {
     const bookshop = bookshops.find(b => b.id === bookshopId);
     return bookshop?.name || "Unknown Bookshop";
+  };
+  
+  // Get bookshop slug by ID
+  const getBookshopSlug = (bookshopId: number) => {
+    const bookshop = bookshops.find(b => b.id === bookshopId);
+    if (!bookshop) return "";
+    return generateSlugFromName(bookshop.name);
   };
   
   // Navigate to previous month
@@ -106,6 +114,7 @@ const Events = () => {
   // Event card component
   const EventCard = ({ event }: { event: Event }) => {
     const bookshopName = getBookshopName(event.bookshopId);
+    const bookshopSlug = getBookshopSlug(event.bookshopId);
     
     return (
       <Card className="mb-4 p-4 hover:shadow-md transition-shadow">
@@ -113,7 +122,7 @@ const Events = () => {
           <h3 className="text-lg font-semibold text-[#5F4B32]">{event.title}</h3>
           <p className="text-sm text-gray-500 mb-2">
             {format(parseISO(event.date), 'MMMM d, yyyy')} • {event.time} • 
-            <Link href={`/bookshop/${event.bookshopId}`} className="ml-1 text-[#2A6B7C] hover:underline">
+            <Link href={`/bookshop/${bookshopSlug}`} className="ml-1 text-[#2A6B7C] hover:underline">
               {bookshopName}
             </Link>
           </p>

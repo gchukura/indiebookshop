@@ -8,22 +8,22 @@ import { BASE_URL } from "../lib/seo";
 const SubmitEvent = () => {
   // SEO metadata
   const seoTitle = useMemo(() => {
-    return "Submit a Bookstore Event | Independent Bookshop Event Calendar";
+    return "Submit a Bookshop Event | Independent Bookshop Event Calendar";
   }, []);
   
   const seoDescription = useMemo(() => {
-    return "Share your bookstore's author signings, book clubs, reading groups, and literary events with our community. Submit indie bookshop events to our comprehensive events calendar.";
+    return "Share your bookshop's author signings, book clubs, reading groups, and literary events with our community. Submit indie bookshop events to our comprehensive events calendar.";
   }, []);
   
   const seoKeywords = useMemo(() => {
     return [
-      "submit bookstore event",
+      "submit bookshop event",
       "indie bookshop events",
-      "bookstore reading calendar",
+      "bookshop reading calendar",
       "author signing submission",
       "literary events directory",
       "book club listings",
-      "independent bookstore events",
+      "independent bookshop events",
       "bookshop event calendar",
       "promote book signing",
       "advertise author talk"
@@ -46,7 +46,7 @@ const SubmitEvent = () => {
       
       <div className="mb-8">
         <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
-          Submit a Bookstore Event
+          Submit a Bookshop Event
         </h1>
         <p className="text-gray-600 mb-6">
           Share your upcoming literary events, book signings, author talks, and more with our community.
@@ -69,13 +69,13 @@ const SubmitEvent = () => {
               <li className="flex">
                 <div className="mr-3 text-[#E16D3D] font-bold">1.</div>
                 <p className="text-gray-700">
-                  Events must be hosted by or directly associated with an independent bookstore in our directory.
+                  Events must be hosted by or directly associated with an independent bookshop in our directory.
                 </p>
               </li>
               <li className="flex">
                 <div className="mr-3 text-[#E16D3D] font-bold">2.</div>
                 <p className="text-gray-700">
-                  Please provide accurate details including the correct bookstore ID (you can find this in the URL of the bookstore's page on our site).
+                  Please provide accurate details including the correct bookshop ID (you can find this in the URL of the bookshop's page on our site).
                 </p>
               </li>
               <li className="flex">
@@ -94,11 +94,11 @@ const SubmitEvent = () => {
 
             <div className="border-t border-gray-200 mt-6 pt-6">
               <p className="text-gray-700 mb-4">
-                Don't see your bookstore in our directory yet? Submit it first to be able to add events.
+                Don't see your bookshop in our directory yet? Submit it first to be able to add events.
               </p>
               <Link href="/submit">
                 <Button className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white w-full">
-                  Add Your Bookstore
+                  Add Your Bookshop
                 </Button>
               </Link>
             </div>
@@ -109,17 +109,17 @@ const SubmitEvent = () => {
       {/* SEO-friendly content section */}
       <section className="mt-12 bg-[#F7F3E8] rounded-lg p-6">
         <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-          Why Share Your Bookstore Events With Us?
+          Why Share Your Bookshop Events With Us?
         </h2>
         <div className="prose prose-p:text-gray-700 max-w-none">
           <p>
-            Independent bookshops are cultural hubs that bring communities together through literary events. By submitting your bookstore events to our calendar, you'll reach a wider audience of book lovers actively seeking literary gatherings, author signings, and reading groups in their area.
+            Independent bookshops are cultural hubs that bring communities together through literary events. By submitting your bookshop events to our calendar, you'll reach a wider audience of book lovers actively seeking literary gatherings, author signings, and reading groups in their area.
           </p>
           <p>
-            Our event directory helps connect readers with independent bookstores across America. Whether you're hosting a major author signing, an intimate book club meeting, a children's storytime, or a writing workshop, our platform helps you promote these events to engaged readers searching for literary experiences.
+            Our event directory helps connect readers with independent bookshops across America. Whether you're hosting a major author signing, an intimate book club meeting, a children's storytime, or a writing workshop, our platform helps you promote these events to engaged readers searching for literary experiences.
           </p>
           <p>
-            Book events at indie bookshops contribute significantly to local literary culture and community building. They provide spaces for readers to connect with authors, discover new books, and engage with fellow book lovers. Your events help strengthen the vital ecosystem of independent bookstores that form the backbone of America's literary landscape.
+            Book events at indie bookshops contribute significantly to local literary culture and community building. They provide spaces for readers to connect with authors, discover new books, and engage with fellow book lovers. Your events help strengthen the vital ecosystem of independent bookshops that form the backbone of America's literary landscape.
           </p>
         </div>
       </section>

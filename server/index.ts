@@ -1,4 +1,8 @@
+// Load environment variables from .env file (for local development)
+import 'dotenv/config';
+
 import express, { type Request, Response, NextFunction } from "express";
+import rateLimit from 'express-rate-limit';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { GoogleSheetsStorage } from './sheets-storage';
@@ -8,10 +12,36 @@ import { htmlInjectionMiddleware } from './htmlInjectionMiddleware';
 import { DataRefreshManager } from './dataRefresh';
 import { registerRefreshRoutes } from './refreshRoutes';
 import { redirectMiddleware } from './redirectMiddleware';
+import { validateAndLogEnvironment } from './env-validation';
+
+// Validate environment variables on startup
+validateAndLogEnvironment();
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Rate limiting configuration
+// General API rate limiter - 100 requests per 15 minutes per IP
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Strict rate limiter for submission endpoints - 5 requests per 15 minutes per IP
+const submissionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: 'Too many submissions from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Apply general rate limiting to all API routes
+app.use('/api', generalLimiter);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -50,7 +80,8 @@ const USE_GOOGLE_SHEETS = process.env.USE_MEM_STORAGE !== 'true';
 
 // USE_SAMPLE_DATA controls whether to use sample data or try to connect to Google Sheets
 // You can override this by setting the USE_SAMPLE_DATA environment variable
-process.env.USE_SAMPLE_DATA = process.env.USE_SAMPLE_DATA || 'true';
+// Default to false to load from Google Sheets (set to 'true' only for testing)
+process.env.USE_SAMPLE_DATA = process.env.USE_SAMPLE_DATA || 'false';
 
 // GOOGLE_SHEETS_ID environment variable can be used to specify the spreadsheet ID
 // If not provided, the default ID in google-sheets.ts will be used
@@ -112,15 +143,10 @@ if (process.env.DISABLE_AUTO_REFRESH === 'true') {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
+  // Serve the app on port 3000 (changed from 5000 to avoid ControlCenter conflict)
   // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  const port = 3000;
+  server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   });
 })();

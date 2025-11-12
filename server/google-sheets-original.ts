@@ -46,22 +46,16 @@ export class GoogleSheetsService {
           
           console.log('Google Sheets service initialized with service account credentials');
         } catch (credError) {
-          console.error('Error parsing credentials, using API key as fallback:', credError);
-          
-          // Fallback to API key
-          this.sheets = google.sheets({
-            version: 'v4',
-            auth: 'AIzaSyC9gqxl8dSZ-DU9K6MspQFvGV8rjLKUFoI' // Placeholder API key
-          });
+          throw new Error(
+            `Failed to parse Google service account credentials: ${credError instanceof Error ? credError.message : 'Unknown error'}. ` +
+            'Please verify your GOOGLE_SERVICE_ACCOUNT_CREDENTIALS environment variable is valid JSON.'
+          );
         }
       } else {
-        console.warn('No Google service account credentials found, using API key');
-        
-        // Use API key if no credentials
-        this.sheets = google.sheets({
-          version: 'v4',
-          auth: 'AIzaSyC9gqxl8dSZ-DU9K6MspQFvGV8rjLKUFoI' // Placeholder API key
-        });
+        throw new Error(
+          'GOOGLE_SERVICE_ACCOUNT_CREDENTIALS environment variable is required. ' +
+          'Please set it in your .env file. See .env.example for format.'
+        );
       }
       
       console.log('Google Sheets service initialized');

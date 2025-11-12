@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { SchemaOrg } from "./SchemaOrg";
+import DOMPurify from "isomorphic-dompurify";
 
 export interface FAQItem {
   question: string;
@@ -73,7 +74,7 @@ const FAQSection: React.FC<FAQSectionProps> = ({
                 {faq.question}
               </AccordionTrigger>
               <AccordionContent className="px-4 py-3 text-gray-600">
-                <div dangerouslySetInnerHTML={{ __html: faq.answer }} />
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(faq.answer) }} />
               </AccordionContent>
             </AccordionItem>
           ))}

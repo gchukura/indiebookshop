@@ -1,4 +1,4 @@
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useState, useEffect, useMemo } from "react";
 import { Bookstore } from "@shared/schema";
 import BookshopCard from "@/components/BookshopCard";
@@ -19,6 +19,7 @@ import { getFullStateName } from "../lib/stateUtils";
 const CityDirectory = () => {
   // Get parameters from URL
   const params = useParams();
+  const [_, navigate] = useLocation();
   
   // Handle all URL formats:
   // 1. /directory/city/:state/:city
@@ -140,16 +141,16 @@ const CityDirectory = () => {
     const bookshop = bookshops.find(b => b.id === id);
     
     if (bookshop) {
-      // Navigate to the bookshop detail page
+      // Navigate to the bookshop detail page using client-side navigation
       const slug = generateSlug(bookshop.name);
-      window.location.href = `/bookshop/${slug}`;
+      navigate(`/bookshop/${slug}`);
     }
   };
   
   // For optimized SEO titles and descriptions
   const seoTitle = useMemo(() => {
     return stateFromUrl 
-      ? `Independent Bookshops in ${cityName}, ${stateName} | Local Bookstore Directory`
+      ? `Independent Bookshops in ${cityName}, ${stateName} | Local Bookshop Directory`
       : `Bookshops in ${cityName} | Find Local Independent Bookstores`;
   }, [cityName, stateName, stateFromUrl]);
   
@@ -194,7 +195,7 @@ const CityDirectory = () => {
         `${cityName} ${stateName} bookstores`,
         `independent bookstores in ${cityName} ${stateName}`,
         `local bookshops ${stateName}`,
-        `${stateName} bookstore directory`
+        `${stateName} bookshop directory`
       ];
     }
     

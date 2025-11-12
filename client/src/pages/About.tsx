@@ -166,12 +166,12 @@ const AboutPage = () => {
             Join Our Mission
           </h2>
           <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            Help us support independent bookstores across North America. Submit a bookstore, spread the word, or partner with us.
+            Help us support independent bookshops across North America. Submit a bookshop, spread the word, or partner with us.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/submit">
               <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white px-6 py-3 text-lg">
-                Add a Bookstore
+                Add a Bookshop
               </Button>
             </Link>
             <Link href="/contact">

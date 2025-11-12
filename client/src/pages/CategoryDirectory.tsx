@@ -1,4 +1,4 @@
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { Bookstore, Feature } from "@shared/schema";
@@ -21,6 +21,7 @@ const CategoryDirectory = () => {
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [view, setView] = useState<"map" | "list">("map");
+  const [_, navigate] = useLocation();
   
   // Fetch the feature information 
   const { data: features = [] } = useQuery<Feature[]>({
@@ -74,9 +75,9 @@ const CategoryDirectory = () => {
     const bookshop = bookshops.find(b => b.id === id);
     
     if (bookshop) {
-      // Navigate to the bookshop detail page
+      // Navigate to the bookshop detail page using client-side navigation
       const slug = generateSlug(bookshop.name);
-      window.location.href = `/bookshop/${slug}`;
+      navigate(`/bookshop/${slug}`);
     }
   };
 

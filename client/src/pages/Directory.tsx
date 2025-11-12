@@ -117,9 +117,9 @@ const Directory = () => {
     const bookshop = filteredBookshops.find(b => b.id === id);
     
     if (bookshop) {
-      // Navigate to the SEO-friendly permalink page
+      // Navigate to the SEO-friendly permalink page using client-side navigation
       const slug = generateSlug(bookshop.name);
-      window.location.href = `/bookshop/${slug}`;
+      setLocation(`/bookshop/${slug}`);
     } else {
       // Fallback to the modal if bookshop not found
       setSelectedBookshopId(id);
@@ -282,7 +282,7 @@ const Directory = () => {
                   ? `Discover independent bookshops throughout ${selectedState}. View locations on the map or browse the list below.`
                   : selectedFeature
                     ? "Find independent bookshops with unique specialty features. Explore our directory of indie bookstores with special amenities."
-                    : "Browse our comprehensive directory of independent bookshops across America. Find your next favorite local indie bookstore."}
+                    : "Browse our comprehensive directory of independent bookshops across America. Find your next favorite local indie bookshop."}
           </p>
           
           {isLoading ? (
@@ -298,7 +298,7 @@ const Directory = () => {
               <p>No bookshops found matching your criteria.</p>
               <Button 
                 className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white"
-                onClick={() => window.location.href = "/directory"}
+                onClick={() => setLocation("/directory")}
               >
                 Reset Filters
               </Button>

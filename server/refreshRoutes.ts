@@ -92,8 +92,16 @@ export function registerRefreshRoutes(app: Express, refreshManager: DataRefreshM
   function validateApiKey(req: any, res: any, next: any) {
     const apiKey = req.get(API_KEY_HEADER);
     
-    // Get the API key from environment
-    const validApiKey = process.env.REFRESH_API_KEY || 'indiebookshop-refresh-key';
+    // Get the API key from environment - fail if not set
+    const validApiKey = process.env.REFRESH_API_KEY;
+    
+    if (!validApiKey) {
+      console.error('REFRESH_API_KEY environment variable is required but not set');
+      return res.status(500).json({
+        success: false,
+        message: 'Server configuration error: REFRESH_API_KEY not set'
+      });
+    }
     
     if (!apiKey || apiKey !== validApiKey) {
       return res.status(401).json({

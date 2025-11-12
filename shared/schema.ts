@@ -47,8 +47,22 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
-export const insertBookstoreSchema = createInsertSchema(bookstores).omit({
+// Base bookstore schema with validation
+const baseBookstoreSchema = createInsertSchema(bookstores).omit({
   id: true,
+});
+
+// Enhanced bookstore schema with length limits and sanitization
+export const insertBookstoreSchema = baseBookstoreSchema.extend({
+  name: z.string().min(2, "Name must be at least 2 characters").max(200, "Name must be less than 200 characters").trim(),
+  street: z.string().min(2, "Street address must be at least 2 characters").max(300, "Street address must be less than 300 characters").trim(),
+  city: z.string().min(2, "City must be at least 2 characters").max(100, "City must be less than 100 characters").trim(),
+  state: z.string().min(2, "State must be at least 2 characters").max(50, "State must be less than 50 characters").trim(),
+  zip: z.string().min(5, "Zip code must be at least 5 characters").max(10, "Zip code must be less than 10 characters").trim(),
+  county: z.string().max(100, "County must be less than 100 characters").trim().nullable().optional(),
+  description: z.string().max(5000, "Description must be less than 5000 characters").trim().optional(),
+  website: z.string().url("Invalid URL format").max(500, "Website URL must be less than 500 characters").trim().nullable().optional().or(z.literal("")),
+  phone: z.string().max(20, "Phone number must be less than 20 characters").trim().nullable().optional(),
 });
 
 export const insertFeatureSchema = createInsertSchema(features).omit({

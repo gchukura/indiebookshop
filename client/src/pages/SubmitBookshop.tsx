@@ -7,7 +7,7 @@ import HowToGuide from "../components/HowToGuide";
 const SubmitBookshop: FC = () => {
   // SEO metadata
   const seoTitle = useMemo(() => {
-    return "Submit a Bookshop | Add to Our Independent Bookstore Directory";
+    return "Submit a Bookshop | Add to Our Independent Bookshop Directory";
   }, []);
   
   const seoDescription = useMemo(() => {
