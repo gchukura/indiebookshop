@@ -336,7 +336,7 @@ const Directory = () => {
                   setSelectedState("");
                   setSelectedCity("");
                   setSelectedCounty("");
-                  setSelectedFeature(null);
+                  // setSelectedFeature(null); // Category filter temporarily disabled
                   setLocation("/directory");
                 }}
               >
