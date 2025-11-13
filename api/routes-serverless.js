@@ -21,7 +21,7 @@ export async function registerRoutes(app, storageImpl) {
       console.log('Serverless: Processing filter request with params:', req.query);
       
       const filters = {
-        state: req.query.state,
+        state: req.query.state ? String(req.query.state).toUpperCase() : undefined,
         city: req.query.city,
         county: req.query.county, // Add support for county filtering
         featureIds: req.query.features ? req.query.features.split(',').map(f => parseInt(f)) : undefined

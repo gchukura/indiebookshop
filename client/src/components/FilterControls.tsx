@@ -105,7 +105,12 @@ const FilterControls = ({
   }, [countiesData]);
 
   const handleStateChange = (value: string) => {
-    const newState = value === "all" ? "" : value;
+    if (value === "all") {
+      onStateChange("");
+      return;
+    }
+    // Normalize state to uppercase to match database format (e.g., "MI" not "mi")
+    const newState = value.toUpperCase();
     onStateChange(newState);
     // Note: We don't clear city/county when state changes to allow users to
     // keep their selections and see if they match the new state

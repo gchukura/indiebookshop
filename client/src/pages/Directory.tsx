@@ -53,7 +53,9 @@ const Directory = () => {
     
     // Filter by state if selected
     if (selectedState) {
-      filtered = filtered.filter(bookshop => bookshop.state === selectedState);
+      // Normalize both values to uppercase for case-insensitive matching
+      const normalizedState = selectedState.toUpperCase();
+      filtered = filtered.filter(bookshop => bookshop.state?.toUpperCase() === normalizedState);
     }
     
     // Filter by city if selected

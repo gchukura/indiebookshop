@@ -268,7 +268,9 @@ export class GoogleSheetsStorage implements IStorage {
     let filteredBookstores = this.bookstores.filter(b => b.live !== false);
     
     if (filters.state) {
-      filteredBookstores = filteredBookstores.filter(b => b.state === filters.state);
+      // Normalize state to uppercase for case-insensitive matching
+      const normalizedState = filters.state.toUpperCase();
+      filteredBookstores = filteredBookstores.filter(b => b.state?.toUpperCase() === normalizedState);
     }
     
     if (filters.city) {
