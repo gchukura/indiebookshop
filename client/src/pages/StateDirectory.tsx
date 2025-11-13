@@ -7,7 +7,7 @@ import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
 import BookshopTable from "@/components/BookshopTable";
 import { Button } from "@/components/ui/button";
-import { getFullStateName, getStateAbbreviation } from "@/lib/stateUtils";
+import { getFullStateName, normalizeStateToAbbreviation } from "@/lib/stateUtils";
 import { SEO } from "../components/SEO";
 import { 
   BASE_URL, 
