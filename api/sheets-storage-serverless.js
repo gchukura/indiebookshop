@@ -190,15 +190,50 @@ export class GoogleSheetsStorage {
     );
   }
   
+  // Helper method to normalize state names to abbreviations (fuzzy matching)
+  normalizeStateName(stateName) {
+    const stateMap = {
+      'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+      'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+      'district of columbia': 'DC', 'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI',
+      'idaho': 'ID', 'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+      'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+      'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+      'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+      'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+      'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+      'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+      'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+      'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+      'wisconsin': 'WI', 'wyoming': 'WY',
+      'british columbia': 'BC', 'ontario': 'ON', 'quebec': 'QC', 'alberta': 'AB',
+      'manitoba': 'MB', 'nova scotia': 'NS', 'new brunswick': 'NB', 'saskatchewan': 'SK'
+    };
+    
+    const normalized = String(stateName).toLowerCase().trim();
+    return stateMap[normalized] || String(stateName).toUpperCase();
+  }
+
   async getFilteredBookstores(filters) {
     await this.ensureInitialized();
     // Start with only live bookstores
     let filteredBookstores = this.bookstores.filter(b => b.live !== false);
     
     if (filters.state) {
-      // Normalize state to uppercase for case-insensitive matching
-      const normalizedState = filters.state.toUpperCase();
-      filteredBookstores = filteredBookstores.filter(b => b.state?.toUpperCase() === normalizedState);
+      // Fuzzy state matching: handles abbreviations, full names, and case variations
+      const filterState = String(filters.state).trim();
+      const normalizedFilterState = filterState.length === 2 
+        ? filterState.toUpperCase() 
+        : this.normalizeStateName(filterState);
+      
+      filteredBookstores = filteredBookstores.filter(b => {
+        if (!b.state) return false;
+        const bookshopState = String(b.state).trim();
+        const normalizedBookshopState = bookshopState.length === 2
+          ? bookshopState.toUpperCase()
+          : this.normalizeStateName(bookshopState);
+        return normalizedBookshopState === normalizedFilterState;
+      });
     }
     
     if (filters.city) {

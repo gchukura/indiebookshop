@@ -122,3 +122,54 @@ export function generateStateSlug(stateName: string): string {
     .replace(/^-+/, '')
     .replace(/-+$/, '');
 }
+
+/**
+ * Normalize a state input to its uppercase abbreviation
+ * Handles both full names (e.g., "Michigan", "michigan", "MICHIGAN") 
+ * and abbreviations (e.g., "MI", "mi", "Mi")
+ * @param stateInput - The state input (can be full name or abbreviation, any case)
+ * @returns The uppercase abbreviation (e.g., "MI") or null if not found
+ */
+export function normalizeStateToAbbreviation(stateInput: string | null | undefined): string | null {
+  if (!stateInput || typeof stateInput !== 'string') return null;
+  
+  const trimmed = stateInput.trim();
+  if (!trimmed) return null;
+  
+  // If it's already a 2-character abbreviation, normalize to uppercase
+  if (trimmed.length === 2) {
+    return trimmed.toUpperCase();
+  }
+  
+  // Try to find the abbreviation from the full name
+  const normalizedName = trimmed.toLowerCase();
+  const abbreviation = stateNameMap[normalizedName];
+  
+  if (abbreviation) {
+    return abbreviation;
+  }
+  
+  // If not found, try uppercase version (for edge cases)
+  return stateMap[trimmed.toUpperCase()] ? trimmed.toUpperCase() : null;
+}
+
+/**
+ * Check if two state values match (fuzzy matching)
+ * Handles abbreviations, full names, and case variations
+ * @param state1 - First state value (can be abbreviation or full name, any case)
+ * @param state2 - Second state value (can be abbreviation or full name, any case)
+ * @returns true if the states match, false otherwise
+ */
+export function statesMatch(state1: string | null | undefined, state2: string | null | undefined): boolean {
+  if (!state1 || !state2) return false;
+  
+  const abbr1 = normalizeStateToAbbreviation(state1);
+  const abbr2 = normalizeStateToAbbreviation(state2);
+  
+  if (!abbr1 || !abbr2) {
+    // Fallback to case-insensitive string comparison
+    return state1.toUpperCase() === state2.toUpperCase();
+  }
+  
+  return abbr1 === abbr2;
+}

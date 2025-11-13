@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Feature } from "@shared/schema";
-import { stateMap } from "@/lib/stateUtils";
+import { stateMap, normalizeStateToAbbreviation } from "@/lib/stateUtils";
 
 interface FilterControlsProps {
   bookshopCount: number;
@@ -109,9 +109,10 @@ const FilterControls = ({
       onStateChange("");
       return;
     }
-    // Normalize state to uppercase to match database format (e.g., "MI" not "mi")
-    const newState = value.toUpperCase();
-    onStateChange(newState);
+    // Normalize state to uppercase abbreviation (handles both "Michigan" and "MI")
+    // This ensures consistent format regardless of how the state is selected
+    const normalizedState = normalizeStateToAbbreviation(value) || value.toUpperCase();
+    onStateChange(normalizedState);
     // Note: We don't clear city/county when state changes to allow users to
     // keep their selections and see if they match the new state
   };

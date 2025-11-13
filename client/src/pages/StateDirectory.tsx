@@ -21,8 +21,8 @@ const StateDirectory = () => {
   // Get state from URL params
   const params = useParams();
   const stateParam = params.state;
-  // Normalize state to uppercase to match database format (e.g., "MI" not "mi")
-  const state = stateParam ? stateParam.toUpperCase() : '';
+  // Normalize state to uppercase abbreviation (handles both "Michigan" and "MI", any case)
+  const state = stateParam ? (normalizeStateToAbbreviation(stateParam) || stateParam.toUpperCase()) : '';
   const [_, navigate] = useLocation();
   
   // Get full state name for display

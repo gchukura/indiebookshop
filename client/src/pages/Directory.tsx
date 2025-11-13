@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Bookstore as Bookshop } from "@shared/schema";
 import { SEO } from "../components/SEO";
 import { BASE_URL, MAIN_KEYWORDS } from "../lib/seo";
+import { statesMatch } from "../lib/stateUtils";
 
 // Type for bookshop with flexible featureIds handling
 type BookshopWithFeatures = Bookshop & {
@@ -51,11 +52,9 @@ const Directory = () => {
   const filteredBookshops = useMemo(() => {
     let filtered = allBookshops || [];
     
-    // Filter by state if selected
+    // Filter by state if selected (fuzzy matching handles abbreviations, full names, and case)
     if (selectedState) {
-      // Normalize both values to uppercase for case-insensitive matching
-      const normalizedState = selectedState.toUpperCase();
-      filtered = filtered.filter(bookshop => bookshop.state?.toUpperCase() === normalizedState);
+      filtered = filtered.filter(bookshop => statesMatch(bookshop.state, selectedState));
     }
     
     // Filter by city if selected

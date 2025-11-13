@@ -20,8 +20,17 @@ export async function registerRoutes(app, storageImpl) {
     try {
       console.log('Serverless: Processing filter request with params:', req.query);
       
+      // Normalize state input (handles both abbreviations and full names, any case)
+      let normalizedState = undefined;
+      if (req.query.state) {
+        const stateInput = String(req.query.state).trim();
+        // If it's a 2-character abbreviation, just uppercase it
+        // Otherwise, let the storage layer handle full name normalization
+        normalizedState = stateInput.length === 2 ? stateInput.toUpperCase() : stateInput;
+      }
+      
       const filters = {
-        state: req.query.state ? String(req.query.state).toUpperCase() : undefined,
+        state: normalizedState,
         city: req.query.city,
         county: req.query.county, // Add support for county filtering
         featureIds: req.query.features ? req.query.features.split(',').map(f => parseInt(f)) : undefined
