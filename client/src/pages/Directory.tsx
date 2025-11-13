@@ -78,29 +78,30 @@ const Directory = () => {
       });
     }
     
+    // Category filter temporarily disabled until featureIds column is added to Google Sheet
     // Filter by feature if selected
-    if (selectedFeature) {
-      filtered = filtered.filter(bookshop => {
-        // Handle different types of featureIds
-        if (!bookshop.featureIds) return false;
-        
-        // Convert feature IDs to an array of numbers
-        let featureIdArray: number[] = [];
-        
-        if (typeof bookshop.featureIds === 'string') {
-          // Handle string format "1,2,3"
-          const idStrings = bookshop.featureIds.split(',');
-          featureIdArray = idStrings
-            .map(idString => parseInt(idString.trim()))
-            .filter(id => !isNaN(id));
-        } else if (Array.isArray(bookshop.featureIds)) {
-          // Handle array format
-          featureIdArray = bookshop.featureIds;
-        }
-        
-        return featureIdArray.includes(selectedFeature);
-      });
-    }
+    // if (selectedFeature) {
+    //   filtered = filtered.filter(bookshop => {
+    //     // Handle different types of featureIds
+    //     if (!bookshop.featureIds) return false;
+    //     
+    //     // Convert feature IDs to an array of numbers
+    //     let featureIdArray: number[] = [];
+    //     
+    //     if (typeof bookshop.featureIds === 'string') {
+    //       // Handle string format "1,2,3"
+    //       const idStrings = bookshop.featureIds.split(',');
+    //       featureIdArray = idStrings
+    //         .map(idString => parseInt(idString.trim()))
+    //         .filter(id => !isNaN(id));
+    //     } else if (Array.isArray(bookshop.featureIds)) {
+    //       // Handle array format
+    //       featureIdArray = bookshop.featureIds;
+    //     }
+    //     
+    //     return featureIdArray.includes(selectedFeature);
+    //   });
+    // }
     
     // Filter by search query if present
     if (searchQuery) {
@@ -113,7 +114,7 @@ const Directory = () => {
     }
     
     return filtered;
-  }, [allBookshops, selectedState, selectedCity, selectedCounty, selectedFeature, searchQuery]);
+  }, [allBookshops, selectedState, selectedCity, selectedCounty, searchQuery]); // Removed selectedFeature from dependencies
 
   // Set view from URL parameter on initial load
   useEffect(() => {
@@ -173,40 +174,42 @@ const Directory = () => {
       return `Search Results for "${searchQuery}" | Independent Bookshop Directory`;
     }
     
-    if (selectedState && selectedFeature) {
-      return `${selectedState} Bookshops with Special Features | Find Independent Bookstores`;
-    }
+    // Category filter temporarily disabled
+    // if (selectedState && selectedFeature) {
+    //   return `${selectedState} Bookshops with Special Features | Find Independent Bookstores`;
+    // }
     
     if (selectedState) {
       return `Independent Bookshops in ${selectedState} | Find Local Bookstores`;
     }
     
-    if (selectedFeature) {
-      return `Specialty Bookshops | Find Independent Bookstores with Special Features`;
-    }
+    // if (selectedFeature) {
+    //   return `Specialty Bookshops | Find Independent Bookstores with Special Features`;
+    // }
     
     return "Independent Bookshop Directory | Find Local Indie Bookstores Near You";
-  }, [searchQuery, selectedState, selectedFeature]);
+  }, [searchQuery, selectedState]); // Removed selectedFeature from dependencies
   
   const seoDescription = useMemo(() => {
     if (searchQuery) {
       return `Browse search results for "${searchQuery}" in our independent bookshop directory. Find local indie bookstores, their locations, features, and upcoming events.`;
     }
     
-    if (selectedState && selectedFeature) {
-      return `Find ${selectedState} independent bookshops with specialty offerings. Browse our directory of local indie bookstores with special features like coffee shops, rare books, and more.`;
-    }
+    // Category filter temporarily disabled
+    // if (selectedState && selectedFeature) {
+    //   return `Find ${selectedState} independent bookshops with specialty offerings. Browse our directory of local indie bookstores with special features like coffee shops, rare books, and more.`;
+    // }
     
     if (selectedState) {
       return `Discover independent bookshops in ${selectedState}. Browse our complete directory of local indie bookstores, view their locations on the map, and find details about each shop.`;
     }
     
-    if (selectedFeature) {
-      return `Find specialty independent bookshops with unique features. Browse our directory of local indie bookstores that offer special amenities to enhance your book shopping experience.`;
-    }
+    // if (selectedFeature) {
+    //   return `Find specialty independent bookshops with unique features. Browse our directory of local indie bookstores that offer special amenities to enhance your book shopping experience.`;
+    // }
     
     return "Browse our comprehensive directory of independent bookshops across America. Find local indie bookstores near you, view their locations on the map, and discover their unique offerings.";
-  }, [searchQuery, selectedState, selectedFeature]);
+  }, [searchQuery, selectedState]); // Removed selectedFeature from dependencies
   
   const seoKeywords = useMemo(() => {
     let keywords = [...MAIN_KEYWORDS];
@@ -222,19 +225,20 @@ const Directory = () => {
       ]);
     }
     
-    if (selectedFeature) {
-      keywords = keywords.concat([
-        `bookshops with special features`,
-        `specialty indie bookstores`,
-        `bookshops with coffee shops`,
-        `bookstores with rare books`,
-        `unique bookshops`,
-        `independent bookshops with special amenities`
-      ]);
-    }
+    // Category filter temporarily disabled
+    // if (selectedFeature) {
+    //   keywords = keywords.concat([
+    //     `bookshops with special features`,
+    //     `specialty indie bookstores`,
+    //     `bookshops with coffee shops`,
+    //     `bookstores with rare books`,
+    //     `unique bookshops`,
+    //     `independent bookshops with special amenities`
+    //   ]);
+    // }
     
     return keywords;
-  }, [selectedState, selectedFeature]);
+  }, [selectedState]); // Removed selectedFeature from dependencies
   
   const canonicalUrl = useMemo(() => {
     return `${BASE_URL}/directory`;
@@ -283,7 +287,7 @@ const Directory = () => {
             selectedState={selectedState}
             selectedCity={selectedCity}
             selectedCounty={selectedCounty}
-            selectedFeature={selectedFeature}
+            selectedFeature={selectedFeature} // Still passed but filter is disabled in FilterControls
           />
         </div>
         
@@ -292,25 +296,27 @@ const Directory = () => {
           <h2 className="text-xl font-serif font-bold mb-4">
             {searchQuery 
               ? `Search Results for "${searchQuery}" - Independent Bookshops` 
-              : selectedState && selectedFeature
+              : selectedState
+                ? `Independent Bookshops in ${selectedState}`
+                : "Independent Bookshop Directory - Find Local Indie Bookstores"}
+              {/* Category filter temporarily disabled */}
+              {/* : selectedState && selectedFeature
                 ? `${selectedState} Independent Bookshops with Special Features`
-                : selectedState
-                  ? `Independent Bookshops in ${selectedState}`
-                  : selectedFeature
-                    ? "Specialty Independent Bookshops Directory" 
-                    : "Independent Bookshop Directory - Find Local Indie Bookstores"}
+              : selectedFeature
+                ? "Specialty Independent Bookshops Directory" */}
           </h2>
           
           <p className="text-gray-600 mb-6">
             {searchQuery 
               ? `Showing matching local bookshops for your search "${searchQuery}". Browse the results below.` 
-              : selectedState && selectedFeature
+              : selectedState
+                ? `Discover independent bookshops throughout ${selectedState}. View locations on the map or browse the list below.`
+                : "Browse our comprehensive directory of independent bookshops across America. Find your next favorite local indie bookshop."}
+              {/* Category filter temporarily disabled */}
+              {/* : selectedState && selectedFeature
                 ? `Browse all indie bookshops in ${selectedState} with specialty features and amenities. Click on any bookshop for more details.`
-                : selectedState
-                  ? `Discover independent bookshops throughout ${selectedState}. View locations on the map or browse the list below.`
-                  : selectedFeature
-                    ? "Find independent bookshops with unique specialty features. Explore our directory of indie bookstores with special amenities."
-                    : "Browse our comprehensive directory of independent bookshops across America. Find your next favorite local indie bookshop."}
+              : selectedFeature
+                ? "Find independent bookshops with unique specialty features. Explore our directory of indie bookstores with special amenities." */}
           </p>
           
           {isLoading ? (

@@ -137,7 +137,8 @@ const FilterControls = ({
 
   return (
     <div className="bg-white shadow-sm py-4 rounded-md">
-      <div className="grid md:grid-cols-5 gap-4">
+      {/* Changed from md:grid-cols-5 to md:grid-cols-4 since category filter is commented out */}
+      <div className="grid md:grid-cols-4 gap-4">
         <div className="flex flex-col">
           <label htmlFor="state" className="mb-1 font-medium text-sm">Filter by State</label>
           <Select value={selectedState || "all"} onValueChange={handleStateChange}>
@@ -213,7 +214,8 @@ const FilterControls = ({
           </Select>
         </div>
         
-        <div className="flex flex-col">
+        {/* Category filter temporarily disabled until featureIds column is added to Google Sheet */}
+        {/* <div className="flex flex-col">
           <label htmlFor="feature" className="mb-1 font-medium text-sm">Filter by Category</label>
           <Select value={selectedFeature ? selectedFeature.toString() : "all"} onValueChange={handleFeatureChange}>
             <SelectTrigger className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C]">
@@ -230,7 +232,7 @@ const FilterControls = ({
               ) : null}
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
         
         <div className="flex items-end justify-end">
           <div className="text-sm font-medium text-gray-700">{bookshopCount} bookshops found</div>
