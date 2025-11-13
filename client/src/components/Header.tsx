@@ -1,29 +1,29 @@
 import { Link, useLocation } from "wouter";
 import { useState, useRef, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+// import { useQuery } from "@tanstack/react-query"; // Temporarily disabled for category navigation
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X, ChevronDown } from "lucide-react";
-import { Feature } from "@shared/schema";
+// import { Feature } from "@shared/schema"; // Temporarily disabled for category navigation
 import Logo from "@/components/Logo";
 
 const Header = () => {
   const [location] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showStatesDropdown, setShowStatesDropdown] = useState(false);
-  const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
+  // const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false); // Category navigation temporarily disabled
   const statesDropdownRef = useRef<HTMLDivElement>(null);
-  const categoriesDropdownRef = useRef<HTMLDivElement>(null);
+  // const categoriesDropdownRef = useRef<HTMLDivElement>(null); // Category navigation temporarily disabled
 
   // Fetch states for dropdown
   const { data: states = [] } = useQuery<string[]>({
     queryKey: ["/api/states"],
   });
 
-  // Fetch features/categories for dropdown
-  const { data: features = [] } = useQuery<Feature[]>({
-    queryKey: ["/api/features"],
-  });
+  // Fetch features/categories for dropdown - temporarily disabled
+  // const { data: features = [] } = useQuery<Feature[]>({
+  //   queryKey: ["/api/features"],
+  // });
 
   // Handle clicks outside the dropdown to close it
   useEffect(() => {
@@ -31,9 +31,10 @@ const Header = () => {
       if (statesDropdownRef.current && !statesDropdownRef.current.contains(event.target as Node)) {
         setShowStatesDropdown(false);
       }
-      if (categoriesDropdownRef.current && !categoriesDropdownRef.current.contains(event.target as Node)) {
-        setShowCategoriesDropdown(false);
-      }
+      // Category navigation temporarily disabled
+      // if (categoriesDropdownRef.current && !categoriesDropdownRef.current.contains(event.target as Node)) {
+      //   setShowCategoriesDropdown(false);
+      // }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -59,7 +60,7 @@ const Header = () => {
                 <button 
                   onClick={() => {
                     setShowStatesDropdown(!showStatesDropdown);
-                    setShowCategoriesDropdown(false);
+                    // setShowCategoriesDropdown(false); // Category navigation temporarily disabled
                   }}
                   className={`${isActiveRoute('/directory') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2 flex items-center`}
                 >
@@ -97,13 +98,14 @@ const Header = () => {
                       >
                         Bookshops by County
                       </Link>
-                      <Link 
+                      {/* Category navigation temporarily disabled until featureIds column is added to Google Sheet */}
+                      {/* <Link 
                         href="/directory/categories" 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowStatesDropdown(false)}
                       >
                         Bookshops by Category
-                      </Link>
+                      </Link> */}
                     </div>
                   </div>
                 )}
@@ -188,13 +190,14 @@ const Header = () => {
                       >
                         Bookshops by City
                       </Link>
-                      <Link 
+                      {/* Category navigation temporarily disabled until featureIds column is added to Google Sheet */}
+                      {/* <Link 
                         href="/directory/categories" 
                         className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Bookshops by Category
-                      </Link>
+                      </Link> */}
                     </div>
                   </div>
                   
