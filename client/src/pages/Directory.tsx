@@ -57,9 +57,12 @@ const Directory = () => {
       filtered = filtered.filter(bookshop => statesMatch(bookshop.state, selectedState));
     }
     
-    // Filter by city if selected
+    // Filter by city if selected (case-insensitive matching)
     if (selectedCity) {
-      filtered = filtered.filter(bookshop => bookshop.city === selectedCity);
+      filtered = filtered.filter(bookshop => {
+        if (!bookshop.city) return false;
+        return bookshop.city.toLowerCase().trim() === selectedCity.toLowerCase().trim();
+      });
     }
     
     // Filter by county if selected

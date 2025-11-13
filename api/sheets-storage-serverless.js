@@ -237,7 +237,12 @@ export class GoogleSheetsStorage {
     }
     
     if (filters.city) {
-      filteredBookstores = filteredBookstores.filter(b => b.city === filters.city);
+      // Case-insensitive city matching
+      const normalizedCity = String(filters.city).toLowerCase().trim();
+      filteredBookstores = filteredBookstores.filter(b => {
+        if (!b.city) return false;
+        return String(b.city).toLowerCase().trim() === normalizedCity;
+      });
     }
     
     if (filters.county) {

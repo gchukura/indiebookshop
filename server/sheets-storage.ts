@@ -286,7 +286,7 @@ export class GoogleSheetsStorage implements IStorage {
     return stateMap[normalized] || stateName.toUpperCase();
   }
 
-  async getFilteredBookstores(filters: { state?: string, city?: string, featureIds?: number[] }): Promise<Bookstore[]> {
+  async getFilteredBookstores(filters: { state?: string, city?: string, county?: string, featureIds?: number[] }): Promise<Bookstore[]> {
     await this.ensureInitialized();
     // Start with only live bookstores
     let filteredBookstores = this.bookstores.filter(b => b.live !== false);
@@ -309,7 +309,25 @@ export class GoogleSheetsStorage implements IStorage {
     }
     
     if (filters.city) {
-      filteredBookstores = filteredBookstores.filter(b => b.city === filters.city);
+      // Case-insensitive city matching
+      const normalizedCity = filters.city.toLowerCase().trim();
+      filteredBookstores = filteredBookstores.filter(b => {
+        if (!b.city) return false;
+        return b.city.toLowerCase().trim() === normalizedCity;
+      });
+    }
+    
+    if (filters.county) {
+      // Fuzzy county matching: handles "County" suffix and case variations
+      const normalizedCounty = filters.county.toLowerCase().trim().replace(/\s+county$/i, '');
+      filteredBookstores = filteredBookstores.filter(b => {
+        if (!b.county) return false;
+        const bookshopCounty = b.county.toLowerCase().trim().replace(/\s+county$/i, '');
+        // Exact match or partial match for flexibility
+        return bookshopCounty === normalizedCounty ||
+               bookshopCounty.includes(normalizedCounty) ||
+               normalizedCounty.includes(bookshopCounty);
+      });
     }
     
     if (filters.featureIds && filters.featureIds.length > 0) {
