@@ -178,13 +178,13 @@ export const BookshopSubmissionForm = () => {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="new" id="new" />
-                        <label htmlFor="new" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        <label htmlFor="new" className="font-sans text-body-sm font-semibold peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                           Submit a new bookshop
                         </label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="change" id="change" />
-                        <label htmlFor="change" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        <label htmlFor="change" className="font-sans text-body-sm font-semibold peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                           Suggest changes to an existing bookshop
                         </label>
                       </div>

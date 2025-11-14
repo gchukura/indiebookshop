@@ -53,7 +53,31 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans text-body text-gray-900 antialiased bg-background;
+  }
+
+  h1 {
+    @apply font-serif text-h1 font-bold text-gray-900;
+  }
+
+  h2 {
+    @apply font-serif text-h2 font-bold text-gray-900;
+  }
+
+  h3 {
+    @apply font-serif text-h3 font-bold text-gray-900;
+  }
+
+  h4 {
+    @apply font-serif text-h4 font-bold text-gray-900;
+  }
+
+  p {
+    @apply font-sans text-body text-gray-700;
+  }
+
+  label {
+    @apply font-sans text-label font-semibold text-gray-700;
   }
 }
 

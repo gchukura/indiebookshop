@@ -5,6 +5,22 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        serif: ['Libre Baskerville', 'Georgia', 'serif'],
+        sans: ['Open Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+      },
+      fontSize: {
+        'display': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],      // 48px - Hero text
+        'h1': ['2.25rem', { lineHeight: '1.2', letterSpacing: '-0.01em' }],        // 36px - Page titles
+        'h2': ['1.875rem', { lineHeight: '1.3' }],                                  // 30px - Section headings
+        'h3': ['1.5rem', { lineHeight: '1.4' }],                                    // 24px - Subsections
+        'h4': ['1.25rem', { lineHeight: '1.4' }],                                   // 20px - Small headings
+        'body-lg': ['1.125rem', { lineHeight: '1.7' }],                             // 18px - Featured text
+        'body': ['1rem', { lineHeight: '1.6' }],                                    // 16px - Standard body
+        'body-sm': ['0.875rem', { lineHeight: '1.5' }],                             // 14px - Supporting text
+        'label': ['0.875rem', { lineHeight: '1.4', letterSpacing: '0.01em' }],     // 14px - Form labels
+        'meta': ['0.8125rem', { lineHeight: '1.4' }],                               // 13px - Metadata
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
