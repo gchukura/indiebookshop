@@ -89,10 +89,10 @@ const HowToGuide: React.FC<HowToGuideProps> = ({
 
       {/* How-To header - adjusted for split layout */}
       <div className="mb-6">
-        <h2 className="text-xl md:text-2xl font-serif font-bold text-[#2A6B7C] mb-2">
+        <h2 className="text-h2 text-[#2A6B7C] mb-2">
           {title}
         </h2>
-        <p className="text-gray-600 text-sm md:text-base">
+        <p className="text-body-sm text-gray-600">
           {description}
         </p>
       </div>
@@ -116,8 +116,8 @@ const HowToGuide: React.FC<HowToGuideProps> = ({
           {totalTime && (
             <Card>
               <CardContent className="p-3">
-                <h4 className="font-medium text-gray-700 text-sm">Total Time</h4>
-                <p className="text-sm">{formatTime(totalTime)}</p>
+                <h4 className="font-sans text-label font-semibold text-gray-700">Total Time</h4>
+                <p className="text-body-sm">{formatTime(totalTime)}</p>
               </CardContent>
             </Card>
           )}
@@ -125,8 +125,8 @@ const HowToGuide: React.FC<HowToGuideProps> = ({
           {estimatedCost && (
             <Card>
               <CardContent className="p-3">
-                <h4 className="font-medium text-gray-700 text-sm">Estimated Cost</h4>
-                <p className="text-sm">{estimatedCost.currency} {estimatedCost.value}</p>
+                <h4 className="font-sans text-label font-semibold text-gray-700">Estimated Cost</h4>
+                <p className="text-body-sm">{estimatedCost.currency} {estimatedCost.value}</p>
               </CardContent>
             </Card>
           )}
@@ -134,14 +134,14 @@ const HowToGuide: React.FC<HowToGuideProps> = ({
           {(supplies.length > 0 || tools.length > 0) && (
             <Card className={totalTime && estimatedCost ? "sm:col-span-2" : ""}>
               <CardContent className="p-3">
-                <h4 className="font-medium text-gray-700 text-sm">
+                <h4 className="font-sans text-label font-semibold text-gray-700">
                   {supplies.length > 0 && tools.length > 0
                     ? 'Supplies & Tools'
                     : supplies.length > 0
                     ? 'Supplies'
                     : 'Tools'}
                 </h4>
-                <ul className="list-disc ml-4 text-xs">
+                <ul className="list-disc ml-4 text-body-sm">
                   {supplies.map((supply, idx) => (
                     <li key={`supply-${idx}`}>{supply}</li>
                   ))}
@@ -156,7 +156,7 @@ const HowToGuide: React.FC<HowToGuideProps> = ({
 
         {/* Steps - adjusted spacing for split layout */}
         <div className="space-y-4">
-          <h3 className="text-lg md:text-xl font-serif font-bold text-[#2A6B7C]">
+          <h3 className="text-h3 text-[#2A6B7C]">
             Step-by-Step Instructions
           </h3>
           
@@ -164,14 +164,14 @@ const HowToGuide: React.FC<HowToGuideProps> = ({
             {steps.map((step, index) => (
               <div key={index} className="flex gap-3">
                 <div className="flex-shrink-0 flex items-start">
-                  <div className="w-7 h-7 rounded-full bg-[#2A6B7C] text-white flex items-center justify-center font-bold text-sm">
+                  <div className="w-7 h-7 rounded-full bg-[#2A6B7C] text-white flex items-center justify-center font-bold text-body-sm">
                     {index + 1}
                   </div>
                 </div>
                 
                 <div className="flex-grow min-w-0">
-                  <h4 className="font-medium text-base md:text-lg mb-1.5">{step.name}</h4>
-                  <p className="text-gray-700 text-sm md:text-base mb-2 leading-relaxed">{step.text}</p>
+                  <h4 className="font-serif text-h4 font-bold mb-1.5">{step.name}</h4>
+                  <p className="text-body-sm mb-2">{step.text}</p>
                   
                   {step.image && (
                     <div className="my-2 rounded-md overflow-hidden">
@@ -189,7 +189,7 @@ const HowToGuide: React.FC<HowToGuideProps> = ({
                       href={step.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 mt-1 text-sm"
+                      className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 mt-1 text-body-sm"
                     >
                       More details
                       <svg

@@ -160,8 +160,8 @@ const BookshopDetailPage = () => {
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-white text-2xl md:text-4xl font-serif font-bold">{bookshop.name} | Independent Bookshop in {bookshop.city}</h1>
-            <p className="text-white/90 text-sm md:text-base">{bookshop.city}, {bookshop.state} • Indie Bookshop</p>
+            <h1 className="font-serif text-h1 md:text-display font-bold text-white">{bookshop.name} | Independent Bookshop in {bookshop.city}</h1>
+            <p className="font-sans text-body-sm md:text-body text-gray-100">{bookshop.city}, {bookshop.state} • Indie Bookshop</p>
           </div>
         </div>
       </div>

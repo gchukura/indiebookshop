@@ -145,7 +145,8 @@ if (process.env.DISABLE_AUTO_REFRESH === 'true') {
 
   // Serve the app on port 3000 (changed from 5000 to avoid ControlCenter conflict)
   // this serves both the API and the client.
-  const port = 3000;
+  // Allow PORT environment variable to override default
+  const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
   server.listen(port, "0.0.0.0", () => {
     log(`serving on port ${port}`);
   });

@@ -63,23 +63,23 @@ const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
           <div>
             <Link to={bookshopUrl}>
               <h3 
-                className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C]"
+                className="font-serif text-h3 font-bold cursor-pointer hover:text-[#2A6B7C]"
               >
                 {bookstore.name}
               </h3>
             </Link>
           </div>
-          <div className="text-sm text-gray-600 mb-2">
+          <div className="font-sans text-meta mb-2">
             <MapPin className="h-4 w-4 inline mr-1" /> {bookstore.city}, {bookstore.state}
             {bookstore.county && (
-              <span className="ml-1 text-gray-500">({bookstore.county} County)</span>
+              <span className="ml-1">({bookstore.county} County)</span>
             )}
           </div>
-          <p className="text-sm mb-3 line-clamp-2">{bookstore.description}</p>
+          <p className="font-sans text-body-sm mb-3 line-clamp-2">{bookstore.description}</p>
           {bookshopFeatures.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {bookshopFeatures.map(feature => (
-                <span key={feature.id} className="shop-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
+                <span key={feature.id} className="shop-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 font-sans text-body-sm font-semibold">
                   {feature.name}
                 </span>
               ))}

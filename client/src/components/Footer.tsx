@@ -36,8 +36,8 @@ const Footer = () => {
       {/* Newsletter Section */}
       <section className="py-10 bg-[#F7F3E8] text-[#5F4B32]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl font-serif font-bold mb-3">Join Our Literary Community</h2>
-          <p className="text-base opacity-90 max-w-2xl mx-auto mb-4">
+          <h2 className="text-h2 font-serif font-bold mb-3">Join Our Literary Community</h2>
+          <p className="font-sans text-body-lg opacity-90 max-w-2xl mx-auto mb-4">
             Connect with fellow book lovers, stay updated on bookshop events, and discover new independent bookshops.
           </p>
           <div className="max-w-md mx-auto">
@@ -65,10 +65,10 @@ const Footer = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#5F4B32] text-white py-8">
+      <footer className="bg-[#5F4B32] py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="border-white/20 pt-2 text-center">
-            <p>&copy; {new Date().getFullYear()} IndieBookShop.com. All rights reserved.</p>
+            <p className="font-sans text-body-sm text-gray-100">&copy; {new Date().getFullYear()} IndieBookShop.com. All rights reserved.</p>
           </div>
         </div>
       </footer>

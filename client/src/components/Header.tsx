@@ -62,7 +62,7 @@ const Header = () => {
                     setShowStatesDropdown(!showStatesDropdown);
                     // setShowCategoriesDropdown(false); // Category navigation temporarily disabled
                   }}
-                  className={`${isActiveRoute('/directory') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2 flex items-center`}
+                  className={`${isActiveRoute('/directory') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-sans text-body font-semibold px-1 py-2 flex items-center`}
                 >
                   Directory
                   <ChevronDown className="ml-1 h-4 w-4" />
@@ -72,28 +72,28 @@ const Header = () => {
                     <div className="py-1">
                       <Link 
                         href="/directory" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 font-sans text-body-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowStatesDropdown(false)}
                       >
                         All Bookshops
                       </Link>
                       <Link 
                         href="/directory/browse" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 font-sans text-body-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowStatesDropdown(false)}
                       >
                         Bookshops by State
                       </Link>
                       <Link 
                         href="/directory/cities" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 font-sans text-body-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowStatesDropdown(false)}
                       >
                         Bookshops by City
                       </Link>
                       <Link 
                         href="/directory/counties" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 font-sans text-body-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowStatesDropdown(false)}
                       >
                         Bookshops by County
@@ -113,25 +113,25 @@ const Header = () => {
 
               <Link 
                 href="/about" 
-                className={`${isActiveRoute('/about') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+                className={`${isActiveRoute('/about') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-sans text-body font-semibold px-1 py-2`}
               >
                 About
               </Link>
               <Link 
                 href="/events" 
-                className={`${isActiveRoute('/events') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+                className={`${isActiveRoute('/events') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-sans text-body font-semibold px-1 py-2`}
               >
                 Events
               </Link>
               <Link 
                 href="/blog" 
-                className={`${isActiveRoute('/blog') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+                className={`${isActiveRoute('/blog') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-sans text-body font-semibold px-1 py-2`}
               >
                 Blog
               </Link>
               <Link 
                 href="/contact" 
-                className={`${isActiveRoute('/contact') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-medium px-1 py-2`}
+                className={`${isActiveRoute('/contact') ? 'text-[#5F4B32] border-b-2 border-[#E16D3D]' : 'text-[#333333] hover:text-[#5F4B32]'} font-sans text-body font-semibold px-1 py-2`}
               >
                 Contact
               </Link>
@@ -165,27 +165,27 @@ const Header = () => {
               <SheetContent side="right" className="w-[250px] sm:w-[300px] overflow-y-auto">
                 <nav className="flex flex-col gap-2 mt-8">
                   <div className="space-y-2">
-                    <div className="px-4 py-2 text-lg font-medium text-[#5F4B32]">
+                    <div className="px-4 py-2 font-sans text-h4 font-semibold text-[#5F4B32]">
                       Directory
                     </div>
                     <div className="pl-4 space-y-1">
                       <Link 
                         href="/directory" 
-                        className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
+                        className="block px-4 py-1.5 font-sans text-body-sm text-gray-700 hover:bg-gray-100 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         All Bookshops
                       </Link>
                       <Link 
                         href="/directory/browse" 
-                        className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
+                        className="block px-4 py-1.5 font-sans text-body-sm text-gray-700 hover:bg-gray-100 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Bookshops by State
                       </Link>
                       <Link 
                         href="/directory/cities" 
-                        className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
+                        className="block px-4 py-1.5 font-sans text-body-sm text-gray-700 hover:bg-gray-100 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         Bookshops by City
@@ -203,28 +203,28 @@ const Header = () => {
                   
                   <Link 
                     href="/about" 
-                    className="px-4 py-2 text-lg font-medium hover:bg-gray-100 rounded-md"
+                    className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     About
                   </Link>
                   <Link 
                     href="/events" 
-                    className="px-4 py-2 text-lg font-medium hover:bg-gray-100 rounded-md"
+                    className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Events
                   </Link>
                   <Link 
                     href="/blog" 
-                    className="px-4 py-2 text-lg font-medium hover:bg-gray-100 rounded-md"
+                    className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Blog
                   </Link>
                   <Link 
                     href="/contact" 
-                    className="px-4 py-2 text-lg font-medium hover:bg-gray-100 rounded-md"
+                    className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Contact
