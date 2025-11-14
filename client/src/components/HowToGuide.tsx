@@ -83,25 +83,25 @@ const HowToGuide: React.FC<HowToGuideProps> = ({
   };
 
   return (
-    <div className={`my-8 ${className}`}>
+    <div className={`${className}`}>
       {/* SEO-friendly schema markup */}
       <SchemaOrg schema={howToSchema} />
 
-      {/* How-To header */}
-      <div className="text-center mb-6">
-        <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#2A6B7C]">
+      {/* How-To header - adjusted for split layout */}
+      <div className="mb-6">
+        <h2 className="text-xl md:text-2xl font-serif font-bold text-[#2A6B7C] mb-2">
           {title}
         </h2>
-        <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
+        <p className="text-gray-600 text-sm md:text-base">
           {description}
         </p>
       </div>
 
-      {/* How-To content */}
-      <div className="max-w-4xl mx-auto">
-        {/* Main image */}
+      {/* How-To content - adjusted sizing for balanced layout */}
+      <div>
+        {/* Main image - smaller for split layout */}
         {image && (
-          <div className="mb-6 rounded-lg overflow-hidden max-h-72">
+          <div className="mb-4 rounded-lg overflow-hidden max-h-48 md:max-h-56">
             <OptimizedImage
               src={image}
               alt={`How to ${title}`}
@@ -111,37 +111,37 @@ const HowToGuide: React.FC<HowToGuideProps> = ({
           </div>
         )}
 
-        {/* Meta information */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {/* Meta information - simplified for split layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
           {totalTime && (
             <Card>
-              <CardContent className="p-4">
-                <h4 className="font-medium text-gray-700">Total Time</h4>
-                <p>{formatTime(totalTime)}</p>
+              <CardContent className="p-3">
+                <h4 className="font-medium text-gray-700 text-sm">Total Time</h4>
+                <p className="text-sm">{formatTime(totalTime)}</p>
               </CardContent>
             </Card>
           )}
 
           {estimatedCost && (
             <Card>
-              <CardContent className="p-4">
-                <h4 className="font-medium text-gray-700">Estimated Cost</h4>
-                <p>{estimatedCost.currency} {estimatedCost.value}</p>
+              <CardContent className="p-3">
+                <h4 className="font-medium text-gray-700 text-sm">Estimated Cost</h4>
+                <p className="text-sm">{estimatedCost.currency} {estimatedCost.value}</p>
               </CardContent>
             </Card>
           )}
 
           {(supplies.length > 0 || tools.length > 0) && (
-            <Card>
-              <CardContent className="p-4">
-                <h4 className="font-medium text-gray-700">
+            <Card className={totalTime && estimatedCost ? "sm:col-span-2" : ""}>
+              <CardContent className="p-3">
+                <h4 className="font-medium text-gray-700 text-sm">
                   {supplies.length > 0 && tools.length > 0
                     ? 'Supplies & Tools'
                     : supplies.length > 0
                     ? 'Supplies'
                     : 'Tools'}
                 </h4>
-                <ul className="list-disc ml-4 text-sm">
+                <ul className="list-disc ml-4 text-xs">
                   {supplies.map((supply, idx) => (
                     <li key={`supply-${idx}`}>{supply}</li>
                   ))}
@@ -154,31 +154,31 @@ const HowToGuide: React.FC<HowToGuideProps> = ({
           )}
         </div>
 
-        {/* Steps */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-serif font-bold text-[#2A6B7C]">
+        {/* Steps - adjusted spacing for split layout */}
+        <div className="space-y-4">
+          <h3 className="text-lg md:text-xl font-serif font-bold text-[#2A6B7C]">
             Step-by-Step Instructions
           </h3>
           
-          <div className="space-y-8">
+          <div className="space-y-5">
             {steps.map((step, index) => (
-              <div key={index} className="flex flex-col md:flex-row gap-4">
-                <div className="md:w-8 flex-shrink-0 flex items-start justify-center">
-                  <div className="w-8 h-8 rounded-full bg-[#2A6B7C] text-white flex items-center justify-center font-bold">
+              <div key={index} className="flex gap-3">
+                <div className="flex-shrink-0 flex items-start">
+                  <div className="w-7 h-7 rounded-full bg-[#2A6B7C] text-white flex items-center justify-center font-bold text-sm">
                     {index + 1}
                   </div>
                 </div>
                 
-                <div className="flex-grow">
-                  <h4 className="font-medium text-lg mb-2">{step.name}</h4>
-                  <p className="text-gray-700 mb-3">{step.text}</p>
+                <div className="flex-grow min-w-0">
+                  <h4 className="font-medium text-base md:text-lg mb-1.5">{step.name}</h4>
+                  <p className="text-gray-700 text-sm md:text-base mb-2 leading-relaxed">{step.text}</p>
                   
                   {step.image && (
-                    <div className="my-3 rounded-md overflow-hidden">
+                    <div className="my-2 rounded-md overflow-hidden">
                       <OptimizedImage
                         src={step.image}
                         alt={`Step ${index + 1}: ${step.name}`}
-                        className="max-w-full h-auto max-h-60"
+                        className="max-w-full h-auto max-h-48"
                         objectFit="cover"
                       />
                     </div>
@@ -189,12 +189,12 @@ const HowToGuide: React.FC<HowToGuideProps> = ({
                       href={step.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 mt-2"
+                      className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1 mt-1 text-sm"
                     >
                       More details
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
+                        className="h-3 w-3"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"

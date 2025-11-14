@@ -153,7 +153,7 @@ export const BookshopSubmissionForm = () => {
   const hasPhysicalStore = form.watch("hasPhysicalStore");
 
   return (
-    <Card className="w-full max-w-3xl mx-auto">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Submit a Bookshop</CardTitle>
         <CardDescription>
