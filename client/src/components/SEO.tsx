@@ -108,6 +108,14 @@ export const SEO = ({
       {twitterCreator && <meta name="twitter:creator" content={safeCreator} />}
       {ogImage && <meta name="twitter:image" content={String(ogImage)} />}
       {ogImageAlt && <meta name="twitter:image:alt" content={String(ogImageAlt)} />}
+      
+      {/* Google AdSense - Verification and Script */}
+      <meta name="google-adsense-account" content="ca-pub-4357894821158922" />
+      <script 
+        async 
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4357894821158922"
+        crossOrigin="anonymous"
+      />
     </Helmet>
   );
 };

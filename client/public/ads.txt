@@ -1,0 +1,13 @@
+# ads.txt file for IndiebookShop.com
+# This file authorizes ad networks to sell your inventory
+# 
+# Publisher ID: ca-pub-4357894821158922
+#
+# Format: google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+# 
+# After AdSense approval, Google will provide the exact line to add below.
+# The line should look like:
+# google.com, pub-4357894821158922, DIRECT, f08c47fec0942fa0
+#
+# For now, this file is ready - just add the line above once you receive it from Google AdSense.
+

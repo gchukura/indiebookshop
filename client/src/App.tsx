@@ -26,6 +26,7 @@ import Events from "@/pages/Events";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { BookshopProvider } from "@/context/BookshopContext";
+import { AdSenseHead } from "@/components/AdSenseHead";
 
 // Component to scroll to top on route changes
 function ScrollToTop() {
@@ -102,6 +103,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <BookshopProvider>
+          <AdSenseHead />
           <Toaster />
           <Router />
         </BookshopProvider>
