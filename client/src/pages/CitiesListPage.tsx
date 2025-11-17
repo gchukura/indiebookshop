@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState, useMemo } from "react";
-import { Link } from "wouter";
+import { useState, useMemo, useEffect } from "react";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -46,6 +46,16 @@ const METRO_AREAS = {
 
 const CitiesListPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [location, setLocation] = useLocation();
+  
+  // Redirect to CityDirectory page with the new split view interface
+  // This allows users to use the dropdown interface directly
+  useEffect(() => {
+    // Only redirect if we're on the /directory/cities route
+    if (location === '/directory/cities') {
+      setLocation('/directory/city', { replace: true });
+    }
+  }, [location, setLocation]);
   
   // Fetch bookshop data (we'll use this to count bookshops per city)
   const { data: bookshops = [], isLoading } = useQuery<Bookstore[]>({

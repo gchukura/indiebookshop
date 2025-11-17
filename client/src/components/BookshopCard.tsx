@@ -12,9 +12,10 @@ import { generateBookshopSlug } from "../lib/linkUtils";
 interface BookshopCardProps {
   bookstore: Bookstore;
   showDetails: (id: number) => void;
+  isHighlighted?: boolean;
 }
 
-const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
+const BookshopCard = ({ bookstore, showDetails, isHighlighted = false }: BookshopCardProps) => {
   const [_, setLocation] = useLocation();
   
   // Fetch all features to match with bookshop.featureIds
@@ -31,7 +32,14 @@ const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
   const bookshopUrl = generateBookshopSlug(bookstore.id, bookstore.name);
 
   return (
-    <div className="bookshop-card bg-white border border-gray-100 rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1">
+    <div 
+      id={`bookshop-card-${bookstore.id}`}
+      className={`bookshop-card bg-white border rounded-lg shadow-sm mb-4 transition duration-200 ease-in-out overflow-hidden hover:shadow-md hover:-translate-y-1 ${
+        isHighlighted 
+          ? 'border-[#2A6B7C] border-2 shadow-lg ring-2 ring-[#2A6B7C] ring-opacity-50' 
+          : 'border-gray-100'
+      }`}
+    >
       <div className="flex flex-col sm:flex-row">
         <div className="sm:w-1/3">
           <div 

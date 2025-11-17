@@ -85,7 +85,7 @@ const Header = () => {
                         Bookshops by State
                       </Link>
                       <Link 
-                        href="/directory/cities" 
+                        href="/directory/city" 
                         className="block px-4 py-2 font-sans text-body-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowStatesDropdown(false)}
                       >
@@ -184,7 +184,7 @@ const Header = () => {
                         Bookshops by State
                       </Link>
                       <Link 
-                        href="/directory/cities" 
+                        href="/directory/city" 
                         className="block px-4 py-1.5 font-sans text-body-sm text-gray-700 hover:bg-gray-100 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >

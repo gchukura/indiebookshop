@@ -256,5 +256,67 @@ export async function registerRoutes(app, storageImpl) {
     });
   });
 
+  // Get user location based on IP address
+  app.get('/api/location', async (req, res) => {
+    try {
+      // Get client IP address
+      const clientIp = req.ip || 
+        req.headers['x-forwarded-for']?.toString().split(',')[0] || 
+        req.headers['x-real-ip']?.toString() || 
+        req.headers['cf-connecting-ip']?.toString() || // Cloudflare
+        '';
+
+      // Use ipapi.co for IP geolocation (free tier: 1000 requests/day)
+      // Fallback to ip-api.com if needed
+      const ipToCheck = clientIp === '::1' || clientIp === '127.0.0.1' ? '' : clientIp;
+      
+      if (!ipToCheck) {
+        // For localhost, return null or a default location
+        return res.json({ city: null, state: null, country: null });
+      }
+
+      try {
+        // Try ipapi.co first
+        const response = await fetch(`https://ipapi.co/${ipToCheck}/json/`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.error) {
+            throw new Error('IP geolocation error');
+          }
+          return res.json({
+            city: data.city || null,
+            state: data.region_code || data.region || null,
+            country: data.country_code || null,
+            latitude: data.latitude || null,
+            longitude: data.longitude || null
+          });
+        }
+      } catch (error) {
+        console.log('ipapi.co failed, trying ip-api.com');
+      }
+
+      // Fallback to ip-api.com
+      const fallbackResponse = await fetch(`http://ip-api.com/json/${ipToCheck}`);
+      if (fallbackResponse.ok) {
+        const data = await fallbackResponse.json();
+        if (data.status === 'success') {
+          return res.json({
+            city: data.city || null,
+            state: data.region || data.regionName || null,
+            country: data.countryCode || null,
+            latitude: data.lat || null,
+            longitude: data.lon || null
+          });
+        }
+      }
+
+      // If both fail, return null
+      res.json({ city: null, state: null, country: null });
+    } catch (error) {
+      console.error('Error fetching user location:', error);
+      res.json({ city: null, state: null, country: null });
+    }
+  });
+
   return { app };
 }
