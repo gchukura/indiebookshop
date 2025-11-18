@@ -49,37 +49,110 @@ function Router() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/directory" component={Directory} />
-          <Route path="/directory/browse" component={StatesListPage} />
-          <Route path="/directory/cities" component={CitiesListPage} />
-          <Route path="/directory/categories" component={CategoriesListPage} />
-          <Route path="/directory/state/:state" component={StateDirectory} />
-          {/* City directory routes - order matters, more specific first */}
-          <Route path="/directory/city/:state/:city" component={CityDirectory} />
-          <Route path="/directory/city/:city" component={CityDirectory} />
-          <Route path="/directory/city" component={CityDirectory} />
-          {/* Legacy URL formats for backward compatibility */}
-          <Route path="/directory/city-state/:citystate" component={CityDirectory} />
-          <Route path="/directory/counties" component={CountiesListPage} />
-          {/* Updated to more logical URL structure for counties */}
-          <Route path="/directory/county/:state/:county" component={CountyDirectory} />
           
-          {/* Keep old route format for backward compatibility and redirect */}
-          <Route path="/directory/county-state/:countystate">
-            {(params) => {
-              // Parse county and state from combined parameter
-              const parts = params.countystate.split('-');
-              if (parts.length >= 2) {
-                const county = parts.slice(0, -1).join('-');
-                const state = parts[parts.length - 1];
-                // Redirect to new URL format
-                window.location.href = `/directory/county/${state}/${county}`;
-              } else {
-                // If parsing fails, redirect to counties list
-                window.location.href = '/directory/counties';
-              }
+          {/* Redirect old routes to new unified directory with query params */}
+          <Route path="/directory/browse">
+            {() => {
+              const [_, setLocation] = useLocation();
+              useEffect(() => {
+                setLocation('/directory', { replace: true });
+              }, [setLocation]);
               return null;
             }}
           </Route>
+          <Route path="/directory/cities">
+            {() => {
+              const [_, setLocation] = useLocation();
+              useEffect(() => {
+                setLocation('/directory', { replace: true });
+              }, [setLocation]);
+              return null;
+            }}
+          </Route>
+          <Route path="/directory/counties">
+            {() => {
+              const [_, setLocation] = useLocation();
+              useEffect(() => {
+                setLocation('/directory', { replace: true });
+              }, [setLocation]);
+              return null;
+            }}
+          </Route>
+          <Route path="/directory/state/:state">
+            {(params) => {
+              const [_, setLocation] = useLocation();
+              useEffect(() => {
+                setLocation(`/directory?state=${encodeURIComponent(params.state)}`, { replace: true });
+              }, [setLocation, params.state]);
+              return null;
+            }}
+          </Route>
+          <Route path="/directory/city/:state/:city">
+            {(params) => {
+              const [_, setLocation] = useLocation();
+              useEffect(() => {
+                const state = params.state.toUpperCase();
+                const city = params.city.replace(/-/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                setLocation(`/directory?state=${encodeURIComponent(state)}&city=${encodeURIComponent(city)}`, { replace: true });
+              }, [setLocation, params.state, params.city]);
+              return null;
+            }}
+          </Route>
+          <Route path="/directory/city/:city">
+            {(params) => {
+              const [_, setLocation] = useLocation();
+              useEffect(() => {
+                const city = params.city.replace(/-/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                setLocation(`/directory?city=${encodeURIComponent(city)}`, { replace: true });
+              }, [setLocation, params.city]);
+              return null;
+            }}
+          </Route>
+          <Route path="/directory/city-state/:citystate">
+            {(params) => {
+              const [_, setLocation] = useLocation();
+              useEffect(() => {
+                const parts = params.citystate.split('-');
+                if (parts.length >= 2) {
+                  const state = parts[parts.length - 1].toUpperCase();
+                  const city = parts.slice(0, -1).join('-').replace(/-/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                  setLocation(`/directory?state=${encodeURIComponent(state)}&city=${encodeURIComponent(city)}`, { replace: true });
+                } else {
+                  setLocation('/directory', { replace: true });
+                }
+              }, [setLocation, params.citystate]);
+              return null;
+            }}
+          </Route>
+          <Route path="/directory/county/:state/:county">
+            {(params) => {
+              const [_, setLocation] = useLocation();
+              useEffect(() => {
+                const state = params.state.toUpperCase();
+                const county = params.county.replace(/-/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                setLocation(`/directory?state=${encodeURIComponent(state)}&county=${encodeURIComponent(county)}`, { replace: true });
+              }, [setLocation, params.state, params.county]);
+              return null;
+            }}
+          </Route>
+          <Route path="/directory/county-state/:countystate">
+            {(params) => {
+              const [_, setLocation] = useLocation();
+              useEffect(() => {
+                const parts = params.countystate.split('-');
+                if (parts.length >= 2) {
+                  const state = parts[parts.length - 1].toUpperCase();
+                  const county = parts.slice(0, -1).join('-').replace(/-/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                  setLocation(`/directory?state=${encodeURIComponent(state)}&county=${encodeURIComponent(county)}`, { replace: true });
+                } else {
+                  setLocation('/directory', { replace: true });
+                }
+              }, [setLocation, params.countystate]);
+              return null;
+            }}
+          </Route>
+          
+          <Route path="/directory/categories" component={CategoriesListPage} />
           <Route path="/directory/category/:featureId" component={CategoryDirectory} />
           <Route path="/bookshop/:idslug" component={BookshopDetailPage} />
           <Route path="/submit" component={SubmitBookshop} />
