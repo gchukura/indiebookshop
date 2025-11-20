@@ -25,6 +25,7 @@ import Contact from "@/pages/Contact";
 import Events from "@/pages/Events";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { BookshopProvider } from "@/context/BookshopContext";
 import { AdSenseHead } from "@/components/AdSenseHead";
 
@@ -42,11 +43,12 @@ function ScrollToTop() {
 
 function Router() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <ScrollToTop />
-      <Header />
-      <div className="flex-grow">
-        <Switch>
+    <ErrorBoundary>
+      <div className="flex flex-col min-h-screen">
+        <ScrollToTop />
+        <Header />
+        <div className="flex-grow">
+          <Switch>
           <Route path="/" component={Home} />
           <Route path="/directory" component={Directory} />
           <Route path="/directory/browse" component={StatesListPage} />
@@ -95,6 +97,7 @@ function Router() {
       </div>
       <Footer />
     </div>
+    </ErrorBoundary>
   );
 }
 

@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { Menu, X, ChevronDown } from "lucide-react";
 // import { Feature } from "@shared/schema"; // Temporarily disabled for category navigation
 import Logo from "@/components/Logo";
@@ -163,6 +163,12 @@ const Header = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[250px] sm:w-[300px] overflow-y-auto">
+                <SheetTitle className="sr-only">
+                  Navigation Menu
+                </SheetTitle>
+                <SheetDescription className="sr-only">
+                  Main navigation menu for IndieBookShop.com
+                </SheetDescription>
                 <nav className="flex flex-col gap-2 mt-8">
                   <div className="space-y-2">
                     <div className="px-4 py-2 font-sans text-h4 font-semibold text-[#5F4B32]">

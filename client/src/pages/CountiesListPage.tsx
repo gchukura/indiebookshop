@@ -98,7 +98,7 @@ const CountiesListPage = () => {
 
         
         {isLoading ? (
-          <div className="flex justify-center py-16">
+          <div className="flex justify-center py-8 md:py-12 lg:py-16">
             <div className="animate-pulse text-center">
               <p className="text-lg">Loading counties...</p>
             </div>
@@ -120,7 +120,7 @@ const CountiesListPage = () => {
                 <h2 className="text-2xl font-serif font-bold text-[#5F4B32] border-b border-gray-200 pb-3 mb-4">
                   Counties in {getFullStateName(stateData.state)}
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-y-3 gap-x-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-y-3 gap-x-4">
                   {stateData.counties.map(county => (
                     <Link
                       key={`${stateData.state}-${county}`}

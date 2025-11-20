@@ -61,7 +61,7 @@ const CategoriesListPage = () => {
       />
       
       <div className="mb-8">
-        <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+        <h1 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-4">
           Browse Independent Bookshops by Category & Special Features
         </h1>
         <p className="text-gray-600 mb-6">
@@ -104,7 +104,9 @@ const CategoriesListPage = () => {
       )}
       
       {/* SEO-friendly content section */}
-      <section className="mt-12 bg-[#F7F3E8] rounded-lg p-6">
+      <section className="py-8 md:py-12 lg:py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8 lg:p-10">
         <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
           Discover Bookshops by Special Features
         </h2>
@@ -121,6 +123,8 @@ const CategoriesListPage = () => {
           <p>
             By browsing our bookshop directory by category, you can find exactly the type of independent bookstore experience you're looking for. Each listing includes details about the shop's special features, ensuring you'll find the perfect literary destination for your next visit.
           </p>
+        </div>
+          </div>
         </div>
       </section>
     </div>

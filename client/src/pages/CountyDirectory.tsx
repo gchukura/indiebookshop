@@ -38,7 +38,9 @@ const CountyDirectory = () => {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
       
-      console.log(`Parsed county URL: county=${county}, state=${stateFromUrl}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Parsed county URL: county=${county}, state=${stateFromUrl}`);
+      }
     }
   }
   // Legacy URL format: /directory/county-state/:countystate
@@ -56,7 +58,9 @@ const CountyDirectory = () => {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
       
-      console.log(`Parsed legacy county-state URL: county=${county}, state=${stateFromUrl}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Parsed legacy county-state URL: county=${county}, state=${stateFromUrl}`);
+      }
     } else {
       county = params.countystate.replace(/-/g, ' ')
         .split(' ')
@@ -87,18 +91,24 @@ const CountyDirectory = () => {
         if (stateFromUrl) {
           // If we have a state, use filter endpoint with county and state
           endpoint = `/api/bookstores/filter?county=${encodeURIComponent(county!)}&state=${encodeURIComponent(stateFromUrl)}`;
-          console.log(`Loading data for county: ${county}, state: ${stateFromUrl}`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Loading data for county: ${county}, state: ${stateFromUrl}`);
+          }
         } else {
           // For county-only view, we'll do direct filtering in the frontend
           // Fetch all bookstores and filter them client-side for better matching
           endpoint = `/api/bookstores`;
-          console.log(`Loading all bookstores to filter for county: ${county}`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Loading all bookstores to filter for county: ${county}`);
+          }
         }
         
         // Fetch access token for Mapbox API
         const configResponse = await fetch('/api/config');
         const config = await configResponse.json();
-        console.log('Access token received from API:', !!config.mapboxAccessToken);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Access token received from API:', !!config.mapboxAccessToken);
+        }
         
         // Fetch bookshops for this county
         const response = await fetch(endpoint);
@@ -108,11 +118,15 @@ const CountyDirectory = () => {
         }
         
         const allBookshops = await response.json();
-        console.log(`Retrieved ${allBookshops.length} total bookshops`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Retrieved ${allBookshops.length} total bookshops`);
+        }
 
         // Apply client-side filtering based on county
         const countyLower = county!.toLowerCase().replace(/\s+county$/i, '').replace(/-/g, ' ');
-        console.log(`Filtering bookshops by county: "${countyLower}"`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Filtering bookshops by county: "${countyLower}"`);
+        }
         
         // Filter bookshops by county with flexible matching
         let filteredBookshops = allBookshops.filter((bookshop: any) => {
@@ -136,10 +150,14 @@ const CountyDirectory = () => {
           filteredBookshops = filteredBookshops.filter(
             (bookshop: Bookstore) => bookshop.state.toLowerCase() === stateLower
           );
-          console.log(`Found ${filteredBookshops.length} bookshops in ${county} County, ${stateFromUrl}`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Found ${filteredBookshops.length} bookshops in ${county} County, ${stateFromUrl}`);
+          }
           setMultipleStatesWarning(false); // No warning needed for state-specific pages
         } else {
-          console.log(`Found ${filteredBookshops.length} bookshops in ${county} County`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Found ${filteredBookshops.length} bookshops in ${county} County`);
+          }
           
           // Check for multiple states with this county name
           const stateSet = new Set<string>();
@@ -147,7 +165,9 @@ const CountyDirectory = () => {
           const statesWithThisCounty = Array.from(stateSet);
           
           if (statesWithThisCounty.length > 1) {
-            console.log(`Multiple states (${statesWithThisCounty.join(', ')}) have a "${county}" county`);
+            if (process.env.NODE_ENV === 'development') {
+              console.log(`Multiple states (${statesWithThisCounty.join(', ')}) have a "${county}" county`);
+            }
             setMultipleStatesWarning(true);
             setMatchingStates(statesWithThisCounty);
           } else {
@@ -295,20 +315,20 @@ const CountyDirectory = () => {
       
       {/* Interactive Map Section - Styled like directory */}
       {view === "map" && (
-        <section className="py-12 bg-white">
+        <section className="py-8 md:py-12 lg:py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+            <div className="text-center mb-6 md:mb-8">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">
                 Find Independent Bookshops in {countyName} County
                 {stateFromUrl ? `, ${getFullStateName(stateFromUrl)}` : ''}
               </h2>
-              <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-6">
+              <p className="text-base md:text-lg text-gray-700 max-w-3xl mx-auto mb-4 md:mb-6 px-2">
                 Use our interactive map to explore indie bookshops in {countyName} County
                 {stateFromUrl ? ` in ${getFullStateName(stateFromUrl)}` : ''}.
                 Click on any pin to view details about the bookshop.
               </p>
             </div>
-            <div className="h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-8">
+            <div className="h-[300px] sm:h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-6 md:mb-8">
               <MapboxMap 
                 bookstores={bookshops} 
                 onSelectBookshop={handleShowDetails}

@@ -5,7 +5,7 @@ import { BASE_URL } from "../lib/seo";
 
 const BlogPlaceholder = () => {
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center py-16 px-4 bg-[#F7F3E8] rounded-lg text-center md:text-left gap-10">
+    <div className="flex flex-col md:flex-row items-center justify-center py-8 md:py-12 lg:py-16 px-4 bg-[#F7F3E8] rounded-lg text-center md:text-left gap-6 md:gap-10">
       <div className="mb-6 md:mb-0 md:w-1/4 flex justify-center">
         <BookWormMascot />
       </div>
@@ -139,11 +139,11 @@ const Blog = () => {
         canonicalUrl={canonicalUrl}
       />
       
-      <div className="mb-8">
-        <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+      <div className="max-w-3xl mx-auto mb-12">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-[#5F4B32] mb-4">
           Independent Bookshop Blog & Articles
         </h1>
-        <p className="text-gray-600 mb-8">
+        <p className="text-lg md:text-xl text-gray-600 mb-8">
           Stories, interviews, and insights from the world of independent bookshops across America.
         </p>
         

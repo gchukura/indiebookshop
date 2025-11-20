@@ -338,6 +338,47 @@ export class GoogleSheetsStorage implements IStorage {
     
     return filteredBookstores;
   }
+
+  async getAllCounties(): Promise<string[]> {
+    await this.ensureInitialized();
+    
+    // Extract unique county values from bookstores
+    const counties = new Set<string>();
+    
+    this.bookstores
+      .filter(bookstore => bookstore.live !== false)
+      .forEach(bookstore => {
+        // @ts-ignore - county field exists in data but might not be fully added to type yet
+        if (bookstore.county && bookstore.county.trim() !== '') {
+          counties.add(bookstore.county);
+        }
+      });
+    
+    return Array.from(counties).sort();
+  }
+
+  async getCountiesByState(state: string): Promise<string[]> {
+    await this.ensureInitialized();
+    
+    // Extract unique county values for the given state
+    const counties = new Set<string>();
+    const normalizedState = state.trim();
+    
+    this.bookstores
+      .filter(bookstore => 
+        bookstore.live !== false && 
+        bookstore.state && 
+        bookstore.state.trim().toLowerCase() === normalizedState.toLowerCase()
+      )
+      .forEach(bookstore => {
+        // @ts-ignore - county field exists in data but might not be fully added to type yet
+        if (bookstore.county && bookstore.county.trim() !== '') {
+          counties.add(bookstore.county);
+        }
+      });
+    
+    return Array.from(counties).sort();
+  }
   
   // Not implemented for read-only integration
   async createBookstore(bookstore: InsertBookstore): Promise<Bookstore> {
@@ -406,6 +447,7 @@ export class GoogleSheetsStorage implements IStorage {
         city: 'Portland',
         state: 'OR',
         zip: '97204',
+        county: null,
         description: 'A cozy bookstore with a wide selection of fiction and non-fiction titles.',
         imageUrl: 'https://images.unsplash.com/photo-1521123845560-14093637aa7d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
         website: 'https://www.bookhaven.com',
@@ -423,6 +465,7 @@ export class GoogleSheetsStorage implements IStorage {
         city: 'Seattle',
         state: 'WA',
         zip: '98101',
+        county: null,
         description: 'A charming bookstore specializing in rare and first edition books.',
         imageUrl: 'https://images.unsplash.com/photo-1526243741027-444d633d7365?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
         website: 'https://www.readingroom.com',
@@ -440,6 +483,7 @@ export class GoogleSheetsStorage implements IStorage {
         city: 'San Francisco',
         state: 'CA',
         zip: '94110',
+        county: null,
         description: 'A vibrant bookstore with a coffee shop and regular author events.',
         imageUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
         website: 'https://www.pageturnerbooks.com',
@@ -457,6 +501,7 @@ export class GoogleSheetsStorage implements IStorage {
         city: 'Austin',
         state: 'TX',
         zip: '78701',
+        county: null,
         description: 'A community-focused bookstore with a large selection of local authors.',
         imageUrl: 'https://images.unsplash.com/photo-1533327325824-76bc4e62d560?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
         website: 'https://www.literarycorner.com',
@@ -474,6 +519,7 @@ export class GoogleSheetsStorage implements IStorage {
         city: 'Portland',
         state: 'OR',
         zip: '97205',
+        county: null,
         description: 'A book lover\'s paradise with comfortable reading nooks and a tea bar.',
         imageUrl: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
         website: 'https://www.bookwormparadise.com',

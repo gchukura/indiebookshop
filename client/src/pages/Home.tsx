@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import Hero from "@/components/Hero";
 import { Bookstore as Bookshop, Feature } from "@shared/schema";
 import BookshopIcon from "@/components/BookshopIcon";
-import MapboxMap from "@/components/MapboxMap";
+// import MapboxMap from "@/components/MapboxMap";
 import BookshopDetail from "@/components/BookshopDetail";
 import { SEO } from "../components/SEO";
 import { 
@@ -33,8 +33,8 @@ const Home = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   
   // State for the interactive map
-  const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  // const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
+  // const [isDetailOpen, setIsDetailOpen] = useState(false);
   
   // SEO metadata for the homepage
   const seoTitle = useMemo(() => {
@@ -71,10 +71,10 @@ const Home = () => {
   }, []);
   
   // Handle bookshop selection from the map
-  const handleSelectBookshop = (id: number) => {
-    setSelectedBookshopId(id);
-    setIsDetailOpen(true);
-  };
+  // const handleSelectBookshop = (id: number) => {
+  //   setSelectedBookshopId(id);
+  //   setIsDetailOpen(true);
+  // };
   
   // Function to get random bookshops
   const getRandomBookshops = useCallback((): Bookshop[] => {
@@ -137,27 +137,27 @@ const Home = () => {
       />
       
       {/* Bookshop Detail Modal */}
-      {selectedBookshopId && (
+      {/* {selectedBookshopId && (
         <BookshopDetail
           bookshopId={selectedBookshopId}
           isOpen={isDetailOpen}
           onClose={() => setIsDetailOpen(false)}
         />
-      )}
+      )} */}
       
       {/* Hero Section */}
       <Hero />
       
       {/* Interactive Map Section */}
-      <section className="py-16 bg-white">
+      {/* <section className="py-6 md:py-12 lg:py-16 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">Find Independent Bookshops Near You</h2>
-            <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-6">
+          <div className="text-center mb-6 md:mb-8">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">Find Independent Bookshops Near You</h2>
+            <p className="text-base md:text-lg text-gray-700 max-w-3xl mx-auto mb-4 md:mb-6 px-2">
               Use our interactive map to explore indie bookshops across America. Click on any pin to view details about the bookshop, including hours, special features, and contact information.
             </p>
           </div>
-          <div className="h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-8">
+          <div className="h-[300px] sm:h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-6 md:mb-8">
             {bookshops && (
               <MapboxMap 
                 bookstores={bookshops} 
@@ -166,23 +166,56 @@ const Home = () => {
             )}
           </div>
         </div>
+      </section> */}
+      
+      {/* SEO Content Section */}
+      <section className="py-8 md:py-12 lg:py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8 lg:p-10">
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+                Discover Independent Bookshops Across America
+              </h2>
+              <div className="prose prose-lg prose-p:text-gray-700 mx-auto">
+                <p>
+                  Welcome to IndiebookShop.com, your comprehensive guide to independent bookshops across the United States and beyond. 
+                  Our directory connects book lovers with local independent booksellers, helping you discover unique literary spaces in your neighborhood or while traveling.
+                </p>
+                <p>
+                  Independent bookshops are vital cultural hubs that foster community, support local economies, and celebrate the diversity of literature. 
+                  Each indie bookshop in our directory offers a unique experience that goes beyond the transactional nature of large chain stores or online retailers.
+                </p>
+                <p>
+                  Use our interactive map to find indie bookshops near you, browse by state to plan your next literary road trip, or explore by specialty to find bookstores 
+                  that match your interests. From children's bookshops to stores specializing in rare books, poetry, or particular genres, our directory helps you 
+                  find the perfect independent bookstore for your needs.
+                </p>
+                <p>
+                  Support local independent bookshops by visiting them in person, attending their events, and spreading the word about these vital community spaces. 
+                  When you shop at an indie bookshop, you're not just buying a book—you're investing in your local literary ecosystem and helping to preserve the 
+                  unique character of your community.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
       
       {/* Featured Bookshops Section */}
-      <section className="py-16 bg-white">
+      <section className="py-8 md:py-12 lg:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Featured section with border and heading that intersects with the border */}
-          <div className="mb-8">
-            {/* Full border box with top border and heading that intersects */}
-            <div className={`relative border-4 border-[#2A6B7C] rounded-lg p-8 pt-6 shadow-sm transition-all duration-300 ${isRefreshing ? 'bg-[rgba(42,107,124,0.05)]' : ''}`}>
+          <div className="bg-white rounded-lg p-6 md:p-8 lg:p-10">
+            {/* Featured section with border and heading that intersects with the border */}
+            <div className="mb-8">
+              {/* Full border box with top border and heading that intersects */}
+              <div className={`relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 lg:p-8 pt-8 md:pt-6 lg:pt-8 shadow-sm transition-all duration-300 ${isRefreshing ? 'bg-[rgba(42,107,124,0.05)]' : ''}`}>
               {/* Heading centered on the top border */}
-              <div className="absolute -top-5 left-0 w-full flex justify-center">
-                <h2 className="inline-block bg-white px-5 text-3xl font-serif font-bold text-[#5F4B32]">
+              <div className="absolute -top-4 md:-top-5 left-0 w-full flex justify-center px-2">
+                <h2 className="inline-block bg-white px-2 md:px-5 text-lg md:text-2xl lg:text-3xl font-serif font-bold text-[#5F4B32] text-center">
                   ⭐ Featured Independent Bookshops
                 </h2>
               </div>
-              <p className="text-center text-lg text-gray-700 mb-8">
+              <p className="text-center text-sm md:text-base lg:text-lg text-gray-700 mb-4 md:mb-6 lg:mb-8 mt-2 md:mt-0 px-2">
                 Discover our community's favorite independent bookstores. These curated indie bookshops offer unique experiences for book lovers.
               </p>
             
@@ -191,7 +224,7 @@ const Home = () => {
                   <p>Loading featured bookshops...</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                   {featuredBookshops.map((bookshop) => {
                     // Get feature names for this bookshop
                     const bookshopFeatures = features?.filter(feature => 
@@ -207,23 +240,23 @@ const Home = () => {
                             <img 
                               src={bookshop.imageUrl} 
                               alt={bookshop.name}
-                              className="w-full h-48 object-cover cursor-pointer" 
+                              className="w-full h-40 sm:h-48 object-cover cursor-pointer" 
                             />
                           ) : (
-                            <div className="w-full h-48 flex items-center justify-center">
-                              <BookshopIcon size={150} className="cursor-pointer" />
+                            <div className="w-full h-40 sm:h-48 flex items-center justify-center">
+                              <BookshopIcon size={120} className="cursor-pointer sm:w-[150px] sm:h-[150px]" />
                             </div>
                           )}
                         </Link>
-                        <div className="p-6">
+                        <div className="p-4 md:p-5 lg:p-6">
                           <Link href={`/bookshop/${bookshopSlug}`}>
-                            <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D]">{bookshop.name}</h3>
+                            <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D] leading-tight break-words">{bookshop.name}</h3>
                           </Link>
-                          <p className="text-sm text-gray-600 mb-4">{bookshop.city}, {bookshop.state}</p>
-                          <p className="text-gray-700 mb-4 line-clamp-3">{bookshop.description}</p>
-                          <div className="flex flex-wrap gap-2 mb-4">
+                          <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4">{bookshop.city || ''}{bookshop.city && bookshop.state ? ', ' : ''}{bookshop.state || ''}</p>
+                          <p className="text-sm md:text-base text-gray-700 mb-3 md:mb-4 line-clamp-3 leading-relaxed">{bookshop.description}</p>
+                          <div className="flex flex-wrap gap-1.5 md:gap-2">
                             {bookshopFeatures.map(feature => (
-                              <span key={feature.id} className="bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
+                              <span key={feature.id} className="bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-2 md:px-3 py-0.5 md:py-1 text-xs font-semibold">
                                 {feature.name}
                               </span>
                             ))}
@@ -235,19 +268,21 @@ const Home = () => {
                 </div>
               )}
             </div>
+            </div>
           </div>
         </div>
       </section>
       
       {/* Browse by State Section */}
-      <section className="py-16 bg-[#F7F3E8]">
+      <section className="py-8 md:py-12 lg:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">Browse by State</h2>
-          </div>
-          
-          {/* States List - simple 5 column layout without white background */}
-          <div className="p-2">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8 lg:p-10">
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-4">Browse by State</h2>
+            </div>
+            
+            {/* States List - simple 5 column layout without white background */}
+            <div>
             {/* Fetch states from API instead of hardcoded list */}
             {isLoading ? (
               <div className="text-center py-6">
@@ -320,10 +355,10 @@ const Home = () => {
                     <>
                       {/* United States section */}
                       <div>
-                        <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
+                        <h3 className="text-lg md:text-xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">
                           United States
                         </h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                           {usStates.map(state => (
                             <Link key={state.abbreviation} href={`/directory/state/${state.abbreviation}`}>
                               <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
@@ -337,10 +372,10 @@ const Home = () => {
                       {/* Only show Other Regions section if there are any */}
                       {otherRegions.length > 0 && (
                         <div>
-                          <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
+                          <h3 className="text-lg md:text-xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">
                             Other Regions
                           </h3>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {otherRegions.map(region => (
                               <Link key={region.abbreviation} href={`/directory/state/${region.abbreviation}`}>
                                 <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
@@ -356,16 +391,18 @@ const Home = () => {
                 })()}
               </div>
             )}
+            </div>
           </div>
         </div>
       </section>
       
       {/* Why Independent Bookshops Section */}
-      <section className="py-16 bg-white">
+      <section className="py-8 md:py-12 lg:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:flex lg:items-center lg:space-x-12">
+          <div className="bg-white rounded-lg p-6 md:p-8 lg:p-10">
+            <div className="lg:flex lg:items-center lg:space-x-12">
             <div className="lg:w-1/2 mb-8 lg:mb-0">
-              <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">Why Support Independent Bookshops?</h2>
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-4">Why Support Independent Bookshops?</h2>
               <p className="text-gray-700 mb-6">
                 Independent bookshops are vital cultural hubs that foster community connections, support local economies, and celebrate the diversity of literature. Each shop has its own unique character, curated selection, and knowledgeable staff that big-box retailers can't match.
               </p>
@@ -402,36 +439,6 @@ const Home = () => {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-      
-      {/* SEO Content Section */}
-      <section className="py-16 bg-[#F7F3E8]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
-              Discover Independent Bookshops Across America
-            </h2>
-            <div className="prose prose-lg prose-p:text-gray-700 mx-auto">
-              <p>
-                Welcome to IndiebookShop.com, your comprehensive guide to independent bookshops across the United States and beyond. 
-                Our directory connects book lovers with local independent booksellers, helping you discover unique literary spaces in your neighborhood or while traveling.
-              </p>
-              <p>
-                Independent bookshops are vital cultural hubs that foster community, support local economies, and celebrate the diversity of literature. 
-                Each indie bookshop in our directory offers a unique experience that goes beyond the transactional nature of large chain stores or online retailers.
-              </p>
-              <p>
-                Use our interactive map to find indie bookshops near you, browse by state to plan your next literary road trip, or explore by specialty to find bookstores 
-                that match your interests. From children's bookshops to stores specializing in rare books, poetry, or particular genres, our directory helps you 
-                find the perfect independent bookstore for your needs.
-              </p>
-              <p>
-                Support local independent bookshops by visiting them in person, attending their events, and spreading the word about these vital community spaces. 
-                When you shop at an indie bookshop, you're not just buying a book—you're investing in your local literary ecosystem and helping to preserve the 
-                unique character of your community.
-              </p>
-            </div>
           </div>
         </div>
       </section>

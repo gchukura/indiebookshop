@@ -40,8 +40,6 @@ const MapboxMap = ({ bookstores, onSelectBookshop }: MapboxMapProps) => {
         const config = await configResponse.json();
         const accessToken = config.mapboxAccessToken;
         
-        console.log("Access token received from API:", !!accessToken);
-        
         if (!accessToken) {
           // Silently handle missing token - map just won't render
           return;
@@ -60,7 +58,6 @@ const MapboxMap = ({ bookstores, onSelectBookshop }: MapboxMapProps) => {
 
         map.on('load', () => {
           setMapLoaded(true);
-          console.log("Mapbox map loaded successfully");
         });
 
         // Add navigation controls

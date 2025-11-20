@@ -191,6 +191,9 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       console.log(`Looking up bookstores in county: ${county}`);
       
       // Get the bookstores by county using our enhanced matching logic
+      if (!storageImpl.getBookstoresByCounty) {
+        return res.status(501).json({ error: 'County filtering not implemented' });
+      }
       const bookstores = await storageImpl.getBookstoresByCounty(county);
       console.log(`Found ${bookstores.length} bookstores in county: ${county}`);
       
@@ -222,6 +225,9 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       console.log(`Looking up bookstores in county: ${county}, state: ${state}`);
       
       // Get bookstores that match both county and state
+      if (!storageImpl.getBookstoresByCountyState) {
+        return res.status(501).json({ error: 'County-state filtering not implemented' });
+      }
       const bookstores = await storageImpl.getBookstoresByCountyState(county, state);
       
       res.json(bookstores);
@@ -234,6 +240,20 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   // Get all counties
   app.get("/api/counties", async (req, res) => {
     try {
+      if (!storageImpl.getAllCounties) {
+        // If method doesn't exist, extract counties from bookstores
+        const bookstores = await storageImpl.getBookstores();
+        const counties = new Set<string>();
+        bookstores
+          .filter(bookstore => bookstore.live !== false)
+          .forEach(bookstore => {
+            // @ts-ignore - county field exists in data but might not be fully added to type yet
+            if (bookstore.county && bookstore.county.trim() !== '') {
+              counties.add(bookstore.county);
+            }
+          });
+        return res.json(Array.from(counties).sort());
+      }
       const counties = await storageImpl.getAllCounties();
       res.json(counties);
     } catch (error) {
@@ -246,6 +266,20 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   app.get("/api/states/:state/counties", async (req, res) => {
     try {
       const state = req.params.state;
+      if (!storageImpl.getCountiesByState) {
+        // If method doesn't exist, extract counties from bookstores for this state
+        const bookstores = await storageImpl.getBookstoresByState(state);
+        const counties = new Set<string>();
+        bookstores
+          .filter(bookstore => bookstore.live !== false)
+          .forEach(bookstore => {
+            // @ts-ignore - county field exists in data but might not be fully added to type yet
+            if (bookstore.county && bookstore.county.trim() !== '') {
+              counties.add(bookstore.county);
+            }
+          });
+        return res.json(Array.from(counties).sort());
+      }
       const counties = await storageImpl.getCountiesByState(state);
       res.json(counties);
     } catch (error) {

@@ -46,11 +46,11 @@ const Contact = () => {
         canonicalUrl={canonicalUrl}
       />
       
-      <div className="max-w-3xl mx-auto text-center mb-12">
-        <h1 className="text-4xl font-serif font-bold text-[#5F4B32] mb-4">
+      <div className="max-w-3xl mx-auto mb-12">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-[#5F4B32] mb-4">
           Contact Our Independent Bookshop Directory
         </h1>
-        <p className="text-xl text-gray-600">
+        <p className="text-lg md:text-xl text-gray-600">
           We'd love to hear from independent bookshop enthusiasts and booksellers
         </p>
       </div>
