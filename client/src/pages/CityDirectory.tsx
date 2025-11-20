@@ -34,7 +34,9 @@ const CityDirectory = () => {
   if (params.state && params.city) {
     stateParam = params.state;
     cityParam = params.city;
-    console.log(`URL format: /directory/city/${stateParam}/${cityParam}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`URL format: /directory/city/${stateParam}/${cityParam}`);
+    }
   }
   // Handle city-state combined format: /directory/city-state/:citystate
   else if (params.citystate) {
@@ -44,13 +46,17 @@ const CityDirectory = () => {
       stateParam = parts[parts.length - 1];
       // Rest is city
       cityParam = parts.slice(0, parts.length - 1).join('-');
-      console.log(`URL format: /directory/city-state/${params.citystate}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`URL format: /directory/city-state/${params.citystate}`);
+      }
     }
   }
   // Handle city-only format: /directory/city/:city
   else if (params.city) {
     cityParam = params.city;
-    console.log(`URL format: /directory/city/${cityParam}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`URL format: /directory/city/${cityParam}`);
+    }
   }
   
   // Convert slug to display name (Boston-ma → Boston)
@@ -90,7 +96,9 @@ const CityDirectory = () => {
         // Fetch access token for Mapbox API
         const configResponse = await fetch('/api/config');
         const config = await configResponse.json();
-        console.log('Access token received from API:', !!config.mapboxAccessToken);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Access token received from API:', !!config.mapboxAccessToken);
+        }
         
         // Build the endpoint based on whether we have a state or just a city
         let endpoint = '';
@@ -101,7 +109,9 @@ const CityDirectory = () => {
           endpoint = `/api/bookstores/filter?city=${encodeURIComponent(cityName)}`;
         }
         
-        console.log(`Loading data for city: ${cityName}`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Loading data for city: ${cityName}`);
+        }
         
         // Fetch bookshops
         const response = await fetch(endpoint);
@@ -111,7 +121,9 @@ const CityDirectory = () => {
         }
         
         const data = await response.json();
-        console.log(`Found ${data.length} bookshops for city: ${cityName}`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Found ${data.length} bookshops for city: ${cityName}`);
+        }
         setBookshops(data);
         
         // If we don't have a state from the URL but have bookshops with state info,
@@ -119,7 +131,9 @@ const CityDirectory = () => {
         if (data.length > 0 && data[0].state) {
           const bookshopState = data[0].state;
           const fullStateName = getFullStateName(bookshopState);
-          console.log(`Derived state name from bookshop data: ${bookshopState} → ${fullStateName}`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Derived state name from bookshop data: ${bookshopState} → ${fullStateName}`);
+          }
           setStateName(fullStateName);
         }
       } catch (error) {
@@ -245,20 +259,20 @@ const CityDirectory = () => {
 
       {/* Interactive Map Section - Styled like directory */}
       {(
-        <section className="py-12 bg-white">
+        <section className="py-8 md:py-12 lg:py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+            <div className="text-center mb-6 md:mb-8">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">
                 Find Independent Bookshops in {cityName}
                 {stateName ? `, ${stateName}` : ''}
               </h2>
-              <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-6">
+              <p className="text-base md:text-lg text-gray-700 max-w-3xl mx-auto mb-4 md:mb-6 px-2">
                 Use our interactive map to explore indie bookshops in {cityName}
                 {stateName ? ` in ${stateName}` : ''}.
                 Click on any pin to view details about the bookshop.
               </p>
             </div>
-            <div className="h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-8">
+            <div className="h-[300px] sm:h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-6 md:mb-8">
               <MapboxMap 
                 bookstores={bookshops} 
                 onSelectBookshop={handleShowDetails}

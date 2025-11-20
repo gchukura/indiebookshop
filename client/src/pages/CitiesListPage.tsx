@@ -142,7 +142,7 @@ const CitiesListPage = () => {
       />
       
       <div className="mb-8">
-        <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+        <h1 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-4">
           Search for Independent Bookshops by City
         </h1>
         
@@ -175,7 +175,7 @@ const CitiesListPage = () => {
                 Discover local independent bookshops in the following cities. Each city listing shows the number of indie bookstores available in our directory.
               </p>
               
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {filteredCities
                   .filter(city => getBookshopCount(city.name) > 0)
                   .map((city, index) => (

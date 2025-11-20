@@ -33,7 +33,7 @@ const SubmitBookstore: FC = () => {
   }, []);
 
   return (
-    <div className="container py-8 md:py-12">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* SEO Component */}
       <SEO 
         title={seoTitle}
@@ -42,16 +42,16 @@ const SubmitBookstore: FC = () => {
         canonicalUrl={canonicalUrl}
       />
       
-      <div className="max-w-3xl mx-auto mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-4 text-center text-[#5F4B32] font-serif">
+      <div className="max-w-3xl mx-auto mb-12">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-[#5F4B32] mb-4">
           Submit an Independent Bookshop
         </h1>
         
-        <p className="text-center text-gray-600 mb-4">
+        <p className="text-lg md:text-xl text-gray-600 mb-4">
           Help us grow our comprehensive directory of independent bookshops across America. Submit a new indie bookshop or suggest updates to an existing one.
         </p>
         
-        <p className="text-center text-gray-600 mb-8">
+        <p className="text-lg md:text-xl text-gray-600 mb-8">
           Our mission is to connect readers with local independent bookshops. Your submission helps support the vibrant community of indie bookshops nationwide.
         </p>
         

@@ -115,7 +115,7 @@ const BookshopDetailPage = () => {
 
   if (isLoadingBookshop) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
+      <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16">
         <p>Loading bookshop details...</p>
       </div>
     );
@@ -123,7 +123,7 @@ const BookshopDetailPage = () => {
 
   if (isErrorBookshop || !bookshop) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
+      <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16">
         <p>Error loading bookshop. The bookshop may not exist or there was a problem with the connection.</p>
         <Button 
           className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white"
@@ -160,7 +160,7 @@ const BookshopDetailPage = () => {
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="font-serif text-h1 md:text-display font-bold text-white">{bookshop.name} | Independent Bookshop in {bookshop.city}</h1>
+            <h1 className="font-serif text-2xl md:text-3xl lg:text-h1 xl:text-display font-bold text-white">{bookshop.name} | Independent Bookshop in {bookshop.city}</h1>
             <p className="font-sans text-body-sm md:text-body text-gray-100">{bookshop.city}, {bookshop.state} • Indie Bookshop</p>
           </div>
         </div>
@@ -194,7 +194,7 @@ const BookshopDetailPage = () => {
               
               <div className="mt-8">
                 <h3 className="font-serif font-bold text-xl mb-4">Photo Gallery</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {/* Use locally hosted SVG images that we created */}
                   <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100">
                     <img 

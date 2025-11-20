@@ -118,7 +118,7 @@ export class DataRefreshManager {
   /**
    * Perform the actual data refresh
    */
-  private async performRefresh(): void {
+  private async performRefresh(): Promise<void> {
     try {
       console.log('Starting automatic data refresh...');
       
@@ -130,7 +130,9 @@ export class DataRefreshManager {
       }
       
       // Perform the actual refresh
-      await this.storage.refreshData();
+      if ('refreshData' in this.storage && typeof this.storage.refreshData === 'function') {
+        await (this.storage as any).refreshData();
+      }
       
       // Update state after successful refresh
       this.lastRefreshTime = Date.now();
@@ -173,7 +175,9 @@ export class DataRefreshManager {
       
       // Perform the refresh
       console.log('Starting manual data refresh...');
-      await this.storage.refreshData();
+      if ('refreshData' in this.storage && typeof this.storage.refreshData === 'function') {
+        await (this.storage as any).refreshData();
+      }
       
       // Update state
       this.lastRefreshTime = Date.now();

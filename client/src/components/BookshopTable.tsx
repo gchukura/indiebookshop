@@ -40,7 +40,57 @@ const BookshopTable = ({
 
   return (
     <div className="w-full">
-      <div className="rounded-md border">
+      {/* Mobile Card View */}
+      <div className="block md:hidden space-y-3">
+        {bookshops.map((bookshop) => (
+          <div
+            key={bookshop.id}
+            role="button"
+            tabIndex={0}
+            aria-label={`View details for ${bookshop.name || 'bookshop'}`}
+            className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] focus:ring-offset-2"
+            onClick={() => showDetails(bookshop.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                showDetails(bookshop.id);
+              }
+            }}
+          >
+            <h3 className="font-semibold text-base text-[#5F4B32] mb-2">{bookshop.name || 'Unnamed Bookshop'}</h3>
+            <div className="space-y-1.5 mb-3">
+              <div className="flex items-center text-sm text-gray-600">
+                <span className="font-medium mr-1">Location:</span>
+                <span>
+                  {bookshop.city || ''}
+                  {bookshop.city && bookshop.state ? ', ' : ''}
+                  {bookshop.state || ''}
+                </span>
+              </div>
+              {(bookshop.street || bookshop.city || bookshop.state) && (
+                <div className="text-xs text-gray-500">
+                  {[bookshop.street, bookshop.city, bookshop.state, bookshop.zip].filter(Boolean).join(', ')}
+                </div>
+              )}
+            </div>
+            {getBookshopFeatures(bookshop).length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-gray-100">
+                {getBookshopFeatures(bookshop).slice(0, 3).map(feature => (
+                  <span key={feature.id} className="bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-2.5 py-1 text-xs font-medium">
+                    {feature.name}
+                  </span>
+                ))}
+                {getBookshopFeatures(bookshop).length > 3 && (
+                  <span className="text-gray-500 text-xs self-center">+{getBookshopFeatures(bookshop).length - 3} more</span>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden md:block rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -54,12 +104,21 @@ const BookshopTable = ({
             {bookshops.map((bookshop) => (
               <TableRow 
                 key={bookshop.id} 
-                className="hover:bg-gray-50 cursor-pointer" 
+                role="button"
+                tabIndex={0}
+                aria-label={`View details for ${bookshop.name || 'bookshop'}`}
+                className="hover:bg-gray-50 cursor-pointer focus:outline-none focus:bg-gray-50" 
                 onClick={() => showDetails(bookshop.id)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    showDetails(bookshop.id);
+                  }
+                }}
               >
-                <TableCell className="font-medium">{bookshop.name}</TableCell>
-                <TableCell>{bookshop.city}</TableCell>
-                <TableCell>{bookshop.state}</TableCell>
+                <TableCell className="font-medium">{bookshop.name || 'Unnamed Bookshop'}</TableCell>
+                <TableCell>{bookshop.city || '-'}</TableCell>
+                <TableCell>{bookshop.state || '-'}</TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">
                     {getBookshopFeatures(bookshop).slice(0, 3).map(feature => (
@@ -80,16 +139,17 @@ const BookshopTable = ({
 
       {/* Pagination controls */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center space-x-2 my-6">
+        <div className="flex items-center justify-center space-x-2 md:space-x-3 my-4 md:my-6">
           <Button
             variant="outline"
             size="sm"
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
+            className="min-h-[44px] md:min-h-0 px-4 md:px-3"
           >
             Previous
           </Button>
-          <div className="text-sm">
+          <div className="text-sm md:text-base font-medium">
             Page {currentPage} of {totalPages}
           </div>
           <Button
@@ -97,6 +157,7 @@ const BookshopTable = ({
             size="sm"
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
+            className="min-h-[44px] md:min-h-0 px-4 md:px-3"
           >
             Next
           </Button>

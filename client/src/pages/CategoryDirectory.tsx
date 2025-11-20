@@ -97,7 +97,7 @@ const CategoryDirectory = () => {
       />
       
       <div className="mb-8">
-        <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+        <h1 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-4">
           {featureName} Bookshops | Independent Bookshops with {featureName}
         </h1>
         <p className="text-gray-600 mb-6">
@@ -207,7 +207,9 @@ const CategoryDirectory = () => {
       )}
       
       {/* SEO Content Section */}
-      <section className="mt-12 bg-[#F7F3E8] rounded-lg p-6">
+      <section className="py-8 md:py-12 lg:py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8 lg:p-10">
         <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
           About {featureName} Bookshops
         </h2>
@@ -224,6 +226,8 @@ const CategoryDirectory = () => {
           <p>
             Start exploring our comprehensive list of bookshops with {featureName.toLowerCase()} today to find your next favorite indie bookstore!
           </p>
+        </div>
+          </div>
         </div>
       </section>
     </div>

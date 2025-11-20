@@ -37,7 +37,7 @@ export default function NotFound() {
             <div className="flex justify-center mb-4">
               <BookOpen className="h-14 w-14 text-[#2A6B7C]" />
             </div>
-            <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-2">
+            <h1 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-2">
               Page Not Found
             </h1>
             <p className="text-gray-600 mb-6">

@@ -52,17 +52,17 @@ const AboutPage = () => {
       />
       
       <section className="mb-16">
-        <div className="max-w-3xl mx-auto text-center mb-12">
-          <h1 className="text-4xl font-serif font-bold text-[#5F4B32] mb-4">
+        <div className="max-w-3xl mx-auto mb-12">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-[#5F4B32] mb-4">
             About IndieBookShop.com | Supporting Independent Bookshops
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-lg md:text-xl text-gray-600">
             Connecting readers with independent bookstores since 2023
           </p>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-12">
-          <div className="grid md:grid-cols-2 gap-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             <div className="p-8 md:p-12 flex items-center">
               <div>
                 <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
@@ -130,8 +130,8 @@ const AboutPage = () => {
       </section>
 
       <section className="mb-16">
-        <div className="max-w-3xl mx-auto text-center mb-8">
-          <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+        <div className="max-w-3xl mx-auto mb-8">
+          <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-4">
             Our Story: Building a Community of Independent Bookshop Advocates
           </h2>
           <p className="text-gray-600">
@@ -161,8 +161,8 @@ const AboutPage = () => {
       </section>
 
       <section className="mb-16">
-        <div className="bg-[#F7F3E8] rounded-lg p-8 md:p-12 text-center">
-          <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-6">
+        <div className="bg-[#F7F3E8] rounded-lg p-8 md:p-12">
+          <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6">
             Join Our Mission
           </h2>
           <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">

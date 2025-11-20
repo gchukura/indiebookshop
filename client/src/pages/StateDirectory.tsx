@@ -50,7 +50,9 @@ const StateDirectory = () => {
         // Fetch access token for Mapbox API
         const configResponse = await fetch('/api/config');
         const config = await configResponse.json();
-        console.log('Access token received from API:', !!config.mapboxAccessToken);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Access token received from API:', !!config.mapboxAccessToken);
+        }
         
         // Fetch bookshops for this state
         const response = await fetch(`/api/bookstores/filter?state=${state}`);
@@ -60,7 +62,9 @@ const StateDirectory = () => {
         }
         
         const data = await response.json();
-        console.log(`Found ${data.length} bookshops for state: ${state}`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Found ${data.length} bookshops for state: ${state}`);
+        }
         setBookshops(data);
         
         // Get cities in this state for the directory
@@ -68,7 +72,9 @@ const StateDirectory = () => {
         
         if (citiesResponse.ok) {
           const citiesData = await citiesResponse.json();
-          console.log(`Found ${citiesData.length} cities in ${state}`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Found ${citiesData.length} cities in ${state}`);
+          }
           setCities(citiesData);
         }
       } catch (error) {
@@ -80,7 +86,9 @@ const StateDirectory = () => {
     };
     
     if (state) {
-      console.log(`Loading data for state: ${state}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Loading data for state: ${state}`);
+      }
       fetchBookshops();
     }
   }, [state]);
@@ -182,18 +190,18 @@ const StateDirectory = () => {
       
       {/* Interactive Map Section - Styled like directory */}
       {(
-        <section className="py-12 bg-white">
+        <section className="py-8 md:py-12 lg:py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+            <div className="text-center mb-6 md:mb-8">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">
                 Find Independent Bookshops in {fullStateName}
               </h2>
-              <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-6">
+              <p className="text-base md:text-lg text-gray-700 max-w-3xl mx-auto mb-4 md:mb-6 px-2">
                 Use our interactive map to explore indie bookshops in {fullStateName}. 
                 Click on any pin to view details about the bookshop.
               </p>
             </div>
-            <div className="h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-8">
+            <div className="h-[300px] sm:h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-lg border border-[#E3E9ED] mb-6 md:mb-8">
               <MapboxMap 
                 bookstores={bookshops} 
                 onSelectBookshop={handleShowDetails}

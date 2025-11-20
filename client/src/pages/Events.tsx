@@ -142,11 +142,11 @@ const Events = () => {
         canonicalUrl={canonicalUrl}
       />
       
-      <div className="mb-8">
-        <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+      <div className="max-w-3xl mx-auto mb-12">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-[#5F4B32] mb-4">
           Independent Bookshop Events Calendar
         </h1>
-        <p className="text-gray-600 mb-6">
+        <p className="text-lg md:text-xl text-gray-600 mb-6">
           Discover author readings, book signings, literary festivals, book clubs, children's story times, and 
           other special events at independent bookshops across America. Our comprehensive events calendar 
           helps you connect with your local literary community.
@@ -158,7 +158,7 @@ const Events = () => {
           <p>Loading events calendar...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-3">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
@@ -170,7 +170,7 @@ const Events = () => {
                   >
                     <ChevronLeft className="h-6 w-6" />
                   </Button>
-                  <h2 className="text-3xl font-serif text-[#5F4B32] font-bold">
+                  <h2 className="text-2xl md:text-3xl font-serif text-[#5F4B32] font-bold">
                     {format(currentDate, 'MMMM yyyy')}
                   </h2>
                   <Button 

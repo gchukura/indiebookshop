@@ -56,7 +56,9 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
         // Set up map event handlers
         mapInstance.on('load', () => {
           setMapLoaded(true);
-          console.log('Detail map loaded successfully');
+          if (process.env.NODE_ENV === 'development') {
+            console.log('Detail map loaded successfully');
+          }
         });
         
         // Add navigation controls

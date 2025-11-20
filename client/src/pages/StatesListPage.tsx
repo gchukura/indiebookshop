@@ -148,7 +148,7 @@ const StatesListPage = () => {
       />
       
       <div className="mb-8">
-        <h1 className="text-3xl font-serif font-bold text-[#5F4B32] mb-4">
+        <h1 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-4">
           {pageTitle}
         </h1>
         <p className="text-gray-600 mb-6">
@@ -176,7 +176,7 @@ const StatesListPage = () => {
                 <p className="text-gray-600 text-sm mb-4">
                   Find independent bookshops in the {region} region. Browse our bookstore directory by state.
                 </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                   {groupedStates[region].sort().map(state => (
                     <Link 
                       key={state} 
@@ -200,7 +200,9 @@ const StatesListPage = () => {
       )}
 
       {/* SEO-friendly content section */}
-      <section className="mt-12 bg-[#F7F3E8] rounded-lg p-6">
+      <section className="py-8 md:py-12 lg:py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8 lg:p-10">
         <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
           Why Browse Bookshops by State?
         </h2>
@@ -214,6 +216,8 @@ const StatesListPage = () => {
           <p>
             Independent bookstores do more than sell books—they host author events, support local writers, create community spaces, and preserve the unique literary culture of their regions. Start exploring our state directory today to find your next favorite indie bookshop!
           </p>
+        </div>
+          </div>
         </div>
       </section>
     </div>
