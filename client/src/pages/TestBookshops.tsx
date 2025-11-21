@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Bookstore } from "@shared/schema";
+import { logger } from "@/lib/logger";
 
 const TestBookshops = () => {
   const [state, setState] = useState("NH");
@@ -19,11 +20,11 @@ const TestBookshops = () => {
       
       const data = await response.json();
       if (process.env.NODE_ENV === 'development') {
-        console.log(`Found ${data.length} bookshops for ${state}`);
+        logger.debug(`Found ${data.length} bookshops for ${state}`, { state, count: data.length });
       }
       setBookshops(data);
     } catch (err) {
-      console.error("Error fetching bookshops:", err);
+      logger.error("Error fetching bookshops in TestBookshops", err, { state });
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);

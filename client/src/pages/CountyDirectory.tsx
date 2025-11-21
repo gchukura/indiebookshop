@@ -17,6 +17,7 @@ import {
 } from "../lib/seo";
 import { getFullStateName } from "../lib/stateUtils";
 import { PAGINATION } from "@/lib/constants";
+import { logger } from "@/lib/logger";
 
 const CountyDirectory = () => {
   // Get parameters from URL
@@ -40,9 +41,7 @@ const CountyDirectory = () => {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
       
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`Parsed county URL: county=${county}, state=${stateFromUrl}`);
-      }
+      logger.debug('CountyDirectory URL format detected', { format: 'state/county', county, state: stateFromUrl });
     }
   }
   // Legacy URL format: /directory/county-state/:countystate
@@ -60,9 +59,7 @@ const CountyDirectory = () => {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
       
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`Parsed legacy county-state URL: county=${county}, state=${stateFromUrl}`);
-      }
+      logger.debug('CountyDirectory legacy URL format detected', { format: 'county-state', county, state: stateFromUrl });
     } else {
       county = params.countystate.replace(/-/g, ' ')
         .split(' ')
@@ -94,15 +91,13 @@ const CountyDirectory = () => {
         if (stateFromUrl) {
           // If we have a state, use filter endpoint with county and state
           endpoint = `/api/bookstores/filter?county=${encodeURIComponent(county!)}&state=${encodeURIComponent(stateFromUrl)}`;
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`Loading data for county: ${county}, state: ${stateFromUrl}`);
-          }
+          logger.info('Loading bookshops for county', { county, state: stateFromUrl });
         } else {
           // For county-only view, we'll do direct filtering in the frontend
           // Fetch all bookstores and filter them client-side for better matching
           endpoint = `/api/bookstores`;
           if (process.env.NODE_ENV === 'development') {
-            console.log(`Loading all bookstores to filter for county: ${county}`);
+            logger.info('Loading all bookstores to filter for county', { county });
           }
         }
         
@@ -110,7 +105,7 @@ const CountyDirectory = () => {
         const configResponse = await fetch('/api/config');
         const config = await configResponse.json();
         if (process.env.NODE_ENV === 'development') {
-          console.log('Access token received from API:', !!config.mapboxAccessToken);
+          logger.debug('Mapbox access token received', { hasToken: !!config.mapboxAccessToken });
         }
         
         // Fetch bookshops for this county
@@ -122,13 +117,13 @@ const CountyDirectory = () => {
         
         const allBookshops = await response.json();
         if (process.env.NODE_ENV === 'development') {
-          console.log(`Retrieved ${allBookshops.length} total bookshops`);
+          logger.debug('Retrieved all bookshops for filtering', { count: allBookshops.length });
         }
 
         // Apply client-side filtering based on county
         const countyLower = county!.toLowerCase().replace(/\s+county$/i, '').replace(/-/g, ' ');
         if (process.env.NODE_ENV === 'development') {
-          console.log(`Filtering bookshops by county: "${countyLower}"`);
+          logger.debug('Filtering bookshops by county', { county: countyLower });
         }
         
         // Filter bookshops by county with flexible matching
@@ -154,12 +149,12 @@ const CountyDirectory = () => {
             (bookshop: Bookstore) => bookshop.state.toLowerCase() === stateLower
           );
           if (process.env.NODE_ENV === 'development') {
-            console.log(`Found ${filteredBookshops.length} bookshops in ${county} County, ${stateFromUrl}`);
+            logger.debug('Bookshops filtered by county and state', { county, state: stateFromUrl, count: filteredBookshops.length });
           }
           setMultipleStatesWarning(false); // No warning needed for state-specific pages
         } else {
           if (process.env.NODE_ENV === 'development') {
-            console.log(`Found ${filteredBookshops.length} bookshops in ${county} County`);
+            logger.debug('Bookshops filtered by county', { county, count: filteredBookshops.length });
           }
           
           // Check for multiple states with this county name
@@ -169,7 +164,7 @@ const CountyDirectory = () => {
           
           if (statesWithThisCounty.length > 1) {
             if (process.env.NODE_ENV === 'development') {
-              console.log(`Multiple states (${statesWithThisCounty.join(', ')}) have a "${county}" county`);
+              logger.warn('Multiple states have same county name', { county, states: statesWithThisCounty });
             }
             setMultipleStatesWarning(true);
             setMatchingStates(statesWithThisCounty);

@@ -10,6 +10,7 @@ import { ErrorDisplay } from "@/components/ErrorDisplay";
 import { Button } from "@/components/ui/button";
 import { getFullStateName, normalizeStateToAbbreviation } from "@/lib/stateUtils";
 import { PAGINATION } from "@/lib/constants";
+import { logger } from "@/lib/logger";
 import { SEO } from "../components/SEO";
 import { 
   BASE_URL, 
@@ -53,9 +54,7 @@ const StateDirectory = () => {
         // Fetch access token for Mapbox API
         const configResponse = await fetch('/api/config');
         const config = await configResponse.json();
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Access token received from API:', !!config.mapboxAccessToken);
-        }
+        logger.debug('Mapbox access token received', { hasToken: !!config.mapboxAccessToken });
         
         // Fetch bookshops for this state
         const response = await fetch(`/api/bookstores/filter?state=${state}`);
@@ -65,9 +64,7 @@ const StateDirectory = () => {
         }
         
         const data = await response.json();
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`Found ${data.length} bookshops for state: ${state}`);
-        }
+        logger.debug('Bookshops loaded for state', { state, count: data.length });
         setBookshops(data);
         
         // Get cities in this state for the directory
@@ -75,13 +72,16 @@ const StateDirectory = () => {
         
         if (citiesResponse.ok) {
           const citiesData = await citiesResponse.json();
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`Found ${citiesData.length} cities in ${state}`);
-          }
+          logger.debug('Cities loaded for state', { state, count: citiesData.length });
           setCities(citiesData);
         }
       } catch (error) {
-        console.error('Error fetching bookshops:', error);
+        const errorObj = error instanceof Error ? error : new Error(String(error));
+        logger.error('Error fetching bookshops in StateDirectory', errorObj, {
+          state,
+          page: 'StateDirectory'
+        });
+        setError(errorObj);
         setIsError(true);
       } finally {
         setIsLoading(false);
@@ -89,9 +89,7 @@ const StateDirectory = () => {
     };
     
     if (state) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`Loading data for state: ${state}`);
-      }
+        logger.info('Loading bookshops for state', { state });
       fetchBookshops();
     }
   }, [state]);

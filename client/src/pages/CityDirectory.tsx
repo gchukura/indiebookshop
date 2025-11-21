@@ -17,6 +17,7 @@ import {
 import { generateSlugFromName } from "../lib/linkUtils";
 import { getFullStateName } from "../lib/stateUtils";
 import { PAGINATION } from "@/lib/constants";
+import { logger } from "@/lib/logger";
 
 const CityDirectory = () => {
   // Get parameters from URL
@@ -36,9 +37,7 @@ const CityDirectory = () => {
   if (params.state && params.city) {
     stateParam = params.state;
     cityParam = params.city;
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`URL format: /directory/city/${stateParam}/${cityParam}`);
-    }
+    logger.debug('CityDirectory URL format detected', { format: 'state/city', state: stateParam, city: cityParam });
   }
   // Handle city-state combined format: /directory/city-state/:citystate
   else if (params.citystate) {
@@ -48,17 +47,13 @@ const CityDirectory = () => {
       stateParam = parts[parts.length - 1];
       // Rest is city
       cityParam = parts.slice(0, parts.length - 1).join('-');
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`URL format: /directory/city-state/${params.citystate}`);
-      }
+      logger.debug('CityDirectory URL format detected', { format: 'city-state', citystate: params.citystate, parsedState: stateParam, parsedCity: cityParam });
     }
   }
   // Handle city-only format: /directory/city/:city
   else if (params.city) {
     cityParam = params.city;
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`URL format: /directory/city/${cityParam}`);
-    }
+      logger.debug('CityDirectory URL format detected', { format: 'city-only', city: cityParam });
   }
   
   // Convert slug to display name (Boston-ma → Boston)
@@ -99,9 +94,7 @@ const CityDirectory = () => {
         // Fetch access token for Mapbox API
         const configResponse = await fetch('/api/config');
         const config = await configResponse.json();
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Access token received from API:', !!config.mapboxAccessToken);
-        }
+        logger.debug('Mapbox access token received', { hasToken: !!config.mapboxAccessToken });
         
         // Build the endpoint based on whether we have a state or just a city
         let endpoint = '';
@@ -113,7 +106,7 @@ const CityDirectory = () => {
         }
         
         if (process.env.NODE_ENV === 'development') {
-          console.log(`Loading data for city: ${cityName}`);
+          logger.info('Loading bookshops for city', { city: cityName, state: stateFromUrl });
         }
         
         // Fetch bookshops
@@ -125,7 +118,7 @@ const CityDirectory = () => {
         
         const data = await response.json();
         if (process.env.NODE_ENV === 'development') {
-          console.log(`Found ${data.length} bookshops for city: ${cityName}`);
+          logger.debug('Bookshops loaded for city', { city: cityName, count: data.length });
         }
         setBookshops(data);
         
@@ -134,13 +127,17 @@ const CityDirectory = () => {
         if (data.length > 0 && data[0].state) {
           const bookshopState = data[0].state;
           const fullStateName = getFullStateName(bookshopState);
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`Derived state name from bookshop data: ${bookshopState} → ${fullStateName}`);
-          }
+          logger.debug('Derived state name from bookshop data', { abbreviation: bookshopState, fullName: fullStateName });
           setStateName(fullStateName);
         }
       } catch (error) {
-        console.error('Error fetching bookshops:', error);
+        const errorObj = error instanceof Error ? error : new Error(String(error));
+        logger.error('Error fetching bookshops in CityDirectory', errorObj, {
+          city: cityFromUrl,
+          state: stateFromUrl,
+          page: 'CityDirectory'
+        });
+        setError(errorObj);
         setIsError(true);
       } finally {
         setIsLoading(false);

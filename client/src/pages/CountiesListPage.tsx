@@ -7,6 +7,7 @@ import { SEO } from "../components/SEO";
 import { BASE_URL } from "../lib/seo";
 import { getFullStateName } from "../lib/stateUtils";
 import { Bookstore } from "@shared/schema";
+import { logger } from "@/lib/logger";
 
 interface CountyByState {
   state: string;
@@ -59,7 +60,10 @@ const CountiesListPage = () => {
         setCountiesByState(countiesData);
         setError(null);
       } catch (err) {
-        console.error('Error fetching counties by state:', err);
+        const errorObj = err instanceof Error ? err : new Error(String(err));
+        logger.error('Error fetching counties by state in CountiesListPage', errorObj, {
+          page: 'CountiesListPage'
+        });
         setError('Failed to load counties. Please try again later.');
       } finally {
         setIsLoading(false);

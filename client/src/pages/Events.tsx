@@ -1,81 +1,123 @@
-import React, { useState, useMemo } from "react";
-import { format, isSameDay, isSameMonth, addMonths, subMonths, parseISO } from "date-fns";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Info } from "lucide-react";
+import React, { useState, useMemo, useEffect } from "react";
+import { format, isSameDay, parseISO } from "date-fns";
+import { Calendar as CalendarIcon, Clock, MapPin, ChevronDown, Info } from "lucide-react";
 import { Link } from "wouter";
 import { Event, Bookstore as Bookshop } from "@shared/schema";
 import { useCalendarEvents } from "@/hooks/useEvents";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { SEO } from "../components/SEO";
 import { BASE_URL, PAGE_KEYWORDS, DESCRIPTION_TEMPLATES } from "../lib/seo";
 import { generateSlugFromName } from "../lib/linkUtils";
+import { logger } from "@/lib/logger";
 
 const Events = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [locationFilter, setLocationFilter] = useState<string>("all");
+  const [eventTypeFilter, setEventTypeFilter] = useState<string>("all");
   
   // Get current month and year
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
   
   // Fetch events for the current month
-  const { data: events = [], isLoading: eventsLoading } = useCalendarEvents(currentYear, currentMonth);
+  const { data: events = [], isLoading: eventsLoading, isError: eventsError, error: eventsErrorObj } = useCalendarEvents(currentYear, currentMonth);
+  
+  // Log errors when they occur
+  useEffect(() => {
+    if (eventsError && eventsErrorObj) {
+      logger.error('Failed to fetch calendar events', eventsErrorObj, {
+        year: currentYear,
+        month: currentMonth,
+        page: 'Events'
+      });
+    }
+  }, [eventsError, eventsErrorObj, currentYear, currentMonth]);
   
   // Fetch all bookshops to display bookshop name with each event
-  const { data: bookshops = [], isLoading: bookshopsLoading } = useQuery<Bookshop[]>({
+  const { data: bookshops = [], isLoading: bookshopsLoading, isError: bookshopsError, error: bookshopsErrorObj } = useQuery<Bookshop[]>({
     queryKey: ["/api/bookstores"],
   });
   
-  // Get bookshop details by ID
-  const getBookshopName = (bookshopId: number) => {
-    const bookshop = bookshops.find(b => b.id === bookshopId);
-    return bookshop?.name || "Unknown Bookshop";
-  };
-  
-  // Get bookshop slug by ID
-  const getBookshopSlug = (bookshopId: number) => {
-    const bookshop = bookshops.find(b => b.id === bookshopId);
-    if (!bookshop) return "";
-    return generateSlugFromName(bookshop.name);
-  };
-  
-  // Navigate to previous month
-  const goToPreviousMonth = () => {
-    setCurrentDate(prevDate => subMonths(prevDate, 1));
-  };
-  
-  // Navigate to next month
-  const goToNextMonth = () => {
-    setCurrentDate(prevDate => addMonths(prevDate, 1));
-  };
-  
-  // Filter events for the selected date
-  const eventsOnSelectedDate = selectedDate 
-    ? events.filter(event => {
-        try {
-          const eventDate = parseISO(event.date);
-          return isSameDay(eventDate, selectedDate);
-        } catch (e) {
-          console.error(`Error parsing date for event ${event.id}:`, e);
-          return false;
-        }
-      })
-    : [];
-  
-  // Mark dates with events on the calendar
-  const datesWithEvents = events.reduce((acc: Date[], event) => {
-    try {
-      const eventDate = parseISO(event.date);
-      acc.push(eventDate);
-      return acc;
-    } catch (e) {
-      console.error(`Error parsing date for event:`, e);
-      return acc;
+  // Log errors when they occur
+  useEffect(() => {
+    if (bookshopsError && bookshopsErrorObj) {
+      logger.error('Failed to fetch bookshops for Events page', bookshopsErrorObj, {
+        page: 'Events'
+      });
     }
-  }, []);
+  }, [bookshopsError, bookshopsErrorObj]);
+  
+  // Get bookshop details by ID
+  const getBookshop = (bookshopId: number) => {
+    return bookshops.find(b => b.id === bookshopId);
+  };
+  
+  // Event type badge configuration
+  const eventTypeBadges = {
+    'author-reading': { label: 'Author Reading', color: 'bg-blue-100 text-blue-800' },
+    'book-signing': { label: 'Book Signing', color: 'bg-purple-100 text-purple-800' },
+    'book-club': { label: 'Book Club', color: 'bg-green-100 text-green-800' },
+    'workshop': { label: 'Workshop', color: 'bg-orange-100 text-orange-800' },
+    'storytime': { label: 'Story Time', color: 'bg-pink-100 text-pink-800' },
+    'poetry': { label: 'Poetry Reading', color: 'bg-indigo-100 text-indigo-800' },
+    'festival': { label: 'Literary Festival', color: 'bg-red-100 text-red-800' },
+  };
+  
+  // Filter events based on selected filters
+  const filteredEvents = useMemo(() => {
+    let filtered = [...events];
+    
+    // Filter by location
+    if (locationFilter !== "all") {
+      filtered = filtered.filter(event => {
+        const bookshop = getBookshop(event.bookshopId);
+        return bookshop?.state === locationFilter;
+      });
+    }
+    
+    // Filter by event type
+    if (eventTypeFilter !== "all") {
+      filtered = filtered.filter(event => {
+        const eventType = (event as any).type || 'author-reading';
+        return eventType === eventTypeFilter;
+      });
+    }
+    
+    // Sort by date
+    filtered.sort((a, b) => {
+      try {
+        const dateA = parseISO(a.date);
+        const dateB = parseISO(b.date);
+        if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+          throw new Error(`Invalid date format: ${a.date} or ${b.date}`);
+        }
+        return dateA.getTime() - dateB.getTime();
+      } catch (e) {
+        logger.error('Error parsing event date for sorting', e, { 
+          eventA: { id: a.id, date: a.date },
+          eventB: { id: b.id, date: b.date }
+        });
+        return 0;
+      }
+    });
+    
+    return filtered;
+  }, [events, locationFilter, eventTypeFilter, bookshops]);
+  
+  // Get unique states from events for filter dropdown
+  const availableStates = useMemo(() => {
+    const states = new Set<string>();
+    events.forEach(event => {
+      const bookshop = getBookshop(event.bookshopId);
+      if (bookshop?.state) {
+        states.add(bookshop.state);
+      }
+    });
+    return Array.from(states).sort();
+  }, [events, bookshops]);
 
   // SEO metadata for events page
   const seoTitle = useMemo(() => {
@@ -111,29 +153,84 @@ const Events = () => {
     return `${BASE_URL}/events`;
   }, []);
   
-  // Event card component
+  // Enhanced event card component with visual hierarchy
   const EventCard = ({ event }: { event: Event }) => {
-    const bookshopName = getBookshopName(event.bookshopId);
-    const bookshopSlug = getBookshopSlug(event.bookshopId);
+    const bookshop = getBookshop(event.bookshopId);
+    const bookshopSlug = bookshop ? generateSlugFromName(bookshop.name) : "";
+    
+    let eventDate: Date;
+    try {
+      eventDate = parseISO(event.date);
+      if (isNaN(eventDate.getTime())) {
+        throw new Error(`Invalid date: ${event.date}`);
+      }
+    } catch (e) {
+      logger.error('Error parsing event date in EventCard', e, {
+        eventId: event.id,
+        eventTitle: event.title,
+        eventDate: event.date
+      });
+      // Fallback to current date to prevent crash
+      eventDate = new Date();
+    }
+    
+    const eventType = (event as any).type || 'author-reading';
+    const badge = eventTypeBadges[eventType as keyof typeof eventTypeBadges] || eventTypeBadges['author-reading'];
     
     return (
-      <Card className="mb-4 p-4 hover:shadow-md transition-shadow">
-        <div className="flex flex-col">
-          <h3 className="text-lg font-semibold text-[#5F4B32]">{event.title}</h3>
-          <p className="text-sm text-gray-500 mb-2">
-            {format(parseISO(event.date), 'MMMM d, yyyy')} • {event.time} • 
-            <Link href={`/bookshop/${bookshopSlug}`} className="ml-1 text-[#2A6B7C] hover:underline">
-              {bookshopName}
-            </Link>
-          </p>
-          <p className="text-gray-700">{event.description}</p>
+      <Card className="overflow-hidden hover:shadow-xl transition-shadow mb-4">
+        <div className="p-4 md:p-5">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex-1">
+              {/* Event type badge */}
+              <span className={`inline-block px-2 py-1 text-xs font-medium rounded mb-2 ${badge.color}`}>
+                {badge.label}
+              </span>
+              
+              <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-1 break-words">
+                {event.title}
+              </h3>
+            </div>
+            
+            {/* Date badge on right */}
+            <div className="text-right ml-4 flex-shrink-0">
+              <div className="text-2xl font-serif font-bold text-[#E16D3D]">
+                {format(eventDate, 'd')}
+              </div>
+              <div className="text-xs md:text-sm text-gray-600 uppercase font-sans">
+                {format(eventDate, 'MMM')}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap items-center text-xs md:text-sm text-gray-600 mb-3 gap-x-4 gap-y-2">
+            <div className="flex items-center">
+              <Clock className="w-4 h-4 mr-1 flex-shrink-0" />
+              <span>{event.time}</span>
+            </div>
+            
+            {bookshop && (
+              <div className="flex items-center">
+                <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                <Link href={`/bookshop/${bookshopSlug}`} className="text-[#2A6B7C] hover:underline">
+                  {bookshop.name}
+                </Link>
+              </div>
+            )}
+          </div>
+          
+          {event.description && (
+            <p className="font-sans text-sm md:text-base text-gray-700 line-clamp-3">
+              {event.description}
+            </p>
+          )}
         </div>
       </Card>
     );
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
       {/* SEO Component */}
       <SEO 
         title={seoTitle}
@@ -142,196 +239,281 @@ const Events = () => {
         canonicalUrl={canonicalUrl}
       />
       
-      <div className="max-w-3xl mx-auto mb-12">
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-[#5F4B32] mb-4">
-          Independent Bookshop Events Calendar
-        </h1>
-        <p className="text-lg md:text-xl text-gray-600 mb-6">
-          Discover author readings, book signings, literary festivals, book clubs, children's story times, and 
-          other special events at independent bookshops across America. Our comprehensive events calendar 
-          helps you connect with your local literary community.
-        </p>
-      </div>
-
-      {eventsLoading || bookshopsLoading ? (
-        <div className="text-center py-10">
-          <p className="text-base">Loading events calendar...</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  <Button 
-                    variant="ghost" 
-                    onClick={goToPreviousMonth}
-                    className="mr-2"
-                  >
-                    <ChevronLeft className="h-6 w-6" />
-                  </Button>
-                  <h2 className="text-2xl md:text-3xl font-serif text-[#5F4B32] font-bold">
-                    {format(currentDate, 'MMMM yyyy')}
-                  </h2>
-                  <Button 
-                    variant="ghost" 
-                    onClick={goToNextMonth}
-                    className="ml-2"
-                  >
-                    <ChevronRight className="h-6 w-6" />
-                  </Button>
-                </div>
-              </div>
-              
-              {/* Custom calendar implementation */}
-              <div className="w-full overflow-hidden rounded-md border">
-                {/* Day names header */}
-                <div className="grid grid-cols-7 bg-muted text-center">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                    <div key={day} className="p-3 text-base font-semibold text-gray-700">
-                      {day}
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Calendar grid */}
-                <div className="grid grid-cols-7">
-                  {(() => {
-                    // Get the first day of the month
-                    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-                    // Get the day of the week (0-6) on which the month begins
-                    const startingDayOfWeek = firstDayOfMonth.getDay();
-                    // Get the number of days in the month
-                    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-                    
-                    // Create the days array
-                    const daysArray = [];
-                    
-                    // Add empty cells for days of the previous month
-                    for (let i = 0; i < startingDayOfWeek; i++) {
-                      daysArray.push(
-                        <div key={`empty-${i}`} className="h-20 p-2 border-t border-r text-gray-300" />
-                      );
-                    }
-                    
-                    // Add cells for days of the current month
-                    for (let day = 1; day <= daysInMonth; day++) {
-                      const date = new Date(currentYear, currentMonth, day);
-                      const isSelected = selectedDate && isSameDay(date, selectedDate);
-                      const hasEvent = datesWithEvents.some(eventDate => isSameDay(eventDate, date));
-                      
-                      daysArray.push(
-                        <div 
-                          key={`day-${day}`}
-                          onClick={() => setSelectedDate(date)}
-                          className={`h-20 p-2 border-t border-r relative cursor-pointer hover:bg-gray-50 ${
-                            isSelected ? 'bg-blue-50' : ''
-                          }`}
-                        >
-                          <span className="text-lg">{day}</span>
-                          {hasEvent && (
-                            <div className="absolute bottom-2 left-1/2 w-3 h-3 bg-[#E16D3D] rounded-full transform -translate-x-1/2" />
-                          )}
-                        </div>
-                      );
-                    }
-                    
-                    // Calculate how many rows we need (minimum 5 to display a full month)
-                    const daysUsed = startingDayOfWeek + daysInMonth;
-                    const rowsNeeded = Math.ceil(daysUsed / 7);
-                    const totalCells = rowsNeeded * 7;
-                    const remainingCells = totalCells - daysArray.length;
-                    
-                    for (let i = 0; i < remainingCells; i++) {
-                      daysArray.push(
-                        <div key={`empty-end-${i}`} className="h-20 p-2 border-t border-r text-gray-300" />
-                      );
-                    }
-                    
-                    return daysArray;
-                  })()}
-                </div>
-              </div>
+      {/* Hero Section - Style Guide Compliant */}
+      <section className="py-10 md:py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
+            <div className="max-w-4xl mx-auto">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+                Literary Events at Independent Bookshops
+              </h1>
+              <p className="font-sans text-base md:text-body-lg text-gray-700 text-center">
+                Find author readings, book clubs, and special events at indie bookshops near you. 
+                Discover the literary experiences that make local bookstores vital community spaces.
+              </p>
             </div>
           </div>
-
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6 h-full">
-              <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">
-                {selectedDate ? (
-                  <>Events on {format(selectedDate, 'MMMM d, yyyy')}</>
-                ) : (
-                  <>Select a date to see events</>
-                )}
-              </h2>
-
-              {eventsOnSelectedDate.length > 0 ? (
-                <div className="space-y-4">
-                  {eventsOnSelectedDate.map((event) => (
-                    <EventCard key={event.id} event={event} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  {selectedDate ? (
-                    <p>No events scheduled for this date</p>
-                  ) : (
-                    <p>Click on a date to view events</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Event Submission Section */}
-      <div className="mt-12 bg-[#F7F3E8] rounded-lg p-6">
-        <div className="flex flex-col md:flex-row items-start">
-          <div className="mr-4 flex-shrink-0 mb-4 md:mb-0">
-            <Info className="h-6 w-6 text-[#E16D3D]" />
-          </div>
-          <div>
-            <h2 className="text-xl font-serif font-bold text-[#5F4B32] mb-2">
-              Submit Your Bookshop Event
-            </h2>
-            <p className="text-gray-700 mb-4">
-              Are you an independent bookshop owner or employee? You can submit your upcoming author readings, book signings, 
-              literary festivals, book clubs, and other special events to be featured in our comprehensive calendar.
-            </p>
-            <Link href="/submit-event">
-              <Button className="bg-[#4A7C59] hover:bg-[#4A7C59]/90 text-white">
-                Add an Event
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-      
-      {/* SEO Content Section */}
-      <section className="mt-12 bg-white rounded-lg p-6 border border-[#E3E9ED]">
-        <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-          About Our Independent Bookshop Events Calendar
-        </h2>
-        <div className="prose prose-p:text-gray-700 max-w-none">
-          <p>
-            Our independent bookshop events calendar showcases literary events happening at indie bookstores across America. 
-            From author readings and book signings to writing workshops and children's story times, these events create vibrant 
-            spaces for literary communities to connect and thrive.
-          </p>
-          <p>
-            Independent bookshops are more than just places to buy books—they're cultural hubs that foster community connections 
-            through diverse programming. By attending events at local indie bookshops, you support small businesses while enjoying 
-            unique literary experiences that online retailers simply can't provide.
-          </p>
-          <p>
-            Browse our calendar to discover upcoming events by date or explore events at specific bookshops. Whether you're looking 
-            for poetry readings, book clubs, or author meet and greets, our comprehensive events directory connects book lovers with 
-            meaningful literary experiences at independent bookstores nationwide.
-          </p>
         </div>
       </section>
-    </div>
+
+      {/* Main Content */}
+      <section className="py-8 md:py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {eventsLoading || bookshopsLoading ? (
+            <div className="text-center py-10">
+              <p className="font-sans text-base text-gray-700">Loading events...</p>
+            </div>
+          ) : (
+            <>
+              {/* Filter Bar */}
+              <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-8 max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Location filter */}
+                  <div>
+                    <label className="font-sans text-sm font-medium text-gray-700 mb-2 block">
+                      Location
+                    </label>
+                    <div className="relative">
+                      <select 
+                        className="w-full border border-gray-200 rounded-md p-2 pr-8 appearance-none bg-white font-sans text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] focus:border-transparent"
+                        value={locationFilter}
+                        onChange={(e) => setLocationFilter(e.target.value)}
+                      >
+                        <option value="all">All locations</option>
+                        {availableStates.map(state => (
+                          <option key={state} value={state}>{state}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+                  
+                  {/* Event type filter */}
+                  <div>
+                    <label className="font-sans text-sm font-medium text-gray-700 mb-2 block">
+                      Event Type
+                    </label>
+                    <div className="relative">
+                      <select 
+                        className="w-full border border-gray-200 rounded-md p-2 pr-8 appearance-none bg-white font-sans text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] focus:border-transparent"
+                        value={eventTypeFilter}
+                        onChange={(e) => setEventTypeFilter(e.target.value)}
+                      >
+                        <option value="all">All types</option>
+                        <option value="author-reading">Author Readings</option>
+                        <option value="book-signing">Book Signings</option>
+                        <option value="book-club">Book Clubs</option>
+                        <option value="workshop">Workshops</option>
+                        <option value="storytime">Story Time</option>
+                        <option value="poetry">Poetry Readings</option>
+                        <option value="festival">Literary Festivals</option>
+                      </select>
+                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+                  
+                  {/* Date range - placeholder for future enhancement */}
+                  <div>
+                    <label className="font-sans text-sm font-medium text-gray-700 mb-2 block">
+                      When
+                    </label>
+                    <div className="relative">
+                      <select 
+                        className="w-full border border-gray-200 rounded-md p-2 pr-8 appearance-none bg-white font-sans text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] focus:border-transparent"
+                        defaultValue="upcoming"
+                      >
+                        <option value="upcoming">Upcoming</option>
+                        <option value="this-week">This Week</option>
+                        <option value="this-month">This Month</option>
+                      </select>
+                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Active filters indicator */}
+                {(locationFilter !== "all" || eventTypeFilter !== "all") && (
+                  <div className="mt-4 flex items-center gap-2 text-sm">
+                    <span className="font-sans text-gray-600">Active filters:</span>
+                    {locationFilter !== "all" && (
+                      <span className="px-2 py-1 bg-[#2A6B7C] text-white rounded-full text-xs font-sans font-semibold">
+                        {locationFilter}
+                      </span>
+                    )}
+                    {eventTypeFilter !== "all" && (
+                      <span className="px-2 py-1 bg-[#2A6B7C] text-white rounded-full text-xs font-sans font-semibold">
+                        {eventTypeBadges[eventTypeFilter as keyof typeof eventTypeBadges]?.label}
+                      </span>
+                    )}
+                    <button 
+                      onClick={() => {
+                        setLocationFilter("all");
+                        setEventTypeFilter("all");
+                      }}
+                      className="font-sans text-[#2A6B7C] hover:underline text-xs ml-2"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Events List */}
+              <div className="max-w-4xl mx-auto">
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#5F4B32]">
+                      Upcoming Events
+                      {filteredEvents.length > 0 && (
+                        <span className="font-sans text-lg font-normal text-gray-600 ml-2">
+                          ({filteredEvents.length})
+                        </span>
+                      )}
+                    </h2>
+                  </div>
+
+                  {filteredEvents.length > 0 ? (
+                    <div>
+                      {filteredEvents.map((event) => (
+                        <EventCard key={event.id} event={event} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-200">
+                      <CalendarIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                      <h3 className="font-serif text-xl font-bold text-gray-700 mb-2">
+                        No events found
+                      </h3>
+                      <p className="font-sans text-gray-600 mb-4 max-w-md mx-auto">
+                        {locationFilter !== "all" || eventTypeFilter !== "all" 
+                          ? "Try adjusting your filters to see more events."
+                          : "We're growing our events calendar with help from bookshops across America."}
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        {(locationFilter !== "all" || eventTypeFilter !== "all") && (
+                          <Button 
+                            variant="outline"
+                            onClick={() => {
+                              setLocationFilter("all");
+                              setEventTypeFilter("all");
+                            }}
+                            className="rounded-full"
+                          >
+                            Clear Filters
+                          </Button>
+                        )}
+                        <Link href="/submit-event">
+                          <Button className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white rounded-full px-8 py-4 min-h-[56px] font-semibold">
+                            Add an Event
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
+      
+      {/* Event Submission CTA - Only show when there are events */}
+      {filteredEvents.length > 0 && (
+        <section className="py-8 md:py-12">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8 max-w-4xl mx-auto">
+              <div className="flex flex-col md:flex-row items-start">
+                <div className="mr-4 flex-shrink-0 mb-4 md:mb-0">
+                  <Info className="h-6 w-6 text-[#E16D3D]" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="font-serif text-xl md:text-2xl font-bold text-[#5F4B32] mb-2">
+                    Submit Your Bookshop Event
+                  </h2>
+                  <p className="font-sans text-sm md:text-base text-gray-700 mb-4">
+                    Independent bookshop hosting an author reading, book signing, or literary event? 
+                    Add it to our calendar and reach readers across America.
+                  </p>
+                  <Link href="/submit-event">
+                    <Button className="bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white rounded-full px-8 py-4 min-h-[56px] font-semibold">
+                      Add an Event
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+      
+      {/* Helpful Tips Section - Replaces Generic SEO Content */}
+      <section className="py-8 md:py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-lg p-6 md:p-8 border border-gray-200 max-w-4xl mx-auto">
+            <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#5F4B32] mb-6 text-center">
+              How to Make the Most of Bookshop Events
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-3">
+                  For Readers
+                </h3>
+                <ul className="space-y-2">
+                  <li className="flex items-start">
+                    <span className="text-[#E16D3D] mr-2 font-sans">•</span>
+                    <span className="font-sans text-sm md:text-base text-gray-700">Arrive early for popular author signings</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-[#E16D3D] mr-2 font-sans">•</span>
+                    <span className="font-sans text-sm md:text-base text-gray-700">Support bookshops by purchasing books at the event</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-[#E16D3D] mr-2 font-sans">•</span>
+                    <span className="font-sans text-sm md:text-base text-gray-700">Check if registration or tickets are required</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-[#E16D3D] mr-2 font-sans">•</span>
+                    <span className="font-sans text-sm md:text-base text-gray-700">Follow your favorite bookshops for event updates</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-[#E16D3D] mr-2 font-sans">•</span>
+                    <span className="font-sans text-sm md:text-base text-gray-700">Bring cash for books and refreshments</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-3">
+                  For Bookshops
+                </h3>
+                <ul className="space-y-2">
+                  <li className="flex items-start">
+                    <span className="text-[#E16D3D] mr-2 font-sans">•</span>
+                    <span className="font-sans text-sm md:text-base text-gray-700">Submit events at least 2 weeks in advance</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-[#E16D3D] mr-2 font-sans">•</span>
+                    <span className="font-sans text-sm md:text-base text-gray-700">Include author and book details when applicable</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-[#E16D3D] mr-2 font-sans">•</span>
+                    <span className="font-sans text-sm md:text-base text-gray-700">Specify if registration or tickets are required</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-[#E16D3D] mr-2 font-sans">•</span>
+                    <span className="font-sans text-sm md:text-base text-gray-700">Update or cancel events promptly if plans change</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-[#E16D3D] mr-2 font-sans">•</span>
+                    <span className="font-sans text-sm md:text-base text-gray-700">Add contact information for event questions</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 };
 

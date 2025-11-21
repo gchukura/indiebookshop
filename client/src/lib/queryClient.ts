@@ -1,9 +1,16 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { logger } from './logger';
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    const error = new Error(`${res.status}: ${text}`);
+    logger.error('API request failed in queryClient', error, {
+      status: res.status,
+      statusText: res.statusText,
+      url: res.url
+    });
+    throw error;
   }
 }
 

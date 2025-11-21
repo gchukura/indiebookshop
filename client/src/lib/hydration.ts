@@ -1,4 +1,5 @@
 import { queryClient } from './queryClient';
+import { logger } from './logger';
 
 /**
  * Type for React Query keys - array starting with string, followed by any parameters
@@ -205,8 +206,13 @@ export function hydrateFromServer(): void {
       stateScript.parentNode.removeChild(stateScript);
     }
     
-    console.log('Hydrated app from server-side data');
+    logger.debug('Hydrated app from server-side data', { 
+      queryCount: Object.keys(preloadedState).length 
+    });
   } catch (e) {
-    console.error('Error hydrating app from server state:', e);
+    const errorObj = e instanceof Error ? e : new Error(String(e));
+    logger.error('Error hydrating app from server state', errorObj, {
+      utility: 'hydration'
+    });
   }
 }

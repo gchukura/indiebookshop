@@ -52,9 +52,9 @@ const AboutPage = () => {
       />
       
       {/* Hero/Intro Section */}
-      <section className="py-8 md:py-12 lg:py-16">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8 lg:p-10">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
             <div className="max-w-4xl mx-auto">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
                 About IndiebookShop.com
@@ -76,9 +76,9 @@ const AboutPage = () => {
       </section>
 
       {/* Our Story Section */}
-      <section className="py-8 md:py-12 lg:py-14">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg p-6 md:p-8 lg:p-10">
+          <div className="bg-white rounded-lg p-6 md:p-8">
             <div className="max-w-3xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
                 Our Story
@@ -95,7 +95,7 @@ const AboutPage = () => {
               
               <div className="prose prose-lg prose-p:text-gray-700 max-w-none">
                 <p>
-                  IndiebookShop.com was founded in 2023 by a husband-and-wife team who share a love of books and a deep belief in supporting small businesses. With backgrounds in technology, we saw an opportunity to solve a problem many readers face: finding local independent bookshops when online discovery defaults to corporate retailers.
+                  IndiebookShop.com was founded in 2025 by a husband-and-wife team who share a love of books and a deep belief in supporting small businesses. With backgrounds in technology, we saw an opportunity to solve a problem many readers face: finding local independent bookshops when online discovery defaults to corporate retailers.
                 </p>
                 
                 <p>
@@ -128,9 +128,9 @@ const AboutPage = () => {
       </section>
 
       {/* Why It Matters Section */}
-      <section className="py-8 md:py-12 lg:py-16">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8 lg:p-10">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
             <div className="max-w-4xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
                 Why Independent Bookshops Matter
@@ -194,9 +194,9 @@ const AboutPage = () => {
       </section>
 
       {/* What Makes Us Different Section */}
-      <section className="py-8 md:py-12 lg:py-14">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg p-6 md:p-8 lg:p-10">
+          <div className="bg-white rounded-lg p-6 md:p-8">
             <div className="max-w-3xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
                 What Makes Us Different
@@ -269,9 +269,9 @@ const AboutPage = () => {
       </section>
 
       {/* Join Our Mission Section */}
-      <section className="py-8 md:py-12 lg:py-14">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8 lg:p-10">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
             <div className="max-w-3xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
                 Help Us Grow
@@ -297,9 +297,9 @@ const AboutPage = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-8 md:py-12 lg:py-14">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg p-6 md:p-8 lg:p-10">
+          <div className="bg-white rounded-lg p-6 md:p-8">
             <FAQSection
               title="Frequently Asked Questions"
               description="Find answers to common questions about IndiebookShop.com and our directory."
