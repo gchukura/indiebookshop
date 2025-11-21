@@ -154,8 +154,8 @@ const Events = () => {
       </div>
 
       {eventsLoading || bookshopsLoading ? (
-        <div className="text-center py-12">
-          <p>Loading events calendar...</p>
+        <div className="text-center py-10">
+          <p className="text-base">Loading events calendar...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

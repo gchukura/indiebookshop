@@ -34,10 +34,10 @@ const Footer = () => {
   return (
     <>
       {/* Newsletter Section */}
-      <section className="py-10 bg-[#F7F3E8] text-[#5F4B32]">
+      <section className="py-8 md:py-12 lg:py-16 bg-[#F7F3E8] text-[#5F4B32]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-h2 font-serif font-bold mb-3">Join Our Literary Community</h2>
-          <p className="font-sans text-body-lg opacity-90 max-w-2xl mx-auto mb-4">
+          <h2 className="text-xl md:text-2xl font-serif font-bold mb-3">Join Our Literary Community</h2>
+          <p className="font-sans text-sm md:text-base text-gray-700 max-w-2xl mx-auto mb-4">
             Connect with fellow book lovers, stay updated on bookshop events, and discover new independent bookshops.
           </p>
           <div className="max-w-md mx-auto">
@@ -46,7 +46,7 @@ const Footer = () => {
                 <input 
                   type="email" 
                   placeholder="Your email address" 
-                  className="w-full px-3 py-2 rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#E16D3D]"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -54,7 +54,7 @@ const Footer = () => {
               </div>
               <Button 
                 type="submit" 
-                className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white px-4 py-2 h-full"
+                className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white px-4 py-2 h-full rounded-full min-h-[44px]"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Subscribing..." : "Subscribe"}
@@ -65,10 +65,10 @@ const Footer = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#5F4B32] py-8">
+      <footer className="bg-[#5F4B32] py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="border-white/20 pt-2 text-center">
-            <p className="font-sans text-body-sm text-gray-100">&copy; {new Date().getFullYear()} IndieBookShop.com. All rights reserved.</p>
+            <p className="font-sans text-sm md:text-base text-gray-100">&copy; {new Date().getFullYear()} IndieBookShop.com. All rights reserved.</p>
           </div>
         </div>
       </footer>

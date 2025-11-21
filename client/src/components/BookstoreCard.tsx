@@ -43,7 +43,7 @@ const BookstoreCard = ({ bookstore, showDetails }: BookstoreCardProps) => {
         <div className="p-4 sm:w-2/3">
           <div>
             <h3 
-              className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C]"
+              className="font-serif font-bold text-lg cursor-pointer hover:text-[#2A6B7C] line-clamp-2"
               onClick={() => showDetails(bookstore.id)}
             >
               {bookstore.name}

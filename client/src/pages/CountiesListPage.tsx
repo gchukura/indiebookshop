@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { ErrorDisplay } from "@/components/ErrorDisplay";
 import { Button } from "@/components/ui/button";
 import { SEO } from "../components/SEO";
 import { BASE_URL } from "../lib/seo";
 import { getFullStateName } from "../lib/stateUtils";
+import { Bookstore } from "@shared/schema";
 
 interface CountyByState {
   state: string;
@@ -26,12 +28,12 @@ const CountiesListPage = () => {
         if (!bookstoresResponse.ok) {
           throw new Error('Failed to fetch bookstores');
         }
-        const bookstores = await bookstoresResponse.json();
+        const bookstores: Bookstore[] = await bookstoresResponse.json();
         
         // Extract unique state-county combinations
         const stateCountyMap = new Map<string, Set<string>>();
         
-        bookstores.forEach((bookstore: any) => {
+        bookstores.forEach((bookstore) => {
           if (bookstore.county && bookstore.county.trim() !== '' && bookstore.live !== false) {
             if (!stateCountyMap.has(bookstore.state)) {
               stateCountyMap.set(bookstore.state, new Set());
@@ -98,21 +100,18 @@ const CountiesListPage = () => {
 
         
         {isLoading ? (
-          <div className="flex justify-center py-8 md:py-12 lg:py-16">
-            <div className="animate-pulse text-center">
-              <p className="text-lg">Loading counties...</p>
-            </div>
+          <div className="text-center py-10">
+            <p className="text-base">Loading counties...</p>
           </div>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 rounded-md p-6 text-center">
-            <p className="text-red-700 mb-4">{error}</p>
-            <Button 
-              onClick={() => window.location.reload()}
-              className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white"
-            >
-              Try Again
-            </Button>
-          </div>
+          <ErrorDisplay
+            error={error}
+            message={typeof error === 'string' ? error : 'Unable to load counties. Please try again later.'}
+            title="Error Loading Counties"
+            showRetry
+            onRetry={() => window.location.reload()}
+            size="sm"
+          />
         ) : (
           <div className="grid grid-cols-1 gap-8">
             {countiesByState.map(stateData => (

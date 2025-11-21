@@ -116,7 +116,9 @@ const BookshopDetailPage = () => {
   if (isLoadingBookshop) {
     return (
       <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16">
-        <p>Loading bookshop details...</p>
+        <div className="text-center py-10">
+          <p className="text-base">Loading bookshop details...</p>
+        </div>
       </div>
     );
   }

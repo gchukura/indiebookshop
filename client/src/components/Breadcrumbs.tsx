@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'wouter';
 import { ChevronRight } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 export type BreadcrumbItem = {
   label: string;
@@ -40,15 +41,17 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   };
   
   return (
-    <nav aria-label="Breadcrumbs" className={`text-sm ${className}`}>
-      {/* Structured data for SEO */}
-      <script 
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
+    <>
+      {/* Structured data for SEO - injected into <head> via Helmet */}
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+      </Helmet>
       
       {/* Visual breadcrumb component */}
-      <ol className="flex flex-wrap items-center space-x-1 md:space-x-2">
+      <nav aria-label="Breadcrumbs" className={`text-sm ${className}`}>
+        <ol className="flex flex-wrap items-center space-x-1 md:space-x-2">
         {items.map((item, index) => (
           <li key={index} className="flex items-center">
             {index > 0 && (
@@ -69,8 +72,9 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
             )}
           </li>
         ))}
-      </ol>
-    </nav>
+        </ol>
+      </nav>
+    </>
   );
 };
 

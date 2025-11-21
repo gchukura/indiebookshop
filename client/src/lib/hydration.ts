@@ -1,18 +1,41 @@
 import { queryClient } from './queryClient';
 
 /**
+ * Type for React Query keys - array starting with string, followed by any parameters
+ */
+type QueryKey = [string, ...unknown[]];
+
+/**
+ * Type for preloaded state from server
+ * This is intentionally flexible to handle various server-side data shapes
+ */
+interface PreloadedState {
+  featuredBookshops?: unknown;
+  states?: unknown;
+  features?: unknown;
+  stateMap?: unknown;
+  bookshop?: { id: number; [key: string]: unknown };
+  events?: unknown;
+  bookshops?: unknown;
+  state?: string;
+  city?: string;
+  feature?: { id: number; [key: string]: unknown };
+  [key: string]: unknown; // Allow additional properties
+}
+
+/**
  * TypeScript interface for the global window object with our preloaded state
  */
 declare global {
   interface Window {
-    __PRELOADED_STATE__?: Record<string, any>;
+    __PRELOADED_STATE__?: PreloadedState;
   }
 }
 
 /**
  * Map of route patterns to React Query keys
  */
-const QUERY_KEY_MAP: Record<string, (pathParts: string[]) => [string, ...any[]][]> = {
+const QUERY_KEY_MAP: Record<string, (pathParts: string[]) => QueryKey[]> = {
   // Homepage - featured bookshops
   '/': () => [
     ['/api/bookstores/featured']
@@ -75,7 +98,7 @@ const QUERY_KEY_MAP: Record<string, (pathParts: string[]) => [string, ...any[]][
 /**
  * Maps a pathname to query keys that should be populated
  */
-function getQueryKeysForPath(pathname: string): [string, ...any[]][] {
+function getQueryKeysForPath(pathname: string): QueryKey[] {
   const pathParts = pathname.split('/').filter(Boolean);
   
   // Check exact path matches first
@@ -109,7 +132,7 @@ function getQueryKeysForPath(pathname: string): [string, ...any[]][] {
 /**
  * Maps preloaded state keys to query keys
  */
-function mapStateToQueryKeys(state: Record<string, any>, pathname: string): void {
+function mapStateToQueryKeys(state: PreloadedState, pathname: string): void {
   const queryKeys = getQueryKeysForPath(pathname);
   
   if (state.featuredBookshops) {

@@ -63,7 +63,7 @@ const BookshopCard = ({ bookstore, showDetails }: BookshopCardProps) => {
           <div>
             <Link to={bookshopUrl}>
               <h3 
-                className="font-serif text-h3 font-bold cursor-pointer hover:text-[#2A6B7C]"
+                className="font-serif text-h3 font-bold cursor-pointer hover:text-[#2A6B7C] line-clamp-2"
               >
                 {bookstore.name}
               </h3>

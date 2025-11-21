@@ -5,6 +5,7 @@ import BookshopCard from "@/components/BookshopCard";
 import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
 import BookshopTable from "@/components/BookshopTable";
+import { ErrorDisplay } from "@/components/ErrorDisplay";
 import { Button } from "@/components/ui/button";
 import { SEO } from "../components/SEO";
 import { 
@@ -15,6 +16,7 @@ import {
 } from "../lib/seo";
 import { generateSlugFromName } from "../lib/linkUtils";
 import { getFullStateName } from "../lib/stateUtils";
+import { PAGINATION } from "@/lib/constants";
 
 const CityDirectory = () => {
   // Get parameters from URL
@@ -74,12 +76,13 @@ const CityDirectory = () => {
   const [bookshops, setBookshops] = useState<Bookstore[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const bookshopsPerPage = 50;
+  const bookshopsPerPage = PAGINATION.DEFAULT_ITEMS_PER_PAGE;
   
   // Normalized city/state names for display
   const cityName = cityFromUrl || '';
@@ -294,12 +297,17 @@ const CityDirectory = () => {
           
           {isLoading ? (
             <div className="text-center py-10">
-              <p>Loading indie bookshops in {cityName}...</p>
+              <p className="text-base">Loading indie bookshops in {cityName}...</p>
             </div>
           ) : isError ? (
-            <div className="text-center py-10">
-              <p>Error loading independent bookshops. Please try again later.</p>
-            </div>
+            <ErrorDisplay
+              error={error || 'Unknown error'}
+              message="Unable to load independent bookshops. Please try again later."
+              title="Error Loading Bookshops"
+              showRetry
+              onRetry={() => window.location.reload()}
+              size="sm"
+            />
           ) : bookshops.length === 0 ? (
             <div className="text-center py-10">
               <p>No local bookshops found in {cityName}{stateName ? `, ${stateName}` : ''}.</p>

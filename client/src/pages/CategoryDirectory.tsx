@@ -6,6 +6,7 @@ import { generateSlugFromName } from "../lib/linkUtils";
 import BookshopCard from "@/components/BookshopCard";
 import BookshopDetail from "@/components/BookshopDetail";
 import MapboxMap from "@/components/MapboxMap";
+import { ErrorDisplay } from "@/components/ErrorDisplay";
 import { Button } from "@/components/ui/button";
 import { SEO } from "../components/SEO";
 import { 
@@ -34,7 +35,7 @@ const CategoryDirectory = () => {
   const featureName = feature?.name || "Category";
   
   // Fetch bookshops with this feature
-  const { data: bookshops = [], isLoading, isError } = useQuery<Bookstore[]>({
+  const { data: bookshops = [], isLoading, isError, error } = useQuery<Bookstore[]>({
     queryKey: [`/api/bookstores/filter?features=${featureId}`],
     enabled: !!featureId,
   });
@@ -163,12 +164,17 @@ const CategoryDirectory = () => {
             
             {isLoading ? (
               <div className="text-center py-10">
-                <p>Loading {featureName.toLowerCase()} bookshops...</p>
+                <p className="text-base">Loading {featureName.toLowerCase()} bookshops...</p>
               </div>
             ) : isError ? (
-              <div className="text-center py-10">
-                <p>Error loading indie bookshops with {featureName.toLowerCase()}. Please try again later.</p>
-              </div>
+              <ErrorDisplay
+                error={error}
+                message={`Unable to load ${featureName.toLowerCase()} bookshops. Please try again later.`}
+                title="Error Loading Bookshops"
+                showRetry
+                onRetry={() => window.location.reload()}
+                size="sm"
+              />
             ) : bookshops.length === 0 ? (
               <div className="text-center py-10">
                 <p>No indie bookshops found with {featureName.toLowerCase()}.</p>

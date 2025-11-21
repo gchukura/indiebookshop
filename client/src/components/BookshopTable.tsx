@@ -57,7 +57,7 @@ const BookshopTable = ({
               }
             }}
           >
-            <h3 className="font-semibold text-base text-[#5F4B32] mb-2">{bookshop.name || 'Unnamed Bookshop'}</h3>
+            <h3 className="font-semibold text-base text-[#5F4B32] mb-2 line-clamp-2">{bookshop.name || 'Unnamed Bookshop'}</h3>
             <div className="space-y-1.5 mb-3">
               <div className="flex items-center text-sm text-gray-600">
                 <span className="font-medium mr-1">Location:</span>
@@ -94,10 +94,10 @@ const BookshopTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="font-semibold">Name</TableHead>
-              <TableHead className="font-semibold">City</TableHead>
-              <TableHead className="font-semibold">State</TableHead>
-              <TableHead className="font-semibold">Features</TableHead>
+              <TableHead className="bg-[#F7F3E8] text-[#5F4B32] font-serif font-bold">Name</TableHead>
+              <TableHead className="bg-[#F7F3E8] text-[#5F4B32] font-serif font-bold">City</TableHead>
+              <TableHead className="bg-[#F7F3E8] text-[#5F4B32] font-serif font-bold">State</TableHead>
+              <TableHead className="bg-[#F7F3E8] text-[#5F4B32] font-serif font-bold">Features</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -107,7 +107,7 @@ const BookshopTable = ({
                 role="button"
                 tabIndex={0}
                 aria-label={`View details for ${bookshop.name || 'bookshop'}`}
-                className="hover:bg-gray-50 cursor-pointer focus:outline-none focus:bg-gray-50" 
+                className="hover:bg-gray-50 cursor-pointer focus:outline-none focus:bg-gray-50 transition-colors" 
                 onClick={() => showDetails(bookshop.id)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -116,7 +116,11 @@ const BookshopTable = ({
                   }
                 }}
               >
-                <TableCell className="font-medium">{bookshop.name || 'Unnamed Bookshop'}</TableCell>
+                <TableCell className="font-medium">
+                  <span className="text-[#2A6B7C] hover:text-[#E16D3D] font-semibold transition-colors">
+                    {bookshop.name || 'Unnamed Bookshop'}
+                  </span>
+                </TableCell>
                 <TableCell>{bookshop.city || '-'}</TableCell>
                 <TableCell>{bookshop.state || '-'}</TableCell>
                 <TableCell>

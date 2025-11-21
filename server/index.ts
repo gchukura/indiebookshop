@@ -40,6 +40,20 @@ const submissionLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Stricter rate limiter for config endpoint (exposes sensitive tokens)
+// 20 requests per 15 minutes per IP - enough for normal usage, prevents scraping
+const configLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // limit each IP to 20 requests per windowMs
+  message: 'Too many requests to config endpoint, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting in development for easier testing
+    return process.env.NODE_ENV === 'development';
+  },
+});
+
 // Apply general rate limiting to all API routes
 app.use('/api', generalLimiter);
 
@@ -109,6 +123,10 @@ if (process.env.DISABLE_AUTO_REFRESH === 'true') {
 
 (async () => {
   const server = await registerRoutes(app, storageImplementation);
+  
+  // Apply stricter rate limiting to config endpoint (exposes sensitive tokens)
+  // This must be applied after routes are registered
+  app.use('/api/config', configLimiter);
   
   // Register refresh routes
   registerRefreshRoutes(app, refreshManager);
