@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Bookstore as Bookshop } from '@shared/schema';
 import { generateBookshopImageAlt } from '../lib/imageUtils';
 import { generateBookshopSlug } from '../lib/linkUtils';
+import { logger } from '@/lib/logger';
 
 interface RelatedBookshopsProps {
   currentBookshop: Bookshop;
@@ -28,7 +29,11 @@ const RelatedBookshops = ({ currentBookshop }: RelatedBookshopsProps) => {
         
         setRelatedBookshops(filteredBookshops);
       } catch (error) {
-        console.error('Error fetching related bookshops:', error);
+        const errorObj = error instanceof Error ? error : new Error(String(error));
+        logger.error('Error fetching related bookshops', errorObj, {
+          currentBookshopId: currentBookshop?.id,
+          component: 'RelatedBookshops'
+        });
       } finally {
         setIsLoading(false);
       }

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Bookstore as Bookshop } from "@shared/schema";
+import { logger } from "@/lib/logger";
 import { apiRequest } from "@/lib/queryClient";
 
 interface UseBookstoresFilters {
@@ -46,13 +47,28 @@ export const useBookstores = (filters: UseBookstoresFilters = {}) => {
       try {
         const response = await fetch(endpoint);
         if (!response.ok) {
-          const errorData = await response.json();
-          console.error('API error:', errorData);
+          const errorText = await response.text().catch(() => 'Unknown error');
+          let errorData;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            errorData = { message: errorText };
+          }
+          logger.error('API error in useBookstores', new Error(errorData.message || 'Failed to fetch bookstores'), {
+            endpoint,
+            status: response.status,
+            filters: { state, city, featureIds }
+          });
           throw new Error(errorData.message || 'Failed to fetch bookstores');
         }
-        return await response.json();
+        const data = await response.json();
+        logger.debug('Bookstores fetched successfully', { endpoint, count: data.length, filters: { state, city, featureIds } });
+        return data;
       } catch (error) {
-        console.error('Fetch error:', error);
+        logger.error('Fetch error in useBookstores', error, {
+          endpoint,
+          filters: { state, city, featureIds }
+        });
         throw error;
       }
     }

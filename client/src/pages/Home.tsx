@@ -106,7 +106,7 @@ const Home = () => {
       />
       
       {/* Hero Section - Updated */}
-      <section className="bg-[#5F4B32] py-12 md:py-20 px-4 sm:px-6 lg:px-8">
+      <section className="bg-[#5F4B32] py-10 md:py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="max-w-5xl mx-auto text-center">
             <h1 className="font-serif text-3xl md:text-4xl lg:text-display font-bold text-white mb-4 md:mb-6">
@@ -229,10 +229,10 @@ const Home = () => {
       </section>
       
       {/* Featured Bookshops Section - Updated */}
-      <section id="featured-bookshops" className="py-8 md:py-12 lg:py-16">
+      <section id="featured-bookshops" className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg p-6 md:p-8 lg:p-10">
-            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 lg:p-8 pt-8 md:pt-6 lg:pt-8 shadow-sm bg-[#2A6B7C]/5">
+          <div className="bg-white rounded-lg p-6 md:p-8">
+            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 pt-8 md:pt-6 shadow-sm bg-[#2A6B7C]/5">
               <div className="absolute -top-4 md:-top-5 left-0 w-full flex justify-center px-2">
                 <h2 className="inline-block bg-white px-2 md:px-5 text-lg md:text-2xl lg:text-3xl font-serif font-bold text-[#5F4B32] text-center">
                   Featured Bookshops
@@ -271,7 +271,7 @@ const Home = () => {
                             </div>
                           )}
                         </Link>
-                        <div className="p-4 md:p-5 lg:p-6">
+                        <div className="p-4 md:p-5">
                           <Link href={`/bookshop/${bookshopSlug}`}>
                             <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D] leading-tight line-clamp-2">{bookshop.name}</h3>
                           </Link>
@@ -300,10 +300,10 @@ const Home = () => {
       </section>
       
       {/* Browse by State Section */}
-      <section id="browse-by-state" className="py-8 md:py-12 lg:py-16">
+      <section id="browse-by-state" className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8 lg:p-10">
-            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 lg:p-8 pt-8">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
+            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 pt-8">
               <div className="absolute -top-4 md:-top-5 left-0 w-full flex justify-center px-2">
                 <h2 className="inline-block bg-[#F7F3E8] px-2 md:px-5 text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] text-center">
                   Browse by State
@@ -422,9 +422,9 @@ const Home = () => {
       </section>
       
       {/* Why Independent Bookshops Section */}
-      <section className="py-8 md:py-12 lg:py-16">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg p-6 md:p-8 lg:p-10">
+          <div className="bg-white rounded-lg p-6 md:p-8">
             <div className="lg:flex lg:items-center lg:space-x-12">
               <div className="lg:w-1/2 mb-8 lg:mb-0">
                 <h2 className="text-xl md:text-2xl font-serif font-bold text-[#5F4B32] mb-4">Why Support Independent Bookshops?</h2>
@@ -469,10 +469,10 @@ const Home = () => {
       </section>
       
       {/* SEO Content Section - Moved to bottom and updated */}
-      <section className="py-8 md:py-12 lg:py-16">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8 lg:p-10">
-            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 lg:p-8 pt-8">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
+            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 pt-8">
               <div className="absolute -top-4 md:-top-5 left-0 w-full flex justify-center px-2">
                 <h2 className="inline-block bg-[#F7F3E8] px-2 md:px-5 text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] text-center">
                   America's Most Comprehensive Independent Bookshop Directory

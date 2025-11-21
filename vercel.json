@@ -23,6 +23,11 @@
       "dest": "/api/sitemap.js"
     },
     {
+      "src": "/ads.txt",
+      "headers": { "content-type": "text/plain" },
+      "continue": true
+    },
+    {
       "src": "/api/health",
       "dest": "/api/health.js"
     },
