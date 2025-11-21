@@ -50,3 +50,36 @@ export const SEO = {
     descriptionTemplate: "Visit %s in %s, %s. Find hours, events, and more information about this independent bookstore."
   }
 };
+
+// Map constants
+export const MAP = {
+  // Geographic center of the United States (latitude, longitude)
+  // Used as default map center when no bookshops are available
+  US_CENTER: {
+    lat: 39.8283,
+    lng: -98.5795,
+  },
+  // Mapbox format: [longitude, latitude]
+  US_CENTER_MAPBOX: [-98.5795, 39.8283] as [number, number],
+  // Google Maps format: { lat, lng }
+  US_CENTER_GOOGLE: {
+    lat: 39.8283,
+    lng: -98.5795,
+  },
+} as const;
+
+// React Query constants
+export const QUERY = {
+  // Default stale time: 5 minutes (in milliseconds)
+  DEFAULT_STALE_TIME: 5 * 60 * 1000,
+  // Cache time: 10 minutes (in milliseconds)
+  DEFAULT_CACHE_TIME: 10 * 60 * 1000,
+} as const;
+
+// Pagination constants
+export const PAGINATION = {
+  // Default items per page for directory listings
+  DEFAULT_ITEMS_PER_PAGE: 50,
+  // Large items per page for directory listings
+  LARGE_ITEMS_PER_PAGE: 150,
+} as const;

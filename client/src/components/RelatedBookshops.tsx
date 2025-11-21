@@ -50,7 +50,7 @@ const RelatedBookshops = ({ currentBookshop }: RelatedBookshopsProps) => {
   const renderBookshopCard = (bookshop: Bookshop) => (
     <Card key={bookshop.id} className="hover:shadow-md transition-shadow">
       <CardHeader className="p-4 pb-2">
-        <CardTitle className="text-md font-serif">{bookshop.name}</CardTitle>
+        <CardTitle className="text-md font-serif line-clamp-2">{bookshop.name}</CardTitle>
         <CardDescription className="text-sm truncate">{bookshop.city}, {bookshop.state}</CardDescription>
       </CardHeader>
       <CardContent className="p-4 pt-0">

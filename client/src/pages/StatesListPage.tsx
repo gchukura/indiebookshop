@@ -161,7 +161,7 @@ const StatesListPage = () => {
 
       {statesLoading ? (
         <div className="text-center py-10">
-          <p>Loading states...</p>
+          <p className="text-base">Loading states...</p>
         </div>
       ) : (
         <div className="space-y-8">

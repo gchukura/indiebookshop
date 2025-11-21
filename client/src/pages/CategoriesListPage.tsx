@@ -71,7 +71,7 @@ const CategoriesListPage = () => {
 
       {featuresLoading ? (
         <div className="text-center py-10">
-          <p>Loading categories...</p>
+          <p className="text-base">Loading categories...</p>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow-md p-6">

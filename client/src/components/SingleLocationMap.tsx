@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { COLORS } from '@/lib/constants';
+import { logger } from '@/lib/logger';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -12,6 +13,7 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   // Initialize map
   useEffect(() => {
@@ -33,11 +35,18 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
       try {
         // Fetch the MapBox token from server
         const response = await fetch('/api/config');
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load map configuration (${response.status})`);
+        }
+        
         const config = await response.json();
         const token = config.mapboxAccessToken;
         
         if (!token) {
-          // Silently handle missing token - map just won't render
+          // Set error state for missing token
+          setMapError('Map is temporarily unavailable. Please refresh the page to try again.');
+          logger.error('Mapbox access token is missing in SingleLocationMap', undefined, { endpoint: '/api/config' });
           return;
         }
         
@@ -56,9 +65,13 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
         // Set up map event handlers
         mapInstance.on('load', () => {
           setMapLoaded(true);
-          if (process.env.NODE_ENV === 'development') {
-            console.log('Detail map loaded successfully');
-          }
+          setMapError(null); // Clear error on successful load
+          logger.debug('Detail map loaded successfully');
+        });
+        
+        mapInstance.on('error', (e) => {
+          setMapError('Map failed to load. Please refresh the page to try again.');
+          logger.error('Mapbox map error in SingleLocationMap', e.error);
         });
         
         // Add navigation controls
@@ -82,7 +95,11 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
         // Store map reference
         mapRef.current = mapInstance;
       } catch (error) {
-        console.error('Error initializing detail map:', error);
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : 'Unable to load map. Please refresh the page to try again.';
+        setMapError(errorMessage);
+        logger.error('Error initializing detail map', error);
       }
     };
     
@@ -110,12 +127,29 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
     );
   }
 
-  // Render the map container and loading state
+  // Render the map container and loading/error states
   return (
     <div className="relative w-full h-full">
       <div ref={mapContainerRef} className="w-full h-full"></div>
       
-      {!mapLoaded && (
+      {/* Error state - show error message */}
+      {mapError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-90 z-10">
+          <div className="text-center p-4 bg-white rounded-lg shadow-lg max-w-sm mx-4">
+            <div className="text-red-500 text-3xl mb-2">⚠️</div>
+            <p className="text-sm text-gray-600 mb-3">{mapError}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-3 py-1.5 bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white rounded-md text-xs font-medium transition-colors"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Loading state - only show if no error */}
+      {!mapError && !mapLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-50">
           <div className="text-center p-4 bg-white rounded-md shadow-md">
             <div className="text-[#2A6B7C] text-4xl mb-2">📍</div>

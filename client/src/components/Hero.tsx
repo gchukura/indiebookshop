@@ -23,16 +23,16 @@ const Hero = () => {
           <p className="font-sans text-base md:text-body-lg text-gray-100 mb-6 md:mb-10 max-w-4xl mx-auto px-2">
             Explore unique bookshops across the United States and other regions. Similar to the shops in our directory we are independent and focused on serving the independent bookshop community.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full sm:w-auto">
             <Button 
               onClick={handleFindBookshops}
-              className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white rounded-full px-6 md:px-8 py-3 md:py-4 min-w-[180px] min-h-[44px] md:min-h-0 text-base md:text-sm"
+              className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white rounded-full px-6 md:px-8 py-3 md:py-4 w-full sm:w-auto sm:min-w-[180px] min-h-[44px] md:min-h-0 text-base md:text-sm"
             >
               Find Bookshops
             </Button>
             <Button 
               onClick={handleAddBookshop}
-              className="bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white rounded-full px-6 md:px-8 py-3 md:py-4 min-w-[180px] min-h-[44px] md:min-h-0 text-base md:text-sm"
+              className="bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white rounded-full px-6 md:px-8 py-3 md:py-4 w-full sm:w-auto sm:min-w-[180px] min-h-[44px] md:min-h-0 text-base md:text-sm"
             >
               Add Bookshop
             </Button>

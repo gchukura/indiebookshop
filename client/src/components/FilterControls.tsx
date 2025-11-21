@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { logger } from "@/lib/logger";
 import {
   Select,
   SelectContent,
@@ -40,12 +41,12 @@ const FilterControls = ({
       try {
         const response = await fetch("/api/states");
         if (!response.ok) {
-          console.error(`Failed to fetch states: ${response.status}`);
+          logger.error('Failed to fetch states', undefined, { status: response.status });
           return [];
         }
         return response.json();
       } catch (error) {
-        console.error('Error fetching states:', error);
+        logger.error('Error fetching states', error);
         return [];
       }
     },
@@ -57,18 +58,18 @@ const FilterControls = ({
   const { data: citiesData = [] } = useQuery<string[]>({
     queryKey: selectedState ? ["/api/states", selectedState, "cities"] : ["/api/cities"],
     queryFn: async () => {
+      const endpoint = selectedState 
+        ? `/api/states/${selectedState}/cities`
+        : "/api/cities";
       try {
-        const endpoint = selectedState 
-          ? `/api/states/${selectedState}/cities`
-          : "/api/cities";
         const response = await fetch(endpoint);
         if (!response.ok) {
-          console.error(`Failed to fetch cities: ${response.status}`);
+          logger.error('Failed to fetch cities', undefined, { status: response.status, endpoint });
           return [];
         }
         return response.json();
       } catch (error) {
-        console.error('Error fetching cities:', error);
+        logger.error('Error fetching cities', error, { endpoint });
         return [];
       }
     },
@@ -81,18 +82,18 @@ const FilterControls = ({
   const { data: countiesData = [] } = useQuery<string[]>({
     queryKey: selectedState ? ["/api/states", selectedState, "counties"] : ["/api/counties"],
     queryFn: async () => {
+      const endpoint = selectedState
+        ? `/api/states/${selectedState}/counties`
+        : "/api/counties";
       try {
-        const endpoint = selectedState
-          ? `/api/states/${selectedState}/counties`
-          : "/api/counties";
         const response = await fetch(endpoint);
         if (!response.ok) {
-          console.error(`Failed to fetch counties: ${response.status}`);
+          logger.error('Failed to fetch counties', undefined, { status: response.status, endpoint });
           return [];
         }
         return response.json();
       } catch (error) {
-        console.error('Error fetching counties:', error);
+        logger.error('Error fetching counties', error, { endpoint });
         return [];
       }
     },
@@ -147,12 +148,12 @@ const FilterControls = ({
       {/* Changed from md:grid-cols-5 to md:grid-cols-4 since category filter is commented out */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <div className="flex flex-col">
-          <label htmlFor="state-select" className="mb-1.5 md:mb-1 font-medium text-sm">Filter by State</label>
+          <label htmlFor="state-select" className="mb-1.5 md:mb-1 text-sm font-medium text-gray-700">Filter by State</label>
           <Select value={selectedState || "all"} onValueChange={handleStateChange}>
             <SelectTrigger 
               id="state-select"
               aria-label="Select state to filter bookshops"
-              className="w-full border border-gray-300 rounded-md px-3 py-2.5 md:py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C] min-h-[44px] md:min-h-0"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 md:py-2 text-sm focus:outline-none focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0 min-h-[44px] md:min-h-0"
             >
               <SelectValue placeholder="All States" />
             </SelectTrigger>
@@ -182,12 +183,12 @@ const FilterControls = ({
         </div>
         
         <div className="flex flex-col">
-          <label htmlFor="city-select" className="mb-1.5 md:mb-1 font-medium text-sm">Filter by City</label>
+          <label htmlFor="city-select" className="mb-1.5 md:mb-1 text-sm font-medium text-gray-700">Filter by City</label>
           <Select value={selectedCity || "all"} onValueChange={handleCityChange}>
             <SelectTrigger 
               id="city-select"
               aria-label="Select city to filter bookshops"
-              className="w-full border border-gray-300 rounded-md px-3 py-2.5 md:py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C] min-h-[44px] md:min-h-0"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 md:py-2 text-sm focus:outline-none focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0 min-h-[44px] md:min-h-0"
             >
               <SelectValue placeholder="All Cities" />
             </SelectTrigger>
@@ -208,12 +209,12 @@ const FilterControls = ({
         </div>
         
         <div className="flex flex-col">
-          <label htmlFor="county-select" className="mb-1.5 md:mb-1 font-medium text-sm">Filter by County</label>
+          <label htmlFor="county-select" className="mb-1.5 md:mb-1 text-sm font-medium text-gray-700">Filter by County</label>
           <Select value={selectedCounty || "all"} onValueChange={handleCountyChange}>
             <SelectTrigger 
               id="county-select"
               aria-label="Select county to filter bookshops"
-              className="w-full border border-gray-300 rounded-md px-3 py-2.5 md:py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#2A6B7C] min-h-[44px] md:min-h-0"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 md:py-2 text-sm focus:outline-none focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0 min-h-[44px] md:min-h-0"
             >
               <SelectValue placeholder="All Counties" />
             </SelectTrigger>

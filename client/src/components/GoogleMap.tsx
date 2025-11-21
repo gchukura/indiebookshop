@@ -1,17 +1,39 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { Bookstore } from '@shared/schema';
+import { MAP } from '@/lib/constants';
 
-// Define Google Maps types to avoid TypeScript errors
+// Define minimal Google Maps types to avoid TypeScript errors
+// These are minimal interfaces since @types/google.maps may not be installed
+interface GoogleMapInstance {
+  setZoom: (zoom: number) => void;
+  getZoom: () => number;
+  fitBounds: (bounds: GoogleLatLngBounds) => void;
+}
+
+interface GoogleMarker {
+  setMap: (map: GoogleMapInstance | null) => void;
+  addListener: (event: string, handler: () => void) => void;
+}
+
+interface GoogleLatLngBounds {
+  extend: (position: { lat: number; lng: number }) => void;
+}
+
+interface GoogleMapsEvent {
+  addListener: (instance: GoogleMapInstance, event: string, handler: () => void) => void;
+  removeListener: (listener: unknown) => void;
+}
+
 declare global {
   interface Window {
     google: {
       maps: {
-        Map: any;
-        Marker: any;
-        LatLngBounds: any;
-        event: any;
+        Map: new (element: HTMLElement, options: unknown) => GoogleMapInstance;
+        Marker: new (options: unknown) => GoogleMarker;
+        LatLngBounds: new () => GoogleLatLngBounds;
+        event: GoogleMapsEvent;
         Animation: {
-          DROP: any;
+          DROP: unknown;
         };
       };
     };
@@ -25,8 +47,8 @@ interface GoogleMapProps {
 
 const GoogleMap = ({ bookstores, onSelectBookstore }: GoogleMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markersRef = useRef<any[]>([]);
+  const mapInstanceRef = useRef<GoogleMapInstance | null>(null);
+  const markersRef = useRef<GoogleMarker[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
 
   // Clean up markers
@@ -51,7 +73,7 @@ const GoogleMap = ({ bookstores, onSelectBookstore }: GoogleMapProps) => {
     
     try {
       const mapOptions = {
-        center: { lat: 39.8283, lng: -98.5795 }, // Center of US
+        center: MAP.US_CENTER_GOOGLE,
         zoom: 4,
         mapTypeControl: false,
         streetViewControl: false,
@@ -133,7 +155,7 @@ const GoogleMap = ({ bookstores, onSelectBookstore }: GoogleMapProps) => {
           console.error('Error creating marker:', e);
           return null;
         }
-      }).filter(Boolean); // Filter out null markers
+      }).filter((marker): marker is GoogleMarker => marker !== null); // Filter out null markers with type guard
       
       // Save references to the new markers
       markersRef.current = newMarkers;

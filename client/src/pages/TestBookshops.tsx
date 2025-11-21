@@ -18,7 +18,9 @@ const TestBookshops = () => {
       }
       
       const data = await response.json();
-      console.log(`Found ${data.length} bookshops for ${state}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Found ${data.length} bookshops for ${state}`);
+      }
       setBookshops(data);
     } catch (err) {
       console.error("Error fetching bookshops:", err);

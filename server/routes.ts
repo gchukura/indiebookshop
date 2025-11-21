@@ -288,9 +288,54 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
     }
   });
   
+  /**
+   * Get client-side configuration (e.g., Mapbox access token)
+   * 
+   * SECURITY NOTES:
+   * - This endpoint exposes the Mapbox access token to the client (required for Mapbox GL JS)
+   * - The token should be restricted in Mapbox dashboard:
+   *   1. Set URL restrictions to only allow your domain(s)
+   *   2. Use a public token (pk.*) not a secret token (sk.*)
+   *   3. Limit scopes to only what's needed (e.g., styles:read, fonts:read)
+   *   4. Set rate limits in Mapbox dashboard
+   * - This endpoint is rate-limited to prevent token scraping
+   * - CORS headers restrict which origins can access this endpoint
+   */
   app.get("/api/config", (req, res) => {
+    // Set security headers
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    
+    // CORS: Only allow requests from same origin or configured allowed origins
+    const origin = req.headers.origin;
+    const host = req.get('host');
+    const protocol = req.protocol;
+    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || [];
+    
+    // Same-origin requests don't send Origin header, so we allow them
+    // For cross-origin requests, check if origin is allowed
+    if (origin) {
+      const isSameOrigin = origin === `${protocol}://${host}`;
+      const isAllowedOrigin = allowedOrigins.length > 0 && allowedOrigins.some(allowed => origin.startsWith(allowed));
+      
+      if (isSameOrigin || isAllowedOrigin) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+      }
+      // If origin is present but not allowed, don't set CORS headers (request will be blocked)
+    }
+    // If no origin header, it's a same-origin request (no CORS headers needed)
+    
+    // Only expose token if it exists
+    const mapboxToken = process.env.MAPBOX_ACCESS_TOKEN || '';
+    
+    // Validate token format (should be a public token starting with 'pk.')
+    if (mapboxToken && !mapboxToken.startsWith('pk.')) {
+      console.warn('WARNING: Mapbox token does not appear to be a public token (should start with "pk.")');
+    }
+    
     res.json({
-      mapboxAccessToken: process.env.MAPBOX_ACCESS_TOKEN || ''
+      mapboxAccessToken: mapboxToken
     });
   });
 
