@@ -3,26 +3,6 @@ import { Book } from "lucide-react";
 import { SEO } from "../components/SEO";
 import { BASE_URL } from "../lib/seo";
 
-const BlogPlaceholder = () => {
-  return (
-    <div className="flex flex-col md:flex-row items-center justify-center py-8 md:py-12 lg:py-16 px-4 bg-[#F7F3E8] rounded-lg text-center md:text-left gap-6 md:gap-10">
-      <div className="mb-6 md:mb-0 md:w-1/4 flex justify-center">
-        <BookWormMascot />
-      </div>
-      <div className="md:w-3/4 max-w-xl">
-        <blockquote className="italic text-2xl md:text-3xl mb-4 text-[#5F4B32] font-serif leading-relaxed">
-          "Better to remain silent and be thought a fool than to speak and remove all doubt."
-        </blockquote>
-        <p className="text-[#2A6B7C] font-medium text-lg">— Abraham Lincoln</p>
-        <p className="mt-6 text-gray-600">
-          We're working on some amazing articles about independent bookshops. 
-          Check back soon!
-        </p>
-      </div>
-    </div>
-  );
-};
-
 // Cartoonish Book Worm Mascot component
 const BookWormMascot = () => {
   return (
@@ -130,7 +110,7 @@ const Blog = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <>
       {/* SEO Component */}
       <SEO 
         title={seoTitle}
@@ -139,40 +119,68 @@ const Blog = () => {
         canonicalUrl={canonicalUrl}
       />
       
-      <div className="max-w-3xl mx-auto mb-12">
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-[#5F4B32] mb-4">
-          Independent Bookshop Blog & Articles
-        </h1>
-        <p className="text-lg md:text-xl text-gray-600 mb-8">
-          Stories, interviews, and insights from the world of independent bookshops across America.
-        </p>
-        
-        {/* Placeholder with mascot while no articles exist */}
-        <BlogPlaceholder />
-        
-        {/* Future article grid */}
-        <div className="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-          {placeholderArticles.map(article => (
-            <div key={article.id} className="bg-white rounded-lg shadow-sm overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-md">
-              <div className="h-48 bg-gray-200 flex justify-center items-center">
-                {article.imageUrl ? (
-                  <img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover" />
-                ) : (
-                  <Book className="h-12 w-12 text-gray-400" />
-                )}
-              </div>
-              <div className="p-4">
-                <h3 className="font-serif font-bold text-lg mb-2 text-[#5F4B32]">{article.title}</h3>
-                <p className="text-gray-600 text-sm">{article.excerpt}</p>
-                <button className="mt-4 text-[#2A6B7C] font-medium text-sm hover:text-[#E16D3D] transition-colors">
-                  Read more →
-                </button>
+      {/* Combined Hero + Placeholder Section */}
+      <section className="py-8 md:py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
+            <div className="max-w-4xl mx-auto">
+              {/* Hero Title */}
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-4 text-center">
+                Independent Bookshop Blog
+              </h1>
+              <p className="font-sans text-base md:text-body-lg text-gray-700 text-center mb-8 md:mb-12">
+                Stories, interviews, and insights from the world of independent bookshops across America.
+              </p>
+              
+              {/* Placeholder Content with Mascot */}
+              <div className="flex flex-col md:flex-row items-center justify-center text-center md:text-left gap-6 md:gap-10">
+                <div className="mb-4 md:mb-0 md:w-1/4 flex justify-center">
+                  <BookWormMascot />
+                </div>
+                <div className="md:w-3/4 max-w-xl">
+                  <blockquote className="italic text-xl md:text-2xl mb-3 text-[#5F4B32] font-serif leading-relaxed">
+                    "Better to remain silent and be thought a fool than to speak and remove all doubt."
+                  </blockquote>
+                  <p className="font-sans text-[#2A6B7C] font-medium text-base md:text-lg mb-4">
+                    — Abraham Lincoln
+                  </p>
+                  <p className="font-sans text-sm md:text-base text-gray-700">
+                    We're working on some amazing articles about independent bookshops. 
+                    Check back soon!
+                  </p>
+                </div>
               </div>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+      
+      {/* Future article grid - hidden until content exists */}
+      <section className="hidden py-8 md:py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {placeholderArticles.map(article => (
+              <div key={article.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-xl transition-shadow">
+                <div className="h-48 bg-gray-200 flex justify-center items-center">
+                  {article.imageUrl ? (
+                    <img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <Book className="h-12 w-12 text-gray-400" />
+                  )}
+                </div>
+                <div className="p-4 md:p-5">
+                  <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-2 break-words">{article.title}</h3>
+                  <p className="font-sans text-sm md:text-base text-gray-700 mb-4 line-clamp-3">{article.excerpt}</p>
+                  <button className="font-sans text-sm text-[#2A6B7C] font-medium hover:text-[#E16D3D] transition-colors">
+                    Read more →
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 };
 

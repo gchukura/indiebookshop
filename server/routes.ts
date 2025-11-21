@@ -85,12 +85,22 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
         features: featureIds
       });
       
+      const filterStartTime = Date.now();
       const bookstores = await storageImpl.getFilteredBookstores({
         state: validatedFilters.state,
         city: validatedFilters.city,
         county: county,
         featureIds: validatedFilters.features
       });
+      const filterDuration = Date.now() - filterStartTime;
+      
+      const filters = [];
+      if (validatedFilters.state) filters.push(`state=${validatedFilters.state}`);
+      if (validatedFilters.city) filters.push(`city=${validatedFilters.city}`);
+      if (county) filters.push(`county=${county}`);
+      if (validatedFilters.features?.length) filters.push(`features=${validatedFilters.features.join(',')}`);
+      
+      console.log(`[PERF] GET /api/bookstores/filter (${filters.join(', ') || 'none'}): ${bookstores.length} bookstores in ${filterDuration}ms`);
       
       res.json(bookstores);
     } catch (error) {
@@ -103,10 +113,15 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   
   // Get all bookstores
   app.get("/api/bookstores", async (req, res) => {
+    const startTime = Date.now();
     try {
       const bookstores = await storageImpl.getBookstores();
+      const duration = Date.now() - startTime;
+      console.log(`[PERF] GET /api/bookstores: ${bookstores.length} bookstores in ${duration}ms`);
       res.json(bookstores);
     } catch (error) {
+      const duration = Date.now() - startTime;
+      console.error(`[PERF] GET /api/bookstores: ERROR after ${duration}ms`, error);
       res.status(500).json({ message: "Failed to fetch bookstores" });
     }
   });

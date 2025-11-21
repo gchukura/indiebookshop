@@ -2,6 +2,7 @@
 import 'dotenv/config';
 
 import express, { type Request, Response, NextFunction } from "express";
+import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -18,6 +19,19 @@ import { validateAndLogEnvironment } from './env-validation';
 validateAndLogEnvironment();
 
 const app = express();
+
+// Enable compression for all responses (reduces JSON payload sizes significantly)
+app.use(compression({
+  filter: (req, res) => {
+    // Compress all responses except if explicitly disabled
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  },
+  level: 6, // Balance between compression ratio and CPU usage
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

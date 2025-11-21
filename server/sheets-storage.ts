@@ -195,9 +195,15 @@ export class GoogleSheetsStorage implements IStorage {
   
   // Bookstore operations - filter for live bookstores
   async getBookstores(): Promise<Bookstore[]> {
+    const startTime = Date.now();
     await this.ensureInitialized();
     // Only return bookstores where live is not explicitly set to false
-    return this.bookstores.filter(b => b.live !== false);
+    const result = this.bookstores.filter(b => b.live !== false);
+    const duration = Date.now() - startTime;
+    if (duration > 100) {
+      console.log(`[PERF] GoogleSheetsStorage.getBookstores: ${result.length} bookstores in ${duration}ms (slow)`);
+    }
+    return result;
   }
   
   async getBookstore(id: number): Promise<Bookstore | undefined> {
@@ -287,6 +293,7 @@ export class GoogleSheetsStorage implements IStorage {
   }
 
   async getFilteredBookstores(filters: { state?: string, city?: string, county?: string, featureIds?: number[] }): Promise<Bookstore[]> {
+    const startTime = Date.now();
     await this.ensureInitialized();
     // Start with only live bookstores
     let filteredBookstores = this.bookstores.filter(b => b.live !== false);
@@ -334,6 +341,15 @@ export class GoogleSheetsStorage implements IStorage {
       filteredBookstores = filteredBookstores.filter(bookstore => 
         bookstore.featureIds?.some(id => filters.featureIds?.includes(id)) || false
       );
+    }
+    
+    const duration = Date.now() - startTime;
+    if (duration > 50) {
+      const filterDesc = Object.entries(filters)
+        .filter(([_, v]) => v !== undefined && (Array.isArray(v) ? v.length > 0 : true))
+        .map(([k, v]) => `${k}=${Array.isArray(v) ? v.join(',') : v}`)
+        .join(', ') || 'none';
+      console.log(`[PERF] GoogleSheetsStorage.getFilteredBookstores (${filterDesc}): ${filteredBookstores.length} results in ${duration}ms`);
     }
     
     return filteredBookstores;
