@@ -1,47 +1,13 @@
 import { Link, useLocation } from "wouter";
-import { useState, useRef, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle } from "@/components/ui/sheet";
-import { Menu, X, ChevronDown } from "lucide-react";
-// import { Feature } from "@shared/schema"; // Temporarily disabled for category navigation
+import { Menu, X } from "lucide-react";
 import Logo from "@/components/Logo";
 
 const Header = () => {
   const [location] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showStatesDropdown, setShowStatesDropdown] = useState(false);
-  // const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false); // Category navigation temporarily disabled
-  const statesDropdownRef = useRef<HTMLDivElement>(null);
-  // const categoriesDropdownRef = useRef<HTMLDivElement>(null); // Category navigation temporarily disabled
-
-  // Fetch states for dropdown
-  const { data: states = [] } = useQuery<string[]>({
-    queryKey: ["/api/states"],
-  });
-
-  // Fetch features/categories for dropdown - temporarily disabled
-  // const { data: features = [] } = useQuery<Feature[]>({
-  //   queryKey: ["/api/features"],
-  // });
-
-  // Handle clicks outside the dropdown to close it
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (statesDropdownRef.current && !statesDropdownRef.current.contains(event.target as Node)) {
-        setShowStatesDropdown(false);
-      }
-      // Category navigation temporarily disabled
-      // if (categoriesDropdownRef.current && !categoriesDropdownRef.current.contains(event.target as Node)) {
-      //   setShowCategoriesDropdown(false);
-      // }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const isActiveRoute = (route: string) => {
     return location === route || location.startsWith(route + '/');
@@ -56,60 +22,12 @@ const Header = () => {
               <Logo height={90} width={90} className="md:h-[80px] md:w-auto" showDotCom={true} />
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
-              <div className="relative" ref={statesDropdownRef}>
-                <button 
-                  onClick={() => {
-                    setShowStatesDropdown(!showStatesDropdown);
-                    // setShowCategoriesDropdown(false); // Category navigation temporarily disabled
-                  }}
-                  className={`${isActiveRoute('/directory') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 flex items-center transition-colors`}
-                >
-                  Directory
-                  <ChevronDown className="ml-1 h-4 w-4" />
-                </button>
-                {showStatesDropdown && (
-                  <div className="absolute top-12 left-0 bg-white shadow-lg rounded-md overflow-hidden w-64 z-50">
-                    <div className="py-1">
-                      <Link 
-                        href="/directory" 
-                        className="block px-4 py-2 font-sans text-body-sm text-gray-700 hover:text-[#2A6B7C] hover:bg-gray-100 transition-colors"
-                        onClick={() => setShowStatesDropdown(false)}
-                      >
-                        All Bookshops
-                      </Link>
-                      <Link 
-                        href="/directory/browse" 
-                        className="block px-4 py-2 font-sans text-body-sm text-gray-700 hover:text-[#2A6B7C] hover:bg-gray-100 transition-colors"
-                        onClick={() => setShowStatesDropdown(false)}
-                      >
-                        Bookshops by State
-                      </Link>
-                      <Link 
-                        href="/directory/cities" 
-                        className="block px-4 py-2 font-sans text-body-sm text-gray-700 hover:text-[#2A6B7C] hover:bg-gray-100 transition-colors"
-                        onClick={() => setShowStatesDropdown(false)}
-                      >
-                        Bookshops by City
-                      </Link>
-                      <Link 
-                        href="/directory/counties" 
-                        className="block px-4 py-2 font-sans text-body-sm text-gray-700 hover:text-[#2A6B7C] hover:bg-gray-100 transition-colors"
-                        onClick={() => setShowStatesDropdown(false)}
-                      >
-                        Bookshops by County
-                      </Link>
-                      {/* Category navigation temporarily disabled until featureIds column is added to Google Sheet */}
-                      {/* <Link 
-                        href="/directory/categories" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setShowStatesDropdown(false)}
-                      >
-                        Bookshops by Category
-                      </Link> */}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <Link 
+                href="/directory" 
+                className={`${isActiveRoute('/directory') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors`}
+              >
+                Directory
+              </Link>
 
               <Link 
                 href="/about" 
@@ -170,43 +88,13 @@ const Header = () => {
                   Main navigation menu for IndieBookShop.com
                 </SheetDescription>
                 <nav className="flex flex-col gap-2 mt-8">
-                  <div className="space-y-2">
-                    <div className="px-4 py-2 font-sans text-h4 font-semibold text-[#5F4B32]">
-                      Directory
-                    </div>
-                    <div className="pl-4 space-y-1">
-                      <Link 
-                        href="/directory" 
-                        className="block px-4 py-1.5 font-sans text-body-sm text-gray-700 hover:bg-gray-100 rounded"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        All Bookshops
-                      </Link>
-                      <Link 
-                        href="/directory/browse" 
-                        className="block px-4 py-1.5 font-sans text-body-sm text-gray-700 hover:bg-gray-100 rounded"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Bookshops by State
-                      </Link>
-                      <Link 
-                        href="/directory/cities" 
-                        className="block px-4 py-1.5 font-sans text-body-sm text-gray-700 hover:bg-gray-100 rounded"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Bookshops by City
-                      </Link>
-                      {/* Category navigation temporarily disabled until featureIds column is added to Google Sheet */}
-                      {/* <Link 
-                        href="/directory/categories" 
-                        className="block px-4 py-1.5 text-md text-gray-700 hover:bg-gray-100 rounded"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Bookshops by Category
-                      </Link> */}
-                    </div>
-                  </div>
-                  
+                  <Link 
+                    href="/directory" 
+                    className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Directory
+                  </Link>
                   <Link 
                     href="/about" 
                     className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"

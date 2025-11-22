@@ -1,346 +1,1087 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { Search, MapPin, Filter, X, ChevronDown, ChevronLeft, ChevronRight, Crosshair, Loader2 } from "lucide-react";
+// react-map-gl v8 uses /mapbox subpath
+import Map from "react-map-gl/mapbox";
+import { Marker, NavigationControl } from "react-map-gl/mapbox";
+import Supercluster from "supercluster";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation, useSearch } from "wouter";
-import FilterControls from "@/components/FilterControls";
-import BookshopDetail from "@/components/BookshopDetail";
-import MapboxMap from "@/components/MapboxMap";
-import BookshopTable from "@/components/BookshopTable";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import { ErrorDisplay } from "@/components/ErrorDisplay";
+import { Link } from "wouter";
+import { Bookstore } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { Bookstore as Bookshop } from "@shared/schema";
+import { Input } from "@/components/ui/input";
 import { SEO } from "../components/SEO";
-import { BASE_URL, MAIN_KEYWORDS } from "../lib/seo";
-import { statesMatch } from "../lib/stateUtils";
+import { BASE_URL } from "../lib/seo";
+import { generateSlugFromName } from "../lib/linkUtils";
+import { MAP } from "@/lib/constants";
 import { logger } from "@/lib/logger";
-import { QUERY, PAGINATION } from "@/lib/constants";
-
-// Type for bookshop with flexible featureIds handling
-type BookshopWithFeatures = Bookshop & {
-  featureIds?: number[] | string | null;
-};
+import "mapbox-gl/dist/mapbox-gl.css";
 
 const Directory = () => {
+  // State management
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedState, setSelectedState] = useState<string>("all");
+  const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [selectedCounty, setSelectedCounty] = useState<string>("all");
+  const [selectedFeatures, setSelectedFeatures] = useState<number[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
+  const [hoveredBookshopId, setHoveredBookshopId] = useState<number | null>(null);
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [location, setLocation] = useLocation();
-  const search = useSearch();
-  const searchParams = new URLSearchParams(search);
-  const searchQuery = searchParams.get("search") || "";
-  
-  // State for filters managed directly in this component
-  const [selectedState, setSelectedState] = useState<string>("");
-  const [selectedCity, setSelectedCity] = useState<string>("");
-  const [selectedCounty, setSelectedCounty] = useState<string>("");
-  
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  // Show bookshops per page for optimal performance and UX
-  const bookshopsPerPage = PAGINATION.LARGE_ITEMS_PER_PAGE;
-  
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedState, selectedCity, selectedCounty, searchQuery]);
-  
-  // Determine if we should use server-side filtering
-  // Use server-side filtering when any filter is active for better performance
-  const hasActiveFilters = !!(selectedState || selectedCity || selectedCounty);
-  
-  // Build query key for filtered or unfiltered data
-  const queryKey = hasActiveFilters
-    ? ['bookshops', 'filtered', selectedState, selectedCity, selectedCounty]
-    : ['bookshops'];
-  
-  // Fetch bookshops (filtered server-side if filters are active, otherwise all)
-  // This optimization reduces data transfer and improves performance when filters are applied
-  const { data: fetchedBookshops, isLoading, isError, error } = useQuery<BookshopWithFeatures[]>({
-    queryKey,
-    queryFn: async () => {
-      try {
-        // Build URL based on whether filters are active
-        let queryUrl: string;
-        if (hasActiveFilters) {
-          const params = new URLSearchParams();
-          if (selectedState) params.set('state', selectedState);
-          if (selectedCity) params.set('city', selectedCity);
-          if (selectedCounty) params.set('county', selectedCounty);
-          queryUrl = `/api/bookstores/filter?${params.toString()}`;
-        } else {
-          queryUrl = '/api/bookstores';
-        }
-        
-        const response = await fetch(queryUrl);
-        if (!response.ok) {
-          const errorText = await response.text().catch(() => 'Unknown error');
-          throw new Error(`Failed to fetch bookshops: ${response.status} ${errorText}`);
-        }
-        return response.json();
-      } catch (err) {
-        logger.error('Error fetching bookshops', err, { 
-          hasActiveFilters, 
-          selectedState, 
-          selectedCity, 
-          selectedCounty 
-        });
-        throw err;
-      }
-    },
-    staleTime: QUERY.DEFAULT_STALE_TIME,
-    retry: 2,
-    retryDelay: 1000,
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
+  const [showSearchThisArea, setShowSearchThisArea] = useState(false);
+  const [mapBounds, setMapBounds] = useState<{
+    north: number;
+    south: number;
+    east: number;
+    west: number;
+  } | null>(null);
+  const [mobileSheetHeight, setMobileSheetHeight] = useState<"peek" | "half" | "full">("peek");
+  const [mapboxToken, setMapboxToken] = useState<string | null>(null);
+
+  const mapRef = useRef<any>(null);
+  const [viewState, setViewState] = useState({
+    longitude: MAP.US_CENTER_MAPBOX[0],
+    latitude: MAP.US_CENTER_MAPBOX[1],
+    zoom: 4,
+    pitch: 0,
+    bearing: 0
   });
-  
-  // Apply client-side search query filter (search is always done client-side for instant feedback)
-  // This is acceptable since search typically reduces the dataset significantly
-  const filteredBookshops = useMemo(() => {
-    // Early return if no data
-    if (!fetchedBookshops || fetchedBookshops.length === 0) {
-      return [];
-    }
-    
-    // If no search query, return the server-filtered results as-is
-    if (!searchQuery || searchQuery.trim().length === 0) {
-      return fetchedBookshops;
-    }
-    
-    // Apply search query filter client-side for instant feedback
-    const normalizedQuery = searchQuery.toLowerCase().trim();
-    return fetchedBookshops.filter((bookshop) => {
-      const name = bookshop.name?.toLowerCase() || '';
-      const city = bookshop.city?.toLowerCase() || '';
-      const state = bookshop.state?.toLowerCase() || '';
-      
-      return name.includes(normalizedQuery) || 
-             city.includes(normalizedQuery) || 
-             state.includes(normalizedQuery);
-    });
-  }, [fetchedBookshops, searchQuery]);
 
-
-  // Generate a slug from bookshop name for SEO-friendly URLs
-  const generateSlug = (name: string): string => {
-    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-  };
-
-  const handleShowDetails = (id: number) => {
-    // Find the bookshop by ID
-    const bookshop = filteredBookshops.find(b => b.id === id);
-    
-    if (bookshop) {
-      // Navigate to the SEO-friendly permalink page using client-side navigation
-      const slug = generateSlug(bookshop.name);
-      setLocation(`/bookshop/${slug}`);
-    } else {
-      // Fallback to the modal if bookshop not found
-      setSelectedBookshopId(id);
-      setIsDetailOpen(true);
-    }
-  };
-
-  const handleCloseDetail = () => {
-    setIsDetailOpen(false);
-  };
-
-  // Get paginated bookshops
-  const totalPages = Math.max(1, Math.ceil(filteredBookshops.length / bookshopsPerPage));
-  // Ensure currentPage is within valid range
-  const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
-  const indexOfLastBookshop = validCurrentPage * bookshopsPerPage;
-  const indexOfFirstBookshop = indexOfLastBookshop - bookshopsPerPage;
-  const currentBookshops = filteredBookshops.slice(indexOfFirstBookshop, indexOfLastBookshop);
-  
-  // Update currentPage if it's out of bounds
+  // Fetch Mapbox token
   useEffect(() => {
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(1);
-    }
-  }, [currentPage, totalPages]);
-  
-  // Handle page change
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-  
-  // SEO metadata
-  const seoTitle = useMemo(() => {
-    if (searchQuery) {
-      return `Search Results for "${searchQuery}" | Independent Bookshop Directory`;
-    }
-    
-    if (selectedState) {
-      return `Independent Bookshops in ${selectedState} | Find Local Bookstores`;
-    }
-    
-    return "Independent Bookshop Directory | Find Local Indie Bookstores Near You";
-  }, [searchQuery, selectedState]);
-  
-  const seoDescription = useMemo(() => {
-    if (searchQuery) {
-      return `Browse search results for "${searchQuery}" in our independent bookshop directory. Find local indie bookstores, their locations, features, and upcoming events.`;
-    }
-    
-    if (selectedState) {
-      return `Discover independent bookshops in ${selectedState}. Browse our complete directory of local indie bookstores, view their locations on the map, and find details about each shop.`;
-    }
-    
-    return "Browse our comprehensive directory of independent bookshops across America. Find local indie bookstores near you, view their locations on the map, and discover their unique offerings.";
-  }, [searchQuery, selectedState]);
-  
-  const seoKeywords = useMemo(() => {
-    let keywords = [...MAIN_KEYWORDS];
-    
-    if (selectedState) {
-      keywords = keywords.concat([
-        `bookshops in ${selectedState}`,
-        `independent bookshops in ${selectedState}`,
-        `indie bookstores in ${selectedState}`,
-        `local bookshops in ${selectedState}`,
-        `${selectedState} bookshops`,
-        `${selectedState} indie bookstores`
-      ]);
-    }
-    
-    return keywords;
-  }, [selectedState]);
-  
-  const canonicalUrl = useMemo(() => {
-    return `${BASE_URL}/directory`;
+    const fetchToken = async () => {
+      try {
+        const response = await fetch('/api/config');
+        if (!response.ok) {
+          throw new Error(`Failed to load map configuration (${response.status})`);
+        }
+        const config = await response.json();
+        if (config.mapboxAccessToken) {
+          setMapboxToken(config.mapboxAccessToken);
+        } else {
+          logger.error('Mapbox access token is missing', undefined, { endpoint: '/api/config' });
+        }
+      } catch (error) {
+        logger.error('Error fetching Mapbox token', error);
+      }
+    };
+    fetchToken();
   }, []);
-  
+
+  // Fetch all bookshops
+  const { data: bookshops = [], isLoading } = useQuery<Bookstore[]>({
+    queryKey: ["/api/bookstores"],
+  });
+
+  // Fetch features for filtering
+  const { data: features = [] } = useQuery<Array<{ id: number; name: string }>>({
+    queryKey: ["/api/features"],
+  });
+
+  // Get unique states for filter
+  const states = useMemo(() => {
+    const stateSet = new Set(bookshops.map(b => b.state).filter(Boolean));
+    return Array.from(stateSet).sort();
+  }, [bookshops]);
+
+  // Get unique cities for filter (filtered by selected state)
+  const cities = useMemo(() => {
+    const bookshopsToFilter = selectedState !== "all" 
+      ? bookshops.filter(b => b.state === selectedState)
+      : bookshops;
+    
+    const citySet = new Set(
+      bookshopsToFilter
+        .filter(b => b.city && b.state)
+        .map(b => `${b.city}, ${b.state}`)
+    );
+    return Array.from(citySet).sort();
+  }, [bookshops, selectedState]);
+
+  // Get unique counties for filter (filtered by selected state)
+  const counties = useMemo(() => {
+    const bookshopsToFilter = selectedState !== "all" 
+      ? bookshops.filter(b => b.state === selectedState)
+      : bookshops;
+    
+    const countySet = new Set(
+      bookshopsToFilter
+        .filter(b => b.county && b.state)
+        .map(b => `${b.county}, ${b.state}`)
+    );
+    return Array.from(countySet).sort();
+  }, [bookshops, selectedState]);
+
+  // Filter bookshops
+  const filteredBookshops = useMemo(() => {
+    let filtered = [...bookshops];
+
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(b => 
+        b.name.toLowerCase().includes(query) ||
+        b.city?.toLowerCase().includes(query) ||
+        b.state?.toLowerCase().includes(query) ||
+        b.county?.toLowerCase().includes(query)
+      );
+    }
+
+    // State filter
+    if (selectedState !== "all") {
+      filtered = filtered.filter(b => b.state === selectedState);
+    }
+
+    // City filter
+    if (selectedCity !== "all") {
+      const [city, state] = selectedCity.split(", ");
+      filtered = filtered.filter(b => b.city === city && b.state === state);
+    }
+
+    // County filter
+    if (selectedCounty !== "all") {
+      const [county, state] = selectedCounty.split(", ");
+      filtered = filtered.filter(b => b.county === county && b.state === state);
+    }
+
+    // Feature filters (using featureIds)
+    if (selectedFeatures.length > 0) {
+      filtered = filtered.filter(b => {
+        if (!b.featureIds || !Array.isArray(b.featureIds)) return false;
+        return selectedFeatures.some(featureId => b.featureIds!.includes(featureId));
+      });
+    }
+
+    // Sort by name
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+    return filtered;
+  }, [bookshops, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures]);
+
+  // Create cluster index
+  const { clusterInstance, points } = useMemo(() => {
+    const supercluster = new Supercluster({
+      radius: 60,
+      maxZoom: 16,
+      minZoom: 0
+    });
+
+    const geoPoints = filteredBookshops
+      .filter(b => {
+        const lat = b.latitude ? parseFloat(b.latitude) : null;
+        const lon = b.longitude ? parseFloat(b.longitude) : null;
+        return lat !== null && lon !== null && !isNaN(lat) && !isNaN(lon);
+      })
+      .map(b => {
+        const lat = parseFloat(b.latitude!);
+        const lon = parseFloat(b.longitude!);
+        return {
+          type: 'Feature' as const,
+          properties: { 
+            cluster: false, 
+            bookshopId: b.id,
+            bookshop: b
+          },
+          geometry: {
+            type: 'Point' as const,
+            coordinates: [lon, lat]
+          }
+        };
+      });
+
+    supercluster.load(geoPoints);
+    
+    return { clusterInstance: supercluster, points: geoPoints };
+  }, [filteredBookshops]);
+
+  // Get clusters for current map view
+  const clusters = useMemo(() => {
+    if (!mapBounds || !clusterInstance) return [];
+    
+    return clusterInstance.getClusters(
+      [mapBounds.west, mapBounds.south, mapBounds.east, mapBounds.north],
+      Math.floor(viewState.zoom)
+    );
+  }, [clusterInstance, mapBounds, viewState.zoom]);
+
+  // Bookshops visible in current map bounds (for panel list)
+  const visibleBookshops = useMemo(() => {
+    if (!mapBounds) return filteredBookshops;
+    
+    return filteredBookshops.filter(b => {
+      const lat = b.latitude ? parseFloat(b.latitude) : null;
+      const lon = b.longitude ? parseFloat(b.longitude) : null;
+      
+      if (!lat || !lon || isNaN(lat) || isNaN(lon)) return false;
+      
+      return (
+        lat >= mapBounds.south &&
+        lat <= mapBounds.north &&
+        lon >= mapBounds.west &&
+        lon <= mapBounds.east
+      );
+    });
+  }, [filteredBookshops, mapBounds]);
+
+  // Toggle feature filter
+  const toggleFeature = (featureId: number) => {
+    setSelectedFeatures(prev =>
+      prev.includes(featureId)
+        ? prev.filter(f => f !== featureId)
+        : [...prev, featureId]
+    );
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedState("all");
+    setSelectedCity("all");
+    setSelectedCounty("all");
+    setSelectedFeatures([]);
+  };
+
+  // Active filter count
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (selectedState !== "all") count++;
+    if (selectedCity !== "all") count++;
+    if (selectedCounty !== "all") count++;
+    count += selectedFeatures.length;
+    return count;
+  }, [selectedState, selectedCity, selectedCounty, selectedFeatures]);
+
+  // Handle card hover
+  const handleCardHover = useCallback((bookshopId: number | null) => {
+    setHoveredBookshopId(bookshopId);
+  }, []);
+
+  // Handle pin click
+  const handlePinClick = useCallback((bookshopId: number) => {
+    setSelectedBookshopId(bookshopId);
+    
+    // Expand panel if collapsed
+    if (isPanelCollapsed) {
+      setIsPanelCollapsed(false);
+    }
+    
+    // Scroll to card in panel
+    setTimeout(() => {
+      const cardElement = document.getElementById(`bookshop-${bookshopId}`);
+      if (cardElement) {
+        cardElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }, 100);
+  }, [isPanelCollapsed]);
+
+  // Handle cluster click (zoom in)
+  const handleClusterClick = useCallback((clusterId: number, longitude: number, latitude: number) => {
+    if (!clusterInstance) return;
+    
+    const expansionZoom = Math.min(
+      clusterInstance.getClusterExpansionZoom(clusterId),
+      20
+    );
+    
+    setViewState(prev => ({
+      ...prev,
+      longitude,
+      latitude,
+      zoom: expansionZoom
+    }));
+  }, [clusterInstance]);
+
+  // Update map bounds helper
+  const updateMapBounds = useCallback(() => {
+    if (mapRef.current && mapRef.current.getMap) {
+      try {
+        const map = mapRef.current.getMap();
+        if (map && map.getBounds) {
+          const bounds = map.getBounds();
+          
+          setMapBounds({
+            north: bounds.getNorth(),
+            south: bounds.getSouth(),
+            east: bounds.getEast(),
+            west: bounds.getWest()
+          });
+        }
+      } catch (error) {
+        // Map might not be fully initialized yet
+        if (process.env.NODE_ENV === 'development') {
+          logger.debug('Error getting map bounds', { error: String(error) });
+        }
+      }
+    }
+  }, []);
+
+  // Handle map movement
+  const handleMapMove = useCallback((evt: any) => {
+    if (evt.viewState) {
+      setViewState(evt.viewState);
+    }
+    updateMapBounds();
+    setShowSearchThisArea(true);
+  }, [updateMapBounds]);
+
+  // Set initial map bounds when map loads
+  const handleMapLoad = useCallback(() => {
+    updateMapBounds();
+  }, [updateMapBounds]);
+
+  // Search current map area
+  const searchThisArea = useCallback(() => {
+    setShowSearchThisArea(false);
+  }, []);
+
+  // Use current location
+  const useMyLocation = useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setViewState(prev => ({
+            ...prev,
+            longitude,
+            latitude,
+            zoom: 12
+          }));
+        },
+        (error) => {
+          logger.error("Error getting location", error);
+        }
+      );
+    }
+  }, []);
+
+  // Automatically fit map to filtered bookshops when filters change
+  useEffect(() => {
+    // Don't try to fit if still loading or no bookshops
+    if (isLoading || !mapRef.current || !mapboxToken || filteredBookshops.length === 0) return;
+
+    // Get all bookshops with valid coordinates
+    const bookshopsWithCoords = filteredBookshops.filter(b => {
+      const lat = b.latitude ? parseFloat(b.latitude) : null;
+      const lon = b.longitude ? parseFloat(b.longitude) : null;
+      return lat !== null && lon !== null && !isNaN(lat) && !isNaN(lon);
+    });
+
+    if (bookshopsWithCoords.length === 0) return;
+
+    // Only auto-fit if user has applied filters
+    // Don't auto-fit on initial load with all bookshops
+    const hasActiveFilters = 
+      selectedState !== "all" || 
+      selectedCity !== "all" ||
+      selectedCounty !== "all" ||
+      selectedFeatures.length > 0 || 
+      searchQuery.length > 0;
+    
+    if (!hasActiveFilters) return;
+
+    try {
+      const map = mapRef.current.getMap();
+      if (!map || !map.fitBounds) return;
+
+      // Calculate bounds of all filtered bookshops
+      const lngs = bookshopsWithCoords.map(b => parseFloat(b.longitude!));
+      const lats = bookshopsWithCoords.map(b => parseFloat(b.latitude!));
+
+      const minLng = Math.min(...lngs);
+      const maxLng = Math.max(...lngs);
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+
+      // Add padding (10% on each side)
+      const lngPadding = (maxLng - minLng) * 0.1;
+      const latPadding = (maxLat - minLat) * 0.1;
+
+      const bounds: [[number, number], [number, number]] = [
+        [minLng - lngPadding, minLat - latPadding],
+        [maxLng + lngPadding, maxLat + latPadding]
+      ];
+
+      // Fit map to bounds with animation
+      map.fitBounds(bounds, {
+        padding: { top: 50, bottom: 50, left: isPanelCollapsed ? 100 : 450, right: 50 },
+        duration: 1000,
+        maxZoom: 15 // Don't zoom in too close for single bookshops
+      });
+    } catch (error) {
+      // Map might not be fully initialized yet
+      if (process.env.NODE_ENV === 'development') {
+        logger.debug('Error fitting map bounds', { error: String(error) });
+      }
+    }
+  }, [selectedState, selectedCity, selectedCounty, selectedFeatures, searchQuery, isPanelCollapsed, isLoading, mapboxToken, filteredBookshops.length]);
+
+  // Don't render map until token is loaded
+  if (!mapboxToken) {
+    return (
+      <>
+        <SEO 
+          title="Find Independent Bookshops | Directory of 2,000+ Indie Bookstores"
+          description="Search our comprehensive directory of independent bookshops across America. Find indie bookstores by location, features, and more."
+          keywords={["independent bookshop directory", "find indie bookstores", "local bookshop finder", "indie bookstore map"]}
+          canonicalUrl={`${BASE_URL}/directory`}
+        />
+        <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 mx-auto text-[#2A6B7C] animate-spin mb-3" />
+            <p className="font-sans text-sm text-gray-600">Loading map configuration...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
-    <ErrorBoundary>
+    <>
       {/* SEO Component */}
       <SEO 
-        title={seoTitle}
-        description={seoDescription}
-        keywords={seoKeywords}
-        canonicalUrl={canonicalUrl}
+        title="Find Independent Bookshops | Directory of 2,000+ Indie Bookstores"
+        description="Search our comprehensive directory of independent bookshops across America. Find indie bookstores by location, features, and more."
+        keywords={["independent bookshop directory", "find indie bookstores", "local bookshop finder", "indie bookstore map"]}
+        canonicalUrl={`${BASE_URL}/directory`}
       />
-      
-      {/* Simplified Directory Hero */}
-      <section className="bg-[#2A6B7C] py-8 md:py-12 px-4 sm:px-6 lg:px-8">
-        <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">
-              Search Our Directory
-            </h1>
-            <p className="font-sans text-sm md:text-base text-gray-100">
-              Browse 2,000+ independent bookshops by location, filter by features, or explore the interactive map.
-            </p>
-          </div>
-        </div>
-      </section>
-      
-      {/* Interactive Map Section */}
-      <section className="py-8 md:py-12 lg:py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg p-6 md:p-8 lg:p-10">
-            <div className="text-center mb-6 md:mb-8">
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">
-                Find Independent Bookshops Near You
-              </h2>
-              <p className="text-base md:text-lg text-gray-700 max-w-3xl mx-auto mb-4 md:mb-6 px-2">
-                Use our interactive map to explore indie bookshops across America. Click on any pin to view details.
-              </p>
-            </div>
-            <div className="h-[300px] sm:h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-lg border-4 border-[#2A6B7C] mb-6 md:mb-8">
-              <MapboxMap 
-                bookstores={filteredBookshops} 
-                onSelectBookshop={handleShowDetails}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Controls and bookshop table */}
-      <section className="py-8 md:py-12 lg:py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Filtering controls */}
-          <div className="mb-6 md:mb-8">
-            <FilterControls 
-              bookshopCount={filteredBookshops.length}
-              onStateChange={setSelectedState}
-              onCityChange={setSelectedCity}
-              onCountyChange={setSelectedCounty}
-              onFeatureChange={() => {}} // Feature filter disabled
-              selectedState={selectedState}
-              selectedCity={selectedCity}
-              selectedCounty={selectedCounty}
-              selectedFeature={null} // Feature filter disabled
-            />
-          </div>
-          
-          {/* Bookshop table section */}
-          <div className="bg-white rounded-lg shadow-md p-6 md:p-8 lg:p-10">
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">
-            {searchQuery 
-              ? `Search Results for "${searchQuery}" - Independent Bookshops` 
-              : selectedState
-                ? `Independent Bookshops in ${selectedState}`
-                : "Independent Bookshop Directory - Find Local Indie Bookstores"}
-          </h2>
-          
-            <p className="text-sm md:text-base text-gray-700 mb-4 md:mb-6">
-            {searchQuery 
-              ? `Showing matching local bookshops for your search "${searchQuery}". Browse the results below.` 
-              : selectedState
-                ? `Discover independent bookshops throughout ${selectedState}. View locations on the map or browse the list below.`
-                : "Browse our comprehensive directory of independent bookshops across America. Find your next favorite local indie bookshop."}
-          </p>
-          
-          {isLoading ? (
-            <div className="text-center py-8 md:py-10">
-              <p className="text-base md:text-lg">Loading bookshops...</p>
-            </div>
-          ) : isError ? (
-            <ErrorDisplay
-              error={error}
-              message="Unable to load bookshops. Please try again later."
-              title="Error Loading Bookshops"
-              showRetry
-              onRetry={() => window.location.reload()}
-            />
-          ) : filteredBookshops.length === 0 ? (
-            <div className="text-center py-8 md:py-10 px-4">
-              <p className="text-base md:text-lg mb-4 md:mb-6">No bookshops found matching your criteria.</p>
-              <Button 
-                className="mt-4 bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white min-h-[44px] px-6 md:px-4"
-                onClick={() => {
-                  setSelectedState("");
-                  setSelectedCity("");
-                  setSelectedCounty("");
-                  // setSelectedFeature(null); // Category filter temporarily disabled
-                  setLocation("/directory");
+
+      {/* Full-Screen Map Container */}
+      <div className="relative h-[calc(100vh-64px)]">
+        {/* Mapbox Map */}
+        <Map
+          ref={mapRef}
+          {...viewState}
+          onMove={handleMapMove}
+          onLoad={handleMapLoad}
+          mapboxAccessToken={mapboxToken}
+          mapStyle="mapbox://styles/mapbox/streets-v12"
+          style={{ width: "100%", height: "100%" }}
+        >
+          {/* Navigation controls */}
+          <NavigationControl position="bottom-right" />
+
+          {/* Render clusters and individual pins */}
+          {clusters.map((cluster: any) => {
+            const [longitude, latitude] = cluster.geometry.coordinates;
+            const { cluster: isCluster, point_count: pointCount, bookshopId, bookshop } = cluster.properties;
+
+            if (isCluster) {
+              // Cluster Marker
+              return (
+                <Marker
+                  key={`cluster-${cluster.id}`}
+                  longitude={longitude}
+                  latitude={latitude}
+                  onClick={(e: any) => {
+                    e.originalEvent.stopPropagation();
+                    handleClusterClick(cluster.id, longitude, latitude);
+                  }}
+                >
+                  <ClusterMarker pointCount={pointCount} />
+                </Marker>
+              );
+            }
+
+            // Individual Bookshop Pin
+            const isHovered = hoveredBookshopId === bookshopId;
+            const isSelected = selectedBookshopId === bookshopId;
+
+            return (
+              <Marker
+                key={`bookshop-${bookshopId}`}
+                longitude={longitude}
+                latitude={latitude}
+                onClick={(e: any) => {
+                  e.originalEvent.stopPropagation();
+                  handlePinClick(bookshopId);
                 }}
               >
-                Reset Filters
-              </Button>
-            </div>
-          ) : (
-            <BookshopTable 
-              bookshops={currentBookshops}
-              showDetails={handleShowDetails}
-              currentPage={validCurrentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
+                <BookshopPin
+                  isHovered={isHovered}
+                  isSelected={isSelected}
+                  bookshop={bookshop}
+                />
+              </Marker>
+            );
+          })}
+        </Map>
+
+        {/* Floating Search Bar (Top Center) */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-xl px-4">
+          <div className="relative bg-white rounded-full shadow-lg">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Search bookshop name, city, state, or county..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 font-sans text-base rounded-full border-0 focus:ring-2 focus:ring-[#2A6B7C]"
             />
-          )}
           </div>
         </div>
-      </section>
 
-      {/* Bookshop Detail Modal */}
-      {selectedBookshopId && (
-        <BookshopDetail 
-          bookshopId={selectedBookshopId} 
-          isOpen={isDetailOpen} 
-          onClose={handleCloseDetail} 
+        {/* Use My Location Button (Top Right) */}
+        <div className="absolute top-4 right-4 z-10">
+          <Button
+            onClick={useMyLocation}
+            className="bg-white hover:bg-gray-50 text-gray-700 rounded-full shadow-lg"
+            size="icon"
+            title="Use my location"
+          >
+            <Crosshair className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Search This Area Button (Dynamic) */}
+        {showSearchThisArea && (
+          <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10">
+            <Button
+              onClick={searchThisArea}
+              className="bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white rounded-full shadow-lg px-6 py-3 font-sans font-semibold"
+            >
+              <Search className="w-4 h-4 mr-2" />
+              Search this area
+            </Button>
+          </div>
+        )}
+
+        {/* Desktop Sliding Panel */}
+        <div
+          className={`hidden md:block absolute top-0 left-0 h-full bg-white shadow-2xl transition-all duration-300 z-20 ${
+            isPanelCollapsed ? "w-16" : "w-[400px]"
+          }`}
+        >
+          {isPanelCollapsed ? (
+            /* Collapsed State - Vertical Design on Left Edge */
+            <div className="relative h-full w-16 bg-white border-r-2 border-gray-200">
+              {/* Expand button centered vertically */}
+              <button
+                onClick={() => setIsPanelCollapsed(false)}
+                className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white hover:bg-gray-50 rounded-full border-2 border-gray-300 shadow-lg transition-all hover:scale-110 z-30"
+                title="Expand panel"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-700" />
+              </button>
+              
+              {/* Vertical content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 py-8">
+                {/* Bookshop count - vertical */}
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-10 h-10 bg-[#5F4B32] rounded-full flex items-center justify-center">
+                    <MapPin className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="writing-mode-vertical text-center">
+                    <span className="font-sans text-sm font-bold text-[#5F4B32] whitespace-nowrap transform -rotate-180" style={{ writingMode: 'vertical-rl' }}>
+                      {visibleBookshops.length} shops
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Filter indicator if active */}
+                {activeFilterCount > 0 && (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-8 h-8 bg-[#E16D3D] rounded-full flex items-center justify-center">
+                      <span className="font-sans text-xs font-bold text-white">
+                        {activeFilterCount}
+                      </span>
+                    </div>
+                    <div className="writing-mode-vertical text-center">
+                      <span className="font-sans text-xs text-gray-600 whitespace-nowrap transform -rotate-180" style={{ writingMode: 'vertical-rl' }}>
+                        filters
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Expanded State */
+            <div className="h-full flex flex-col relative">
+              {/* Collapse button on right edge, centered vertically */}
+              <button
+                onClick={() => setIsPanelCollapsed(true)}
+                className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white hover:bg-gray-50 rounded-full border-2 border-gray-300 shadow-lg transition-all hover:scale-110 z-30"
+                title="Collapse panel"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-700" />
+              </button>
+              
+              {/* Panel Header */}
+              <div className="flex-shrink-0 p-4 md:p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  {/* Bookshop count - COMMENTED OUT: Suppressed per request */}
+                  {/* <h2 className="font-serif text-xl md:text-2xl font-bold text-[#5F4B32]">
+                    {visibleBookshops.length} bookshops
+                  </h2> */}
+                </div>
+
+                {/* Location Filters */}
+                <div className="space-y-3">
+                  <h3 className="font-sans text-sm font-semibold text-gray-700 mb-2">
+                    Location
+                  </h3>
+                  
+                  {/* State Filter */}
+                  <div className="relative">
+                    <select
+                      value={selectedState}
+                      onChange={(e) => {
+                        setSelectedState(e.target.value);
+                        // Reset city/county when state changes
+                        if (e.target.value === "all") {
+                          setSelectedCity("all");
+                          setSelectedCounty("all");
+                        }
+                      }}
+                      className="appearance-none w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 pr-10 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#2A6B7C]"
+                    >
+                      <option value="all">All States</option>
+                      {states.map(state => (
+                        <option key={state} value={state}>{state}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+
+                  {/* City Filter */}
+                  <div className="relative">
+                    <select
+                      value={selectedCity}
+                      onChange={(e) => setSelectedCity(e.target.value)}
+                      disabled={cities.length === 0}
+                      className={`appearance-none w-full border rounded-lg px-3 py-2 pr-10 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] ${
+                        cities.length === 0 
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                          : 'bg-gray-50 text-gray-900'
+                      }`}
+                    >
+                      <option value="all">
+                        {selectedState === "all" 
+                          ? "Select a state first" 
+                          : cities.length === 0 
+                          ? "No cities available"
+                          : "All Cities"
+                        }
+                      </option>
+                      {cities.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+
+                  {/* County Filter */}
+                  <div className="relative">
+                    <select
+                      value={selectedCounty}
+                      onChange={(e) => setSelectedCounty(e.target.value)}
+                      disabled={counties.length === 0}
+                      className={`appearance-none w-full border rounded-lg px-3 py-2 pr-10 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] ${
+                        counties.length === 0 
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                          : 'bg-gray-50 text-gray-900'
+                      }`}
+                    >
+                      <option value="all">
+                        {selectedState === "all" 
+                          ? "Select a state first" 
+                          : counties.length === 0 
+                          ? "No counties available"
+                          : "All Counties"
+                        }
+                      </option>
+                      {counties.map(county => (
+                        <option key={county} value={county}>{county}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                  </div>
+
+                  {/* Feature Filters Toggle - COMMENTED OUT: Not ready yet */}
+                  {/* <div className="pt-2">
+                    <h3 className="font-sans text-sm font-semibold text-gray-700 mb-2">
+                      Features
+                    </h3>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="w-full justify-start relative rounded-lg font-sans"
+                      size="sm"
+                    >
+                      <Filter className="w-4 h-4 mr-2" />
+                      <span className="font-sans">
+                        {selectedFeatures.length > 0 
+                          ? `${selectedFeatures.length} selected`
+                          : "Select features"
+                        }
+                      </span>
+                      {selectedFeatures.length > 0 && (
+                        <span className="ml-auto bg-[#E16D3D] text-white text-xs rounded-full px-2 py-0.5 font-sans font-semibold">
+                          {selectedFeatures.length}
+                        </span>
+                      )}
+                      <ChevronDown className={`ml-2 w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                    </Button>
+                  </div> */}
+
+                  {/* Advanced Filters (Collapsible) - COMMENTED OUT: Not ready yet */}
+                  {/* {showFilters && (
+                    <div className="space-y-2">
+                      {features.map(feature => (
+                        <button
+                          key={feature.id}
+                          onClick={() => toggleFeature(feature.id)}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-sm font-sans font-medium transition-colors ${
+                            selectedFeatures.includes(feature.id)
+                              ? "bg-[#2A6B7C] text-white"
+                              : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          {feature.name}
+                        </button>
+                      ))}
+                    </div>
+                  )} */}
+
+                  {/* Clear Filters */}
+                  {activeFilterCount > 0 && (
+                    <button
+                      onClick={clearFilters}
+                      className="w-full font-sans text-sm text-[#2A6B7C] hover:underline flex items-center justify-center gap-1 py-1"
+                    >
+                      <X className="w-4 h-4" />
+                      Clear all filters
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Scrollable Card List */}
+              <div className="flex-1 overflow-y-auto">
+                {isLoading ? (
+                  <div className="p-6 text-center">
+                    <Loader2 className="w-8 h-8 mx-auto text-[#2A6B7C] animate-spin mb-3" />
+                    <p className="font-sans text-sm text-gray-600">Loading bookshops...</p>
+                  </div>
+                ) : visibleBookshops.length > 0 ? (
+                  <div className="p-4 space-y-3">
+                    {visibleBookshops.map(bookshop => (
+                      <PanelBookshopCard
+                        key={bookshop.id}
+                        bookshop={bookshop}
+                        isHovered={hoveredBookshopId === bookshop.id}
+                        isSelected={selectedBookshopId === bookshop.id}
+                        onHover={handleCardHover}
+                        onClick={() => handlePinClick(bookshop.id)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-6 text-center">
+                    <MapPin className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                    <h3 className="font-serif text-lg font-bold text-gray-700 mb-2">
+                      No bookshops found
+                    </h3>
+                    <p className="font-sans text-sm text-gray-600 mb-4">
+                      Try adjusting your filters or search in a different area
+                    </p>
+                    {activeFilterCount > 0 && (
+                      <Button
+                        onClick={clearFilters}
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full font-sans"
+                      >
+                        Clear filters
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Bottom Sheet */}
+        <MobileBottomSheet
+          bookshops={visibleBookshops}
+          height={mobileSheetHeight}
+          onHeightChange={setMobileSheetHeight}
+          selectedBookshopId={selectedBookshopId}
+          onPinClick={handlePinClick}
+          isLoading={isLoading}
+          activeFilterCount={activeFilterCount}
+          onClearFilters={clearFilters}
         />
+      </div>
+    </>
+  );
+};
+
+// Cluster Marker Component
+const ClusterMarker: React.FC<{ pointCount: number }> = ({ pointCount }) => {
+  // Calculate cluster size based on point count
+  const size = pointCount < 10 ? 40 : pointCount < 50 ? 50 : pointCount < 100 ? 60 : 70;
+  
+  return (
+    <div className="relative cursor-pointer">
+      {/* Outer ring (pulsing effect) */}
+      <div 
+        className="absolute inset-0 bg-[#2A6B7C] rounded-full opacity-20 animate-ping"
+        style={{ width: size, height: size }}
+      />
+      
+      {/* Main cluster circle */}
+      <div 
+        className="relative bg-[#2A6B7C] rounded-full flex items-center justify-center shadow-lg hover:bg-[#1d5a6a] transition-colors"
+        style={{ width: size, height: size }}
+      >
+        <span className="font-sans font-bold text-white" style={{ fontSize: pointCount < 10 ? '14px' : '16px' }}>
+          {pointCount}
+        </span>
+      </div>
+      
+      {/* Outer border ring */}
+      <div 
+        className="absolute inset-0 border-3 border-[#2A6B7C] border-opacity-30 rounded-full pointer-events-none"
+        style={{ width: size + 8, height: size + 8, left: -4, top: -4 }}
+      />
+    </div>
+  );
+};
+
+// Bookshop Pin Component (Classic Map Pin Style)
+const BookshopPin: React.FC<{
+  isHovered: boolean;
+  isSelected: boolean;
+  bookshop: Bookstore;
+}> = ({ isHovered, isSelected, bookshop }) => {
+  return (
+    <div className="relative">
+      {/* Classic pin shape */}
+      <svg
+        width="36"
+        height="44"
+        viewBox="0 0 36 44"
+        className={`cursor-pointer transition-transform drop-shadow-lg ${
+          isSelected
+            ? "scale-125"
+            : isHovered
+            ? "scale-110"
+            : "hover:scale-105"
+        }`}
+      >
+        {/* Pin background */}
+        <path
+          d="M18 0C8.059 0 0 8.059 0 18c0 9.941 18 26 18 26s18-16.059 18-26C36 8.059 27.941 0 18 0z"
+          fill={isSelected ? "#E16D3D" : isHovered ? "#2A6B7C" : "#5F4B32"}
+          className="transition-colors duration-200"
+        />
+        
+        {/* White circle background for icon */}
+        <circle cx="18" cy="16" r="9" fill="white" />
+        
+        {/* Book icon */}
+        <g transform="translate(12, 10)">
+          <path
+            d="M1 3.5v9A1.5 1.5 0 0 0 2.5 14h9V2h-9A1.5 1.5 0 0 0 1 3.5z"
+            stroke={isSelected ? "#E16D3D" : isHovered ? "#2A6B7C" : "#5F4B32"}
+            strokeWidth="1.2"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <line
+            x1="11.5"
+            y1="2"
+            x2="11.5"
+            y2="14"
+            stroke={isSelected ? "#E16D3D" : isHovered ? "#2A6B7C" : "#5F4B32"}
+            strokeWidth="1.2"
+            strokeLinecap="round"
+          />
+        </g>
+      </svg>
+    </div>
+  );
+};
+
+// Panel Bookshop Card (Compact for side panel)
+interface PanelBookshopCardProps {
+  bookshop: Bookstore;
+  isHovered: boolean;
+  isSelected: boolean;
+  onHover: (id: number | null) => void;
+  onClick: () => void;
+}
+
+const PanelBookshopCard: React.FC<PanelBookshopCardProps> = ({ 
+  bookshop, 
+  isHovered, 
+  isSelected,
+  onHover,
+  onClick
+}) => {
+  const slug = generateSlugFromName(bookshop.name);
+
+  return (
+    <div
+      id={`bookshop-${bookshop.id}`}
+      onMouseEnter={() => onHover(bookshop.id)}
+      onMouseLeave={() => onHover(null)}
+      onClick={onClick}
+      className={`bg-white border-2 rounded-lg p-3 md:p-4 cursor-pointer transition-all ${
+        isSelected 
+          ? "border-[#E16D3D] shadow-md" 
+          : isHovered
+          ? "border-[#2A6B7C] shadow-sm"
+          : "border-gray-200 hover:border-gray-300"
+      }`}
+    >
+      <h3 className="font-serif font-bold text-base text-[#5F4B32] mb-1 break-words line-clamp-1">
+        {bookshop.name}
+      </h3>
+      
+      {(bookshop.city || bookshop.state) && (
+        <div className="flex items-start text-xs text-gray-600 mb-2">
+          <MapPin className="w-3 h-3 mr-1 mt-0.5 flex-shrink-0" />
+          <span className="font-sans line-clamp-1">
+            {bookshop.city && `${bookshop.city}, `}
+            {bookshop.state}
+          </span>
+        </div>
       )}
-    </ErrorBoundary>
+
+      {bookshop.description && (
+        <p className="font-sans text-xs text-gray-700 line-clamp-2 mb-2">
+          {bookshop.description}
+        </p>
+      )}
+
+      <Link 
+        href={`/bookshop/${slug}`}
+        className="font-sans text-xs text-[#2A6B7C] hover:underline font-medium inline-block"
+        onClick={(e) => e.stopPropagation()}
+      >
+        View details →
+      </Link>
+    </div>
+  );
+};
+
+// Mobile Bottom Sheet Component
+interface MobileBottomSheetProps {
+  bookshops: Bookstore[];
+  height: "peek" | "half" | "full";
+  onHeightChange: (height: "peek" | "half" | "full") => void;
+  selectedBookshopId: number | null;
+  onPinClick: (id: number) => void;
+  isLoading: boolean;
+  activeFilterCount: number;
+  onClearFilters: () => void;
+}
+
+const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({ 
+  bookshops,
+  height,
+  onHeightChange,
+  selectedBookshopId,
+  onPinClick,
+  isLoading,
+  activeFilterCount,
+  onClearFilters
+}) => {
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const [startY, setStartY] = useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    setStartY(e.touches[0].clientY);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    const endY = e.changedTouches[0].clientY;
+    const diff = startY - endY;
+
+    if (diff > 50) {
+      // Swiped up
+      if (height === "peek") onHeightChange("half");
+      else if (height === "half") onHeightChange("full");
+    } else if (diff < -50) {
+      // Swiped down
+      if (height === "full") onHeightChange("half");
+      else if (height === "half") onHeightChange("peek");
+    }
+  };
+
+  return (
+    <div 
+      ref={sheetRef}
+      className={`md:hidden bg-white rounded-t-2xl shadow-2xl transition-all duration-300 ${
+        height === "peek" 
+          ? "h-24" 
+          : height === "half"
+          ? "h-[50vh]"
+          : "h-[90vh]"
+      }`}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Drag Handle */}
+      <div className="flex items-center justify-center py-3">
+        <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
+      </div>
+
+      {/* Content */}
+      <div className="px-4 pb-4 overflow-y-auto" style={{ height: "calc(100% - 48px)" }}>
+        {height === "peek" ? (
+          <div className="flex items-center justify-between">
+            <span className="font-sans text-sm font-semibold text-gray-700">
+              {bookshops.length} bookshops nearby
+            </span>
+            <span className="font-sans text-xs text-gray-500">
+              Swipe up to expand
+            </span>
+          </div>
+        ) : isLoading ? (
+          <div className="text-center py-6">
+            <Loader2 className="w-8 h-8 mx-auto text-[#2A6B7C] animate-spin mb-3" />
+            <p className="font-sans text-sm text-gray-600">Loading bookshops...</p>
+          </div>
+        ) : bookshops.length > 0 ? (
+          <div className="space-y-3">
+            {bookshops.map(bookshop => (
+              <PanelBookshopCard
+                key={bookshop.id}
+                bookshop={bookshop}
+                isHovered={false}
+                isSelected={selectedBookshopId === bookshop.id}
+                onHover={() => {}}
+                onClick={() => onPinClick(bookshop.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-6">
+            <MapPin className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+            <h3 className="font-serif text-lg font-bold text-gray-700 mb-2">
+              No bookshops found
+            </h3>
+            <p className="font-sans text-sm text-gray-600 mb-4">
+              Try searching in a different area
+            </p>
+            {activeFilterCount > 0 && (
+              <Button
+                onClick={onClearFilters}
+                variant="outline"
+                size="sm"
+                className="rounded-full font-sans"
+              >
+                Clear filters
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
