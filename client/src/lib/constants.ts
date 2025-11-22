@@ -83,3 +83,67 @@ export const PAGINATION = {
   // Large items per page for directory listings
   LARGE_ITEMS_PER_PAGE: 150,
 } as const;
+
+// Directory Map Configuration
+export const DIRECTORY_MAP = {
+  // Default view state
+  DEFAULT_VIEW: {
+    longitude: -95.7129,
+    latitude: 37.0902,
+    zoom: 4,
+    pitch: 0,
+    bearing: 0,
+  },
+  // Bounds padding for fitBounds
+  BOUNDS_PADDING: {
+    top: 50,
+    bottom: 50,
+    left: {
+      collapsed: 100,
+      expanded: 450,
+    },
+    right: 50,
+  },
+  // Padding percentage for auto-fit (10% on each side)
+  BOUNDS_PADDING_PERCENT: 0.1,
+  // Minimum span for bounds (prevents zero-width bounds)
+  MINIMUM_BOUNDS_SPAN: 0.01, // Roughly 1km
+  // Maximum zoom for auto-fit
+  MAX_AUTO_ZOOM: 15,
+  // Transition duration for map animations (ms)
+  TRANSITION_DURATION: 1000,
+  // Delay before scrolling to card after pin click (ms)
+  SCROLL_DELAY: 100,
+  // Default zoom when using geolocation
+  GEOLOCATION_ZOOM: 12,
+} as const;
+
+// Cluster Configuration
+export const CLUSTER_CONFIG = {
+  radius: 60,
+  maxZoom: 16,
+  minZoom: 0,
+  expansionMaxZoom: 20,
+} as const;
+
+// Panel Configuration
+export const PANEL_CONFIG = {
+  expanded: {
+    width: 400,
+    widthClass: "w-[400px]",
+  },
+  collapsed: {
+    width: 16,
+    widthClass: "w-16",
+  },
+} as const;
+
+// Mobile Sheet Heights
+export const SHEET_HEIGHTS = {
+  peek: "h-24",
+  half: "h-[50vh]",
+  full: "h-[90vh]",
+} as const;
+
+// Location delimiter for city/county filters (prevents issues with commas in names)
+export const LOCATION_DELIMITER = "|||" as const;

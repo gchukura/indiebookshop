@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
-import { Search, MapPin, Filter, X, ChevronDown, ChevronLeft, ChevronRight, Crosshair, Loader2 } from "lucide-react";
+import React, { useState, useMemo, useCallback, useRef, useEffect, Component, ReactNode } from "react";
+import { Search, MapPin, Filter, X, ChevronDown, ChevronLeft, ChevronRight, Crosshair, Loader2, AlertCircle } from "lucide-react";
 // react-map-gl v8 uses /mapbox subpath
 import Map from "react-map-gl/mapbox";
 import { Marker, NavigationControl } from "react-map-gl/mapbox";
@@ -12,9 +12,94 @@ import { Input } from "@/components/ui/input";
 import { SEO } from "../components/SEO";
 import { BASE_URL } from "../lib/seo";
 import { generateSlugFromName } from "../lib/linkUtils";
-import { MAP } from "@/lib/constants";
+import { DIRECTORY_MAP, CLUSTER_CONFIG, PANEL_CONFIG, LOCATION_DELIMITER } from "@/lib/constants";
 import { logger } from "@/lib/logger";
+import { stateMap, stateNameMap } from "@/lib/stateUtils";
 import "mapbox-gl/dist/mapbox-gl.css";
+
+// ============================================================================
+// ERROR BOUNDARY - Catches map initialization failures
+// ============================================================================
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class MapErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    logger.error('Map error', error, { errorInfo });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="h-full flex flex-col items-center justify-center p-8 bg-gray-50">
+          <AlertCircle className="w-16 h-16 text-red-500 mb-4" />
+          <h2 className="font-serif text-2xl font-bold text-gray-900 mb-2">
+            Map Failed to Load
+          </h2>
+          <p className="font-sans text-gray-600 text-center mb-6 max-w-md">
+            We're having trouble loading the map. This could be due to a network issue or browser compatibility.
+          </p>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => window.location.reload()}
+              className="rounded-full font-sans"
+            >
+              Reload Page
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => this.setState({ hasError: false, error: null })}
+              className="rounded-full font-sans"
+            >
+              Try Again
+            </Button>
+          </div>
+          {this.state.error && process.env.NODE_ENV === 'development' && (
+            <details className="mt-6 p-4 bg-white rounded-lg border border-gray-200 max-w-md">
+              <summary className="font-sans text-sm font-semibold text-gray-700 cursor-pointer">
+                Technical Details
+              </summary>
+              <pre className="mt-2 font-mono text-xs text-gray-600 overflow-auto max-h-32">
+                {this.state.error.toString()}
+              </pre>
+            </details>
+          )}
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// ============================================================================
+// TYPES
+// ============================================================================
+
+type NotificationType = {
+  type: 'success' | 'error' | 'info';
+  message: string;
+} | null;
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 
 const Directory = () => {
   // State management
@@ -36,17 +121,25 @@ const Directory = () => {
   } | null>(null);
   const [mobileSheetHeight, setMobileSheetHeight] = useState<"peek" | "half" | "full">("peek");
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
+  const [notification, setNotification] = useState<NotificationType>(null);
 
-  const mapRef = useRef<any>(null);
-  const [viewState, setViewState] = useState({
-    longitude: MAP.US_CENTER_MAPBOX[0],
-    latitude: MAP.US_CENTER_MAPBOX[1],
-    zoom: 4,
-    pitch: 0,
-    bearing: 0
+  const mapRef = useRef<{ getMap: () => any } | null>(null);
+  const [viewState, setViewState] = useState<{
+    longitude: number;
+    latitude: number;
+    zoom: number;
+    pitch: number;
+    bearing: number;
+    transitionDuration?: number;
+  }>({
+    longitude: DIRECTORY_MAP.DEFAULT_VIEW.longitude,
+    latitude: DIRECTORY_MAP.DEFAULT_VIEW.latitude,
+    zoom: DIRECTORY_MAP.DEFAULT_VIEW.zoom,
+    pitch: DIRECTORY_MAP.DEFAULT_VIEW.pitch,
+    bearing: DIRECTORY_MAP.DEFAULT_VIEW.bearing
   });
 
-  // Fetch Mapbox token
+  // Fetch Mapbox token from API
   useEffect(() => {
     const fetchToken = async () => {
       try {
@@ -84,6 +177,7 @@ const Directory = () => {
   }, [bookshops]);
 
   // Get unique cities for filter (filtered by selected state)
+  // Uses LOCATION_DELIMITER to prevent issues with commas in city names
   const cities = useMemo(() => {
     const bookshopsToFilter = selectedState !== "all" 
       ? bookshops.filter(b => b.state === selectedState)
@@ -92,12 +186,13 @@ const Directory = () => {
     const citySet = new Set(
       bookshopsToFilter
         .filter(b => b.city && b.state)
-        .map(b => `${b.city}, ${b.state}`)
+        .map(b => `${b.city}${LOCATION_DELIMITER}${b.state}`)
     );
     return Array.from(citySet).sort();
   }, [bookshops, selectedState]);
 
   // Get unique counties for filter (filtered by selected state)
+  // Uses LOCATION_DELIMITER to prevent issues with commas in county names
   const counties = useMemo(() => {
     const bookshopsToFilter = selectedState !== "all" 
       ? bookshops.filter(b => b.state === selectedState)
@@ -106,7 +201,7 @@ const Directory = () => {
     const countySet = new Set(
       bookshopsToFilter
         .filter(b => b.county && b.state)
-        .map(b => `${b.county}, ${b.state}`)
+        .map(b => `${b.county}${LOCATION_DELIMITER}${b.state}`)
     );
     return Array.from(countySet).sort();
   }, [bookshops, selectedState]);
@@ -115,15 +210,90 @@ const Directory = () => {
   const filteredBookshops = useMemo(() => {
     let filtered = [...bookshops];
 
-    // Search filter
+    // Search filter - intelligent matching
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(b => 
-        b.name.toLowerCase().includes(query) ||
-        b.city?.toLowerCase().includes(query) ||
-        b.state?.toLowerCase().includes(query) ||
-        b.county?.toLowerCase().includes(query)
-      );
+      const query = searchQuery.toLowerCase().trim();
+      
+      // Check if query matches a state (handles both full names and abbreviations)
+      let matchedState: string | null = null;
+      
+      // First, check if it's a state abbreviation (2 characters)
+      if (query.length === 2) {
+        const upperQuery = query.toUpperCase();
+        const fullStateName = stateMap[upperQuery];
+        if (fullStateName) {
+          // Check if this full name exists in our states list
+          matchedState = states.find(s => s === fullStateName) || null;
+          // Also check if abbreviation matches directly
+          if (!matchedState) {
+            matchedState = states.find(s => s.toUpperCase() === upperQuery) || null;
+          }
+        }
+      }
+      
+      // Check if query exactly matches any state name (full name)
+      if (!matchedState) {
+        matchedState = states.find(state => state.toLowerCase() === query) || null;
+      }
+      
+      // Check if query matches state name via abbreviation mapping
+      if (!matchedState && stateNameMap[query]) {
+        const abbr = stateNameMap[query].toUpperCase();
+        matchedState = states.find(s => s.toUpperCase() === abbr) || null;
+      }
+      
+      // If we found a state match, filter to that state
+      if (matchedState) {
+        filtered = filtered.filter(b => {
+          // Match by full state name
+          if (b.state === matchedState) return true;
+          // Also match by abbreviation if state is stored as abbreviation
+          const stateAbbr = stateNameMap[matchedState.toLowerCase()];
+          if (stateAbbr && b.state?.toUpperCase() === stateAbbr.toUpperCase()) return true;
+          return false;
+        });
+      }
+      // Otherwise, do intelligent partial matching
+      else {
+        filtered = filtered.filter(b => {
+          const name = b.name.toLowerCase();
+          const city = b.city?.toLowerCase() || '';
+          const state = b.state?.toLowerCase() || '';
+          const county = b.county?.toLowerCase() || '';
+          
+          // Check if query matches bookshop name
+          if (name.includes(query)) return true;
+          
+          // Check if query matches city (exact or partial)
+          if (city && (city === query || city.includes(query))) return true;
+          
+          // Check if query matches state (handle both full name and abbreviation)
+          if (state && (state === query || state.includes(query))) return true;
+          
+          // Check state abbreviation mapping (if query is 2 chars, might be abbreviation)
+          if (query.length === 2) {
+            const upperQuery = query.toUpperCase();
+            const fullStateName = stateMap[upperQuery];
+            if (fullStateName) {
+              // Check if bookshop state matches the full name
+              if (state === fullStateName.toLowerCase()) return true;
+            }
+            // Check if bookshop state is the abbreviation
+            if (state.toUpperCase() === upperQuery) return true;
+          }
+          
+          // Check reverse: if query is a full state name, check if bookshop has that abbreviation
+          if (stateNameMap[query]) {
+            const abbr = stateNameMap[query].toUpperCase();
+            if (state.toUpperCase() === abbr) return true;
+          }
+          
+          // Check if query matches county
+          if (county && (county === query || county.includes(query))) return true;
+          
+          return false;
+        });
+      }
     }
 
     // State filter
@@ -131,16 +301,20 @@ const Directory = () => {
       filtered = filtered.filter(b => b.state === selectedState);
     }
 
-    // City filter
+    // City filter - safe parsing with delimiter
     if (selectedCity !== "all") {
-      const [city, state] = selectedCity.split(", ");
-      filtered = filtered.filter(b => b.city === city && b.state === state);
+      const [city, state] = selectedCity.split(LOCATION_DELIMITER);
+      if (city && state) {
+        filtered = filtered.filter(b => b.city === city && b.state === state);
+      }
     }
 
-    // County filter
+    // County filter - safe parsing with delimiter
     if (selectedCounty !== "all") {
-      const [county, state] = selectedCounty.split(", ");
-      filtered = filtered.filter(b => b.county === county && b.state === state);
+      const [county, state] = selectedCounty.split(LOCATION_DELIMITER);
+      if (county && state) {
+        filtered = filtered.filter(b => b.county === county && b.state === state);
+      }
     }
 
     // Feature filters (using featureIds)
@@ -155,14 +329,14 @@ const Directory = () => {
     filtered.sort((a, b) => a.name.localeCompare(b.name));
 
     return filtered;
-  }, [bookshops, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures]);
+  }, [bookshops, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures, states]);
 
   // Create cluster index
   const { clusterInstance, points } = useMemo(() => {
     const supercluster = new Supercluster({
-      radius: 60,
-      maxZoom: 16,
-      minZoom: 0
+      radius: CLUSTER_CONFIG.radius,
+      maxZoom: CLUSTER_CONFIG.maxZoom,
+      minZoom: CLUSTER_CONFIG.minZoom
     });
 
     const geoPoints = filteredBookshops
@@ -255,7 +429,7 @@ const Directory = () => {
     setHoveredBookshopId(bookshopId);
   }, []);
 
-  // Handle pin click
+  // Handle pin click - improved timing with requestAnimationFrame
   const handlePinClick = useCallback((bookshopId: number) => {
     setSelectedBookshopId(bookshopId);
     
@@ -264,61 +438,104 @@ const Directory = () => {
       setIsPanelCollapsed(false);
     }
     
-    // Scroll to card in panel
-    setTimeout(() => {
+    // Wait for panel animation and card render with better timing
+    const scrollToCard = () => {
       const cardElement = document.getElementById(`bookshop-${bookshopId}`);
       if (cardElement) {
         cardElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      } else {
+        // Card not rendered yet, try again on next frame
+        requestAnimationFrame(scrollToCard);
       }
-    }, 100);
+    };
+    
+    // Double RAF for smoother timing after state updates
+    requestAnimationFrame(() => {
+      requestAnimationFrame(scrollToCard);
+    });
   }, [isPanelCollapsed]);
 
-  // Handle cluster click (zoom in)
+  // Handle cluster click - with error handling
   const handleClusterClick = useCallback((clusterId: number, longitude: number, latitude: number) => {
-    if (!clusterInstance) return;
+    if (!clusterInstance) {
+      logger.warn('Cluster instance not available');
+      return;
+    }
     
-    const expansionZoom = Math.min(
-      clusterInstance.getClusterExpansionZoom(clusterId),
-      20
-    );
-    
-    setViewState(prev => ({
-      ...prev,
-      longitude,
-      latitude,
-      zoom: expansionZoom
-    }));
+    try {
+      const expansionZoom = Math.min(
+        clusterInstance.getClusterExpansionZoom(clusterId),
+        CLUSTER_CONFIG.expansionMaxZoom
+      );
+      
+      setViewState(prev => ({
+        ...prev,
+        longitude,
+        latitude,
+        zoom: expansionZoom,
+        transitionDuration: DIRECTORY_MAP.TRANSITION_DURATION
+      }));
+    } catch (error) {
+      logger.error('Error expanding cluster', error);
+      // Fallback: just zoom in two levels
+      setViewState(prev => ({
+        ...prev,
+        longitude,
+        latitude,
+        zoom: Math.min(prev.zoom + 2, CLUSTER_CONFIG.expansionMaxZoom),
+        transitionDuration: DIRECTORY_MAP.TRANSITION_DURATION
+      }));
+    }
   }, [clusterInstance]);
 
-  // Update map bounds helper
+  // Update map bounds helper - with validation
   const updateMapBounds = useCallback(() => {
-    if (mapRef.current && mapRef.current.getMap) {
-      try {
-        const map = mapRef.current.getMap();
-        if (map && map.getBounds) {
-          const bounds = map.getBounds();
-          
-          setMapBounds({
-            north: bounds.getNorth(),
-            south: bounds.getSouth(),
-            east: bounds.getEast(),
-            west: bounds.getWest()
-          });
-        }
-      } catch (error) {
-        // Map might not be fully initialized yet
+    if (!mapRef.current) return;
+    
+    try {
+      const map = mapRef.current.getMap();
+      if (!map || !map.getBounds) return;
+      
+      const bounds = map.getBounds();
+      const north = bounds.getNorth();
+      const south = bounds.getSouth();
+      const east = bounds.getEast();
+      const west = bounds.getWest();
+      
+      // Validate bounds
+      if (north <= south || east <= west) {
         if (process.env.NODE_ENV === 'development') {
-          logger.debug('Error getting map bounds', { error: String(error) });
+          logger.debug('Invalid map bounds', { north, south, east, west });
         }
+        return;
+      }
+      
+      // Validate bounds are within valid lat/lng ranges
+      if (north > 90 || south < -90 || east > 180 || west < -180) {
+        if (process.env.NODE_ENV === 'development') {
+          logger.debug('Bounds outside valid range', { north, south, east, west });
+        }
+        return;
+      }
+      
+      setMapBounds({ north, south, east, west });
+    } catch (error) {
+      // Map might not be fully initialized yet
+      if (process.env.NODE_ENV === 'development') {
+        logger.debug('Error getting map bounds', { error: String(error) });
       }
     }
   }, []);
 
-  // Handle map movement
+  // Handle map movement - just update viewState
   const handleMapMove = useCallback((evt: any) => {
     if (evt.viewState) {
       setViewState(evt.viewState);
     }
+  }, []);
+
+  // Handle map movement end - update bounds on move end (debounced naturally)
+  const handleMapMoveEnd = useCallback(() => {
     updateMapBounds();
     setShowSearchThisArea(true);
   }, [updateMapBounds]);
@@ -333,24 +550,62 @@ const Directory = () => {
     setShowSearchThisArea(false);
   }, []);
 
-  // Use current location
+  // Use current location - with comprehensive error handling
   const useMyLocation = useCallback(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setViewState(prev => ({
-            ...prev,
-            longitude,
-            latitude,
-            zoom: 12
-          }));
-        },
-        (error) => {
-          logger.error("Error getting location", error);
-        }
-      );
+    if (!navigator.geolocation) {
+      setNotification({
+        type: 'error',
+        message: 'Geolocation is not supported by your browser'
+      });
+      setTimeout(() => setNotification(null), 4000);
+      return;
     }
+
+    // Show loading indicator
+    setNotification({
+      type: 'info',
+      message: 'Getting your location...'
+    });
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setViewState(prev => ({
+          ...prev,
+          longitude,
+          latitude,
+          zoom: DIRECTORY_MAP.GEOLOCATION_ZOOM,
+          transitionDuration: DIRECTORY_MAP.TRANSITION_DURATION
+        }));
+        setNotification({
+          type: 'success',
+          message: 'Location found!'
+        });
+        setTimeout(() => setNotification(null), 2000);
+      },
+      (error) => {
+        logger.error("Error getting location", error);
+        let message = 'Unable to get your location';
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            message = 'Location permission denied. Please enable location access in your browser.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            message = 'Location information unavailable';
+            break;
+          case error.TIMEOUT:
+            message = 'Location request timed out';
+            break;
+        }
+        
+        setNotification({
+          type: 'error',
+          message
+        });
+        setTimeout(() => setNotification(null), 4000);
+      }
+    );
   }, []);
 
   // Automatically fit map to filtered bookshops when filters change
@@ -391,9 +646,13 @@ const Directory = () => {
       const minLat = Math.min(...lats);
       const maxLat = Math.max(...lats);
 
-      // Add padding (10% on each side)
-      const lngPadding = (maxLng - minLng) * 0.1;
-      const latPadding = (maxLat - minLat) * 0.1;
+      // Check for zero-width bounds
+      const lngSpan = maxLng - minLng;
+      const latSpan = maxLat - minLat;
+
+      // Add padding (10% on each side, with minimum span to prevent zero-width)
+      const lngPadding = Math.max(lngSpan * DIRECTORY_MAP.BOUNDS_PADDING_PERCENT, DIRECTORY_MAP.MINIMUM_BOUNDS_SPAN);
+      const latPadding = Math.max(latSpan * DIRECTORY_MAP.BOUNDS_PADDING_PERCENT, DIRECTORY_MAP.MINIMUM_BOUNDS_SPAN);
 
       const bounds: [[number, number], [number, number]] = [
         [minLng - lngPadding, minLat - latPadding],
@@ -402,12 +661,18 @@ const Directory = () => {
 
       // Fit map to bounds with animation
       map.fitBounds(bounds, {
-        padding: { top: 50, bottom: 50, left: isPanelCollapsed ? 100 : 450, right: 50 },
-        duration: 1000,
-        maxZoom: 15 // Don't zoom in too close for single bookshops
+        padding: { 
+          top: DIRECTORY_MAP.BOUNDS_PADDING.top, 
+          bottom: DIRECTORY_MAP.BOUNDS_PADDING.bottom, 
+          left: isPanelCollapsed 
+            ? DIRECTORY_MAP.BOUNDS_PADDING.left.collapsed 
+            : DIRECTORY_MAP.BOUNDS_PADDING.left.expanded,
+          right: DIRECTORY_MAP.BOUNDS_PADDING.right 
+        },
+        duration: DIRECTORY_MAP.TRANSITION_DURATION,
+        maxZoom: DIRECTORY_MAP.MAX_AUTO_ZOOM
       });
     } catch (error) {
-      // Map might not be fully initialized yet
       if (process.env.NODE_ENV === 'development') {
         logger.debug('Error fitting map bounds', { error: String(error) });
       }
@@ -446,64 +711,78 @@ const Directory = () => {
 
       {/* Full-Screen Map Container */}
       <div className="relative h-[calc(100vh-64px)]">
-        {/* Mapbox Map */}
-        <Map
-          ref={mapRef}
-          {...viewState}
-          onMove={handleMapMove}
-          onLoad={handleMapLoad}
-          mapboxAccessToken={mapboxToken}
-          mapStyle="mapbox://styles/mapbox/streets-v12"
-          style={{ width: "100%", height: "100%" }}
-        >
-          {/* Navigation controls */}
-          <NavigationControl position="bottom-right" />
+        {/* Notification Toast */}
+        {notification && (
+          <div className={`absolute top-24 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full shadow-lg font-sans text-sm font-semibold transition-opacity ${
+            notification.type === 'error' ? 'bg-red-500 text-white' :
+            notification.type === 'success' ? 'bg-green-500 text-white' :
+            'bg-[#2A6B7C] text-white'
+          }`}>
+            {notification.message}
+          </div>
+        )}
 
-          {/* Render clusters and individual pins */}
-          {clusters.map((cluster: any) => {
-            const [longitude, latitude] = cluster.geometry.coordinates;
-            const { cluster: isCluster, point_count: pointCount, bookshopId, bookshop } = cluster.properties;
+        {/* Mapbox Map with Error Boundary */}
+        <MapErrorBoundary>
+          <Map
+            ref={mapRef as any}
+            {...viewState}
+            onMove={handleMapMove}
+            onMoveEnd={handleMapMoveEnd}
+            onLoad={handleMapLoad}
+            mapboxAccessToken={mapboxToken}
+            mapStyle="mapbox://styles/mapbox/streets-v12"
+            style={{ width: "100%", height: "100%" }}
+          >
+            {/* Navigation controls */}
+            <NavigationControl position="bottom-right" />
 
-            if (isCluster) {
-              // Cluster Marker
+            {/* Render clusters and individual pins */}
+            {clusters.map((cluster: any) => {
+              const [longitude, latitude] = cluster.geometry.coordinates;
+              const { cluster: isCluster, point_count: pointCount, bookshopId, bookshop } = cluster.properties;
+
+              if (isCluster) {
+                // Cluster Marker
+                return (
+                  <Marker
+                    key={`cluster-${cluster.id}`}
+                    longitude={longitude}
+                    latitude={latitude}
+                    onClick={(e: any) => {
+                      e.originalEvent.stopPropagation();
+                      handleClusterClick(cluster.id, longitude, latitude);
+                    }}
+                  >
+                    <ClusterMarker pointCount={pointCount} />
+                  </Marker>
+                );
+              }
+
+              // Individual Bookshop Pin
+              const isHovered = hoveredBookshopId === bookshopId;
+              const isSelected = selectedBookshopId === bookshopId;
+
               return (
                 <Marker
-                  key={`cluster-${cluster.id}`}
+                  key={`bookshop-${bookshopId}`}
                   longitude={longitude}
                   latitude={latitude}
                   onClick={(e: any) => {
                     e.originalEvent.stopPropagation();
-                    handleClusterClick(cluster.id, longitude, latitude);
+                    handlePinClick(bookshopId);
                   }}
                 >
-                  <ClusterMarker pointCount={pointCount} />
+                  <BookshopPin
+                    isHovered={isHovered}
+                    isSelected={isSelected}
+                    bookshop={bookshop}
+                  />
                 </Marker>
               );
-            }
-
-            // Individual Bookshop Pin
-            const isHovered = hoveredBookshopId === bookshopId;
-            const isSelected = selectedBookshopId === bookshopId;
-
-            return (
-              <Marker
-                key={`bookshop-${bookshopId}`}
-                longitude={longitude}
-                latitude={latitude}
-                onClick={(e: any) => {
-                  e.originalEvent.stopPropagation();
-                  handlePinClick(bookshopId);
-                }}
-              >
-                <BookshopPin
-                  isHovered={isHovered}
-                  isSelected={isSelected}
-                  bookshop={bookshop}
-                />
-              </Marker>
-            );
-          })}
-        </Map>
+            })}
+          </Map>
+        </MapErrorBoundary>
 
         {/* Floating Search Bar (Top Center) */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-xl px-4">
@@ -511,7 +790,7 @@ const Directory = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Input
               type="text"
-              placeholder="Search bookshop name, city, state, or county..."
+              placeholder="Search state, city, or bookshop name..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-4 font-sans text-base rounded-full border-0 focus:ring-2 focus:ring-[#2A6B7C]"
@@ -547,7 +826,7 @@ const Directory = () => {
         {/* Desktop Sliding Panel */}
         <div
           className={`hidden md:block absolute top-0 left-0 h-full bg-white shadow-2xl transition-all duration-300 z-20 ${
-            isPanelCollapsed ? "w-16" : "w-[400px]"
+            isPanelCollapsed ? PANEL_CONFIG.collapsed.widthClass : PANEL_CONFIG.expanded.widthClass
           }`}
         >
           {isPanelCollapsed ? (
@@ -663,7 +942,9 @@ const Directory = () => {
                         }
                       </option>
                       {cities.map(city => (
-                        <option key={city} value={city}>{city}</option>
+                        <option key={city} value={city}>
+                          {city.replace(LOCATION_DELIMITER, ", ")}
+                        </option>
                       ))}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -690,7 +971,9 @@ const Directory = () => {
                         }
                       </option>
                       {counties.map(county => (
-                        <option key={county} value={county}>{county}</option>
+                        <option key={county} value={county}>
+                          {county.replace(LOCATION_DELIMITER, ", ")}
+                        </option>
                       ))}
                     </select>
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
@@ -816,6 +1099,10 @@ const Directory = () => {
     </>
   );
 };
+
+// ============================================================================
+// SUB-COMPONENTS
+// ============================================================================
 
 // Cluster Marker Component
 const ClusterMarker: React.FC<{ pointCount: number }> = ({ pointCount }) => {
