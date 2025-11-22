@@ -1,165 +1,164 @@
+// Updated sitemap generation for new unified directory structure
 import { Request, Response } from 'express';
+import { SitemapStream, streamToPromise } from 'sitemap';
+import { Readable } from 'stream';
 import { storage } from './storage';
 import { BASE_URL } from '../client/src/lib/seo';
 
-// Function to generate XML sitemap
-export async function generateSitemap(req: Request, res: Response) {
+/**
+ * Helper function to generate a clean slug from a bookstore name
+ */
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/--+/g, '-')
+    .trim();
+}
+
+/**
+ * Generates XML sitemap for the site
+ * 
+ * New structure:
+ * - Main pages (home, about, directory)
+ * - Individual bookshop pages (/bookshop/[slug])
+ * - NO MORE: /directory/state/[state], /directory/city/[state]/[city], etc.
+ * 
+ * The unified /directory page handles all filtering via client-side state
+ */
+export async function generateSitemap(req: Request, res: Response): Promise<void> {
   try {
     // Get data needed for the sitemap
     const bookstores = await storage.getBookstores();
-    const features = await storage.getFeatures();
     
-    // Extract unique states and cities
-    const states = Array.from(new Set(bookstores.map(b => b.state))).filter(Boolean);
-    const cities = Array.from(new Set(bookstores.map(b => b.city))).filter(Boolean);
+    // Get hostname from request or use BASE_URL
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || BASE_URL.replace('https://', '');
+    const hostname = `${protocol}://${host}`;
 
-    // Start building the XML content
-    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+    // Create sitemap stream
+    const stream = new SitemapStream({ hostname });
 
-    // Add static pages
+    // Static pages
     const staticPages = [
-      '', // Home page
-      '/directory',
-      '/directory/states',
-      '/directory/cities',
-      '/directory/categories',
-      '/events',
-      '/about',
-      '/contact',
-      '/blog',
-      '/submit-bookshop',
-      '/submit-bookstore',
-      '/submit-event'
+      {
+        url: '/',
+        changefreq: 'daily' as const,
+        priority: 1.0,
+        lastmod: new Date().toISOString()
+      },
+      {
+        url: '/about',
+        changefreq: 'monthly' as const,
+        priority: 0.8,
+        lastmod: new Date().toISOString()
+      },
+      {
+        url: '/directory',
+        changefreq: 'daily' as const,
+        priority: 0.9,
+        lastmod: new Date().toISOString()
+      },
+      {
+        url: '/contact',
+        changefreq: 'monthly' as const,
+        priority: 0.7,
+        lastmod: new Date().toISOString()
+      },
+      {
+        url: '/events',
+        changefreq: 'daily' as const,
+        priority: 0.8,
+        lastmod: new Date().toISOString()
+      },
+      {
+        url: '/blog',
+        changefreq: 'weekly' as const,
+        priority: 0.8,
+        lastmod: new Date().toISOString()
+      },
+      {
+        url: '/submit-bookshop',
+        changefreq: 'monthly' as const,
+        priority: 0.6,
+        lastmod: new Date().toISOString()
+      }
     ];
 
-    staticPages.forEach(page => {
-      xml += `  <url>\n`;
-      xml += `    <loc>${BASE_URL}${page}</loc>\n`;
-      xml += `    <changefreq>weekly</changefreq>\n`;
-      xml += `    <priority>${page === '' ? '1.0' : '0.8'}</priority>\n`;
-      xml += `  </url>\n`;
-    });
+    // Individual bookshop pages
+    // These are still important for SEO - each bookshop gets its own page
+    const bookshopPages = bookstores
+      .filter(b => b.id && b.name) // Only include bookshops with id and name
+      .map(bookstore => ({
+        url: `/bookshop/${generateSlug(bookstore.name)}`,
+        changefreq: 'weekly' as const,
+        priority: 0.7,
+        lastmod: new Date().toISOString()
+      }));
 
-    // Add dynamic bookstore pages
-    bookstores.forEach(bookstore => {
-      if (bookstore.id && bookstore.name) {
-        // Create a clean slug for the bookshop name
-        const bookshopSlug = bookstore.name
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/--+/g, '-')
-          .trim();
-        
-        xml += `  <url>\n`;
-        xml += `    <loc>${BASE_URL}/bookshop/${bookshopSlug}</loc>\n`;
-        xml += `    <changefreq>monthly</changefreq>\n`;
-        xml += `    <priority>0.7</priority>\n`;
-        xml += `  </url>\n`;
-      }
-    });
+    // Combine all pages
+    const allPages = [...staticPages, ...bookshopPages];
 
-    // Add state directory pages
-    states.forEach(state => {
-      if (state) {
-        xml += `  <url>\n`;
-        xml += `    <loc>${BASE_URL}/directory/state/${state}</loc>\n`;
-        xml += `    <changefreq>monthly</changefreq>\n`;
-        xml += `    <priority>0.6</priority>\n`;
-        xml += `  </url>\n`;
-      }
-    });
+    // Write to stream
+    const readable = Readable.from(allPages);
+    readable.pipe(stream);
 
-    // Add city directory pages with state in the path for disambiguation
-    bookstores.forEach(bookstore => {
-      if (bookstore.city && bookstore.state) {
-        // Create a clean slug for the city
-        const citySlug = bookstore.city
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/--+/g, '-')
-          .trim();
-        
-        // Create the state-specific city URL
-        const stateAbbr = bookstore.state.toLowerCase();
-        
-        xml += `  <url>\n`;
-        xml += `    <loc>${BASE_URL}/directory/city/${stateAbbr}/${citySlug}</loc>\n`;
-        xml += `    <changefreq>monthly</changefreq>\n`;
-        xml += `    <priority>0.7</priority>\n`;
-        xml += `  </url>\n`;
-      }
-    });
-    
-    // Also include the legacy city URLs for backward compatibility
-    cities.forEach(city => {
-      if (city) {
-        const citySlug = city
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/--+/g, '-')
-          .trim();
-        
-        xml += `  <url>\n`;
-        xml += `    <loc>${BASE_URL}/directory/city/${citySlug}</loc>\n`;
-        xml += `    <changefreq>monthly</changefreq>\n`;
-        xml += `    <priority>0.5</priority>\n`; // Lower priority than the state-specific URLs
-        xml += `  </url>\n`;
-      }
-    });
-
-    // Extract unique counties for county directory pages
-    const counties = new Set<string>();
-    bookstores.forEach(bookstore => {
-      if (bookstore.county && bookstore.state) {
-        counties.add(`${bookstore.county}|${bookstore.state}`);
-      }
-    });
-
-    // Add county directory pages with state in the path
-    Array.from(counties).forEach(countyStatePair => {
-      const [county, state] = countyStatePair.split('|');
-      if (county && state) {
-        // Create a clean slug for the county
-        const countySlug = county
-          .toLowerCase()
-          .replace(/\s+county$/i, '') // Remove "County" suffix
-          .replace(/[^\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/--+/g, '-')
-          .trim();
-        
-        // Create the state-specific county URL
-        const stateAbbr = state.toLowerCase();
-        
-        xml += `  <url>\n`;
-        xml += `    <loc>${BASE_URL}/directory/county/${stateAbbr}/${countySlug}</loc>\n`;
-        xml += `    <changefreq>monthly</changefreq>\n`;
-        xml += `    <priority>0.7</priority>\n`;
-        xml += `  </url>\n`;
-      }
-    });
-    
-    // Add feature/category pages
-    features.forEach(feature => {
-      xml += `  <url>\n`;
-      xml += `    <loc>${BASE_URL}/directory/category/${feature.id}</loc>\n`;
-      xml += `    <changefreq>monthly</changefreq>\n`;
-      xml += `    <priority>0.6</priority>\n`;
-      xml += `  </url>\n`;
-    });
-
-    // Close the XML structure
-    xml += '</urlset>';
+    // Convert to string
+    const sitemap = await streamToPromise(stream);
+    const sitemapString = sitemap.toString();
 
     // Set the appropriate headers and send the XML
-    res.header('Content-Type', 'application/xml');
-    res.send(xml);
+    res.header('Content-Type', 'application/xml; charset=utf-8');
+    // Allow caching for 1 hour - sitemap doesn't change that frequently
+    res.header('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+    res.send(sitemapString);
   } catch (error) {
     console.error('Error generating sitemap:', error);
     res.status(500).send('Error generating sitemap');
   }
+}
+
+/**
+ * REMOVED: Old directory structure sitemap generation
+ * 
+ * Previously generated:
+ * - /directory/browse
+ * - /directory/cities
+ * - /directory/counties
+ * - /directory/state/[state] (50 URLs)
+ * - /directory/city/[state]/[city] (hundreds of URLs)
+ * - /directory/county/[state]/[county] (hundreds of URLs)
+ * 
+ * These are no longer needed with the unified /directory page
+ */
+
+/**
+ * Helper: Get unique states from bookstores
+ * (Useful for other purposes, but not for sitemap anymore)
+ */
+export function getUniqueStates(bookstores: Awaited<ReturnType<typeof storage.getBookstores>>): string[] {
+  const states = new Set(bookstores.map(b => b.state).filter(Boolean));
+  return Array.from(states).sort();
+}
+
+/**
+ * Helper: Get unique cities from bookstores
+ * (Useful for other purposes, but not for sitemap anymore)
+ */
+export function getUniqueCities(bookstores: Awaited<ReturnType<typeof storage.getBookstores>>): Array<{ city: string; state: string }> {
+  const citySet = new Map<string, { city: string; state: string }>();
+  
+  bookstores
+    .filter(b => b.city && b.state)
+    .forEach(b => {
+      const key = `${b.city}-${b.state}`;
+      if (!citySet.has(key)) {
+        citySet.set(key, { city: b.city!, state: b.state! });
+      }
+    });
+  
+  return Array.from(citySet.values()).sort((a, b) => 
+    `${a.city}, ${a.state}`.localeCompare(`${b.city}, ${b.state}`)
+  );
 }

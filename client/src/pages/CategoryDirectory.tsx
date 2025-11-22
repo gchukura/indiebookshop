@@ -69,7 +69,9 @@ const CategoryDirectory = () => {
   }, [featureName]);
   
   const canonicalUrl = useMemo(() => {
-    return `${BASE_URL}/directory/category/${featureIdNum}`;
+    // Point to unified directory page with feature filter
+    // This matches the sitemap structure
+    return `${BASE_URL}/directory?features=${featureIdNum}`;
   }, [featureIdNum]);
 
   const handleShowDetails = (id: number) => {

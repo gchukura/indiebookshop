@@ -1,5 +1,18 @@
 // Serverless-compatible sitemap generator
+// Updated for new unified directory structure
 import { GoogleSheetsStorage } from './sheets-storage-serverless.js';
+
+/**
+ * Helper function to generate a clean slug from a bookstore name
+ */
+function generateSlug(name) {
+  return name
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/--+/g, '-')
+    .trim();
+}
 
 export default async function handler(req, res) {
   try {
@@ -26,49 +39,7 @@ export default async function handler(req, res) {
     });
     
     // Fetch data
-    const [bookstores, features] = await Promise.all([
-      storage.getBookstores(),
-      storage.getFeatures()
-    ]);
-    
-    // Get unique states and cities
-    const states = [...new Set(bookstores.map(b => b.state))].sort();
-    
-    // Create a map of cities by state
-    const citiesByState = {};
-    for (const bookstore of bookstores) {
-      if (!citiesByState[bookstore.state]) {
-        citiesByState[bookstore.state] = new Set();
-      }
-      citiesByState[bookstore.state].add(bookstore.city);
-    }
-    
-    // Create a map of counties by state
-    const countiesByState = {};
-    for (const bookstore of bookstores) {
-      if (bookstore.county && bookstore.state) {
-        if (!countiesByState[bookstore.state]) {
-          countiesByState[bookstore.state] = new Set();
-        }
-        countiesByState[bookstore.state].add(bookstore.county);
-      }
-    }
-    
-    // Convert to array of city objects with state
-    const cities = [];
-    for (const state in citiesByState) {
-      for (const city of citiesByState[state]) {
-        cities.push({ state, city });
-      }
-    }
-    
-    // Convert to array of county objects with state
-    const counties = [];
-    for (const state in countiesByState) {
-      for (const county of countiesByState[state]) {
-        counties.push({ state, county });
-      }
-    }
+    const bookstores = await storage.getBookstores();
     
     // Get base URL from request or use a default
     const protocol = req.headers['x-forwarded-proto'] || 'https';
@@ -80,12 +51,14 @@ export default async function handler(req, res) {
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
     
     // Function to add a URL to the sitemap
-    const addUrl = (relativeUrl, priority = 0.5, changefreq = 'weekly') => {
+    const addUrl = (relativeUrl, priority = 0.5, changefreq = 'weekly', lastmod = null) => {
       const loc = `${baseUrl}${relativeUrl}`;
+      const lastmodStr = lastmod || new Date().toISOString();
       xml += '<url>';
       xml += `<loc>${loc}</loc>`;
       xml += `<priority>${priority}</priority>`;
       xml += `<changefreq>${changefreq}</changefreq>`;
+      xml += `<lastmod>${lastmodStr}</lastmod>`;
       xml += '</url>';
     };
     
@@ -99,76 +72,30 @@ export default async function handler(req, res) {
     addUrl('/submit-bookshop', 0.6, 'monthly');
     
     // Add bookshop pages with name-based slugs
+    // These are still important for SEO - each bookshop gets its own page
     for (const bookshop of bookstores) {
-      if (bookshop.name) {
-        // Create a clean slug for the bookshop name
-        const bookshopSlug = bookshop.name
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/--+/g, '-')
-          .trim();
-        
+      if (bookshop.id && bookshop.name) {
+        const bookshopSlug = generateSlug(bookshop.name);
         addUrl(`/bookshop/${bookshopSlug}`, 0.7, 'weekly');
       }
     }
     
-    // Add state directory pages
-    for (const state of states) {
-      // URL-friendly state name
-      const stateSlug = state.toLowerCase().replace(/\s+/g, '-');
-      addUrl(`/directory/state/${stateSlug}`, 0.6, 'weekly');
-    }
-    
-    // Add city directory pages with state in the path (preferred format)
-    for (const { state, city } of cities) {
-      if (state && city) {
-        // URL-friendly names
-        const stateSlug = state.toLowerCase().replace(/\s+/g, '-');
-        const citySlug = city.toLowerCase()
-          .replace(/[^\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/--+/g, '-')
-          .trim();
-        
-        // Add the preferred format with higher priority
-        addUrl(`/directory/city/${stateSlug}/${citySlug}`, 0.7, 'monthly');
-        
-        // Also add the legacy format with lower priority
-        addUrl(`/directory/city/${citySlug}`, 0.5, 'monthly');
-      }
-    }
-    
-    // Add county directory pages
-    for (const { state, county } of counties) {
-      if (state && county) {
-        // URL-friendly names
-        const stateSlug = state.toLowerCase().replace(/\s+/g, '-');
-        const countySlug = county.toLowerCase()
-          .replace(/\s+county$/i, '') // Remove "County" suffix
-          .replace(/[^\w\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/--+/g, '-')
-          .trim();
-        
-        addUrl(`/directory/county/${stateSlug}/${countySlug}`, 0.7, 'monthly');
-      }
-    }
-    
-    // Add category pages
-    for (const feature of features) {
-      const categorySlug = feature.name.toLowerCase().replace(/\s+/g, '-');
-      addUrl(`/directory/category/${categorySlug}`, 0.6, 'weekly');
-    }
+    // REMOVED: Old directory structure URLs
+    // - /directory/state/[state]
+    // - /directory/city/[state]/[city]
+    // - /directory/county/[state]/[county]
+    // - /directory/category/[category]
+    // 
+    // These are no longer needed with the unified /directory page
+    // The unified /directory page handles all filtering via client-side state
     
     // Close the XML
     xml += '</urlset>';
     
     // Set headers and send response
-    res.setHeader('Content-Type', 'application/xml');
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // Prevent caching
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    // Allow caching for 1 hour - sitemap doesn't change that frequently
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
     res.status(200).send(xml);
     
     console.log('Serverless: Sitemap generated successfully');

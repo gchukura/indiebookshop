@@ -217,14 +217,16 @@ const CityDirectory = () => {
   }, [cityName, stateName, stateFromUrl]);
   
   const canonicalUrl = useMemo(() => {
-    // Always use the state-in-path format for canonical URLs if state is available
+    // Point to unified directory page with query parameters
+    // This matches the sitemap structure
+    const params = new URLSearchParams();
     if (stateFromUrl) {
-      // Handle both full state names and abbreviations
-      const stateSlug = stateFromUrl.toLowerCase();
-      return `${BASE_URL}/directory/city/${stateSlug}/${generateSlugFromName(cityName)}`;
+      params.set('state', stateFromUrl);
     }
-    // If no state is available, use the city-only format
-    return `${BASE_URL}/directory/city/${generateSlugFromName(cityName)}`;
+    if (cityName) {
+      params.set('city', cityName);
+    }
+    return `${BASE_URL}/directory?${params.toString()}`;
   }, [cityName, stateFromUrl]);
   
   return (

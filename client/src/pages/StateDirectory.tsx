@@ -133,7 +133,9 @@ const StateDirectory = () => {
   }, [fullStateName]);
   
   const canonicalUrl = useMemo(() => {
-    return `${BASE_URL}/directory/state/${state}`;
+    // Point to unified directory page with state filter
+    // This matches the sitemap structure
+    return `${BASE_URL}/directory?state=${encodeURIComponent(state)}`;
   }, [state]);
   
   return (

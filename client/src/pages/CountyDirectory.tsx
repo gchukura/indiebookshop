@@ -239,11 +239,17 @@ const CountyDirectory = () => {
   }, [countyName, stateName, stateFromUrl]);
   
   const canonicalUrl = useMemo(() => {
+    // Point to unified directory page with query parameters
+    // This matches the sitemap structure
+    const params = new URLSearchParams();
     if (stateFromUrl) {
-      return `${BASE_URL}/directory/county/${stateFromUrl.toLowerCase()}/${generateSlug(countyName)}`;
+      params.set('state', stateFromUrl);
     }
-    return `${BASE_URL}/directory/county/${generateSlug(countyName)}`;
-  }, [countyName, stateAbbr, stateFromUrl]);
+    if (countyName) {
+      params.set('county', countyName);
+    }
+    return `${BASE_URL}/directory?${params.toString()}`;
+  }, [countyName, stateFromUrl]);
   
   // Handle showing bookshop details (direct to bookshop page)
   const handleShowDetails = (id: number) => {

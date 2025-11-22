@@ -761,6 +761,29 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   // Sitemap route
   app.get("/sitemap.xml", generateSitemap);
   
+  // Robots.txt route - ensure it's properly served
+  app.get("/robots.txt", (req, res) => {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'indiebookshop.com';
+    const baseUrl = `${protocol}://${host}`;
+    
+    const robotsTxt = `# robots.txt for IndiebookShop.com
+User-agent: *
+Allow: /
+
+# Allow all search engines to access all content
+Disallow: /api/
+Disallow: /admin/
+
+# Point to sitemap
+Sitemap: ${baseUrl}/sitemap.xml
+`;
+    
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+    res.send(robotsTxt);
+  });
+  
   const httpServer = createServer(app);
   return httpServer;
 }
