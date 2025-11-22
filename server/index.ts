@@ -22,7 +22,7 @@ const app = express();
 
 // Enable compression for all responses (reduces JSON payload sizes significantly)
 app.use(compression({
-  filter: (req, res) => {
+  filter: (req: Request, res: Response) => {
     // Compress all responses except if explicitly disabled
     if (req.headers['x-no-compression']) {
       return false;

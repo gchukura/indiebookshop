@@ -5,7 +5,7 @@ import Map from "react-map-gl/mapbox";
 import { Marker, NavigationControl } from "react-map-gl/mapbox";
 import Supercluster from "supercluster";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Bookstore } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,7 @@ import { BASE_URL } from "../lib/seo";
 import { generateSlugFromName } from "../lib/linkUtils";
 import { DIRECTORY_MAP, CLUSTER_CONFIG, PANEL_CONFIG, LOCATION_DELIMITER } from "@/lib/constants";
 import { logger } from "@/lib/logger";
-import { stateMap, stateNameMap } from "@/lib/stateUtils";
+import { stateMap, stateNameMap, normalizeStateToAbbreviation } from "@/lib/stateUtils";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 // ============================================================================
@@ -102,6 +102,8 @@ type NotificationType = {
 // ============================================================================
 
 const Directory = () => {
+  const [location] = useLocation();
+  
   // State management
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedState, setSelectedState] = useState<string>("all");
@@ -169,6 +171,148 @@ const Directory = () => {
   const { data: features = [] } = useQuery<Array<{ id: number; name: string }>>({
     queryKey: ["/api/features"],
   });
+
+  // Parse URL query parameters and apply filters on mount
+  // Only run when location pathname changes (not on every filter change)
+  useEffect(() => {
+    if (bookshops.length === 0 || features.length === 0) return; // Wait for data to load
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Parse state parameter
+    const stateParam = urlParams.get('state');
+    if (stateParam) {
+      const stateAbbr = normalizeStateToAbbreviation(stateParam) || stateParam.toUpperCase();
+      // Validate state exists in our data
+      const validStates = new Set(bookshops.map(b => b.state).filter(Boolean));
+      if (validStates.has(stateAbbr) && selectedState !== stateAbbr) {
+        setSelectedState(stateAbbr);
+      }
+    } else if (selectedState !== "all") {
+      // Clear state if not in URL
+      setSelectedState("all");
+    }
+    
+    // Parse city parameter (requires state to be set first)
+    const cityParam = urlParams.get('city');
+    if (cityParam && stateParam) {
+      const stateAbbr = normalizeStateToAbbreviation(stateParam) || stateParam.toUpperCase();
+      // Find matching city in the format "City|State"
+      const cityKey = `${cityParam}${LOCATION_DELIMITER}${stateAbbr}`;
+      const validCities = new Set(
+        bookshops
+          .filter(b => b.state === stateAbbr && b.city)
+          .map(b => `${b.city}${LOCATION_DELIMITER}${b.state}`)
+      );
+      // Try exact match first, then case-insensitive match
+      let matchedCity = Array.from(validCities).find(c => 
+        c.toLowerCase() === cityKey.toLowerCase()
+      );
+      if (matchedCity && selectedCity !== matchedCity) {
+        setSelectedCity(matchedCity);
+      } else if (!matchedCity && selectedCity !== "all") {
+        // Clear city if not found in URL
+        setSelectedCity("all");
+      }
+    } else if (selectedCity !== "all") {
+      // Clear city if not in URL
+      setSelectedCity("all");
+    }
+    
+    // Parse county parameter (requires state to be set first)
+    const countyParam = urlParams.get('county');
+    if (countyParam && stateParam) {
+      const stateAbbr = normalizeStateToAbbreviation(stateParam) || stateParam.toUpperCase();
+      // Find matching county in the format "County|State"
+      const countyKey = `${countyParam}${LOCATION_DELIMITER}${stateAbbr}`;
+      const validCounties = new Set(
+        bookshops
+          .filter(b => b.state === stateAbbr && b.county)
+          .map(b => `${b.county}${LOCATION_DELIMITER}${b.state}`)
+      );
+      // Try exact match first, then case-insensitive match
+      let matchedCounty = Array.from(validCounties).find(c => 
+        c.toLowerCase() === countyKey.toLowerCase()
+      );
+      if (matchedCounty && selectedCounty !== matchedCounty) {
+        setSelectedCounty(matchedCounty);
+      } else if (!matchedCounty && selectedCounty !== "all") {
+        // Clear county if not found in URL
+        setSelectedCounty("all");
+      }
+    } else if (selectedCounty !== "all") {
+      // Clear county if not in URL
+      setSelectedCounty("all");
+    }
+    
+    // Parse features parameter
+    const featuresParam = urlParams.get('features');
+    if (featuresParam) {
+      const featureIds = featuresParam.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+      if (featureIds.length > 0) {
+        // Validate feature IDs exist
+        const validFeatureIds = new Set(features.map(f => f.id));
+        const validIds = featureIds.filter(id => validFeatureIds.has(id));
+        if (validIds.length > 0) {
+          const currentIds = [...selectedFeatures].sort();
+          const newIds = [...validIds].sort();
+          if (JSON.stringify(currentIds) !== JSON.stringify(newIds)) {
+            setSelectedFeatures(validIds);
+          }
+        } else if (selectedFeatures.length > 0) {
+          // Clear features if none valid in URL
+          setSelectedFeatures([]);
+        }
+      }
+    } else if (selectedFeatures.length > 0) {
+      // Clear features if not in URL
+      setSelectedFeatures([]);
+    }
+  }, [location]); // Only re-run when location changes (user navigation)
+
+  // Update URL when filters change (for bookmarking/sharing)
+  // Skip if we're currently parsing URL params to avoid loops
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    // Skip on initial mount - URL parsing will handle it
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    
+    const params = new URLSearchParams();
+    
+    if (selectedState !== "all") {
+      params.set('state', selectedState);
+    }
+    
+    if (selectedCity !== "all") {
+      const [city] = selectedCity.split(LOCATION_DELIMITER);
+      if (city) {
+        params.set('city', city);
+      }
+    }
+    
+    if (selectedCounty !== "all") {
+      const [county] = selectedCounty.split(LOCATION_DELIMITER);
+      if (county) {
+        params.set('county', county);
+      }
+    }
+    
+    if (selectedFeatures.length > 0) {
+      params.set('features', selectedFeatures.join(','));
+    }
+    
+    const newUrl = `/directory${params.toString() ? '?' + params.toString() : ''}`;
+    const currentUrl = window.location.pathname + window.location.search;
+    
+    // Only update URL if it's different to avoid unnecessary updates
+    if (newUrl !== currentUrl) {
+      // Use replaceState to avoid adding to history on every filter change
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [selectedState, selectedCity, selectedCounty, selectedFeatures]);
 
   // Get unique states for filter
   const states = useMemo(() => {
