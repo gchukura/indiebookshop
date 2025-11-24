@@ -15,6 +15,7 @@ import { generateSlugFromName } from "../lib/linkUtils";
 import { DIRECTORY_MAP, CLUSTER_CONFIG, PANEL_CONFIG, LOCATION_DELIMITER } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 import { stateMap, stateNameMap, normalizeStateToAbbreviation } from "@/lib/stateUtils";
+import { supabase } from "@/lib/supabase";
 import "mapbox-gl/dist/mapbox-gl.css";
 import {
   MobileViewToggle,
@@ -172,9 +173,27 @@ const Directory = () => {
     fetchToken();
   }, []);
 
-  // Fetch all bookshops
+  // Fetch all bookshops from Supabase
   const { data: bookshops = [], isLoading } = useQuery<Bookstore[]>({
-    queryKey: ["/api/bookstores"],
+    queryKey: ['bookstores'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bookstores')
+        .select('*')
+        .eq('live', true)
+        .order('name');
+      
+      if (error) throw error;
+      
+      // Map Supabase column names to match Bookstore type
+      return (data || []).map((item: any) => ({
+        ...item,
+        latitude: item.lat_numeric?.toString() || item.latitude || null,
+        longitude: item.lng_numeric?.toString() || item.longitude || null,
+        featureIds: item.feature_ids || item.featureIds || [],
+        imageUrl: item.image_url || item.imageUrl || null,
+      })) as Bookstore[];
+    }
   });
 
   // Fetch features for filtering
@@ -1295,7 +1314,7 @@ const Directory = () => {
                     onMove={handleMapMove}
                     onMoveEnd={handleMapMoveEnd}
                     onLoad={handleMapLoad}
-                    mapboxAccessToken={mapboxToken}
+                    mapboxAccessToken={mapboxToken || undefined}
                     mapStyle="mapbox://styles/mapbox/streets-v12"
                     style={{ width: "100%", height: "100%" }}
                   >

@@ -20,6 +20,10 @@ Technical reference documentation:
 - **FEATUREIDS_COLUMN_PARSING.md** - How featureIds column parsing works
 - **CATEGORY_FILTERING_ANALYSIS.md** - Category/feature filtering implementation details
 
+### `/reviews`
+Historical code review artifacts and verification reports:
+- **directory/** - Action plans, code reviews, and verification notes for the unified directory project
+
 ## Quick Links
 
 - [Style Guide](./guides/STYLE_GUIDE.md) - Design system and coding standards
