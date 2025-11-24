@@ -360,9 +360,20 @@ const Directory = () => {
     return Array.from(countySet).sort();
   }, [bookshops, selectedState]);
 
+  // Sort bookshops once (alphabetical) to avoid re-sorting on every filter change
+  const sortedBookshops = useMemo(() => {
+    return [...bookshops].sort((a, b) => {
+      const nameA = a.name?.toLowerCase() || "";
+      const nameB = b.name?.toLowerCase() || "";
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    });
+  }, [bookshops]);
+
   // Filter bookshops
   const filteredBookshops = useMemo(() => {
-    let filtered = [...bookshops];
+    let filtered = sortedBookshops;
 
     // Search filter - intelligent matching
     if (searchQuery) {
@@ -479,11 +490,8 @@ const Directory = () => {
       });
     }
 
-    // Sort by name
-    filtered.sort((a, b) => a.name.localeCompare(b.name));
-
     return filtered;
-  }, [bookshops, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures, states]);
+  }, [sortedBookshops, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures, states]);
 
   // Create cluster index
   const { clusterInstance, points } = useMemo(() => {
@@ -836,26 +844,6 @@ const Directory = () => {
     }
   }, [selectedState, selectedCity, selectedCounty, selectedFeatures, searchQuery, isPanelCollapsed, isLoading, mapboxToken, filteredBookshops.length, hasFitInitialView]);
 
-  // Don't render map until token is loaded
-  if (!mapboxToken) {
-    return (
-      <>
-        <SEO 
-          title="Find Independent Bookshops | Directory of 2,000+ Indie Bookstores"
-          description="Search our comprehensive directory of independent bookshops across America. Find indie bookstores by location, features, and more."
-          keywords={["independent bookshop directory", "find indie bookstores", "local bookshop finder", "indie bookstore map"]}
-          canonicalUrl={`${BASE_URL}/directory`}
-        />
-        <div className="flex items-center justify-center h-[calc(100vh-64px)]">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 mx-auto text-[#2A6B7C] animate-spin mb-3" />
-            <p className="font-sans text-sm text-gray-600">Loading map configuration...</p>
-          </div>
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       {/* SEO Component */}
@@ -880,66 +868,77 @@ const Directory = () => {
         )}
 
         {/* Mapbox Map with Error Boundary */}
-        <MapErrorBoundary>
-          <Map
-            ref={mapRef as any}
-            {...viewState}
-            onMove={handleMapMove}
-            onMoveEnd={handleMapMoveEnd}
-            onLoad={handleMapLoad}
-            mapboxAccessToken={mapboxToken}
-            mapStyle="mapbox://styles/mapbox/streets-v12"
-            style={{ width: "100%", height: "100%" }}
-          >
-            {/* Navigation controls */}
-            <NavigationControl position="bottom-right" />
+        {mapboxToken ? (
+          <MapErrorBoundary>
+            <Map
+              ref={mapRef as any}
+              {...viewState}
+              onMove={handleMapMove}
+              onMoveEnd={handleMapMoveEnd}
+              onLoad={handleMapLoad}
+              mapboxAccessToken={mapboxToken}
+              mapStyle="mapbox://styles/mapbox/streets-v12"
+              style={{ width: "100%", height: "100%" }}
+            >
+              {/* Navigation controls */}
+              <NavigationControl position="bottom-right" />
 
-            {/* Render clusters and individual pins */}
-            {clusters.map((cluster: any) => {
-              const [longitude, latitude] = cluster.geometry.coordinates;
-              const { cluster: isCluster, point_count: pointCount, bookshopId, bookshop } = cluster.properties;
+              {/* Render clusters and individual pins */}
+              {clusters.map((cluster: any) => {
+                const [longitude, latitude] = cluster.geometry.coordinates;
+                const { cluster: isCluster, point_count: pointCount, bookshopId, bookshop } = cluster.properties;
 
-              if (isCluster) {
-                // Cluster Marker
+                if (isCluster) {
+                  // Cluster Marker
+                  return (
+                    <Marker
+                      key={`cluster-${cluster.id}`}
+                      longitude={longitude}
+                      latitude={latitude}
+                      onClick={(e: any) => {
+                        e.originalEvent.stopPropagation();
+                        handleClusterClick(cluster.id, longitude, latitude);
+                      }}
+                    >
+                      <ClusterMarker pointCount={pointCount} />
+                    </Marker>
+                  );
+                }
+
+                // Individual Bookshop Pin
+                const isHovered = hoveredBookshopId === bookshopId;
+                const isSelected = selectedBookshopId === bookshopId;
+
                 return (
                   <Marker
-                    key={`cluster-${cluster.id}`}
+                    key={`bookshop-${bookshopId}`}
                     longitude={longitude}
                     latitude={latitude}
                     onClick={(e: any) => {
                       e.originalEvent.stopPropagation();
-                      handleClusterClick(cluster.id, longitude, latitude);
+                      handlePinClick(bookshopId);
                     }}
                   >
-                    <ClusterMarker pointCount={pointCount} />
+                    <BookshopPin
+                      isHovered={isHovered}
+                      isSelected={isSelected}
+                      bookshop={bookshop}
+                    />
                   </Marker>
                 );
-              }
-
-              // Individual Bookshop Pin
-              const isHovered = hoveredBookshopId === bookshopId;
-              const isSelected = selectedBookshopId === bookshopId;
-
-              return (
-                <Marker
-                  key={`bookshop-${bookshopId}`}
-                  longitude={longitude}
-                  latitude={latitude}
-                  onClick={(e: any) => {
-                    e.originalEvent.stopPropagation();
-                    handlePinClick(bookshopId);
-                  }}
-                >
-                  <BookshopPin
-                    isHovered={isHovered}
-                    isSelected={isSelected}
-                    bookshop={bookshop}
-                  />
-                </Marker>
-              );
-            })}
-          </Map>
-        </MapErrorBoundary>
+              })}
+            </Map>
+          </MapErrorBoundary>
+        ) : (
+          <div className="flex items-center justify-center h-full bg-white/80 backdrop-blur-sm">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 mx-auto text-[#2A6B7C] animate-spin mb-3" />
+              <p className="font-sans text-sm text-gray-600">
+                Loading map configuration...
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Floating Search Bar (Top Center) */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-xl px-4">
