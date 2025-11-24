@@ -16,6 +16,13 @@ import { DIRECTORY_MAP, CLUSTER_CONFIG, PANEL_CONFIG, LOCATION_DELIMITER } from 
 import { logger } from "@/lib/logger";
 import { stateMap, stateNameMap, normalizeStateToAbbreviation } from "@/lib/stateUtils";
 import "mapbox-gl/dist/mapbox-gl.css";
+import {
+  MobileViewToggle,
+  MobileFilterBar,
+  MobileFilterDrawer,
+  MobileListView,
+  MobileMapView,
+} from "../components/MobileDirectoryComponents";
 
 // ============================================================================
 // ERROR BOUNDARY - Catches map initialization failures
@@ -122,7 +129,10 @@ const Directory = () => {
     west: number;
   } | null>(null);
   const [mobileSheetHeight, setMobileSheetHeight] = useState<"peek" | "half" | "full">("peek");
+  const [mobileViewMode, setMobileViewMode] = useState<"list" | "map">("list");
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
+  const [hasFitInitialView, setHasFitInitialView] = useState(false);
   const [notification, setNotification] = useState<NotificationType>(null);
 
   const mapRef = useRef<{ getMap: () => any } | null>(null);
@@ -556,6 +566,7 @@ const Directory = () => {
     setSelectedCity("all");
     setSelectedCounty("all");
     setSelectedFeatures([]);
+    setHasFitInitialView(false);
   };
 
   // Active filter count
@@ -766,16 +777,14 @@ const Directory = () => {
 
     if (bookshopsWithCoords.length === 0) return;
 
-    // Only auto-fit if user has applied filters
-    // Don't auto-fit on initial load with all bookshops
     const hasActiveFilters = 
       selectedState !== "all" || 
       selectedCity !== "all" ||
       selectedCounty !== "all" ||
       selectedFeatures.length > 0 || 
       searchQuery.length > 0;
-    
-    if (!hasActiveFilters) return;
+    const shouldFitAllBookshops = !hasActiveFilters && !hasFitInitialView;
+    if (!hasActiveFilters && hasFitInitialView) return;
 
     try {
       const map = mapRef.current.getMap();
@@ -816,12 +825,16 @@ const Directory = () => {
         duration: DIRECTORY_MAP.TRANSITION_DURATION,
         maxZoom: DIRECTORY_MAP.MAX_AUTO_ZOOM
       });
+      
+      if (shouldFitAllBookshops) {
+        setHasFitInitialView(true);
+      }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         logger.debug('Error fitting map bounds', { error: String(error) });
       }
     }
-  }, [selectedState, selectedCity, selectedCounty, selectedFeatures, searchQuery, isPanelCollapsed, isLoading, mapboxToken, filteredBookshops.length]);
+  }, [selectedState, selectedCity, selectedCounty, selectedFeatures, searchQuery, isPanelCollapsed, isLoading, mapboxToken, filteredBookshops.length, hasFitInitialView]);
 
   // Don't render map until token is loaded
   if (!mapboxToken) {
@@ -1228,17 +1241,133 @@ const Directory = () => {
           )}
         </div>
 
-        {/* Mobile Bottom Sheet */}
-        <MobileBottomSheet
-          bookshops={visibleBookshops}
-          height={mobileSheetHeight}
-          onHeightChange={setMobileSheetHeight}
-          selectedBookshopId={selectedBookshopId}
-          onPinClick={handlePinClick}
-          isLoading={isLoading}
-          activeFilterCount={activeFilterCount}
-          onClearFilters={clearFilters}
-        />
+        {/* Mobile View Container */}
+        <div className="md:hidden fixed inset-0 top-0 z-30 flex flex-col bg-white pt-16">
+          {/* Mobile Header with Search and View Toggle */}
+          <div className="flex-shrink-0 px-4 pt-4 pb-2 bg-white border-b border-gray-200">
+            {/* Search Bar */}
+            <div className="relative bg-white rounded-full shadow-lg">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search bookshops..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 font-sans text-sm rounded-full border-2 border-gray-200 focus:ring-2 focus:ring-[#2A6B7C] focus:border-transparent"
+              />
+            </div>
+
+            {/* View Toggle */}
+            <MobileViewToggle
+              viewMode={mobileViewMode}
+              onViewModeChange={setMobileViewMode}
+            />
+          </div>
+
+          {/* Filter Bar */}
+          <MobileFilterBar
+            activeFilterCount={activeFilterCount}
+            resultCount={visibleBookshops.length}
+            onOpenFilters={() => setShowMobileFilters(true)}
+          />
+
+          {/* Content Area - List or Map */}
+          <div className="flex-1 overflow-hidden">
+            {mobileViewMode === "list" ? (
+              <MobileListView
+                bookshops={visibleBookshops}
+                isLoading={isLoading}
+                activeFilterCount={activeFilterCount}
+                onClearFilters={clearFilters}
+                selectedBookshopId={selectedBookshopId}
+                onBookshopClick={handlePinClick}
+                onMapThumbnailClick={() => setMobileViewMode("map")}
+              />
+            ) : (
+              <MobileMapView
+                bookshops={visibleBookshops}
+                selectedBookshopId={selectedBookshopId}
+                onBookshopSelect={setSelectedBookshopId}
+              >
+                <MapErrorBoundary>
+                  <Map
+                    ref={mapRef as any}
+                    {...viewState}
+                    onMove={handleMapMove}
+                    onMoveEnd={handleMapMoveEnd}
+                    onLoad={handleMapLoad}
+                    mapboxAccessToken={mapboxToken}
+                    mapStyle="mapbox://styles/mapbox/streets-v12"
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    <NavigationControl position="bottom-right" />
+
+                    {/* Render clusters and pins */}
+                    {clusters.map((cluster: any) => {
+                      const [longitude, latitude] = cluster.geometry.coordinates;
+                      const { cluster: isCluster, point_count: pointCount, bookshopId, bookshop } = cluster.properties;
+
+                      if (isCluster) {
+                        return (
+                          <Marker
+                            key={`cluster-${cluster.id}`}
+                            longitude={longitude}
+                            latitude={latitude}
+                            onClick={(e: any) => {
+                              e.originalEvent.stopPropagation();
+                              handleClusterClick(cluster.id, longitude, latitude);
+                            }}
+                          >
+                            <ClusterMarker pointCount={pointCount} />
+                          </Marker>
+                        );
+                      }
+
+                      const isHovered = hoveredBookshopId === bookshopId;
+                      const isSelected = selectedBookshopId === bookshopId;
+
+                      return (
+                        <Marker
+                          key={`bookshop-${bookshopId}`}
+                          longitude={longitude}
+                          latitude={latitude}
+                          onClick={(e: any) => {
+                            e.originalEvent.stopPropagation();
+                            handlePinClick(bookshopId);
+                          }}
+                        >
+                          <BookshopPin
+                            isHovered={isHovered}
+                            isSelected={isSelected}
+                            bookshop={bookshop}
+                          />
+                        </Marker>
+                      );
+                    })}
+                  </Map>
+                </MapErrorBoundary>
+              </MobileMapView>
+            )}
+          </div>
+
+          {/* Mobile Filter Drawer */}
+          <MobileFilterDrawer
+            isOpen={showMobileFilters}
+            onClose={() => setShowMobileFilters(false)}
+            selectedState={selectedState}
+            onStateChange={setSelectedState}
+            states={states}
+            selectedCity={selectedCity}
+            onCityChange={setSelectedCity}
+            cities={cities}
+            selectedCounty={selectedCounty}
+            onCountyChange={setSelectedCounty}
+            counties={counties}
+            activeFilterCount={activeFilterCount}
+            onClearAll={clearFilters}
+            resultCount={filteredBookshops.length}
+          />
+        </div>
       </div>
     </>
   );
@@ -1395,123 +1524,6 @@ const PanelBookshopCard: React.FC<PanelBookshopCardProps> = ({
       >
         View details →
       </Link>
-    </div>
-  );
-};
-
-// Mobile Bottom Sheet Component
-interface MobileBottomSheetProps {
-  bookshops: Bookstore[];
-  height: "peek" | "half" | "full";
-  onHeightChange: (height: "peek" | "half" | "full") => void;
-  selectedBookshopId: number | null;
-  onPinClick: (id: number) => void;
-  isLoading: boolean;
-  activeFilterCount: number;
-  onClearFilters: () => void;
-}
-
-const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({ 
-  bookshops,
-  height,
-  onHeightChange,
-  selectedBookshopId,
-  onPinClick,
-  isLoading,
-  activeFilterCount,
-  onClearFilters
-}) => {
-  const sheetRef = useRef<HTMLDivElement>(null);
-  const [startY, setStartY] = useState(0);
-
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    setStartY(e.touches[0].clientY);
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
-    const endY = e.changedTouches[0].clientY;
-    const diff = startY - endY;
-
-    if (diff > 50) {
-      // Swiped up
-      if (height === "peek") onHeightChange("half");
-      else if (height === "half") onHeightChange("full");
-    } else if (diff < -50) {
-      // Swiped down
-      if (height === "full") onHeightChange("half");
-      else if (height === "half") onHeightChange("peek");
-    }
-  };
-
-  return (
-    <div 
-      ref={sheetRef}
-      className={`md:hidden bg-white rounded-t-2xl shadow-2xl transition-all duration-300 ${
-        height === "peek" 
-          ? "h-24" 
-          : height === "half"
-          ? "h-[50vh]"
-          : "h-[90vh]"
-      }`}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* Drag Handle */}
-      <div className="flex items-center justify-center py-3">
-        <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
-      </div>
-
-      {/* Content */}
-      <div className="px-4 pb-4 overflow-y-auto" style={{ height: "calc(100% - 48px)" }}>
-        {height === "peek" ? (
-          <div className="flex items-center justify-between">
-            <span className="font-sans text-sm font-semibold text-gray-700">
-              {bookshops.length} bookshops nearby
-            </span>
-            <span className="font-sans text-xs text-gray-500">
-              Swipe up to expand
-            </span>
-          </div>
-        ) : isLoading ? (
-          <div className="text-center py-6">
-            <Loader2 className="w-8 h-8 mx-auto text-[#2A6B7C] animate-spin mb-3" />
-            <p className="font-sans text-sm text-gray-600">Loading bookshops...</p>
-          </div>
-        ) : bookshops.length > 0 ? (
-          <div className="space-y-3">
-            {bookshops.map(bookshop => (
-              <PanelBookshopCard
-                key={bookshop.id}
-                bookshop={bookshop}
-                isHovered={false}
-                isSelected={selectedBookshopId === bookshop.id}
-                onHover={() => {}}
-                onClick={() => onPinClick(bookshop.id)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-6">
-            <MapPin className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-            <h3 className="font-serif text-lg font-bold text-gray-700 mb-2">
-              No bookshops found
-            </h3>
-            <p className="font-sans text-sm text-gray-600 mb-4">
-              Try searching in a different area
-            </p>
-            {activeFilterCount > 0 && (
-              <Button
-                onClick={onClearFilters}
-                variant="outline"
-                size="sm"
-                className="rounded-full font-sans"
-              >
-                Clear filters
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
     </div>
   );
 };
