@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 /**
  * Rate limiting middleware for submission endpoints
  * Limits: 5 requests per 15 minutes per IP
+ * Note: In serverless, each function instance has its own memory store
  */
 const submissionLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -11,6 +12,8 @@ const submissionLimiter = rateLimit({
   message: 'Too many submissions from this IP, please try again later.',
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Use memory store (default) - works per serverless function instance
+  store: undefined, // Use default MemoryStore
 });
 
 /**
@@ -313,7 +316,7 @@ export async function registerRoutes(app, storageImpl) {
           // Prepare submission data for Supabase
           // Note: Column names must match the actual schema
           // The schema uses "imageUrl" (quoted camelCase) and hours_json (jsonb)
-          const submissionData: any = {
+          const submissionData = {
             name: bookstoreData.name,
             street: bookstoreData.street || null,
             city: bookstoreData.city || null,
