@@ -13,6 +13,12 @@ export const ENV = {
   
   // SendGrid for email notifications
   SENDGRID_API_KEY: process.env.SENDGRID_API_KEY || '',
+  SENDGRID_FROM_EMAIL: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com',
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@indiebookshop.com',
+  
+  // Supabase configuration
+  SUPABASE_URL: process.env.SUPABASE_URL || '',
+  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
   
   // Data refresh configuration
   REFRESH_API_KEY: process.env.REFRESH_API_KEY || '',

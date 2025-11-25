@@ -1,49 +1,35 @@
-import { MailService } from '@sendgrid/mail';
-import type { MailDataRequired } from '@sendgrid/mail';
-
-// Escape HTML entities to prevent XSS attacks
-function escapeHtml(text: string): string {
-  const map: { [key: string]: string } = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  };
-  return text.replace(/[&<>"']/g, m => map[m]);
-}
+// Serverless email service using SendGrid
+import sgMail from '@sendgrid/mail';
+import { escapeHtml } from './utils-serverless.js';
 
 if (!process.env.SENDGRID_API_KEY) {
-  console.warn("SENDGRID_API_KEY environment variable is not set. Email notifications will not be sent.");
+  console.warn('Serverless: SENDGRID_API_KEY environment variable is not set. Email notifications will not be sent.');
+} else {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 }
 
-const mailService = new MailService();
-if (process.env.SENDGRID_API_KEY) {
-  mailService.setApiKey(process.env.SENDGRID_API_KEY);
-}
-
-export async function sendEmail(params: MailDataRequired): Promise<boolean> {
+export async function sendEmail(params) {
   if (!process.env.SENDGRID_API_KEY) {
-    console.warn("Cannot send email: SENDGRID_API_KEY is not set");
+    console.warn('Serverless: Cannot send email: SENDGRID_API_KEY is not set');
     return false;
   }
   
   try {
-    await mailService.send(params);
-    console.log(`Email sent successfully to ${params.to}`);
+    await sgMail.send(params);
+    console.log(`Serverless: Email sent successfully to ${params.to}`);
     return true;
   } catch (error) {
-    console.error('SendGrid email error:', error);
+    console.error('Serverless: SendGrid email error:', error);
     return false;
   }
 }
 
 // Function to notify about new bookstore submissions
 export async function sendBookstoreSubmissionNotification(
-  adminEmail: string, 
-  senderEmail: string,
-  bookstoreData: any
-): Promise<boolean> {
+  adminEmail,
+  senderEmail,
+  bookstoreData
+) {
   // Escape user input to prevent XSS in email
   const safeName = escapeHtml(bookstoreData.name || '');
   const safeCity = escapeHtml(bookstoreData.city || '');
@@ -76,9 +62,10 @@ ${JSON.stringify(bookstoreData, null, 2)}
 
   return sendEmail({
     to: adminEmail,
-    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com', // Use your verified sender
+    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com',
     subject,
     text,
     html
   });
 }
+
