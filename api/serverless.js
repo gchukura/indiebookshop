@@ -26,20 +26,24 @@ import { DataRefreshManager } from './dataRefresh-serverless.js';
 import { registerRefreshRoutes } from './refreshRoutes-serverless.js';
 
 // Set up environment variables from config
-process.env.NODE_ENV = ENV.NODE_ENV;
-process.env.USE_SAMPLE_DATA = ENV.USE_SAMPLE_DATA;
-process.env.GOOGLE_SHEETS_ID = ENV.GOOGLE_SHEETS_ID;
-process.env.USE_MEM_STORAGE = ENV.USE_MEM_STORAGE;
-process.env.MAPBOX_ACCESS_TOKEN = ENV.MAPBOX_ACCESS_TOKEN;
-process.env.SENDGRID_API_KEY = ENV.SENDGRID_API_KEY;
-process.env.SENDGRID_FROM_EMAIL = ENV.SENDGRID_FROM_EMAIL;
-process.env.ADMIN_EMAIL = ENV.ADMIN_EMAIL;
-process.env.SUPABASE_URL = ENV.SUPABASE_URL;
-process.env.SUPABASE_SERVICE_ROLE_KEY = ENV.SUPABASE_SERVICE_ROLE_KEY;
-process.env.REFRESH_API_KEY = ENV.REFRESH_API_KEY;
-process.env.REFRESH_INTERVAL = ENV.REFRESH_INTERVAL;
-process.env.MIN_REFRESH_INTERVAL = ENV.MIN_REFRESH_INTERVAL;
-process.env.DISABLE_AUTO_REFRESH = ENV.DISABLE_AUTO_REFRESH;
+// Note: Don't overwrite process.env values that are already set (e.g., from Vercel)
+// Only set them if they're not already present
+process.env.NODE_ENV = process.env.NODE_ENV || ENV.NODE_ENV;
+process.env.USE_SAMPLE_DATA = process.env.USE_SAMPLE_DATA || ENV.USE_SAMPLE_DATA;
+process.env.GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID || ENV.GOOGLE_SHEETS_ID;
+process.env.USE_MEM_STORAGE = process.env.USE_MEM_STORAGE || ENV.USE_MEM_STORAGE;
+process.env.MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN || ENV.MAPBOX_ACCESS_TOKEN;
+process.env.SENDGRID_API_KEY = process.env.SENDGRID_API_KEY || ENV.SENDGRID_API_KEY;
+process.env.SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || ENV.SENDGRID_FROM_EMAIL;
+process.env.ADMIN_EMAIL = process.env.ADMIN_EMAIL || ENV.ADMIN_EMAIL;
+// CRITICAL: Don't overwrite Supabase env vars if they're already set by Vercel
+// Vercel provides these directly, so we should preserve them
+process.env.SUPABASE_URL = process.env.SUPABASE_URL || ENV.SUPABASE_URL;
+process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ENV.SUPABASE_SERVICE_ROLE_KEY;
+process.env.REFRESH_API_KEY = process.env.REFRESH_API_KEY || ENV.REFRESH_API_KEY;
+process.env.REFRESH_INTERVAL = process.env.REFRESH_INTERVAL || ENV.REFRESH_INTERVAL;
+process.env.MIN_REFRESH_INTERVAL = process.env.MIN_REFRESH_INTERVAL || ENV.MIN_REFRESH_INTERVAL;
+process.env.DISABLE_AUTO_REFRESH = process.env.DISABLE_AUTO_REFRESH || ENV.DISABLE_AUTO_REFRESH;
 
 // Choose which storage implementation to use
 const USE_GOOGLE_SHEETS = ENV.USE_MEM_STORAGE !== 'true';
