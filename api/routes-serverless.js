@@ -120,16 +120,41 @@ function isDevelopment() {
 // Send email using SendGrid
 async function sendEmail(params) {
   if (!process.env.SENDGRID_API_KEY) {
-    console.warn('Serverless: Cannot send email: SENDGRID_API_KEY is not set');
+    console.error('Serverless: ❌ Cannot send email: SENDGRID_API_KEY is not set');
+    console.error('Serverless: Check Vercel environment variables for SENDGRID_API_KEY');
+    return false;
+  }
+  
+  if (!process.env.SENDGRID_FROM_EMAIL) {
+    console.error('Serverless: ❌ Cannot send email: SENDGRID_FROM_EMAIL is not set');
+    console.error('Serverless: Check Vercel environment variables for SENDGRID_FROM_EMAIL');
     return false;
   }
   
   try {
-    await sgMail.send(params);
-    console.log(`Serverless: Email sent successfully to ${params.to}`);
+    console.log('Serverless: Attempting to send email...');
+    console.log('Serverless: From:', params.from || process.env.SENDGRID_FROM_EMAIL);
+    console.log('Serverless: To:', params.to);
+    console.log('Serverless: Subject:', params.subject);
+    
+    const result = await sgMail.send(params);
+    console.log('Serverless: ✅ Email sent successfully to', params.to);
+    console.log('Serverless: SendGrid response status:', result[0]?.statusCode);
     return true;
   } catch (error) {
-    console.error('Serverless: SendGrid email error:', error);
+    console.error('Serverless: ❌ SendGrid email error:', error.message);
+    console.error('Serverless: Error code:', error.code);
+    console.error('Serverless: Error response:', error.response?.body);
+    
+    // Log more details if available
+    if (error.response) {
+      console.error('Serverless: SendGrid response status:', error.response.statusCode);
+      console.error('Serverless: SendGrid response headers:', error.response.headers);
+      if (error.response.body) {
+        console.error('Serverless: SendGrid error details:', JSON.stringify(error.response.body, null, 2));
+      }
+    }
+    
     return false;
   }
 }
@@ -581,8 +606,14 @@ export async function registerRoutes(app, storageImpl) {
           }
           
           // Send notification email to admin
+          const adminEmail = process.env.ADMIN_EMAIL || 'admin@indiebookshop.com';
+          console.log('Serverless: Preparing to send email notification...');
+          console.log('Serverless: Admin email:', adminEmail);
+          console.log('Serverless: SENDGRID_API_KEY exists?', !!process.env.SENDGRID_API_KEY);
+          console.log('Serverless: SENDGRID_FROM_EMAIL:', process.env.SENDGRID_FROM_EMAIL || 'NOT SET');
+          
           const notificationSent = await sendBookstoreSubmissionNotification(
-            process.env.ADMIN_EMAIL || 'admin@indiebookshop.com',
+            adminEmail,
             sanitizedEmail,
             {
               ...submissionData,
@@ -598,6 +629,7 @@ export async function registerRoutes(app, storageImpl) {
             });
           } else {
             // Still return success if saved to Supabase, even if email failed
+            console.error('Serverless: ⚠️ Email notification failed, but submission was saved to database');
             res.status(201).json({ 
               message: "Bookstore submission saved but notification email failed. We'll still review your submission." 
             });
