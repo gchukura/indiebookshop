@@ -19,7 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 // Form validation schema for submission
 const submissionFormSchema = z.object({
   submitterName: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
+    message: "Your name must be at least 2 characters.",
   }),
   submitterEmail: z.string().email({
     message: "Please enter a valid email address.",
@@ -30,10 +30,10 @@ const submissionFormSchema = z.object({
     message: "Bookshop name must be at least 2 characters.",
   }),
   street: z.string().min(2, {
-    message: "Street address is required.",
+    message: "Street address is required (at least 2 characters).",
   }),
   city: z.string().min(2, {
-    message: "City is required.",
+    message: "City is required (at least 2 characters).",
   }),
   state: z.string().min(1, {
     message: "State is required.",
@@ -42,7 +42,10 @@ const submissionFormSchema = z.object({
     message: "Zip code is required.",
   }),
   description: z.string().optional(),
-  website: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal("")),
+  website: z.union([
+    z.string().url({ message: "Please enter a valid URL (e.g., https://example.com)." }),
+    z.literal(""),
+  ]).optional(),
   phone: z.string().optional(),
   hours: z.string().optional(),
   featureIds: z.array(z.number()).optional(),
@@ -81,13 +84,8 @@ export const BookshopSubmissionForm = () => {
   const form = useForm<SubmissionFormValues>({
     resolver: zodResolver(submissionFormSchema),
     defaultValues,
+    mode: "onChange", // Validate on change for better UX
   });
-
-  // Debug: Log form errors
-  const formErrors = form.formState.errors;
-  if (Object.keys(formErrors).length > 0) {
-    console.log("Form validation errors:", formErrors);
-  }
 
   // Form submission handler
   const onSubmit = async (data: SubmissionFormValues) => {
@@ -188,9 +186,12 @@ export const BookshopSubmissionForm = () => {
               },
               (errors) => {
                 console.error("Form validation failed:", errors);
+                // Get the first error message to show
+                const firstError = Object.values(errors)[0];
+                const errorMessage = firstError?.message || "Please check the form and fix any errors before submitting.";
                 toast({
                   title: "Validation Error",
-                  description: "Please check the form and fix any errors before submitting.",
+                  description: errorMessage,
                   variant: "destructive",
                 });
               }
