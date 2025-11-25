@@ -1,5 +1,29 @@
 // Serverless-compatible routes implementation
 import rateLimit from 'express-rate-limit';
+import { createClient } from '@supabase/supabase-js';
+
+// Create Supabase client for serverless functions
+// This is inlined here to ensure it's included in the Vercel bundle
+function getSupabaseClient() {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.warn(
+      'Serverless: Supabase environment variables are missing. SUBMISSIONS WILL NOT BE SAVED. ' +
+      'Please ensure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in Vercel.'
+    );
+    return null;
+  }
+
+  // Use service role key for server-side operations (bypasses RLS)
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+}
 
 /**
  * Rate limiting middleware for submission endpoints
@@ -276,7 +300,7 @@ export async function registerRoutes(app, storageImpl) {
   // Apply rate limiting to prevent spam
   app.post('/api/bookstores/submit', submissionLimiter, async (req, res) => {
     try {
-      const { supabase } = await import('./supabase-serverless.js');
+      const supabase = getSupabaseClient();
       const { sendBookstoreSubmissionNotification } = await import('./email-serverless.js');
       
       const { submitterEmail, submitterName, isNewSubmission, existingBookstoreId, bookstoreData } = req.body;
@@ -499,7 +523,7 @@ export async function registerRoutes(app, storageImpl) {
   // Apply rate limiting to prevent spam
   app.post('/api/events', submissionLimiter, async (req, res) => {
     try {
-      const { supabase } = await import('./supabase-serverless.js');
+      const supabase = getSupabaseClient();
       const { isValidDate, isValidTime, safeParseInt } = await import('./utils-serverless.js');
       
       // Handle both bookshopId and bookstoreId (form sends bookstoreId)
