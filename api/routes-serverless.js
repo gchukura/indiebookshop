@@ -180,7 +180,12 @@ ${JSON.stringify(bookstoreData, null, 2)}
  * Limits: 5 requests per 15 minutes per IP
  * Note: In serverless, each function instance has its own memory store
  */
+// Rate limiter for form submissions
+// Note: We use trust proxy on Vercel, which is safe because Vercel sets X-Forwarded-For correctly
 const submissionLimiter = rateLimit({
+  validate: {
+    trustProxy: false, // Disable trust proxy validation warning (safe on Vercel)
+  },
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 requests per window
   message: 'Too many submissions from this IP, please try again later.',
