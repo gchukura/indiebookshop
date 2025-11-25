@@ -161,11 +161,11 @@ export const BookshopSubmissionForm = () => {
       const result = await response.json();
       console.log("API response data:", result);
 
-      // Show success message
-      toast({
-        title: "Submission Successful",
-        description: result.message || "Thank you for your submission! We'll review it shortly.",
-      });
+      // Show success message - COMMENTED OUT: Users don't need to see this notification
+      // toast({
+      //   title: "Submission Successful",
+      //   description: result.message || "Thank you for your submission! We'll review it shortly.",
+      // });
 
       // Reset the form
       form.reset(defaultValues);
