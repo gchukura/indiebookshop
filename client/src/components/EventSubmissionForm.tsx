@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,9 +7,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
+import { Bookstore } from "@shared/schema";
 
 // Simple form for event submission
 const EventSubmissionForm = () => {
@@ -17,11 +28,46 @@ const EventSubmissionForm = () => {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState("");
-  const [bookstoreId, setBookstoreId] = useState("");
+  const [bookstoreId, setBookstoreId] = useState<number | null>(null);
+  const [bookshopSearchOpen, setBookshopSearchOpen] = useState(false);
   const { toast } = useToast();
+
+  // Fetch all bookshops for the selector
+  const { data: bookshops = [], isLoading: isLoadingBookshops } = useQuery<Bookstore[]>({
+    queryKey: ['bookshops-for-events'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bookstores')
+        .select('id, name, city, state')
+        .eq('live', true)
+        .order('name');
+      
+      if (error) throw error;
+      
+      return (data || []).map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        city: item.city,
+        state: item.state,
+      })) as Bookstore[];
+    }
+  });
+
+  const selectedBookshop = bookshops.find(b => b.id === bookstoreId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!bookstoreId) {
+      toast({
+        title: "Error",
+        description: "Please select a bookshop.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
@@ -38,7 +84,7 @@ const EventSubmissionForm = () => {
           description,
           date: formattedDate,
           time,
-          bookstoreId: parseInt(bookstoreId),
+          bookstoreId: bookstoreId,
         }),
       });
 
@@ -51,7 +97,7 @@ const EventSubmissionForm = () => {
       setDescription("");
       setDate(undefined);
       setTime("");
-      setBookstoreId("");
+      setBookstoreId(null);
 
       toast({
         title: "Success!",
@@ -82,15 +128,61 @@ const EventSubmissionForm = () => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="bookstoreId">Bookshop ID</Label>
-        <Input
-          id="bookstoreId"
-          value={bookstoreId}
-          onChange={(e) => setBookstoreId(e.target.value)}
-          placeholder="Enter the bookshop ID"
-          type="number"
-          required
-        />
+        <Label>Bookshop</Label>
+        <Popover open={bookshopSearchOpen} onOpenChange={setBookshopSearchOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={bookshopSearchOpen}
+              className="w-full justify-between"
+              disabled={isLoadingBookshops}
+            >
+              {selectedBookshop
+                ? `${selectedBookshop.name} - ${selectedBookshop.city}, ${selectedBookshop.state}`
+                : "Search for a bookshop..."}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search bookshops by name, city, or state..." />
+              <CommandList>
+                <CommandEmpty>No bookshop found.</CommandEmpty>
+                <CommandGroup>
+                  {bookshops.map((bookshop) => (
+                    <CommandItem
+                      key={bookshop.id}
+                      value={`${bookshop.name} ${bookshop.city} ${bookshop.state}`}
+                      onSelect={() => {
+                        setBookstoreId(bookshop.id);
+                        setBookshopSearchOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          bookstoreId === bookshop.id ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      <div className="flex flex-col">
+                        <span className="font-medium">{bookshop.name}</span>
+                        <span className="text-sm text-muted-foreground">
+                          {bookshop.city}, {bookshop.state}
+                        </span>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+        {!bookstoreId && (
+          <p className="text-sm text-muted-foreground">
+            Select the bookshop hosting this event
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
