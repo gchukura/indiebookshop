@@ -13,6 +13,10 @@ import { htmlInjectionMiddleware } from './htmlInjectionMiddleware-serverless.js
 
 // Create our Express app
 const app = express();
+
+// Trust proxy for rate limiting behind Vercel's proxy
+app.set('trust proxy', true);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -28,6 +32,10 @@ process.env.GOOGLE_SHEETS_ID = ENV.GOOGLE_SHEETS_ID;
 process.env.USE_MEM_STORAGE = ENV.USE_MEM_STORAGE;
 process.env.MAPBOX_ACCESS_TOKEN = ENV.MAPBOX_ACCESS_TOKEN;
 process.env.SENDGRID_API_KEY = ENV.SENDGRID_API_KEY;
+process.env.SENDGRID_FROM_EMAIL = ENV.SENDGRID_FROM_EMAIL;
+process.env.ADMIN_EMAIL = ENV.ADMIN_EMAIL;
+process.env.SUPABASE_URL = ENV.SUPABASE_URL;
+process.env.SUPABASE_SERVICE_ROLE_KEY = ENV.SUPABASE_SERVICE_ROLE_KEY;
 process.env.REFRESH_API_KEY = ENV.REFRESH_API_KEY;
 process.env.REFRESH_INTERVAL = ENV.REFRESH_INTERVAL;
 process.env.MIN_REFRESH_INTERVAL = ENV.MIN_REFRESH_INTERVAL;

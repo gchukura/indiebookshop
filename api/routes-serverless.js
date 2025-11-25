@@ -1,6 +1,7 @@
 // Serverless-compatible routes implementation
 import rateLimit from 'express-rate-limit';
 import { createClient } from '@supabase/supabase-js';
+import sgMail from '@sendgrid/mail';
 
 // Create Supabase client for serverless functions
 // This is inlined here to ensure it's included in the Vercel bundle
@@ -22,6 +23,115 @@ function getSupabaseClient() {
       autoRefreshToken: false,
       persistSession: false
     }
+  });
+}
+
+// Initialize SendGrid
+if (!process.env.SENDGRID_API_KEY) {
+  console.warn('Serverless: SENDGRID_API_KEY environment variable is not set. Email notifications will not be sent.');
+} else {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
+
+// Escape HTML entities to prevent XSS attacks
+function escapeHtml(text) {
+  if (typeof text !== 'string') {
+    return String(text);
+  }
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Validate date format (YYYY-MM-DD)
+function isValidDate(date) {
+  if (typeof date !== 'string') return false;
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRegex.test(date)) return false;
+  const d = new Date(date);
+  return d instanceof Date && !isNaN(d.getTime());
+}
+
+// Validate time format (HH:MM or HH:MM:SS)
+function isValidTime(time) {
+  if (typeof time !== 'string') return false;
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:([0-5]\d))?$/;
+  return timeRegex.test(time);
+}
+
+// Safely parse integer with validation
+function safeParseInt(value, min = 1) {
+  if (value === null || value === undefined) return null;
+  const parsed = parseInt(String(value), 10);
+  if (isNaN(parsed) || parsed < min) return null;
+  return parsed;
+}
+
+// Check if we're in development mode
+function isDevelopment() {
+  return process.env.NODE_ENV === 'development';
+}
+
+// Send email using SendGrid
+async function sendEmail(params) {
+  if (!process.env.SENDGRID_API_KEY) {
+    console.warn('Serverless: Cannot send email: SENDGRID_API_KEY is not set');
+    return false;
+  }
+  
+  try {
+    await sgMail.send(params);
+    console.log(`Serverless: Email sent successfully to ${params.to}`);
+    return true;
+  } catch (error) {
+    console.error('Serverless: SendGrid email error:', error);
+    return false;
+  }
+}
+
+// Function to notify about new bookstore submissions
+async function sendBookstoreSubmissionNotification(adminEmail, senderEmail, bookstoreData) {
+  // Escape user input to prevent XSS in email
+  const safeName = escapeHtml(bookstoreData.name || '');
+  const safeCity = escapeHtml(bookstoreData.city || '');
+  const safeState = escapeHtml(bookstoreData.state || '');
+  const safeSenderEmail = escapeHtml(senderEmail);
+  
+  const subject = `New Bookstore Submission: ${safeName}`;
+  
+  // Create text and HTML versions for the email
+  const text = `
+New bookstore submission received:
+
+Name: ${bookstoreData.name || 'N/A'}
+Location: ${bookstoreData.city || 'N/A'}, ${bookstoreData.state || 'N/A'}
+Submitter Email: ${senderEmail}
+
+Full Details:
+${JSON.stringify(bookstoreData, null, 2)}
+`;
+
+  const html = `
+<h2>New Bookstore Submission</h2>
+<p><strong>Name:</strong> ${safeName}</p>
+<p><strong>Location:</strong> ${safeCity}, ${safeState}</p>
+<p><strong>Submitter Email:</strong> ${safeSenderEmail}</p>
+
+<h3>Full Details:</h3>
+<pre>${escapeHtml(JSON.stringify(bookstoreData, null, 2))}</pre>
+`;
+
+  return sendEmail({
+    to: adminEmail,
+    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com',
+    subject,
+    text,
+    html
   });
 }
 
@@ -301,7 +411,6 @@ export async function registerRoutes(app, storageImpl) {
   app.post('/api/bookstores/submit', submissionLimiter, async (req, res) => {
     try {
       const supabase = getSupabaseClient();
-      const { sendBookstoreSubmissionNotification } = await import('./email-serverless.js');
       
       const { submitterEmail, submitterName, isNewSubmission, existingBookstoreId, bookstoreData } = req.body;
       
@@ -376,7 +485,6 @@ export async function registerRoutes(app, storageImpl) {
           
           // Save to Supabase
           let savedSubmission = null;
-          const { isDevelopment } = await import('./utils-serverless.js');
           
           if (isDevelopment()) {
             console.log('Serverless: Attempting to save submission to Supabase...');
@@ -524,7 +632,6 @@ export async function registerRoutes(app, storageImpl) {
   app.post('/api/events', submissionLimiter, async (req, res) => {
     try {
       const supabase = getSupabaseClient();
-      const { isValidDate, isValidTime, safeParseInt } = await import('./utils-serverless.js');
       
       // Handle both bookshopId and bookstoreId (form sends bookstoreId)
       const { title, description, date, time, bookshopId, bookstoreId } = req.body;
@@ -567,7 +674,6 @@ export async function registerRoutes(app, storageImpl) {
       
       // Save to Supabase
       let savedEvent = null;
-      const { isDevelopment } = await import('./utils-serverless.js');
       
       if (isDevelopment()) {
         console.log('Serverless: Attempting to save event to Supabase...');
