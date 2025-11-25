@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 
 // Form validation schema for submission
+// Address fields are only required if hasPhysicalStore is true
 const submissionFormSchema = z.object({
   submitterName: z.string().min(2, {
     message: "Your name must be at least 2 characters.",
@@ -29,18 +30,11 @@ const submissionFormSchema = z.object({
   name: z.string().min(2, {
     message: "Bookshop name must be at least 2 characters.",
   }),
-  street: z.string().min(2, {
-    message: "Street address is required (at least 2 characters).",
-  }),
-  city: z.string().min(2, {
-    message: "City is required (at least 2 characters).",
-  }),
-  state: z.string().min(1, {
-    message: "State is required.",
-  }),
-  zip: z.string().min(1, {
-    message: "Zip code is required.",
-  }),
+  // Address fields are optional, but required if hasPhysicalStore is true
+  street: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zip: z.string().optional(),
   description: z.string().optional(),
   website: z.union([
     z.string().url({ message: "Please enter a valid URL (e.g., https://example.com)." }),
@@ -50,6 +44,39 @@ const submissionFormSchema = z.object({
   hours: z.string().optional(),
   featureIds: z.array(z.number()).optional(),
   hasPhysicalStore: z.boolean().default(true),
+}).refine((data) => {
+  // If hasPhysicalStore is true, address fields are required
+  if (data.hasPhysicalStore) {
+    return data.street && data.street.length >= 2;
+  }
+  return true;
+}, {
+  message: "Street address is required (at least 2 characters).",
+  path: ["street"],
+}).refine((data) => {
+  if (data.hasPhysicalStore) {
+    return data.city && data.city.length >= 2;
+  }
+  return true;
+}, {
+  message: "City is required (at least 2 characters).",
+  path: ["city"],
+}).refine((data) => {
+  if (data.hasPhysicalStore) {
+    return data.state && data.state.length >= 1;
+  }
+  return true;
+}, {
+  message: "State is required.",
+  path: ["state"],
+}).refine((data) => {
+  if (data.hasPhysicalStore) {
+    return data.zip && data.zip.length >= 1;
+  }
+  return true;
+}, {
+  message: "Zip code is required.",
+  path: ["zip"],
 });
 
 type SubmissionFormValues = z.infer<typeof submissionFormSchema>;
@@ -96,10 +123,11 @@ export const BookshopSubmissionForm = () => {
       const isNewSubmission = data.submissionType === "new";
       const bookshopData = {
         name: data.name,
-        street: data.street,
-        city: data.city,
-        state: data.state,
-        zip: data.zip,
+        // Only include address fields if hasPhysicalStore is true
+        street: data.hasPhysicalStore ? (data.street || "") : "",
+        city: data.hasPhysicalStore ? (data.city || "") : "",
+        state: data.hasPhysicalStore ? (data.state || "") : "",
+        zip: data.hasPhysicalStore ? (data.zip || "") : "",
         description: data.description || "",
         website: data.website || "",
         phone: data.phone || "",
