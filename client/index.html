@@ -13,7 +13,33 @@
     <!-- AdSense Script -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4357894821158922" crossorigin="anonymous"></script>
     <!-- Ahrefs Analytics -->
-    <script src="https://analytics.ahrefs.com/analytics.js" data-key="WXyCVg4DSjVfmskFzEGl9Q" async></script>
+    <script>
+      // Suppress Ahrefs analytics console errors
+      (function() {
+        var originalError = console.error;
+        console.error = function() {
+          // Suppress 400 errors from Ahrefs analytics
+          if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('ahrefs.com')) {
+            return; // Silently ignore Ahrefs errors
+          }
+          originalError.apply(console, arguments);
+        };
+        
+        // Load Ahrefs analytics script
+        try {
+          var script = document.createElement('script');
+          script.src = 'https://analytics.ahrefs.com/analytics.js';
+          script.setAttribute('data-key', 'WXyCVg4DSjVfmskFzEGl9Q');
+          script.async = true;
+          script.onerror = function() {
+            // Script failed to load - this is okay, analytics is non-critical
+          };
+          document.head.appendChild(script);
+        } catch (e) {
+          // Initialization failed - this is okay, analytics is non-critical
+        }
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
