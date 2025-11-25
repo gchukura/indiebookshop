@@ -623,7 +623,14 @@ export async function registerRoutes(app, storageImpl) {
       }
     } catch (error) {
       console.error("Serverless: Error processing bookstore submission:", error);
-      res.status(500).json({ message: "Failed to process bookstore submission" });
+      console.error("Serverless: Error stack:", error.stack);
+      console.error("Serverless: Error name:", error.name);
+      console.error("Serverless: Error message:", error.message);
+      res.status(500).json({ 
+        message: "Failed to process bookstore submission",
+        error: error.message,
+        type: error.name
+      });
     }
   });
 
