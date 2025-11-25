@@ -6,8 +6,8 @@ import sgMail from '@sendgrid/mail';
 // Create Supabase client for serverless functions
 // This is inlined here to ensure it's included in the Vercel bundle
 function getSupabaseClient() {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseUrl = process.env.SUPABASE_URL?.trim();
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
   if (!supabaseUrl || !supabaseServiceKey) {
     console.warn(
@@ -17,13 +17,28 @@ function getSupabaseClient() {
     return null;
   }
 
-  // Use service role key for server-side operations (bypasses RLS)
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  });
+  // Validate URL format
+  if (!supabaseUrl.startsWith('http://') && !supabaseUrl.startsWith('https://')) {
+    console.error(
+      'Serverless: Invalid SUPABASE_URL format. Must start with http:// or https://. ' +
+      `Current value: "${supabaseUrl.substring(0, 50)}..."`
+    );
+    return null;
+  }
+
+  try {
+    // Use service role key for server-side operations (bypasses RLS)
+    return createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+  } catch (error) {
+    console.error('Serverless: Error creating Supabase client:', error.message);
+    console.error('Serverless: SUPABASE_URL:', supabaseUrl ? `"${supabaseUrl.substring(0, 50)}..."` : 'MISSING');
+    return null;
+  }
 }
 
 // Initialize SendGrid
