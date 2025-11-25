@@ -83,8 +83,15 @@ export const BookshopSubmissionForm = () => {
     defaultValues,
   });
 
+  // Debug: Log form errors
+  const formErrors = form.formState.errors;
+  if (Object.keys(formErrors).length > 0) {
+    console.log("Form validation errors:", formErrors);
+  }
+
   // Form submission handler
   const onSubmit = async (data: SubmissionFormValues) => {
+    console.log("Form submission started", data);
     setIsSubmitting(true);
     try {
       // Prepare the submission data
@@ -102,6 +109,13 @@ export const BookshopSubmissionForm = () => {
         featureIds: selectedFeatures.join(","),
       };
 
+      console.log("Sending submission to API:", {
+        submitterEmail: data.submitterEmail,
+        submitterName: data.submitterName,
+        isNewSubmission,
+        bookshopData,
+      });
+
       // Send submission to the API
       const response = await apiRequest(
         "POST",
@@ -111,12 +125,15 @@ export const BookshopSubmissionForm = () => {
           submitterName: data.submitterName,
           isNewSubmission,
           existingBookshopId: !isNewSubmission ? data.existingBookshopId : undefined,
-          bookshopData,
+          bookstoreData: bookshopData, // Note: backend expects 'bookstoreData', not 'bookshopData'
         }
       );
 
+      console.log("API response received:", response.status);
+
       // Parse response to get message
       const result = await response.json();
+      console.log("API response data:", result);
 
       // Show success message
       toast({
@@ -129,10 +146,11 @@ export const BookshopSubmissionForm = () => {
       setSelectedFeatures([]);
     } catch (error) {
       console.error("Submission error:", error);
-      // Show error message
+      // Show error message with more details
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       toast({
         title: "Submission Failed",
-        description: "There was a problem submitting your bookshop. Please try again.",
+        description: `There was a problem submitting your bookshop: ${errorMessage}. Please check the browser console for details.`,
         variant: "destructive",
       });
     } finally {
@@ -162,7 +180,23 @@ export const BookshopSubmissionForm = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form 
+            onSubmit={form.handleSubmit(
+              (data) => {
+                console.log("Form validation passed, calling onSubmit");
+                onSubmit(data);
+              },
+              (errors) => {
+                console.error("Form validation failed:", errors);
+                toast({
+                  title: "Validation Error",
+                  description: "Please check the form and fix any errors before submitting.",
+                  variant: "destructive",
+                });
+              }
+            )} 
+            className="space-y-6"
+          >
             {/* Submission Type Selection */}
             <FormField
               control={form.control}
@@ -440,7 +474,15 @@ export const BookshopSubmissionForm = () => {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isSubmitting}
+              onClick={(e) => {
+                console.log("Submit button clicked");
+                // Let the form handle submission
+              }}
+            >
               {isSubmitting ? "Submitting..." : "Submit Bookshop"}
             </Button>
           </form>
