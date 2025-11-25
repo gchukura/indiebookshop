@@ -9,33 +9,58 @@ function getSupabaseClient() {
   const supabaseUrl = process.env.SUPABASE_URL?.trim();
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
+  // Detailed logging for debugging
+  console.log('Serverless: Checking Supabase environment variables...');
+  console.log('Serverless: SUPABASE_URL exists?', !!supabaseUrl);
+  console.log('Serverless: SUPABASE_URL length:', supabaseUrl?.length || 0);
+  console.log('Serverless: SUPABASE_URL starts with https?', supabaseUrl?.startsWith('https://'));
+  console.log('Serverless: SUPABASE_SERVICE_ROLE_KEY exists?', !!supabaseServiceKey);
+  console.log('Serverless: SUPABASE_SERVICE_ROLE_KEY length:', supabaseServiceKey?.length || 0);
+  console.log('Serverless: SUPABASE_SERVICE_ROLE_KEY starts with eyJ?', supabaseServiceKey?.startsWith('eyJ'));
+
   if (!supabaseUrl || !supabaseServiceKey) {
-    console.warn(
-      'Serverless: Supabase environment variables are missing. SUBMISSIONS WILL NOT BE SAVED. ' +
+    console.error(
+      'Serverless: ❌ Supabase environment variables are missing. SUBMISSIONS WILL NOT BE SAVED. ' +
       'Please ensure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in Vercel.'
     );
+    console.error('Serverless: SUPABASE_URL:', supabaseUrl ? 'SET' : 'MISSING');
+    console.error('Serverless: SUPABASE_SERVICE_ROLE_KEY:', supabaseServiceKey ? 'SET' : 'MISSING');
     return null;
   }
 
   // Validate URL format
   if (!supabaseUrl.startsWith('http://') && !supabaseUrl.startsWith('https://')) {
     console.error(
-      'Serverless: Invalid SUPABASE_URL format. Must start with http:// or https://. ' +
-      `Current value: "${supabaseUrl.substring(0, 50)}..."`
+      'Serverless: ❌ Invalid SUPABASE_URL format. Must start with http:// or https://.'
     );
+    console.error('Serverless: Current SUPABASE_URL value (first 100 chars):', `"${supabaseUrl.substring(0, 100)}"`);
+    return null;
+  }
+
+  // Validate URL is a proper URL
+  try {
+    new URL(supabaseUrl);
+  } catch (urlError) {
+    console.error('Serverless: ❌ SUPABASE_URL is not a valid URL:', urlError.message);
+    console.error('Serverless: SUPABASE_URL value:', `"${supabaseUrl}"`);
     return null;
   }
 
   try {
+    console.log('Serverless: ✅ Creating Supabase client...');
     // Use service role key for server-side operations (bypasses RLS)
-    return createClient(supabaseUrl, supabaseServiceKey, {
+    const client = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
       }
     });
+    console.log('Serverless: ✅ Supabase client created successfully');
+    return client;
   } catch (error) {
-    console.error('Serverless: Error creating Supabase client:', error.message);
+    console.error('Serverless: ❌ Error creating Supabase client:', error.message);
+    console.error('Serverless: Error type:', error.name);
+    console.error('Serverless: Error stack:', error.stack);
     console.error('Serverless: SUPABASE_URL:', supabaseUrl ? `"${supabaseUrl.substring(0, 50)}..."` : 'MISSING');
     return null;
   }
