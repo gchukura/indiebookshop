@@ -10,11 +10,23 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Bookstore as Bookshop, Feature } from "@shared/schema";
 import { STATES } from "@/lib/constants";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
 
 // Form validation schema for submission
 // Address fields are only required if hasPhysicalStore is true
@@ -26,7 +38,7 @@ const submissionFormSchema = z.object({
     message: "Please enter a valid email address.",
   }),
   submissionType: z.enum(["new", "change"]),
-  existingBookshopId: z.string().optional(),
+  existingBookshopName: z.string().optional(),
   name: z.string().min(2, {
     message: "Bookshop name must be at least 2 characters.",
   }),
@@ -84,12 +96,14 @@ type SubmissionFormValues = z.infer<typeof submissionFormSchema>;
 export const BookshopSubmissionForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFeatures, setSelectedFeatures] = useState<number[]>([]);
+  const [bookshopSearchOpen, setBookshopSearchOpen] = useState(false);
   const { toast } = useToast();
 
   // Fetch all features
   const { data: features = [] } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
   });
+
 
   // Default values for the form
   const defaultValues: Partial<SubmissionFormValues> = {
@@ -113,6 +127,35 @@ export const BookshopSubmissionForm = () => {
     defaultValues,
     mode: "onChange", // Validate on change for better UX
   });
+
+  const submissionType = form.watch("submissionType");
+  const selectedBookshopName = form.watch("existingBookshopName");
+
+  // Fetch all bookshops for the selector (when editing)
+  const { data: bookshops = [], isLoading: isLoadingBookshops } = useQuery<Bookshop[]>({
+    queryKey: ['bookshops-for-editing'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bookstores')
+        .select('id, name, city, state')
+        .eq('live', true)
+        .order('name');
+      
+      if (error) throw error;
+      
+      return (data || []).map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        city: item.city,
+        state: item.state,
+      })) as Bookshop[];
+    },
+    enabled: submissionType === "change",
+  });
+
+  const selectedBookshop = bookshops.find(b => 
+    `${b.name} - ${b.city}, ${b.state}` === selectedBookshopName
+  );
 
   // Form submission handler
   const onSubmit = async (data: SubmissionFormValues) => {
@@ -150,7 +193,7 @@ export const BookshopSubmissionForm = () => {
           submitterEmail: data.submitterEmail,
           submitterName: data.submitterName,
           isNewSubmission,
-          existingBookshopId: !isNewSubmission ? data.existingBookshopId : undefined,
+          existingBookshopName: !isNewSubmission ? data.existingBookshopName : undefined,
           bookstoreData: bookshopData, // Note: backend expects 'bookstoreData', not 'bookshopData'
         }
       );
@@ -193,7 +236,6 @@ export const BookshopSubmissionForm = () => {
     );
   };
 
-  const submissionType = form.watch("submissionType");
   const hasPhysicalStore = form.watch("hasPhysicalStore");
 
   return (
@@ -258,17 +300,72 @@ export const BookshopSubmissionForm = () => {
               )}
             />
 
-            {/* If updating, ask for existing bookshop ID */}
+            {/* If updating, ask for existing bookshop name */}
             {submissionType === "change" && (
               <FormField
                 control={form.control}
-                name="existingBookshopId"
+                name="existingBookshopName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Existing Bookshop ID</FormLabel>
+                    <FormLabel>Existing Bookshop</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter bookshop ID (found in URL)" {...field} />
+                      <Popover open={bookshopSearchOpen} onOpenChange={setBookshopSearchOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={bookshopSearchOpen}
+                            className="w-full justify-between"
+                            disabled={isLoadingBookshops}
+                          >
+                            {selectedBookshop
+                              ? `${selectedBookshop.name} - ${selectedBookshop.city}, ${selectedBookshop.state}`
+                              : "Search for a bookshop..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="Search bookshops by name, city, or state..." />
+                            <CommandList>
+                              <CommandEmpty>No bookshop found.</CommandEmpty>
+                              <CommandGroup>
+                                {bookshops.map((bookshop) => {
+                                  const displayValue = `${bookshop.name} - ${bookshop.city}, ${bookshop.state}`;
+                                  return (
+                                    <CommandItem
+                                      key={bookshop.id}
+                                      value={`${bookshop.name} ${bookshop.city} ${bookshop.state}`}
+                                      onSelect={() => {
+                                        field.onChange(displayValue);
+                                        setBookshopSearchOpen(false);
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          selectedBookshopName === displayValue ? "opacity-100" : "opacity-0"
+                                        )}
+                                      />
+                                      <div className="flex flex-col">
+                                        <span className="font-medium">{bookshop.name}</span>
+                                        <span className="text-sm text-muted-foreground">
+                                          {bookshop.city}, {bookshop.state}
+                                        </span>
+                                      </div>
+                                    </CommandItem>
+                                  );
+                                })}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </FormControl>
+                    <FormDescription>
+                      Select the bookshop you want to update
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

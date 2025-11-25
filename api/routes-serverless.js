@@ -640,18 +640,43 @@ export async function registerRoutes(app, storageImpl) {
         }
       } else {
         // For existing bookstore change suggestions
-        if (!existingBookstoreId) {
-          return res.status(400).json({ message: "Existing bookstore ID is required for changes" });
-        }
+        // Handle both existingBookstoreId (legacy) and existingBookshopName (new)
+        const { existingBookstoreId, existingBookshopName } = req.body;
         
-        const bookstore = await storageImpl.getBookstore(parseInt(existingBookstoreId));
-        if (!bookstore) {
-          return res.status(404).json({ message: "Existing bookstore not found" });
+        let bookstore = null;
+        
+        if (existingBookshopName) {
+          // Look up by name (format: "Name - City, State")
+          const nameParts = existingBookshopName.split(' - ');
+          if (nameParts.length === 2) {
+            const [name, location] = nameParts;
+            const locationParts = location.split(', ');
+            if (locationParts.length === 2) {
+              const [city, state] = locationParts;
+              // Get all bookstores and find by name, city, and state
+              const allBookstores = await storageImpl.getBookstores();
+              bookstore = allBookstores.find(b => 
+                b.name === name && b.city === city && b.state === state
+              );
+            }
+          }
+          
+          if (!bookstore) {
+            return res.status(404).json({ message: "Bookshop not found. Please select a bookshop from the list." });
+          }
+        } else if (existingBookstoreId) {
+          // Legacy: look up by ID
+          bookstore = await storageImpl.getBookstore(parseInt(existingBookstoreId));
+          if (!bookstore) {
+            return res.status(404).json({ message: "Existing bookstore not found" });
+          }
+        } else {
+          return res.status(400).json({ message: "Please select the bookshop you want to update" });
         }
         
         // Save change suggestion to Supabase (could create a separate table, but for now we'll log it)
         const changeSuggestion = {
-          existing_bookstore_id: parseInt(existingBookstoreId),
+          existing_bookstore_id: bookstore.id,
           submitter_email: sanitizedEmail,
           submitter_name: sanitizedName,
           submission_type: 'change',
@@ -682,7 +707,8 @@ export async function registerRoutes(app, storageImpl) {
           {
             ...bookstoreData,
             submitterName: sanitizedName,
-            existingBookstoreId,
+            existingBookstoreId: bookstore.id,
+            existingBookshopName: existingBookshopName || `${bookstore.name} - ${bookstore.city}, ${bookstore.state}`,
             submissionType: 'change',
             existingData: bookstore
           }
