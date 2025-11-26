@@ -480,7 +480,7 @@ const MobileBookshopCard: React.FC<MobileBookshopCardProps> = ({
       )}
 
       <Link
-        href={`/bookshop/${slug}`}
+        to={`/bookshop/${slug}`}
         className="font-sans text-sm text-[#2A6B7C] hover:underline font-semibold inline-flex items-center gap-1"
         onClick={(e) => e.stopPropagation()}
       >

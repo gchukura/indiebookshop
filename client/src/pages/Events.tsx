@@ -212,7 +212,7 @@ const Events = () => {
             {bookshop && (
               <div className="flex items-center">
                 <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                <Link href={`/bookshop/${bookshopSlug}`} className="text-[#2A6B7C] hover:underline">
+                <Link to={`/bookshop/${bookshopSlug}`} className="text-[#2A6B7C] hover:underline">
                   {bookshop.name}
                 </Link>
               </div>

@@ -1536,7 +1536,7 @@ const PanelBookshopCard: React.FC<PanelBookshopCardProps> = ({
       )}
 
       <Link 
-        href={`/bookshop/${slug}`}
+        to={`/bookshop/${slug}`}
         className="font-sans text-xs text-[#2A6B7C] hover:underline font-medium inline-block"
         onClick={(e) => e.stopPropagation()}
       >

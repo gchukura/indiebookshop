@@ -258,7 +258,7 @@ const Home = () => {
                     
                     return (
                       <div key={bookshop.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
-                        <Link href={`/bookshop/${bookshopSlug}`}>
+                        <Link to={`/bookshop/${bookshopSlug}`}>
                           {bookshop.imageUrl ? (
                             <img 
                               src={bookshop.imageUrl} 
@@ -272,7 +272,7 @@ const Home = () => {
                           )}
                         </Link>
                         <div className="p-4 md:p-5">
-                          <Link href={`/bookshop/${bookshopSlug}`}>
+                          <Link to={`/bookshop/${bookshopSlug}`}>
                             <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D] leading-tight line-clamp-2">{bookshop.name}</h3>
                           </Link>
                           <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4">{bookshop.city || ''}{bookshop.city && bookshop.state ? ', ' : ''}{bookshop.state || ''}</p>
