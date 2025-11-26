@@ -33,14 +33,34 @@ const Footer = () => {
 
   return (
     <>
-      {/* Newsletter Section */}
-      <section className="py-8 md:py-12 lg:py-16 bg-[#F7F3E8] text-[#5F4B32]">
+      {/* Newsletter Section - Reserve space to prevent layout shifts */}
+      <section 
+        className="py-8 md:py-12 lg:py-16 bg-[#F7F3E8] text-[#5F4B32]" 
+        style={{ 
+          minHeight: '280px',
+          containIntrinsicSize: 'auto 280px'
+        }}
+      >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-xl md:text-2xl font-serif font-bold mb-3">Join Our Literary Community</h2>
-          <p className="font-sans text-sm md:text-base text-gray-700 max-w-2xl mx-auto mb-4">
+          <h2 
+            className="text-xl md:text-2xl font-serif font-bold mb-3" 
+            style={{ 
+              minHeight: '32px',
+              lineHeight: '1.2'
+            }}
+          >
+            Join Our Literary Community
+          </h2>
+          <p 
+            className="font-sans text-sm md:text-base text-gray-700 max-w-2xl mx-auto mb-4" 
+            style={{ 
+              minHeight: '48px',
+              lineHeight: '1.5'
+            }}
+          >
             Connect with fellow book lovers, stay updated on bookshop events, and discover new independent bookshops.
           </p>
-          <div className="max-w-md mx-auto">
+          <div className="max-w-md mx-auto" style={{ minHeight: '60px' }}>
             <form className="flex flex-col sm:flex-row gap-2 justify-center items-stretch" onSubmit={handleSubscribe}>
               <div className="flex-grow">
                 <input 
@@ -50,12 +70,14 @@ const Footer = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  style={{ minHeight: '44px' }}
                 />
               </div>
               <Button 
                 type="submit" 
                 className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white px-4 py-2 h-full rounded-full min-h-[44px]"
                 disabled={isSubmitting}
+                style={{ minHeight: '44px' }}
               >
                 {isSubmitting ? "Subscribing..." : "Subscribe"}
               </Button>
@@ -64,11 +86,25 @@ const Footer = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#5F4B32] py-8 md:py-12">
+      {/* Footer - Reserve space to prevent layout shifts */}
+      <footer 
+        className="bg-[#5F4B32] py-8 md:py-12" 
+        style={{ 
+          minHeight: '100px',
+          containIntrinsicSize: 'auto 100px'
+        }}
+      >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="border-white/20 pt-2 text-center">
-            <p className="font-sans text-sm md:text-base text-gray-100">&copy; {new Date().getFullYear()} IndieBookShop.com. All rights reserved.</p>
+          <div className="border-white/20 pt-2 text-center" style={{ minHeight: '24px' }}>
+            <p 
+              className="font-sans text-sm md:text-base text-gray-100"
+              style={{ 
+                minHeight: '20px',
+                lineHeight: '1.5'
+              }}
+            >
+              &copy; {new Date().getFullYear()} IndieBookShop.com. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>

@@ -13,6 +13,7 @@ import {
   DESCRIPTION_TEMPLATES
 } from '../lib/seo';
 import { generateSlugFromName } from '../lib/linkUtils';
+import { logger } from '@/lib/logger';
 
 const BookshopDetailPage = () => {
   const { idslug } = useParams<{ idslug: string }>();
@@ -33,17 +34,33 @@ const BookshopDetailPage = () => {
   const { 
     data: bookshop, 
     isLoading: isLoadingBookshop, 
-    isError: isErrorBookshop 
+    isError: isErrorBookshop,
+    error: bookshopError,
+    isSuccess: isSuccessBookshop
   } = useQuery<Bookshop>({
     queryKey: [apiEndpoint],
     enabled: !!bookshopSlug,
     retry: 1,
     staleTime: 10 * 60 * 1000, // 10 minutes
+    // Don't throw errors - handle them in the component
+    throwOnError: false,
   });
   
   // Redirect numeric IDs to slug-based URLs for SEO (canonical URLs)
+  // This MUST happen after the bookshop data is loaded successfully
   useEffect(() => {
-    if (bookshop && isNumericId) {
+    // Only redirect if:
+    // 1. Query is successful (not loading, not error)
+    // 2. We have bookshop data
+    // 3. The current URL is a numeric ID
+    // 4. We're not already on the correct slug URL
+    if (isSuccessBookshop && bookshop && isNumericId && !isLoadingBookshop && !isErrorBookshop) {
+      logger.debug('[BookshopDetailPage] Numeric ID detected, redirecting to slug', {
+        numericId: bookshopSlug,
+        bookshopName: bookshop.name,
+        bookshopId: bookshop.id
+      });
+      
       // Generate the canonical slug-based URL
       const canonicalSlug = generateSlugFromName(bookshop.name);
       
@@ -53,21 +70,37 @@ const BookshopDetailPage = () => {
       
       // Only redirect if the current URL is different from the canonical URL
       if (bookshopSlug !== finalSlug) {
+        logger.debug('[BookshopDetailPage] Redirecting numeric ID to slug', {
+          from: `/bookshop/${bookshopSlug}`,
+          to: canonicalUrl
+        });
         // Use replace: true to avoid adding to browser history
         setLocation(canonicalUrl, { replace: true });
+        return; // Exit early to prevent multiple redirects
       }
     }
-  }, [bookshop, isNumericId, bookshopSlug, setLocation]);
+  }, [bookshop, isNumericId, bookshopSlug, setLocation, isLoadingBookshop, isSuccessBookshop, isErrorBookshop]);
   
-  // Show a "not found" message if the bookshop couldn't be found
-  // Only redirect to directory if there was an actual error
+  // Handle errors: Only redirect to directory for slug-based URLs that fail
+  // NEVER redirect numeric IDs to directory - they should either:
+  // 1. Succeed and redirect to slug (handled above)
+  // 2. Fail and show an error message (handled in render)
   useEffect(() => {
-    if (isErrorBookshop && bookshopSlug && !isNumericId) {
+    // Only redirect to directory if:
+    // 1. There was an error
+    // 2. It's NOT a numeric ID (numeric IDs should show error, not redirect)
+    // 3. We have a slug to check
+    // 4. The query is no longer loading (to avoid race conditions)
+    if (isErrorBookshop && !isNumericId && bookshopSlug && !isLoadingBookshop) {
+      logger.debug('[BookshopDetailPage] Slug-based URL failed, redirecting to directory', {
+        slug: bookshopSlug,
+        error: bookshopError
+      });
       // If there was an error (like a 500) and it's not a numeric ID redirect,
       // redirect to directory
       setLocation('/directory');
     }
-  }, [isErrorBookshop, bookshopSlug, isNumericId, setLocation]);
+  }, [isErrorBookshop, bookshopSlug, isNumericId, setLocation, isLoadingBookshop, bookshopError]);
 
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
@@ -157,7 +190,40 @@ const BookshopDetailPage = () => {
     );
   }
 
-  if (isErrorBookshop || !bookshop) {
+  // Handle error state: Show error message but don't auto-redirect numeric IDs
+  // Numeric IDs should wait for the redirect to slug (handled in useEffect above)
+  // Only show error if query is done loading and there's an actual error
+  if (!isLoadingBookshop && (isErrorBookshop || !bookshop)) {
+    // For numeric IDs, show a more helpful error message
+    // Don't auto-redirect - let the user decide
+    if (isNumericId) {
+      return (
+        <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16">
+          <p className="text-lg mb-4">
+            Bookshop with ID <strong>{bookshopSlug}</strong> not found.
+          </p>
+          <p className="mb-4 text-gray-600">
+            The bookshop may have been removed or the ID is incorrect.
+          </p>
+          <div className="flex gap-4">
+            <Button 
+              className="bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white"
+              onClick={() => setLocation('/directory')}
+            >
+              Browse Directory
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => window.history.back()}
+            >
+              Go Back
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    
+    // For slug-based URLs, show generic error (they'll be redirected to directory by useEffect)
     return (
       <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16">
         <p>Error loading bookshop. The bookshop may not exist or there was a problem with the connection.</p>
@@ -172,7 +238,13 @@ const BookshopDetailPage = () => {
   }
 
   return (
-    <div className="bg-[#F7F3E8] min-h-screen">
+    <div 
+      className="bg-[#F7F3E8] min-h-screen" 
+      style={{ 
+        minHeight: '100vh',
+        containIntrinsicSize: 'auto 100vh'
+      }}
+    >
       {/* SEO Component - only render when bookshop data is available */}
       {bookshop && (
         <SEO 
@@ -196,20 +268,44 @@ const BookshopDetailPage = () => {
           sizes="100vw"
           placeholderColor="#f7f3e8"
         />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4" style={{ minHeight: '120px' }}>
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="font-serif text-2xl md:text-3xl lg:text-h1 xl:text-display font-bold text-white">{bookshop.name} | Independent Bookshop in {bookshop.city}</h1>
-            <p className="font-sans text-body-sm md:text-body text-gray-100">{bookshop.city}, {bookshop.state} • Indie Bookshop</p>
+            <h1 
+              className="font-serif text-2xl md:text-3xl lg:text-h1 xl:text-display font-bold text-white"
+              style={{ 
+                minHeight: '48px',
+                lineHeight: '1.2'
+              }}
+            >
+              {bookshop.name} | Independent Bookshop in {bookshop.city}
+            </h1>
+            <p 
+              className="font-sans text-body-sm md:text-body text-gray-100"
+              style={{ 
+                minHeight: '24px',
+                lineHeight: '1.5'
+              }}
+            >
+              {bookshop.city}, {bookshop.state} • Indie Bookshop
+            </p>
           </div>
         </div>
       </div>
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8" style={{ minHeight: '400px' }}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="font-serif font-bold text-2xl mb-4">About {bookshop.name} - Independent Bookshop in {bookshop.city}</h2>
-              <p className="mb-4">{bookshop.description}</p>
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6" style={{ minHeight: '300px' }}>
+              <h2 
+                className="font-serif font-bold text-2xl mb-4"
+                style={{ 
+                  minHeight: '32px',
+                  lineHeight: '1.2'
+                }}
+              >
+                About {bookshop.name} - Independent Bookshop in {bookshop.city}
+              </h2>
+              <p className="mb-4" style={{ minHeight: '60px', lineHeight: '1.6' }}>{bookshop.description}</p>
               <p className="mb-6 text-gray-700">
                 {bookshop.name} is a cherished independent bookshop located in {bookshop.city}, {bookshop.state}. 
                 As a local indie bookshop, we provide a curated selection of books and a unique shopping 
