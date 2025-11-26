@@ -212,25 +212,17 @@ export class SupabaseStorage implements IStorage {
     }
 
     // Fallback - if no mapping exists, try direct search
-    console.log(`[getBookstoreBySlug] No slug mapping for "${slug}", trying direct lookup`);
-    
     try {
       // Fetch all bookstores and find by slug (less efficient but works as fallback)
       const bookstores = await this.getBookstores();
       const bookstoreWithSlug = bookstores.find(b => {
         const nameSlug = this.generateSlugFromName(b.name);
-        if (nameSlug === slug) {
-          console.log(`[getBookstoreBySlug] Match found: "${b.name}" (ID: ${b.id}) matches slug "${slug}"`);
-        }
         return nameSlug === slug;
       });
 
       if (bookstoreWithSlug) {
-        console.log(`[getBookstoreBySlug] Found bookstore by direct search: "${bookstoreWithSlug.name}" (ID: ${bookstoreWithSlug.id})`);
         // Add to map for future lookups
         this.slugToBookstoreId.set(slug, bookstoreWithSlug.id);
-      } else {
-        console.log(`[getBookstoreBySlug] No bookstore found with slug: "${slug}"`);
       }
 
       return bookstoreWithSlug;
