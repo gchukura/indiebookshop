@@ -12,34 +12,62 @@ import {
   generateDescription,
   DESCRIPTION_TEMPLATES
 } from '../lib/seo';
+import { generateSlugFromName } from '../lib/linkUtils';
 
 const BookshopDetailPage = () => {
   const { idslug } = useParams<{ idslug: string }>();
   const [_, setLocation] = useLocation();
   
-  // The URL parameter is now just the bookshop name slug
+  // The URL parameter could be a slug or numeric ID
   const bookshopSlug = idslug || '';
+  
+  // Check if the parameter is a numeric ID (legacy URL)
+  const isNumericId = /^\d+$/.test(bookshopSlug);
+  
+  // Determine which API endpoint to use
+  const apiEndpoint = isNumericId 
+    ? `/api/bookstores/${bookshopSlug}` 
+    : `/api/bookstores/by-slug/${bookshopSlug}`;
 
-  // Fetch bookshop details by slug
+  // Fetch bookshop details by slug or ID
   const { 
     data: bookshop, 
     isLoading: isLoadingBookshop, 
     isError: isErrorBookshop 
   } = useQuery<Bookshop>({
-    queryKey: [`/api/bookstores/by-slug/${bookshopSlug}`],
+    queryKey: [apiEndpoint],
     enabled: !!bookshopSlug,
     retry: 1,
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
   
+  // Redirect numeric IDs to slug-based URLs for SEO (canonical URLs)
+  useEffect(() => {
+    if (bookshop && isNumericId) {
+      // Generate the canonical slug-based URL
+      const canonicalSlug = generateSlugFromName(bookshop.name);
+      
+      // Fallback to numeric ID if slug is empty (edge case: all special characters in name)
+      const finalSlug = canonicalSlug || String(bookshop.id);
+      const canonicalUrl = `/bookshop/${finalSlug}`;
+      
+      // Only redirect if the current URL is different from the canonical URL
+      if (bookshopSlug !== finalSlug) {
+        // Use replace: true to avoid adding to browser history
+        setLocation(canonicalUrl, { replace: true });
+      }
+    }
+  }, [bookshop, isNumericId, bookshopSlug, setLocation]);
+  
   // Show a "not found" message if the bookshop couldn't be found
   // Only redirect to directory if there was an actual error
   useEffect(() => {
-    if (isErrorBookshop && bookshopSlug) {
-      // If there was an error (like a 500), redirect to directory
+    if (isErrorBookshop && bookshopSlug && !isNumericId) {
+      // If there was an error (like a 500) and it's not a numeric ID redirect,
+      // redirect to directory
       setLocation('/directory');
     }
-  }, [isErrorBookshop, bookshopSlug, setLocation]);
+  }, [isErrorBookshop, bookshopSlug, isNumericId, setLocation]);
 
   // Fetch all features to match with bookshop.featureIds
   const { data: features } = useQuery<Feature[]>({
@@ -103,10 +131,16 @@ const BookshopDetailPage = () => {
     return keywords;
   }, [bookshop, bookshopFeatures]);
   
+  // Always use slug-based canonical URL, never numeric IDs
   const canonicalUrl = useMemo(() => {
-    if (!bookshop || !bookshopSlug) return "";
-    return `${BASE_URL}/bookshop/${bookshopSlug}`;
-  }, [bookshop, bookshopSlug]);
+    if (!bookshop) return "";
+    // Always generate the canonical slug from the bookshop name
+    // This ensures canonical URLs are consistent regardless of how the page was accessed
+    const canonicalSlug = generateSlugFromName(bookshop.name);
+    // Fallback to numeric ID if slug is empty (edge case: all special characters in name)
+    const finalSlug = canonicalSlug || String(bookshop.id);
+    return `${BASE_URL}/bookshop/${finalSlug}`;
+  }, [bookshop]);
   
   // Used for ogImage, ensures we handle null values correctly
   const getImageUrl = useMemo(() => {

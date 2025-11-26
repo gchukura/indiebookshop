@@ -24,11 +24,17 @@ export function generateBookshopSlug(id: number, name: string): string {
  * @returns A URL-friendly slug
  */
 export function generateSlugFromName(name: string): string {
+  // Handle null/undefined/empty names defensively
+  if (!name || typeof name !== 'string') {
+    return '';
+  }
+  
   return name
     .toLowerCase()
     .replace(/[^\w\s-]/g, '') // Remove special characters
     .replace(/\s+/g, '-')     // Replace spaces with hyphens
     .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
+    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
     .trim();                  // Trim leading/trailing spaces
 }
 

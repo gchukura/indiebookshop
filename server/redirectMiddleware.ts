@@ -172,9 +172,26 @@ export function redirectMiddleware(req: Request, res: Response, next: NextFuncti
   }
 
   // Case 9: Handle old bookstore URLs (e.g., /bookstore/123 -> /bookshop/123)
+  // Note: The client-side BookshopDetailPage will then redirect numeric IDs to slug-based URLs
+  // for proper canonical URLs. This two-step redirect ensures backward compatibility while
+  // maintaining SEO-friendly slug URLs as the canonical format.
   if (path.match(/^\/bookstore\/(\d+)$/)) {
     const bookstoreId = path.split('/').pop();
     return res.redirect(301, `/bookshop/${bookstoreId}`);
+  }
+  
+  // Case 9b: Handle numeric IDs in /bookshop/:id (legacy URLs)
+  // Redirect to slug-based URL via client-side redirect in BookshopDetailPage
+  // The canonical tag will always point to the slug-based URL
+  // This ensures all bookshop detail pages use slug-based canonical URLs
+  const bookshopNumericMatch = path.match(/^\/bookshop\/(\d+)$/);
+  if (bookshopNumericMatch) {
+    // Allow the request to proceed - BookshopDetailPage will handle the redirect to slug
+    // This is acceptable because:
+    // 1. The canonical tag always uses the slug-based URL
+    // 2. Client-side redirect is fast and preserves SEO value
+    // 3. Avoids complex server-side lookups in middleware
+    return next();
   }
 
   // Case 10: Handle legacy category URLs (e.g., /category/123 -> /directory/category/123 -> /directory?features=123)
