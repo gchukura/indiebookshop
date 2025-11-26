@@ -173,26 +173,43 @@ const Directory = () => {
     fetchToken();
   }, []);
 
-  // Fetch all bookshops from Supabase
+  // Fetch all bookshops from Supabase (if available) or API endpoint (fallback)
   const { data: bookshops = [], isLoading } = useQuery<Bookstore[]>({
     queryKey: ['bookstores'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('bookstores')
-        .select('*')
-        .eq('live', true)
-        .order('name');
+      // Try Supabase first if available
+      if (supabase) {
+        try {
+          const { data, error } = await supabase
+            .from('bookstores')
+            .select('*')
+            .eq('live', true)
+            .order('name');
+          
+          if (error) throw error;
+          
+          // Map Supabase column names to match Bookstore type
+          return (data || []).map((item: any) => ({
+            ...item,
+            latitude: item.lat_numeric?.toString() || item.latitude || null,
+            longitude: item.lng_numeric?.toString() || item.longitude || null,
+            featureIds: item.feature_ids || item.featureIds || [],
+            imageUrl: item.image_url || item.imageUrl || null,
+          })) as Bookstore[];
+        } catch (error) {
+          logger.warn('Supabase query failed, falling back to API', { 
+            error: error instanceof Error ? error.message : String(error) 
+          });
+          // Fall through to API endpoint
+        }
+      }
       
-      if (error) throw error;
-      
-      // Map Supabase column names to match Bookstore type
-      return (data || []).map((item: any) => ({
-        ...item,
-        latitude: item.lat_numeric?.toString() || item.latitude || null,
-        longitude: item.lng_numeric?.toString() || item.longitude || null,
-        featureIds: item.feature_ids || item.featureIds || [],
-        imageUrl: item.image_url || item.imageUrl || null,
-      })) as Bookstore[];
+      // Fallback to API endpoint
+      const response = await fetch('/api/bookstores');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch bookstores: ${response.status}`);
+      }
+      return response.json();
     }
   });
 

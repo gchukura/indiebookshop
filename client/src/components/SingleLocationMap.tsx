@@ -30,6 +30,9 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
     // Don't initialize if coordinates are invalid
     if (isNaN(lat) || isNaN(lng)) return;
     
+    // Track if component is still mounted
+    let isMounted = true;
+    
     // Create async function to fetch token and initialize map
     const initMap = async () => {
       try {
@@ -53,9 +56,26 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
         // Set the token
         mapboxgl.accessToken = token;
         
+        // Double-check that the container ref is still valid before creating the map
+        // This prevents errors if the component unmounts during the async fetch
+        if (!isMounted || !mapContainerRef.current) {
+          logger.warn('Component unmounted or map container ref is null, cannot initialize map');
+          return;
+        }
+        
+        // Verify the ref points to an actual DOM element
+        if (!(mapContainerRef.current instanceof HTMLElement)) {
+          logger.error('Map container ref is not an HTMLElement', undefined, {
+            refType: typeof mapContainerRef.current,
+            refValue: mapContainerRef.current
+          });
+          setMapError('Map container is invalid. Please refresh the page.');
+          return;
+        }
+        
         // Create the map
         const mapInstance = new mapboxgl.Map({
-          container: mapContainerRef.current!,
+          container: mapContainerRef.current,
           style: 'mapbox://styles/mapbox/streets-v12',
           center: [lng, lat],
           zoom: 14,
@@ -92,9 +112,16 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
           .setLngLat([lng, lat])
           .addTo(mapInstance);
         
-        // Store map reference
-        mapRef.current = mapInstance;
+        // Store map reference only if component is still mounted
+        if (isMounted) {
+          mapRef.current = mapInstance;
+        } else {
+          // Component unmounted, clean up the map
+          mapInstance.remove();
+        }
       } catch (error) {
+        if (!isMounted) return; // Don't set state if unmounted
+        
         const errorMessage = error instanceof Error 
           ? error.message 
           : 'Unable to load map. Please refresh the page to try again.';
@@ -108,6 +135,7 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
     
     // Cleanup on unmount
     return () => {
+      isMounted = false;
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;

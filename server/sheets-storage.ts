@@ -144,6 +144,11 @@ export class GoogleSheetsStorage implements IStorage {
       if (bookstore.live !== false) { // Only create mappings for live bookshops
         const slug = this.generateSlugFromName(bookstore.name);
         
+        // Debug: Log slug for "113 Books" specifically
+        if (bookstore.name === '113 Books' || bookstore.id === 1) {
+          console.log(`[initializeSlugMappings] DEBUG: "${bookstore.name}" (ID: ${bookstore.id}) -> slug: "${slug}"`);
+        }
+        
         // Log if we're overwriting an existing slug (duplicate handling)
         if (this.slugToBookstoreId.has(slug)) {
           duplicatesFound++;
@@ -163,6 +168,17 @@ export class GoogleSheetsStorage implements IStorage {
     }
     
     console.log(`Created ${this.slugToBookstoreId.size} slug mappings for bookshops`);
+    
+    // Debug: Check if "113-books" is in the mapping
+    const testSlug = '113-books';
+    if (this.slugToBookstoreId.has(testSlug)) {
+      console.log(`[initializeSlugMappings] DEBUG: Slug "${testSlug}" IS in mapping -> ID: ${this.slugToBookstoreId.get(testSlug)}`);
+    } else {
+      console.log(`[initializeSlugMappings] DEBUG: Slug "${testSlug}" is NOT in mapping`);
+      // Show what slugs we do have that start with "113"
+      const slugsStartingWith113 = Array.from(this.slugToBookstoreId.keys()).filter(s => s.startsWith('113'));
+      console.log(`[initializeSlugMappings] DEBUG: Slugs starting with "113": ${slugsStartingWith113.join(', ')}`);
+    }
   }
   
   // User operations - stored in memory only
@@ -215,7 +231,9 @@ export class GoogleSheetsStorage implements IStorage {
   async getBookstoreBySlug(slug: string): Promise<Bookstore | undefined> {
     await this.ensureInitialized();
     
-    console.log(`Looking up bookstore with slug: ${slug}`);
+    console.log(`[getBookstoreBySlug] Looking up bookstore with slug: "${slug}"`);
+    console.log(`[getBookstoreBySlug] Total bookstores loaded: ${this.bookstores.length}`);
+    console.log(`[getBookstoreBySlug] Slug map size: ${this.slugToBookstoreId.size}`);
     
     // Check if we already have this slug mapped
     const bookstoreId = this.slugToBookstoreId.get(slug);
@@ -223,23 +241,38 @@ export class GoogleSheetsStorage implements IStorage {
     if (bookstoreId) {
       // Find the bookstore with this ID
       const bookstore = this.bookstores.find(b => b.id === bookstoreId);
-      console.log(`Found bookstore by slug map: "${bookstore?.name}" (ID: ${bookstoreId})`);
+      console.log(`[getBookstoreBySlug] Found bookstore by slug map: "${bookstore?.name}" (ID: ${bookstoreId})`);
       return bookstore;
     }
     
     // Fallback - if no mapping exists, try direct search
-    console.log(`No slug mapping for "${slug}", trying direct lookup`);
+    console.log(`[getBookstoreBySlug] No slug mapping for "${slug}", trying direct lookup`);
+    console.log(`[getBookstoreBySlug] Checking first 5 bookstores for slug match...`);
+    
+    // Debug: Show first few bookstores and their generated slugs
+    const sampleBookstores = this.bookstores.slice(0, 5);
+    sampleBookstores.forEach(b => {
+      const generatedSlug = this.generateSlugFromName(b.name);
+      console.log(`[getBookstoreBySlug] Sample: "${b.name}" -> slug: "${generatedSlug}" (ID: ${b.id})`);
+    });
+    
     const bookstoreWithSlug = this.bookstores.find(b => {
       const nameSlug = this.generateSlugFromName(b.name);
+      if (nameSlug === slug) {
+        console.log(`[getBookstoreBySlug] Match found: "${b.name}" (ID: ${b.id}) matches slug "${slug}"`);
+      }
       return nameSlug === slug;
     });
     
     if (bookstoreWithSlug) {
-      console.log(`Found bookstore by direct search: "${bookstoreWithSlug.name}" (ID: ${bookstoreWithSlug.id})`);
+      console.log(`[getBookstoreBySlug] Found bookstore by direct search: "${bookstoreWithSlug.name}" (ID: ${bookstoreWithSlug.id})`);
       // Add to map for future lookups
       this.slugToBookstoreId.set(slug, bookstoreWithSlug.id);
     } else {
-      console.log(`No bookstore found with slug: ${slug}`);
+      console.log(`[getBookstoreBySlug] No bookstore found with slug: "${slug}"`);
+      // Debug: Show what slugs we do have (first 10)
+      const availableSlugs = Array.from(this.slugToBookstoreId.keys()).slice(0, 10);
+      console.log(`[getBookstoreBySlug] Sample available slugs: ${availableSlugs.join(', ')}`);
     }
     
     return bookstoreWithSlug;

@@ -8,7 +8,8 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { GoogleSheetsStorage } from './sheets-storage';
 import { storage } from './storage';
-import { dataPreloadMiddleware } from './dataPreloading';
+import { SupabaseStorage } from './supabase-storage';
+import { createDataPreloadMiddleware } from './dataPreloading';
 import { htmlInjectionMiddleware } from './htmlInjectionMiddleware';
 import { DataRefreshManager } from './dataRefresh';
 import { registerRefreshRoutes } from './refreshRoutes';
@@ -102,24 +103,34 @@ app.use((req, res, next) => {
 });
 
 // Choose which storage implementation to use
-// Use Google Sheets by default, unless USE_MEM_STORAGE env var is set to 'true'
-// Or USE_SAMPLE_DATA is 'true' to use the sample data in GoogleSheetsStorage
-const USE_GOOGLE_SHEETS = process.env.USE_MEM_STORAGE !== 'true';
+// Priority: SUPABASE_STORAGE > USE_MEM_STORAGE > Google Sheets
+const USE_SUPABASE = process.env.USE_SUPABASE_STORAGE === 'true' || !!process.env.SUPABASE_URL;
+const USE_GOOGLE_SHEETS = !USE_SUPABASE && process.env.USE_MEM_STORAGE !== 'true';
 
 // USE_SAMPLE_DATA controls whether to use sample data or try to connect to Google Sheets
 // You can override this by setting the USE_SAMPLE_DATA environment variable
 // Default to false to load from Google Sheets (set to 'true' only for testing)
 process.env.USE_SAMPLE_DATA = process.env.USE_SAMPLE_DATA || 'false';
 
-// GOOGLE_SHEETS_ID environment variable can be used to specify the spreadsheet ID
-// If not provided, the default ID in google-sheets.ts will be used
-if (process.env.GOOGLE_SHEETS_ID) {
-  console.log(`Using Google Sheets ID from environment: ${process.env.GOOGLE_SHEETS_ID}`);
-} else {
-  console.log('Using default Google Sheets ID (set GOOGLE_SHEETS_ID env var to override)');
-}
+let storageImplementation: IStorage;
 
-const storageImplementation = USE_GOOGLE_SHEETS ? new GoogleSheetsStorage() : storage;
+if (USE_SUPABASE) {
+  storageImplementation = new SupabaseStorage();
+  log('Using Supabase storage implementation');
+} else if (USE_GOOGLE_SHEETS) {
+  // GOOGLE_SHEETS_ID environment variable can be used to specify the spreadsheet ID
+  // If not provided, the default ID in google-sheets.ts will be used
+  if (process.env.GOOGLE_SHEETS_ID) {
+    console.log(`Using Google Sheets ID from environment: ${process.env.GOOGLE_SHEETS_ID}`);
+  } else {
+    console.log('Using default Google Sheets ID (set GOOGLE_SHEETS_ID env var to override)');
+  }
+  storageImplementation = new GoogleSheetsStorage();
+  log('Using Google Sheets storage implementation');
+} else {
+  storageImplementation = storage;
+  log('Using in-memory storage implementation');
+}
 
 // Create data refresh manager with optimal settings
 const refreshManager = new DataRefreshManager(storageImplementation, {
@@ -154,6 +165,8 @@ if (process.env.DISABLE_AUTO_REFRESH === 'true') {
 
   // Add SSR middlewares before Vite setup
   // They only run for page requests, not API requests
+  // Create data preload middleware with the configured storage implementation
+  const dataPreloadMiddleware = createDataPreloadMiddleware(storageImplementation);
   app.use(dataPreloadMiddleware);   // Preload data on the server
   app.use(htmlInjectionMiddleware); // Inject data and meta tags into HTML
 
