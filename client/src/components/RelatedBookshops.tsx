@@ -45,11 +45,23 @@ const RelatedBookshops = ({ currentBookshop }: RelatedBookshopsProps) => {
   }, [currentBookshop]);
 
   if (isLoading) {
-    return <div className="my-4 p-4 bg-gray-100 rounded-md animate-pulse h-32"></div>;
+    return (
+      <div className="my-6" style={{ minHeight: '200px' }}>
+        <div className="h-6 bg-gray-200 rounded w-64 mb-4 animate-pulse"></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-gray-100 rounded-md p-4 animate-pulse" style={{ minHeight: '120px' }}>
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (relatedBookshops.length === 0) {
-    return null; // Don't show anything if there are no related bookshops
+    return <div style={{ minHeight: '1px' }} aria-hidden="true"></div>; // Reserve minimal space to prevent shift
   }
 
   const renderBookshopCard = (bookshop: Bookshop) => (

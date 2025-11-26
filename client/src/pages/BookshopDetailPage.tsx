@@ -184,11 +184,13 @@ const BookshopDetailPage = () => {
         />
       )}
       
-      <div className="relative h-64 md:h-96">
+      <div className="relative h-64 md:h-96" style={{ minHeight: '256px' }}>
         <OptimizedImage 
           src={bookshop.imageUrl || "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400"}
           alt={`${bookshop.name} - independent bookshop in ${bookshop.city}, ${bookshop.state}`} 
           className="w-full h-full" 
+          width={1200}
+          height={400}
           objectFit="cover"
           loading="eager"
           sizes="100vw"
@@ -214,17 +216,21 @@ const BookshopDetailPage = () => {
                 experience that online retailers simply can't match.
               </p>
               
-              <div className="mt-8">
+              <div className="mt-8" style={{ minHeight: bookshopFeatures.length > 0 ? 'auto' : '80px' }}>
                 <h3 className="font-serif font-bold text-xl mb-4">Specialty Areas & Features</h3>
                 <p className="mb-3 text-gray-700">
                   {bookshop.name} specializes in the following areas and offers these features to our community:
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {bookshopFeatures.map(feature => (
-                    <span key={feature.id} className="store-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
-                      {feature.name}
-                    </span>
-                  ))}
+                <div className="flex flex-wrap gap-2" style={{ minHeight: '40px' }}>
+                  {bookshopFeatures.length > 0 ? (
+                    bookshopFeatures.map(feature => (
+                      <span key={feature.id} className="store-feature-tag bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold">
+                        {feature.name}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-gray-400 text-sm">No features listed</span>
+                  )}
                 </div>
               </div>
               
@@ -232,68 +238,88 @@ const BookshopDetailPage = () => {
                 <h3 className="font-serif font-bold text-xl mb-4">Photo Gallery</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {/* Use locally hosted SVG images that we created */}
-                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100">
+                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100" style={{ aspectRatio: '4/3' }}>
                     <img 
                       src={bookshop.imageUrl || "/images/bookshop-interior.svg"} 
                       alt={`${bookshop.name} bookshop interior`}
                       className="h-full w-full object-cover"
+                      width={400}
+                      height={300}
+                      loading="lazy"
                       onError={(e) => {
                         e.currentTarget.src = "/images/bookshop-interior.svg";
                       }}
                     />
                   </div>
-                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100">
+                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100" style={{ aspectRatio: '4/3' }}>
                     <img 
                       src="/images/bookshop-display.svg" 
                       alt={`Book display at ${bookshop.name}`}
                       className="h-full w-full object-cover"
+                      width={400}
+                      height={300}
+                      loading="lazy"
                     />
                   </div>
-                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100">
+                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100" style={{ aspectRatio: '4/3' }}>
                     <img 
                       src="/images/bookshop-reading.svg" 
                       alt={`Reading area at ${bookshop.name}`}
                       className="h-full w-full object-cover"
+                      width={400}
+                      height={300}
+                      loading="lazy"
                     />
                   </div>
-                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100">
+                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100" style={{ aspectRatio: '4/3' }}>
                     <img 
                       src="/images/bookshop-storefront.svg" 
                       alt={`${bookshop.name} storefront`}
                       className="h-full w-full object-cover"
+                      width={400}
+                      height={300}
+                      loading="lazy"
                     />
                   </div>
-                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100">
+                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100" style={{ aspectRatio: '4/3' }}>
                     <img 
                       src="/images/bookshop-cafe.svg" 
                       alt={`Café area at ${bookshop.name}`}
                       className="h-full w-full object-cover"
+                      width={400}
+                      height={300}
+                      loading="lazy"
                     />
                   </div>
-                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100">
+                  <div className="rounded-md h-40 w-full overflow-hidden bg-gray-100" style={{ aspectRatio: '4/3' }}>
                     <img 
                       src="/images/bookshop-event.svg" 
                       alt={`Author event at ${bookshop.name}`}
                       className="h-full w-full object-cover"
+                      width={400}
+                      height={300}
+                      loading="lazy"
                     />
                   </div>
                 </div>
               </div>
               
-              {events && events.length > 0 && (
-                <div className="mt-8">
-                  <h3 className="font-serif font-bold text-xl mb-4">Upcoming Events</h3>
-                  <div className="space-y-4">
-                    {events.map(event => (
-                      <div key={event.id} className="border-l-4 border-[#E16D3D] pl-4">
-                        <p className="font-bold">{event.title}</p>
-                        <p className="text-sm text-gray-600">{event.date} • {event.time}</p>
-                        <p className="text-sm mt-1">{event.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <div className="mt-8" style={{ minHeight: events && events.length > 0 ? 'auto' : '1px' }}>
+                {events && events.length > 0 && (
+                  <>
+                    <h3 className="font-serif font-bold text-xl mb-4">Upcoming Events</h3>
+                    <div className="space-y-4">
+                      {events.map(event => (
+                        <div key={event.id} className="border-l-4 border-[#E16D3D] pl-4">
+                          <p className="font-bold">{event.title}</p>
+                          <p className="text-sm text-gray-600">{event.date} • {event.time}</p>
+                          <p className="text-sm mt-1">{event.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
           
@@ -337,7 +363,7 @@ const BookshopDetailPage = () => {
             
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h3 className="font-serif font-bold text-xl mb-4">Store Location</h3>
-              <div className="bg-gray-200 h-64 rounded-md overflow-hidden">
+              <div className="bg-gray-200 h-64 rounded-md overflow-hidden" style={{ minHeight: '256px' }}>
                 <SingleLocationMap 
                   latitude={bookshop.latitude} 
                   longitude={bookshop.longitude} 
@@ -350,7 +376,7 @@ const BookshopDetailPage = () => {
       </div>
       
       {/* Related Bookshops Section - Full Width */}
-      <div className="container mx-auto px-4 pb-8">
+      <div className="container mx-auto px-4 pb-8" style={{ minHeight: '200px' }}>
         <RelatedBookshops currentBookshop={bookshop} />
       </div>
     </div>
