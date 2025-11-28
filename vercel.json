@@ -10,10 +10,6 @@
       "use": "@vercel/node"
     },
     {
-      "src": "api/bookshop/[slug].js",
-      "use": "@vercel/edge"
-    },
-    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
