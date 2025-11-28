@@ -228,23 +228,35 @@ export default async function handler(req, res) {
     console.log('[Serverless Function] Parsed search params:', url.searchParams.toString());
     
     // Extract slug from pathname
-    // Route rewrite: /bookshop/113-books -> /api/bookshop-slug?slug=113-books
-    // OR pathname might be /api/bookshop/113-books
+    // Route rewrite: /bookshop/113-books -> /api/bookshop-slug
+    // Vercel should pass the original path in headers or we extract from referer
     let slug = null;
     
-    // Method 1: Try query parameter (route rewrite might use ?slug=)
-    slug = url.searchParams.get('slug') || req.query?.slug;
+    // Method 1: Try to get from x-vercel-original-path or x-invoke-path header
+    const originalPath = req.headers['x-vercel-original-path'] || 
+                         req.headers['x-invoke-path'] ||
+                         req.headers['x-vercel-rewrite-path'];
     
-    // Method 2: Extract from pathname
+    if (originalPath) {
+      console.log('[Serverless Function] Original path from header:', originalPath);
+      const match = originalPath.match(/^\/bookshop\/([^/]+)/);
+      if (match) {
+        slug = match[1];
+      }
+    }
+    
+    // Method 2: Extract from pathname if it contains /bookshop/
     if (!slug) {
       if (pathname.startsWith('/api/bookshop/')) {
         slug = pathname.replace('/api/bookshop/', '').split('/')[0];
       } else if (pathname.startsWith('/bookshop/')) {
         slug = pathname.replace('/bookshop/', '').split('/')[0];
-      } else if (pathname === '/api/bookshop-slug') {
-        // Direct call to function, try to get from query
-        slug = req.query?.slug;
       }
+    }
+    
+    // Method 3: Try query parameter (fallback)
+    if (!slug) {
+      slug = url.searchParams.get('slug') || req.query?.slug;
     }
     
     console.log('[Serverless Function] Extracted slug:', slug);
