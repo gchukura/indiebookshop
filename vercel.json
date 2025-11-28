@@ -10,6 +10,10 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/bookshop-slug.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -33,7 +37,7 @@
     },
     {
       "src": "/bookshop/(.*)",
-      "dest": "/api/bookshop/$1"
+      "dest": "/api/bookshop-slug?slug=$1"
     },
     {
       "src": "/api/(?!bookshop)(.*)",

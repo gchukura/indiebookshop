@@ -1,14 +1,7 @@
-// Vercel Edge Function for server-side meta tag injection on /bookshop/* routes
-// This replaces middleware.ts which only works with Next.js
+// Vercel Serverless Function for server-side meta tag injection on /bookshop/* routes
+// Using Node.js runtime instead of Edge Function for better compatibility
 
-// Note: For Vercel Edge Functions, we need to use the Supabase REST API directly
-// since @supabase/supabase-js might not be fully compatible with edge runtime
-
-// Edge runtime is specified via export config
-// Vercel will auto-detect this as an Edge Function
-export const config = {
-  runtime: 'edge',
-};
+// Note: This uses the Supabase REST API directly for compatibility
 
 // Constants for meta tag generation
 const BASE_URL = 'https://indiebookshop.com';
@@ -217,34 +210,39 @@ async function fetchBookshopBySlug(slug) {
 
 /**
  * Main handler for /bookshop/:slug routes
+ * Node.js serverless function (not Edge Function) for better compatibility
  */
-export default async function handler(req) {
+export default async function handler(req, res) {
   try {
-    const url = new URL(req.url);
+    const url = new URL(req.url, `http://${req.headers.host}`);
     const pathname = url.pathname;
     
-    console.log('[Edge Function] Request pathname:', pathname);
-    console.log('[Edge Function] Request URL:', req.url);
+    console.log('[Serverless Function] Request pathname:', pathname);
+    console.log('[Serverless Function] Request URL:', req.url);
     
     // Extract slug from pathname
-    // Route rewrite: /bookshop/113-books -> /api/bookshop/113-books
-    // Vercel automatically routes /api/bookshop/[slug] to this file
+    // Route rewrite: /bookshop/113-books -> /api/bookshop-slug?slug=113-books
+    // OR pathname might be /api/bookshop/113-books
     let slug = null;
     
-    // Extract slug from pathname: /api/bookshop/113-books -> 113-books
-    if (pathname.startsWith('/api/bookshop/')) {
-      slug = pathname.replace('/api/bookshop/', '').split('/')[0];
-    } else if (pathname.startsWith('/bookshop/')) {
-      // Fallback: direct /bookshop/ path
-      slug = pathname.replace('/bookshop/', '').split('/')[0];
+    // Method 1: Try query parameter (route rewrite might use ?slug=)
+    slug = url.searchParams.get('slug');
+    
+    // Method 2: Extract from pathname
+    if (!slug) {
+      if (pathname.startsWith('/api/bookshop/')) {
+        slug = pathname.replace('/api/bookshop/', '').split('/')[0];
+      } else if (pathname.startsWith('/bookshop/')) {
+        slug = pathname.replace('/bookshop/', '').split('/')[0];
+      }
     }
     
-    console.log('[Edge Function] Extracted slug:', slug);
+    console.log('[Serverless Function] Extracted slug:', slug);
     
     if (!slug || slug === 'bookshop' || slug === 'api' || slug === 'bookshop-slug') {
       // No valid slug provided, return 404
-      console.log('[Edge Function] No valid slug found, pathname:', pathname);
-      return new Response('Bookshop not found', { status: 404 });
+      console.log('[Serverless Function] No valid slug found, pathname:', pathname);
+      return res.status(404).send('Bookshop not found');
     }
     
     // Fetch bookshop data from Supabase
@@ -252,70 +250,60 @@ export default async function handler(req) {
     
     if (!bookshop) {
       // Bookshop not found - return 404
-      // In production, you might want to redirect to /directory or show a 404 page
-      return new Response('Bookshop not found', { status: 404 });
+      return res.status(404).send('Bookshop not found');
     }
     
     // Generate meta tags
     const metaTags = generateBookshopMetaTags(bookshop);
     
     // Fetch the base HTML from the static files
-    // In Vercel, static files are served from the root
-    const baseUrl = new URL(url.origin);
-    baseUrl.pathname = '/';
+    // In Vercel, we need to read from the filesystem or fetch from origin
+    const fs = await import('fs');
+    const path = await import('path');
     
     try {
-      // Fetch the index.html
-      const htmlResponse = await fetch(baseUrl.toString(), {
-        headers: {
-          'User-Agent': req.headers.get('User-Agent') || '',
-          'Accept': 'text/html',
-        },
-      });
+      // Try to read index.html from the build output
+      const indexPath = path.join(process.cwd(), 'dist', 'public', 'index.html');
+      let html;
       
-      if (!htmlResponse.ok) {
-        console.error('Failed to fetch base HTML:', htmlResponse.status);
-        // Fallback: return a basic HTML response with meta tags
-        return new Response(
-          `<!DOCTYPE html><html><head>${metaTags}</head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>`,
-          {
-            status: 200,
-            headers: {
-              'Content-Type': 'text/html; charset=utf-8',
-            },
-          }
-        );
+      try {
+        html = fs.readFileSync(indexPath, 'utf-8');
+      } catch (fsError) {
+        // If file doesn't exist, try fetching from origin
+        console.log('[Serverless Function] Could not read index.html from filesystem, fetching from origin');
+        const baseUrl = url.origin || `https://${req.headers.host}`;
+        const htmlResponse = await fetch(`${baseUrl}/`, {
+          headers: {
+            'User-Agent': req.headers['user-agent'] || '',
+            'Accept': 'text/html',
+          },
+        });
+        
+        if (!htmlResponse.ok) {
+          throw new Error(`Failed to fetch base HTML: ${htmlResponse.status}`);
+        }
+        
+        html = await htmlResponse.text();
       }
-      
-      const html = await htmlResponse.text();
       
       // Inject meta tags
       const modifiedHtml = injectMetaTags(html, metaTags);
       
       // Return modified HTML
-      return new Response(modifiedHtml, {
-        status: 200,
-        headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-          'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
-        },
-      });
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+      return res.status(200).send(modifiedHtml);
     } catch (error) {
-      console.error('Error fetching HTML for meta tag injection:', error);
+      console.error('[Serverless Function] Error fetching HTML for meta tag injection:', error);
       // Fallback: return basic HTML with meta tags
-      return new Response(
-        `<!DOCTYPE html><html><head>${metaTags}</head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>`,
-        {
-          status: 200,
-          headers: {
-            'Content-Type': 'text/html; charset=utf-8',
-          },
-        }
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.status(200).send(
+        `<!DOCTYPE html><html><head>${metaTags}</head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>`
       );
     }
   } catch (error) {
-    console.error('Error in bookshop edge function:', error);
-    return new Response('Internal Server Error', { status: 500 });
+    console.error('[Serverless Function] Error in bookshop function:', error);
+    return res.status(500).send('Internal Server Error');
   }
 }
 
