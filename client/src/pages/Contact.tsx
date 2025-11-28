@@ -109,7 +109,7 @@ const Contact = () => {
               <Mail className="w-5 h-5 text-[#2A6B7C] mt-1 mr-3" />
               <div>
                 <h3 className="font-medium text-[#5F4B32]">Email Us</h3>
-                <p className="text-gray-700">For directory updates, feedback, or general inquiries: contact@indiebookshop.com</p>
+                <p className="text-gray-700">For directory updates, feedback, or general inquiries: info@bluestonebrands.com</p>
               </div>
             </div>
             
