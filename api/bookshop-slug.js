@@ -239,29 +239,12 @@ export default async function handler(req, res) {
     
     console.log('[Serverless Function] Extracted slug:', slug);
     
-    if (!slug || slug === 'bookshop' || slug === 'api' || slug === 'bookshop-slug') {
-      // No valid slug provided, return 404
-      console.log('[Serverless Function] No valid slug found, pathname:', pathname);
-      return res.status(404).send('Bookshop not found');
-    }
+    // Always fetch base HTML first (for fallback)
+    const baseUrl = url.origin || `https://${req.headers.host}`;
+    let baseHtml = null;
     
-    // Fetch bookshop data from Supabase
-    const bookshop = await fetchBookshopBySlug(slug);
-    
-    if (!bookshop) {
-      // Bookshop not found - return 404
-      return res.status(404).send('Bookshop not found');
-    }
-    
-    // Generate meta tags
-    const metaTags = generateBookshopMetaTags(bookshop);
-    
-    // Fetch the base HTML from the origin
-    // In Vercel serverless functions, we fetch from the origin URL
     try {
-      const baseUrl = url.origin || `https://${req.headers.host}`;
       console.log('[Serverless Function] Fetching base HTML from:', baseUrl);
-      
       const htmlResponse = await fetch(`${baseUrl}/`, {
         headers: {
           'User-Agent': req.headers['user-agent'] || '',
@@ -269,27 +252,55 @@ export default async function handler(req, res) {
         },
       });
       
-      if (!htmlResponse.ok) {
-        throw new Error(`Failed to fetch base HTML: ${htmlResponse.status}`);
+      if (htmlResponse.ok) {
+        baseHtml = await htmlResponse.text();
       }
-      
-      const html = await htmlResponse.text();
-      
-      // Inject meta tags
-      const modifiedHtml = injectMetaTags(html, metaTags);
-      
-      // Return modified HTML
+    } catch (error) {
+      console.error('[Serverless Function] Error fetching base HTML:', error);
+    }
+    
+    // If no slug, just return base HTML (let React handle routing)
+    if (!slug || slug === 'bookshop' || slug === 'api' || slug === 'bookshop-slug') {
+      console.log('[Serverless Function] No valid slug found, returning base HTML');
+      if (baseHtml) {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.status(200).send(baseHtml);
+      }
+      // Fallback if we can't fetch base HTML
+      return res.status(200).send('<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>');
+    }
+    
+    // Fetch bookshop data from Supabase
+    const bookshop = await fetchBookshopBySlug(slug);
+    
+    // If bookshop not found, return base HTML (let React handle 404)
+    if (!bookshop) {
+      console.log('[Serverless Function] Bookshop not found for slug:', slug);
+      if (baseHtml) {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.status(200).send(baseHtml);
+      }
+      // Fallback if we can't fetch base HTML
+      return res.status(200).send('<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>');
+    }
+    
+    // Generate meta tags
+    const metaTags = generateBookshopMetaTags(bookshop);
+    
+    // Inject meta tags into base HTML
+    if (baseHtml) {
+      const modifiedHtml = injectMetaTags(baseHtml, metaTags);
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
       return res.status(200).send(modifiedHtml);
-    } catch (error) {
-      console.error('[Serverless Function] Error fetching HTML for meta tag injection:', error);
-      // Fallback: return basic HTML with meta tags
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      return res.status(200).send(
-        `<!DOCTYPE html><html><head>${metaTags}</head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>`
-      );
     }
+    
+    // Fallback: return basic HTML with meta tags if we couldn't fetch base HTML
+    console.error('[Serverless Function] Could not fetch base HTML, using fallback');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.status(200).send(
+      `<!DOCTYPE html><html><head>${metaTags}</head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>`
+    );
   } catch (error) {
     console.error('[Serverless Function] Error in bookshop function:', error);
     return res.status(500).send('Internal Server Error');
