@@ -33,7 +33,7 @@
     },
     {
       "src": "/bookshop/([^/]+)",
-      "dest": "/api/bookshop-slug?slug=$1"
+      "dest": "/api/bookshop-slug"
     },
     {
       "src": "/api/(?!bookshop)(.*)",
