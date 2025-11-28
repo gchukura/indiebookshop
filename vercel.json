@@ -32,7 +32,7 @@
       "dest": "/api/health.js"
     },
     {
-      "src": "/bookshop/(.*)",
+      "src": "/bookshop/([^/]+)",
       "dest": "/api/bookshop-slug?slug=$1"
     },
     {
