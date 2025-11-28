@@ -15,7 +15,7 @@ const DESCRIPTION_TEMPLATE = '{name} is an independent bookshop in {city}, {stat
 /**
  * Generate a slug from a bookshop name (must match client-side logic)
  */
-function generateSlugFromName(name: string): string {
+function generateSlugFromName(name) {
   if (!name || typeof name !== 'string') {
     return '';
   }
@@ -32,7 +32,7 @@ function generateSlugFromName(name: string): string {
 /**
  * Escape HTML entities to prevent XSS and ensure valid HTML
  */
-function escapeHtml(text: string): string {
+function escapeHtml(text) {
   if (!text || typeof text !== 'string') {
     return '';
   }
@@ -48,7 +48,7 @@ function escapeHtml(text: string): string {
 /**
  * Truncate text to a maximum length, adding ellipsis if needed
  */
-function truncate(text: string, maxLength: number): string {
+function truncate(text, maxLength) {
   if (!text || text.length <= maxLength) {
     return text;
   }
@@ -58,7 +58,7 @@ function truncate(text: string, maxLength: number): string {
 /**
  * Generate meta tags HTML for a bookshop detail page
  */
-function generateBookshopMetaTags(bookshop: any): string {
+function generateBookshopMetaTags(bookshop) {
   // Generate canonical slug
   const slug = generateSlugFromName(bookshop.name);
   const canonicalUrl = `${BASE_URL}/bookshop/${slug}`;
@@ -132,7 +132,7 @@ function generateBookshopMetaTags(bookshop: any): string {
 /**
  * Inject meta tags into HTML
  */
-function injectMetaTags(html: string, metaTags: string): string {
+function injectMetaTags(html, metaTags) {
   // Replace the default title if it exists
   html = html.replace(/<title>.*?<\/title>/i, metaTags);
   
@@ -154,7 +154,7 @@ function injectMetaTags(html: string, metaTags: string): string {
  * Fetch bookshop data from Supabase by slug using REST API
  * Uses direct fetch to Supabase REST API (compatible with edge runtime)
  */
-async function fetchBookshopBySlug(slug: string): Promise<any | null> {
+async function fetchBookshopBySlug(slug) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
   
@@ -190,7 +190,7 @@ async function fetchBookshopBySlug(slug: string): Promise<any | null> {
     }
     
     // Find bookshop by matching slug
-    const bookshop = bookstores.find((b: any) => {
+    const bookshop = bookstores.find((b) => {
       const bookshopSlug = generateSlugFromName(b.name);
       return bookshopSlug === slug;
     });
@@ -216,16 +216,33 @@ async function fetchBookshopBySlug(slug: string): Promise<any | null> {
 /**
  * Main handler for /bookshop/:slug routes
  */
-export default async function handler(req: Request): Promise<Response> {
+export default async function handler(req) {
   try {
     const url = new URL(req.url);
     const pathname = url.pathname;
     
-    // Extract slug from pathname (e.g., /bookshop/113-books -> 113-books)
-    const slug = pathname.split('/').pop();
+    console.log('[Edge Function] Request pathname:', pathname);
     
-    if (!slug) {
-      // No slug provided, return 404
+    // Extract slug from pathname
+    // Route rewrite sends /bookshop/113-books -> /api/bookshop/113-books
+    // So pathname will be /api/bookshop/113-books
+    let slug = null;
+    
+    if (pathname.startsWith('/api/bookshop/')) {
+      slug = pathname.replace('/api/bookshop/', '').split('/')[0];
+    } else if (pathname.startsWith('/bookshop/')) {
+      slug = pathname.replace('/bookshop/', '').split('/')[0];
+    } else {
+      // Try to extract from end of path
+      const parts = pathname.split('/').filter(Boolean);
+      slug = parts[parts.length - 1];
+    }
+    
+    console.log('[Edge Function] Extracted slug:', slug);
+    
+    if (!slug || slug === 'bookshop' || slug === 'api') {
+      // No valid slug provided, return 404
+      console.log('[Edge Function] No valid slug found');
       return new Response('Bookshop not found', { status: 404 });
     }
     

@@ -32,12 +32,12 @@
       "dest": "/api/health.js"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/serverless.js"
-    },
-    {
       "src": "/bookshop/(.*)",
       "dest": "/api/bookshop/$1"
+    },
+    {
+      "src": "/api/(?!bookshop)(.*)",
+      "dest": "/api/serverless.js"
     },
     {
       "src": "/(assets|images|fonts|css|js)/.*",
