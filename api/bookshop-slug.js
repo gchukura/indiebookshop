@@ -4,6 +4,8 @@
 // Note: For Vercel Edge Functions, we need to use the Supabase REST API directly
 // since @supabase/supabase-js might not be fully compatible with edge runtime
 
+// Edge runtime is specified via export config
+// Vercel will auto-detect this as an Edge Function
 export const config = {
   runtime: 'edge',
 };
@@ -222,25 +224,36 @@ export default async function handler(req) {
     const pathname = url.pathname;
     
     console.log('[Edge Function] Request pathname:', pathname);
+    console.log('[Edge Function] Request URL:', req.url);
     
     // Extract slug from pathname
-    // Route rewrite sends /bookshop/113-books -> /api/bookshop/113-books
-    // So pathname will be /api/bookshop/113-books
+    // Route rewrite sends /bookshop/113-books -> /api/bookshop-slug?slug=113-books
+    // OR pathname might be /api/bookshop/113-books
     let slug = null;
     
-    if (pathname.startsWith('/api/bookshop/')) {
-      slug = pathname.replace('/api/bookshop/', '').split('/')[0];
-    } else if (pathname.startsWith('/bookshop/')) {
-      slug = pathname.replace('/bookshop/', '').split('/')[0];
-    } else {
-      // Try to extract from end of path
-      const parts = pathname.split('/').filter(Boolean);
-      slug = parts[parts.length - 1];
+    // Try to get slug from query parameter first (if route rewrite uses query)
+    const searchParams = url.searchParams;
+    slug = searchParams.get('slug');
+    
+    // If not in query, extract from pathname
+    if (!slug) {
+      if (pathname.startsWith('/api/bookshop/')) {
+        slug = pathname.replace('/api/bookshop/', '').split('/')[0];
+      } else if (pathname.startsWith('/bookshop/')) {
+        slug = pathname.replace('/bookshop/', '').split('/')[0];
+      } else if (pathname === '/api/bookshop-slug') {
+        // Route might be rewritten to /api/bookshop-slug with slug in query
+        slug = searchParams.get('slug');
+      } else {
+        // Try to extract from end of path
+        const parts = pathname.split('/').filter(Boolean);
+        slug = parts[parts.length - 1];
+      }
     }
     
     console.log('[Edge Function] Extracted slug:', slug);
     
-    if (!slug || slug === 'bookshop' || slug === 'api') {
+    if (!slug || slug === 'bookshop' || slug === 'api' || slug === 'bookshop-slug') {
       // No valid slug provided, return 404
       console.log('[Edge Function] No valid slug found');
       return new Response('Bookshop not found', { status: 404 });
