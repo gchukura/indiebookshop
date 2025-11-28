@@ -214,11 +214,18 @@ async function fetchBookshopBySlug(slug) {
  */
 export default async function handler(req, res) {
   try {
+    // Log all request details for debugging
+    console.log('[Serverless Function] ===== BOOKSHOP SLUG FUNCTION CALLED =====');
+    console.log('[Serverless Function] Request URL:', req.url);
+    console.log('[Serverless Function] Request method:', req.method);
+    console.log('[Serverless Function] Request headers:', JSON.stringify(req.headers, null, 2));
+    console.log('[Serverless Function] Request query:', req.query);
+    
     const url = new URL(req.url, `http://${req.headers.host}`);
     const pathname = url.pathname;
     
-    console.log('[Serverless Function] Request pathname:', pathname);
-    console.log('[Serverless Function] Request URL:', req.url);
+    console.log('[Serverless Function] Parsed pathname:', pathname);
+    console.log('[Serverless Function] Parsed search params:', url.searchParams.toString());
     
     // Extract slug from pathname
     // Route rewrite: /bookshop/113-books -> /api/bookshop-slug?slug=113-books
@@ -226,7 +233,7 @@ export default async function handler(req, res) {
     let slug = null;
     
     // Method 1: Try query parameter (route rewrite might use ?slug=)
-    slug = url.searchParams.get('slug');
+    slug = url.searchParams.get('slug') || req.query?.slug;
     
     // Method 2: Extract from pathname
     if (!slug) {
@@ -234,6 +241,9 @@ export default async function handler(req, res) {
         slug = pathname.replace('/api/bookshop/', '').split('/')[0];
       } else if (pathname.startsWith('/bookshop/')) {
         slug = pathname.replace('/bookshop/', '').split('/')[0];
+      } else if (pathname === '/api/bookshop-slug') {
+        // Direct call to function, try to get from query
+        slug = req.query?.slug;
       }
     }
     
@@ -271,11 +281,13 @@ export default async function handler(req, res) {
     }
     
     // Fetch bookshop data from Supabase
+    console.log('[Serverless Function] Fetching bookshop for slug:', slug);
     const bookshop = await fetchBookshopBySlug(slug);
+    console.log('[Serverless Function] Bookshop found:', !!bookshop);
     
     // If bookshop not found, return base HTML (let React handle 404)
     if (!bookshop) {
-      console.log('[Serverless Function] Bookshop not found for slug:', slug);
+      console.log('[Serverless Function] Bookshop not found for slug:', slug, '- returning base HTML');
       if (baseHtml) {
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         return res.status(200).send(baseHtml);
@@ -285,11 +297,15 @@ export default async function handler(req, res) {
     }
     
     // Generate meta tags
+    console.log('[Serverless Function] Generating meta tags for:', bookshop.name);
     const metaTags = generateBookshopMetaTags(bookshop);
+    console.log('[Serverless Function] Meta tags generated, length:', metaTags.length);
     
     // Inject meta tags into base HTML
     if (baseHtml) {
+      console.log('[Serverless Function] Injecting meta tags into base HTML');
       const modifiedHtml = injectMetaTags(baseHtml, metaTags);
+      console.log('[Serverless Function] Meta tags injected, returning modified HTML');
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
       return res.status(200).send(modifiedHtml);
