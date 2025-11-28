@@ -37,7 +37,10 @@
     },
     {
       "src": "/bookshop/(.*)",
-      "dest": "/api/bookshop-slug"
+      "dest": "/api/bookshop-slug",
+      "headers": {
+        "x-vercel-original-path": "/bookshop/$1"
+      }
     },
     {
       "src": "/api/(?!bookshop-slug)(.*)",
