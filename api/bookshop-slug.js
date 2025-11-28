@@ -256,35 +256,24 @@ export default async function handler(req, res) {
     // Generate meta tags
     const metaTags = generateBookshopMetaTags(bookshop);
     
-    // Fetch the base HTML from the static files
-    // In Vercel, we need to read from the filesystem or fetch from origin
-    const fs = await import('fs');
-    const path = await import('path');
-    
+    // Fetch the base HTML from the origin
+    // In Vercel serverless functions, we fetch from the origin URL
     try {
-      // Try to read index.html from the build output
-      const indexPath = path.join(process.cwd(), 'dist', 'public', 'index.html');
-      let html;
+      const baseUrl = url.origin || `https://${req.headers.host}`;
+      console.log('[Serverless Function] Fetching base HTML from:', baseUrl);
       
-      try {
-        html = fs.readFileSync(indexPath, 'utf-8');
-      } catch (fsError) {
-        // If file doesn't exist, try fetching from origin
-        console.log('[Serverless Function] Could not read index.html from filesystem, fetching from origin');
-        const baseUrl = url.origin || `https://${req.headers.host}`;
-        const htmlResponse = await fetch(`${baseUrl}/`, {
-          headers: {
-            'User-Agent': req.headers['user-agent'] || '',
-            'Accept': 'text/html',
-          },
-        });
-        
-        if (!htmlResponse.ok) {
-          throw new Error(`Failed to fetch base HTML: ${htmlResponse.status}`);
-        }
-        
-        html = await htmlResponse.text();
+      const htmlResponse = await fetch(`${baseUrl}/`, {
+        headers: {
+          'User-Agent': req.headers['user-agent'] || '',
+          'Accept': 'text/html',
+        },
+      });
+      
+      if (!htmlResponse.ok) {
+        throw new Error(`Failed to fetch base HTML: ${htmlResponse.status}`);
       }
+      
+      const html = await htmlResponse.text();
       
       // Inject meta tags
       const modifiedHtml = injectMetaTags(html, metaTags);
