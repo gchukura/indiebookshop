@@ -225,48 +225,29 @@ export default async function handler(req) {
     
     console.log('[Edge Function] Request pathname:', pathname);
     console.log('[Edge Function] Request URL:', req.url);
-    console.log('[Edge Function] Headers:', Object.fromEntries(req.headers.entries()));
+    console.log('[Edge Function] Query params:', Object.fromEntries(url.searchParams.entries()));
     
-    // Extract slug from the original request
-    // Vercel passes the original URL in x-vercel-original-path or we can get it from the referer
-    // OR the route rewrite might preserve the original path in a header
-    let slug = null;
+    // Extract slug from query parameter (route rewrite: /bookshop/113-books -> /api/bookshop-slug?slug=113-books)
+    let slug = url.searchParams.get('slug');
     
-    // Try to get from x-vercel-original-path header (if available)
-    const originalPath = req.headers.get('x-vercel-original-path') || req.headers.get('x-invoke-path');
-    
-    if (originalPath) {
-      // Original path is like /bookshop/113-books
-      const match = originalPath.match(/^\/bookshop\/([^/]+)/);
-      if (match) {
-        slug = match[1];
+    // If not in query, try to get from x-vercel-original-path header
+    if (!slug) {
+      const originalPath = req.headers.get('x-vercel-original-path') || req.headers.get('x-invoke-path');
+      if (originalPath) {
+        // Original path is like /bookshop/113-books
+        const match = originalPath.match(/^\/bookshop\/([^/]+)/);
+        if (match) {
+          slug = match[1];
+        }
       }
     }
     
-    // If not in header, try query parameter (route rewrite might use ?slug=)
-    if (!slug) {
-      slug = url.searchParams.get('slug');
-    }
-    
     // If still not found, try to extract from pathname
-    // Route rewrite sends /bookshop/113-books -> /api/bookshop-slug
-    // But we need to get the original slug somehow
     if (!slug) {
-      // Check if pathname contains the slug
       if (pathname.startsWith('/api/bookshop/')) {
         slug = pathname.replace('/api/bookshop/', '').split('/')[0];
       } else if (pathname.startsWith('/bookshop/')) {
         slug = pathname.replace('/bookshop/', '').split('/')[0];
-      } else {
-        // Last resort: try to get from referer header
-        const referer = req.headers.get('referer');
-        if (referer) {
-          const refererUrl = new URL(referer);
-          const match = refererUrl.pathname.match(/^\/bookshop\/([^/]+)/);
-          if (match) {
-            slug = match[1];
-          }
-        }
       }
     }
     

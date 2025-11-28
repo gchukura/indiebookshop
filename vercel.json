@@ -32,8 +32,8 @@
       "dest": "/api/health.js"
     },
     {
-      "src": "/bookshop/([^/]+)",
-      "dest": "/api/bookshop-slug"
+      "src": "/bookshop/(.*)",
+      "dest": "/api/bookshop-slug?slug=$1"
     },
     {
       "src": "/api/(?!bookshop)(.*)",
