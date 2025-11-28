@@ -225,57 +225,21 @@ export default async function handler(req) {
     
     console.log('[Edge Function] Request pathname:', pathname);
     console.log('[Edge Function] Request URL:', req.url);
-    console.log('[Edge Function] Headers:', Object.fromEntries(req.headers.entries()));
     
-    // Extract slug from the original request path
-    // Route rewrite: /bookshop/113-books -> /api/bookshop-slug
-    // The original path should be in headers or we can extract from referer/URL
+    // Extract slug from pathname
+    // Route rewrite: /bookshop/113-books -> /api/bookshop/113-books
+    // Vercel automatically routes /api/bookshop/[slug] to this file
     let slug = null;
     
-    // Method 1: Try x-vercel-original-path or x-invoke-path header (Vercel passes original URL)
-    const originalPath = req.headers.get('x-vercel-original-path') || 
-                         req.headers.get('x-invoke-path') ||
-                         req.headers.get('x-vercel-rewrite-path');
-    
-    if (originalPath) {
-      console.log('[Edge Function] Original path from header:', originalPath);
-      const match = originalPath.match(/^\/bookshop\/([^/]+)/);
-      if (match) {
-        slug = match[1];
-      }
-    }
-    
-    // Method 2: Extract from pathname if it contains /bookshop/
-    if (!slug && pathname.includes('/bookshop/')) {
-      const match = pathname.match(/\/bookshop\/([^/]+)/);
-      if (match) {
-        slug = match[1];
-      }
-    }
-    
-    // Method 3: Try query parameter (if route rewrite uses ?slug=)
-    if (!slug) {
-      slug = url.searchParams.get('slug');
-    }
-    
-    // Method 4: Last resort - try to get from referer
-    if (!slug) {
-      const referer = req.headers.get('referer');
-      if (referer) {
-        try {
-          const refererUrl = new URL(referer);
-          const match = refererUrl.pathname.match(/^\/bookshop\/([^/]+)/);
-          if (match) {
-            slug = match[1];
-          }
-        } catch (e) {
-          // Invalid referer URL
-        }
-      }
+    // Extract slug from pathname: /api/bookshop/113-books -> 113-books
+    if (pathname.startsWith('/api/bookshop/')) {
+      slug = pathname.replace('/api/bookshop/', '').split('/')[0];
+    } else if (pathname.startsWith('/bookshop/')) {
+      // Fallback: direct /bookshop/ path
+      slug = pathname.replace('/bookshop/', '').split('/')[0];
     }
     
     console.log('[Edge Function] Extracted slug:', slug);
-    console.log('[Edge Function] Original path header:', originalPath);
     
     if (!slug || slug === 'bookshop' || slug === 'api' || slug === 'bookshop-slug') {
       // No valid slug provided, return 404
