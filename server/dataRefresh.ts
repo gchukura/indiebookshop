@@ -6,9 +6,12 @@
  * 2. Maintains performance by avoiding excess refreshes during high traffic
  * 3. Ensures user experience by keeping data reasonably up-to-date
  * 4. Provides manual refresh capability for immediate updates
+ * 
+ * Note: SupabaseStorage doesn't need refresh (real-time database)
  */
 
 import { IStorage } from './storage';
+import { SupabaseStorage } from './supabase-storage';
 
 // Refresh configuration with sensible defaults
 interface RefreshConfig {
@@ -120,6 +123,12 @@ export class DataRefreshManager {
    */
   private async performRefresh(): Promise<void> {
     try {
+      // Skip refresh for SupabaseStorage (real-time database doesn't need periodic refresh)
+      if (this.storage instanceof SupabaseStorage) {
+        console.log('Skipping refresh - Supabase is real-time, no periodic refresh needed');
+        return;
+      }
+      
       console.log('Starting automatic data refresh...');
       
       // Check if enough time has passed (prevents accidental rapid refreshes)
@@ -155,6 +164,12 @@ export class DataRefreshManager {
    * Returns true if refresh was performed, false if skipped due to rate limiting
    */
   public async manualRefresh(): Promise<boolean> {
+    // Skip refresh for SupabaseStorage (real-time database doesn't need refresh)
+    if (this.storage instanceof SupabaseStorage) {
+      console.log('Manual refresh skipped - Supabase is real-time, no refresh needed');
+      return false;
+    }
+    
     // Check if we're trying to refresh too frequently
     const timeSinceLastRefresh = Date.now() - this.lastRefreshTime;
     

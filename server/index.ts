@@ -103,9 +103,11 @@ app.use((req, res, next) => {
 });
 
 // Choose which storage implementation to use
-// Priority: SUPABASE_STORAGE > USE_MEM_STORAGE > Google Sheets
-const USE_SUPABASE = process.env.USE_SUPABASE_STORAGE === 'true' || !!process.env.SUPABASE_URL;
-const USE_GOOGLE_SHEETS = !USE_SUPABASE && process.env.USE_MEM_STORAGE !== 'true';
+// Priority: SUPABASE (default) > Google Sheets (fallback) > In-Memory
+// Supabase is now the default for better performance
+const USE_SUPABASE = process.env.USE_GOOGLE_SHEETS !== 'true' && 
+  (process.env.USE_SUPABASE_STORAGE === 'true' || !!process.env.SUPABASE_URL);
+const USE_GOOGLE_SHEETS = process.env.USE_GOOGLE_SHEETS === 'true' && !USE_SUPABASE;
 
 // USE_SAMPLE_DATA controls whether to use sample data or try to connect to Google Sheets
 // You can override this by setting the USE_SAMPLE_DATA environment variable
@@ -156,8 +158,12 @@ if (process.env.DISABLE_AUTO_REFRESH === 'true') {
   // Register refresh routes
   registerRefreshRoutes(app, refreshManager);
   
-  log(`Using ${USE_GOOGLE_SHEETS ? 'Google Sheets' : 'in-memory'} storage implementation`);
-  log('Data refresh system initialized - data will automatically update from Google Sheets');
+  log(`Using ${USE_SUPABASE ? 'Supabase' : USE_GOOGLE_SHEETS ? 'Google Sheets' : 'in-memory'} storage implementation`);
+  if (USE_SUPABASE) {
+    log('Data refresh system initialized - Supabase is real-time, no periodic refresh needed');
+  } else {
+    log('Data refresh system initialized - data will automatically update from Google Sheets');
+  }
 
   // Add redirectMiddleware before other middlewares
   // This ensures redirects happen before rendering the page

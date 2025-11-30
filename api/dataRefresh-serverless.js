@@ -28,6 +28,13 @@ export class DataRefreshManager {
       return false;
     }
     
+    // Skip refresh for SupabaseStorage (real-time database doesn't need refresh)
+    // Check by checking if storage has refreshData method (SupabaseStorage doesn't have it)
+    if (!this.storage.refreshData || typeof this.storage.refreshData !== 'function') {
+      console.log('Serverless: Skipping refresh - Supabase is real-time, no refresh needed');
+      return false;
+    }
+    
     const now = Date.now();
     const timeSinceLastRefresh = now - this.lastRefreshTime;
     
