@@ -1,6 +1,6 @@
 // Serverless-compatible sitemap generator
 // Updated for new unified directory structure
-import { GoogleSheetsStorage } from './sheets-storage-serverless.js';
+import { SupabaseStorage } from './supabase-storage-serverless.js';
 
 /**
  * Helper function to generate a clean slug from a bookstore name
@@ -18,8 +18,8 @@ export default async function handler(req, res) {
   try {
     console.log('Serverless: Generating sitemap.xml');
     
-    // Initialize storage
-    const storage = new GoogleSheetsStorage();
+    // Initialize storage - use Supabase by default
+    const storage = new SupabaseStorage();
     
     // Wait for storage to initialize and load data
     await new Promise(resolve => {

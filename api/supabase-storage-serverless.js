@@ -1,0 +1,599 @@
+// Serverless-compatible version of SupabaseStorage for Vercel deployment
+import { supabase } from './supabase-serverless.js';
+
+// County lookup mapping (simplified version for serverless)
+const COUNTY_MAPPING = {
+  'CA': {
+    'Los Angeles': 'Los Angeles',
+    'San Francisco': 'San Francisco',
+    'San Diego': 'San Diego',
+    'Oakland': 'Alameda',
+    'Berkeley': 'Alameda',
+    'Palo Alto': 'Santa Clara',
+    'San Jose': 'Santa Clara',
+    'Sacramento': 'Sacramento',
+    'Fresno': 'Fresno',
+    'Long Beach': 'Los Angeles',
+    'Santa Monica': 'Los Angeles',
+    'Pasadena': 'Los Angeles',
+    'Santa Barbara': 'Santa Barbara',
+    'Santa Cruz': 'Santa Cruz',
+    'Monterey': 'Monterey',
+    'Napa': 'Napa',
+    'Sonoma': 'Sonoma',
+    'Carmel': 'Monterey',
+    'Malibu': 'Los Angeles'
+  },
+  'NY': {
+    'New York': 'New York',
+    'Brooklyn': 'Kings',
+    'Buffalo': 'Erie',
+    'Rochester': 'Monroe',
+    'Syracuse': 'Onondaga',
+    'Albany': 'Albany',
+    'Yonkers': 'Westchester',
+    'White Plains': 'Westchester',
+    'Ithaca': 'Tompkins',
+    'Queens': 'Queens',
+    'Bronx': 'Bronx',
+    'Staten Island': 'Richmond'
+  },
+  'MA': {
+    'Boston': 'Suffolk',
+    'Cambridge': 'Middlesex',
+    'Worcester': 'Worcester',
+    'Springfield': 'Hampden',
+    'Lowell': 'Middlesex',
+    'Somerville': 'Middlesex',
+    'Amherst': 'Hampshire',
+    'Northampton': 'Hampshire',
+    'Salem': 'Essex'
+  },
+  'ME': {
+    'Portland': 'Cumberland',
+    'Bangor': 'Penobscot',
+    'Augusta': 'Kennebec',
+    'Brunswick': 'Cumberland',
+    'Bar Harbor': 'Hancock',
+    'Camden': 'Knox',
+    'Rockland': 'Knox'
+  },
+  'VT': {
+    'Burlington': 'Chittenden',
+    'Montpelier': 'Washington',
+    'Brattleboro': 'Windham',
+    'Woodstock': 'Windsor',
+    'Manchester': 'Bennington',
+    'Middlebury': 'Addison',
+    'Stowe': 'Lamoille'
+  },
+  'NH': {
+    'Portsmouth': 'Rockingham',
+    'Hanover': 'Grafton',
+    'Keene': 'Cheshire',
+    'Concord': 'Merrimack',
+    'Manchester': 'Hillsborough'
+  },
+  'CO': {
+    'Denver': 'Denver',
+    'Boulder': 'Boulder',
+    'Fort Collins': 'Larimer',
+    'Colorado Springs': 'El Paso',
+    'Aspen': 'Pitkin',
+    'Telluride': 'San Miguel',
+    'Durango': 'La Plata'
+  },
+  'WA': {
+    'Seattle': 'King',
+    'Tacoma': 'Pierce',
+    'Spokane': 'Spokane',
+    'Bellingham': 'Whatcom',
+    'Port Townsend': 'Jefferson',
+    'Bainbridge Island': 'Kitsap',
+    'Olympia': 'Thurston',
+    'Walla Walla': 'Walla Walla'
+  },
+  'OR': {
+    'Portland': 'Multnomah',
+    'Eugene': 'Lane',
+    'Bend': 'Deschutes',
+    'Ashland': 'Jackson',
+    'Hood River': 'Hood River',
+    'Astoria': 'Clatsop',
+    'Cannon Beach': 'Clatsop'
+  },
+  'MI': {
+    'Ann Arbor': 'Washtenaw',
+    'Detroit': 'Wayne',
+    'Grand Rapids': 'Kent',
+    'Traverse City': 'Grand Traverse',
+    'Petoskey': 'Emmet',
+    'Lansing': 'Ingham'
+  },
+  'IL': {
+    'Chicago': 'Cook',
+    'Evanston': 'Cook',
+    'Oak Park': 'Cook',
+    'Naperville': 'DuPage',
+    'Champaign': 'Champaign',
+    'Urbana': 'Champaign',
+    'Springfield': 'Sangamon'
+  }
+};
+
+function lookupCounty(bookshop) {
+  const { city, state } = bookshop;
+  
+  if (!city || !state) return null;
+  
+  const normalizedCity = city.trim();
+  const normalizedState = state.trim();
+  
+  if (COUNTY_MAPPING[normalizedState] && COUNTY_MAPPING[normalizedState][normalizedCity]) {
+    return COUNTY_MAPPING[normalizedState][normalizedCity];
+  }
+  
+  return null;
+}
+
+function populateCountyData(bookshops) {
+  return bookshops.map(bookshop => {
+    if (bookshop.county) return bookshop;
+    
+    const county = lookupCounty(bookshop);
+    
+    return county ? { ...bookshop, county } : bookshop;
+  });
+}
+
+/**
+ * SupabaseStorage - Serverless-compatible version
+ * Implements IStorage interface using Supabase as the data source
+ * This replaces Google Sheets storage for reading bookstores, features, and events
+ */
+export class SupabaseStorage {
+  constructor() {
+    this.slugToBookstoreId = new Map();
+    this.isInitialized = false;
+    
+    // Initialize slug mappings asynchronously
+    this.initializeSlugMappings();
+  }
+
+  async ensureInitialized() {
+    if (!this.isInitialized) {
+      await this.initializeSlugMappings();
+    }
+  }
+
+  /**
+   * Generate a slug from a bookshop name (must match client-side logic)
+   */
+  generateSlugFromName(name) {
+    if (!name || typeof name !== 'string') {
+      return '';
+    }
+    
+    return name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')     // Replace spaces with hyphens
+      .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
+      .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+      .trim();                  // Trim leading/trailing spaces
+  }
+
+  /**
+   * Initialize slug mappings for fast lookups
+   */
+  async initializeSlugMappings() {
+    if (!supabase) {
+      console.warn('Serverless: Supabase client not available, cannot initialize slug mappings');
+      return;
+    }
+
+    try {
+      console.log('Serverless: Initializing bookshop slug mappings from Supabase...');
+      this.slugToBookstoreId.clear();
+
+      // Fetch all live bookstores
+      const { data: bookstores, error } = await supabase
+        .from('bookstores')
+        .select('id, name, live')
+        .eq('live', true);
+
+      if (error) {
+        console.error('Serverless: Error fetching bookstores for slug mapping:', error);
+        return;
+      }
+
+      if (!bookstores) {
+        console.warn('Serverless: No bookstores returned from Supabase');
+        return;
+      }
+
+      let duplicatesFound = 0;
+
+      bookstores.forEach(bookstore => {
+        const slug = this.generateSlugFromName(bookstore.name);
+
+        if (this.slugToBookstoreId.has(slug)) {
+          duplicatesFound++;
+          const existingId = this.slugToBookstoreId.get(slug);
+          console.log(`Serverless: Duplicate slug "${slug}" detected. Previous ID: ${existingId}, New: "${bookstore.name}" (ID: ${bookstore.id})`);
+        }
+
+        this.slugToBookstoreId.set(slug, bookstore.id);
+      });
+
+      if (duplicatesFound > 0) {
+        console.log(`Serverless: Found ${duplicatesFound} duplicate slugs. In cases of duplicates, the last bookshop with that slug will be used.`);
+      }
+
+      console.log(`Serverless: Created ${this.slugToBookstoreId.size} slug mappings for bookshops`);
+      this.isInitialized = true;
+    } catch (error) {
+      console.error('Serverless: Error initializing slug mappings:', error);
+    }
+  }
+
+  // User operations (not implemented - using Supabase auth)
+  async getUser(id) {
+    if (!supabase) return undefined;
+    const { data, error } = await supabase.from('users').select('*').eq('id', id).single();
+    if (error || !data) return undefined;
+    return data;
+  }
+
+  async getUserByUsername(username) {
+    if (!supabase) return undefined;
+    const { data, error } = await supabase.from('users').select('*').eq('username', username).single();
+    if (error || !data) return undefined;
+    return data;
+  }
+
+  async createUser(user) {
+    if (!supabase) throw new Error('Supabase client not available');
+    const { data, error } = await supabase.from('users').insert(user).select().single();
+    if (error) throw error;
+    return data;
+  }
+
+  async updateUserFavorites(userId, favorites) {
+    if (!supabase) return undefined;
+    const { data, error } = await supabase
+      .from('users')
+      .update({ favorites })
+      .eq('id', userId)
+      .select()
+      .single();
+    if (error || !data) return undefined;
+    return data;
+  }
+
+  // Bookstore operations
+  async getBookstores() {
+    if (!supabase) {
+      console.warn('Serverless: Supabase client not available');
+      return [];
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('bookstores')
+        .select('*')
+        .eq('live', true)
+        .order('name');
+
+      if (error) {
+        console.error('Serverless: Error fetching bookstores from Supabase:', error);
+        return [];
+      }
+
+      // Map Supabase column names to match Bookstore type
+      const bookstores = (data || []).map((item) => ({
+        ...item,
+        latitude: item.lat_numeric?.toString() || item.latitude || null,
+        longitude: item.lng_numeric?.toString() || item.longitude || null,
+        featureIds: item.feature_ids || item.featureIds || [],
+        imageUrl: item.image_url || item.imageUrl || null,
+      }));
+
+      return populateCountyData(bookstores);
+    } catch (error) {
+      console.error('Serverless: Error in getBookstores:', error);
+      return [];
+    }
+  }
+
+  async getBookstore(id) {
+    if (!supabase) return undefined;
+
+    try {
+      const { data, error } = await supabase
+        .from('bookstores')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error || !data) return undefined;
+
+      // Map Supabase column names
+      return {
+        ...data,
+        latitude: data.lat_numeric?.toString() || data.latitude || null,
+        longitude: data.lng_numeric?.toString() || data.longitude || null,
+        featureIds: data.feature_ids || data.featureIds || [],
+        imageUrl: data.image_url || data.imageUrl || null,
+      };
+    } catch (error) {
+      console.error('Serverless: Error fetching bookstore by ID:', error);
+      return undefined;
+    }
+  }
+
+  async getBookstoreBySlug(slug) {
+    await this.ensureInitialized();
+
+    if (!supabase) {
+      console.warn('Serverless: Supabase client not available');
+      return undefined;
+    }
+
+    console.log(`Serverless: [getBookstoreBySlug] Looking up bookstore with slug: "${slug}"`);
+    console.log(`Serverless: [getBookstoreBySlug] Slug map size: ${this.slugToBookstoreId.size}`);
+
+    // Check if we already have this slug mapped
+    const bookstoreId = this.slugToBookstoreId.get(slug);
+
+    if (bookstoreId) {
+      console.log(`Serverless: [getBookstoreBySlug] Found ID ${bookstoreId} in slug map, fetching from Supabase...`);
+      const bookstore = await this.getBookstore(bookstoreId);
+      if (bookstore) {
+        console.log(`Serverless: [getBookstoreBySlug] Found bookstore by slug map: "${bookstore.name}" (ID: ${bookstoreId})`);
+      }
+      return bookstore;
+    }
+
+    // Fallback - if no mapping exists, try direct search
+    try {
+      // Fetch all bookstores and find by slug (less efficient but works as fallback)
+      const bookstores = await this.getBookstores();
+      const bookstoreWithSlug = bookstores.find(b => {
+        const nameSlug = this.generateSlugFromName(b.name);
+        return nameSlug === slug;
+      });
+
+      if (bookstoreWithSlug) {
+        // Add to map for future lookups
+        this.slugToBookstoreId.set(slug, bookstoreWithSlug.id);
+      }
+
+      return bookstoreWithSlug;
+    } catch (error) {
+      console.error('Serverless: Error in getBookstoreBySlug fallback:', error);
+      return undefined;
+    }
+  }
+
+  async getBookstoresByState(state) {
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from('bookstores')
+      .select('*')
+      .eq('state', state)
+      .eq('live', true)
+      .order('name');
+    
+    if (error || !data) return [];
+    
+    return (data || []).map((item) => ({
+      ...item,
+      latitude: item.lat_numeric?.toString() || item.latitude || null,
+      longitude: item.lng_numeric?.toString() || item.longitude || null,
+      featureIds: item.feature_ids || item.featureIds || [],
+      imageUrl: item.image_url || item.imageUrl || null,
+    }));
+  }
+
+  async getBookstoresByCity(city) {
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from('bookstores')
+      .select('*')
+      .ilike('city', city)
+      .eq('live', true)
+      .order('name');
+    
+    if (error || !data) return [];
+    
+    return (data || []).map((item) => ({
+      ...item,
+      latitude: item.lat_numeric?.toString() || item.latitude || null,
+      longitude: item.lng_numeric?.toString() || item.longitude || null,
+      featureIds: item.feature_ids || item.featureIds || [],
+      imageUrl: item.image_url || item.imageUrl || null,
+    }));
+  }
+
+  async getBookstoresByFeatures(featureIds) {
+    if (!supabase || !featureIds || !featureIds.length) return [];
+    
+    // Supabase doesn't have a direct array contains operator, so we need to query differently
+    // This is a simplified version - you may need to adjust based on your schema
+    const { data, error } = await supabase
+      .from('bookstores')
+      .select('*')
+      .eq('live', true);
+    
+    if (error || !data) return [];
+    
+    // Filter client-side for now (can be optimized with a join table query)
+    const bookstores = (data || []).map((item) => ({
+      ...item,
+      latitude: item.lat_numeric?.toString() || item.latitude || null,
+      longitude: item.lng_numeric?.toString() || item.longitude || null,
+      featureIds: item.feature_ids || item.featureIds || [],
+      imageUrl: item.image_url || item.imageUrl || null,
+    }));
+
+    return bookstores.filter(b => {
+      const bookshopFeatures = b.featureIds || [];
+      return featureIds.some(fid => bookshopFeatures.includes(fid));
+    });
+  }
+
+  async getFilteredBookstores(filters) {
+    if (!supabase) return [];
+
+    let query = supabase.from('bookstores').select('*').eq('live', true);
+
+    if (filters.state) {
+      query = query.eq('state', filters.state);
+    }
+
+    if (filters.city) {
+      query = query.ilike('city', filters.city);
+    }
+
+    // Note: County filtering may need special handling depending on your schema
+    if (filters.county) {
+      query = query.ilike('county', filters.county);
+    }
+
+    const { data, error } = await query;
+
+    if (error || !data) return [];
+
+    let bookstores = (data || []).map((item) => ({
+      ...item,
+      latitude: item.lat_numeric?.toString() || item.latitude || null,
+      longitude: item.lng_numeric?.toString() || item.longitude || null,
+      featureIds: item.feature_ids || item.featureIds || [],
+      imageUrl: item.image_url || item.imageUrl || null,
+    }));
+
+    // Filter by features if provided
+    if (filters.featureIds && filters.featureIds.length > 0) {
+      bookstores = bookstores.filter(b => {
+        const bookshopFeatures = b.featureIds || [];
+        return filters.featureIds.some(fid => bookshopFeatures.includes(fid));
+      });
+    }
+
+    return populateCountyData(bookstores);
+  }
+
+  async createBookstore(bookstore) {
+    if (!supabase) throw new Error('Supabase client not available');
+    const { data, error } = await supabase.from('bookstores').insert(bookstore).select().single();
+    if (error) throw error;
+    return data;
+  }
+
+  // Feature operations
+  async getFeatures() {
+    if (!supabase) return [];
+    const { data, error } = await supabase.from('features').select('*').order('name');
+    if (error || !data) return [];
+    
+    // Map features to include id field for client compatibility
+    // Supabase features table may use slug as primary key, but client expects numeric id
+    // Generate stable numeric IDs from slugs for compatibility
+    return data.map((feature, index) => {
+      // If feature already has id field, use it
+      if (feature.id !== undefined && feature.id !== null) {
+        return feature;
+      }
+      
+      // Generate stable numeric ID from slug using hash function
+      // This ensures same slug always gets same ID
+      let numericId = index + 1; // Fallback to index-based ID
+      if (feature.slug) {
+        // Simple hash function to convert slug to numeric ID
+        let hash = 0;
+        for (let i = 0; i < feature.slug.length; i++) {
+          const char = feature.slug.charCodeAt(i);
+          hash = ((hash << 5) - hash) + char;
+          hash = hash & hash; // Convert to 32-bit integer
+        }
+        numericId = Math.abs(hash) % 100000; // Keep IDs reasonable (0-99999)
+      }
+      
+      return {
+        id: numericId,
+        name: feature.name,
+        slug: feature.slug,
+        description: feature.description,
+        keywords: feature.keywords,
+        icon: feature.icon,
+        created_at: feature.created_at,
+        // Include any other fields that might exist
+        ...feature
+      };
+    });
+  }
+
+  async getFeature(id) {
+    if (!supabase) return undefined;
+    
+    // Try querying by id first (if id column exists)
+    let { data, error } = await supabase.from('features').select('*').eq('id', id).single();
+    
+    // If query by id fails, try to find by matching generated ID from slug
+    if (error || !data) {
+      // Get all features and find one that matches the generated ID
+      const allFeatures = await this.getFeatures();
+      data = allFeatures.find(f => f.id === id);
+      if (!data) return undefined;
+    }
+    
+    // Ensure id field exists in response
+    if (data && !data.id && data.slug) {
+      // Generate ID from slug (same logic as getFeatures)
+      let hash = 0;
+      for (let i = 0; i < data.slug.length; i++) {
+        const char = data.slug.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      data.id = Math.abs(hash) % 100000;
+    }
+    
+    return data;
+  }
+
+  async createFeature(feature) {
+    if (!supabase) throw new Error('Supabase client not available');
+    const { data, error } = await supabase.from('features').insert(feature).select().single();
+    if (error) throw error;
+    return data;
+  }
+
+  // Event operations
+  async getEvents() {
+    if (!supabase) return [];
+    const { data, error } = await supabase.from('events').select('*').order('date');
+    if (error || !data) return [];
+    return data;
+  }
+
+  async getEventsByBookshop(bookshopId) {
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('bookshopId', bookshopId)
+      .order('date');
+    if (error || !data) return [];
+    return data;
+  }
+
+  async createEvent(event) {
+    if (!supabase) throw new Error('Supabase client not available');
+    const { data, error } = await supabase.from('events').insert(event).select().single();
+    if (error) throw error;
+    return data;
+  }
+}
+

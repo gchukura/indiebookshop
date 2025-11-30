@@ -6,6 +6,7 @@ import { createServer } from 'http';
 import { parse } from 'url';
 // Import serverless-specific implementations
 import { GoogleSheetsStorage } from './sheets-storage-serverless.js';
+import { SupabaseStorage } from './supabase-storage-serverless.js';
 import { storage } from './storage-serverless.js';
 import { registerRoutes } from './routes-serverless.js';
 import { dataPreloadMiddleware } from './dataPreloading-serverless.js';
@@ -46,10 +47,22 @@ process.env.MIN_REFRESH_INTERVAL = process.env.MIN_REFRESH_INTERVAL || ENV.MIN_R
 process.env.DISABLE_AUTO_REFRESH = process.env.DISABLE_AUTO_REFRESH || ENV.DISABLE_AUTO_REFRESH;
 
 // Choose which storage implementation to use
-const USE_GOOGLE_SHEETS = ENV.USE_MEM_STORAGE !== 'true';
+// Priority: SUPABASE > Google Sheets > In-Memory
+const USE_SUPABASE = process.env.USE_SUPABASE_STORAGE === 'true' || !!process.env.SUPABASE_URL;
+const USE_GOOGLE_SHEETS = !USE_SUPABASE && ENV.USE_MEM_STORAGE !== 'true';
 
 // Setup storage
-const storageImplementation = USE_GOOGLE_SHEETS ? new GoogleSheetsStorage() : storage;
+let storageImplementation;
+if (USE_SUPABASE) {
+  storageImplementation = new SupabaseStorage();
+  console.log('Serverless: Using Supabase storage implementation');
+} else if (USE_GOOGLE_SHEETS) {
+  storageImplementation = new GoogleSheetsStorage();
+  console.log('Serverless: Using Google Sheets storage implementation');
+} else {
+  storageImplementation = storage;
+  console.log('Serverless: Using in-memory storage implementation');
+}
 
 // Initialize server
 let server;
