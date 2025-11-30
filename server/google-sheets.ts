@@ -1,3 +1,10 @@
+/**
+ * @deprecated Google Sheets integration is now a fallback option.
+ * Supabase is the default data source for better performance.
+ * This file is kept for backward compatibility and fallback scenarios.
+ * To use Google Sheets, set USE_GOOGLE_SHEETS=true environment variable.
+ */
+
 import { google, sheets_v4 } from 'googleapis';
 import { Bookstore, Feature, Event } from '@shared/schema';
 

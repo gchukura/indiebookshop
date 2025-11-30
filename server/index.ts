@@ -109,9 +109,9 @@ const USE_SUPABASE = process.env.USE_GOOGLE_SHEETS !== 'true' &&
   (process.env.USE_SUPABASE_STORAGE === 'true' || !!process.env.SUPABASE_URL);
 const USE_GOOGLE_SHEETS = process.env.USE_GOOGLE_SHEETS === 'true' && !USE_SUPABASE;
 
-// USE_SAMPLE_DATA controls whether to use sample data or try to connect to Google Sheets
+// USE_SAMPLE_DATA controls whether to use sample data
 // You can override this by setting the USE_SAMPLE_DATA environment variable
-// Default to false to load from Google Sheets (set to 'true' only for testing)
+// Default to false (set to 'true' only for testing)
 process.env.USE_SAMPLE_DATA = process.env.USE_SAMPLE_DATA || 'false';
 
 let storageImplementation: IStorage;

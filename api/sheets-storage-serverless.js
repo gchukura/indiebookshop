@@ -1,3 +1,10 @@
+/**
+ * @deprecated Google Sheets storage is now a fallback option.
+ * Supabase is the default data source for better performance.
+ * This file is kept for backward compatibility and fallback scenarios.
+ * To use Google Sheets, set USE_GOOGLE_SHEETS=true environment variable.
+ */
+
 // Serverless-compatible version of the sheets storage for Vercel deployment
 import { googleSheetsService } from './google-sheets-serverless.js';
 

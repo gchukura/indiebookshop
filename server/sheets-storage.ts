@@ -1,3 +1,10 @@
+/**
+ * @deprecated Google Sheets storage is now a fallback option.
+ * Supabase is the default data source for better performance.
+ * This file is kept for backward compatibility and fallback scenarios.
+ * To use Google Sheets, set USE_GOOGLE_SHEETS=true environment variable.
+ */
+
 import { IStorage } from './storage';
 import { Bookstore, Feature, Event, InsertBookstore, InsertFeature, InsertEvent, User, InsertUser } from '@shared/schema';
 import { getGoogleSheetsService } from './google-sheets';
