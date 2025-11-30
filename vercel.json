@@ -10,6 +10,10 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/ads-txt.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "api/bookshop-slug.js",
       "use": "@vercel/node"
     },
@@ -28,8 +32,7 @@
     },
     {
       "src": "/ads.txt",
-      "headers": { "content-type": "text/plain" },
-      "continue": true
+      "dest": "/api/ads-txt.js"
     },
     {
       "src": "/api/health",
