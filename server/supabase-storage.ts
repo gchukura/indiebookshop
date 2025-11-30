@@ -352,13 +352,71 @@ export class SupabaseStorage implements IStorage {
     if (!supabase) return [];
     const { data, error } = await supabase.from('features').select('*').order('name');
     if (error || !data) return [];
-    return data as Feature[];
+    
+    // Map features to include id field for client compatibility
+    // Supabase features table may use slug as primary key, but client expects numeric id
+    // Generate stable numeric IDs from slugs for compatibility
+    return data.map((feature, index) => {
+      // If feature already has id field, use it
+      if (feature.id !== undefined && feature.id !== null) {
+        return feature as Feature;
+      }
+      
+      // Generate stable numeric ID from slug using hash function
+      // This ensures same slug always gets same ID
+      let numericId = index + 1; // Fallback to index-based ID
+      if (feature.slug) {
+        // Simple hash function to convert slug to numeric ID
+        let hash = 0;
+        for (let i = 0; i < feature.slug.length; i++) {
+          const char = feature.slug.charCodeAt(i);
+          hash = ((hash << 5) - hash) + char;
+          hash = hash & hash; // Convert to 32-bit integer
+        }
+        numericId = Math.abs(hash) % 100000; // Keep IDs reasonable (0-99999)
+      }
+      
+      return {
+        id: numericId,
+        name: feature.name,
+        slug: feature.slug,
+        description: feature.description,
+        keywords: feature.keywords,
+        icon: feature.icon,
+        created_at: feature.created_at,
+        // Include any other fields that might exist
+        ...feature
+      } as Feature;
+    });
   }
 
   async getFeature(id: number): Promise<Feature | undefined> {
     if (!supabase) return undefined;
-    const { data, error } = await supabase.from('features').select('*').eq('id', id).single();
-    if (error || !data) return undefined;
+    
+    // Try querying by id first (if id column exists)
+    let { data, error } = await supabase.from('features').select('*').eq('id', id).single();
+    
+    // If query by id fails, try to find by matching generated ID from slug
+    if (error || !data) {
+      // Get all features and find one that matches the generated ID
+      const allFeatures = await this.getFeatures();
+      data = allFeatures.find(f => f.id === id);
+      if (!data) return undefined;
+    }
+    
+    // Ensure id field exists in response
+    if (data && !data.id && (data as any).slug) {
+      // Generate ID from slug (same logic as getFeatures)
+      let hash = 0;
+      const slug = (data as any).slug;
+      for (let i = 0; i < slug.length; i++) {
+        const char = slug.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      (data as any).id = Math.abs(hash) % 100000;
+    }
+    
     return data as Feature;
   }
 
