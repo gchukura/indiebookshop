@@ -78,29 +78,21 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
 
     return (
 
-      <section className="py-12">
+      <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="h-8 bg-stone-200 rounded w-64 mb-8 animate-pulse" />
 
-          <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            <div className="h-8 bg-stone-200 rounded w-64 mb-8 animate-pulse" />
+          {[1, 2, 3].map((i) => (
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div key={i} className="h-36 bg-stone-100 rounded-lg animate-pulse" />
 
-              {[1, 2, 3].map((i) => (
-
-                <div key={i} className="h-36 bg-stone-100 rounded-lg animate-pulse" />
-
-              ))}
-
-            </div>
-
-          </div>
+          ))}
 
         </div>
 
-      </section>
+      </div>
 
     );
 
@@ -126,45 +118,35 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
 
   return (
 
-    <section className="py-8 md:py-12">
+    <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Section Header */}
 
-        <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
+      <div className="mb-6 md:mb-8">
 
-          {/* Section Header */}
+        <h2 className="font-serif text-2xl md:text-3xl text-[#5F4B32] font-bold">
 
-          <div className="mb-6 md:mb-8">
+          Other bookshops nearby
 
-            <h2 className="font-serif text-2xl md:text-3xl text-[#5F4B32] font-bold mb-2">
+        </h2>
 
-              More Bookshops in {currentBookshop.state}
-
-            </h2>
-
-            <p className="text-stone-600 text-sm md:text-base">
-
-              Discover other independent bookshops near {currentBookshop.city}
-
-            </p>
-
-          </div>
+      </div>
 
 
 
-          {/* Bookshop Cards Grid */}
+      {/* Bookshop Cards Grid */}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
 
-            {relatedBookshops.map((bookshop) => {
+        {relatedBookshops.map((bookshop) => {
 
-              const slug = generateSlugFromName(bookshop.name) || String(bookshop.id);
+          const slug = generateSlugFromName(bookshop.name) || String(bookshop.id);
 
-              const isSameCity = bookshop.city === currentBookshop.city;
+          const isSameCity = bookshop.city === currentBookshop.city;
 
-              
+          
 
-              return (
+          return (
 
                 <Link
 
@@ -186,7 +168,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
 
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium">
 
-                          <MapPin className="w-3 h-3" />
+                          <MapPin className="w-3 h-3" aria-hidden="true" />
 
                           Nearby
 
@@ -212,7 +194,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
 
                     <div className="flex items-start gap-2 text-sm text-stone-600 mb-4 flex-grow">
 
-                      <MapPin className="w-4 h-4 flex-shrink-0 text-[#2A6B7C] mt-0.5" />
+                      <MapPin className="w-4 h-4 flex-shrink-0 text-[#2A6B7C] mt-0.5" aria-hidden="true" />
 
                       <span>
 
@@ -232,7 +214,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
 
                       View details
 
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
 
                     </div>
 
@@ -240,39 +222,35 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
 
                 </Link>
 
-              );
+          );
 
-            })}
-
-          </div>
-
-
-
-          {/* See All Link - Centered below cards */}
-
-          <div className="mt-8 pt-6 border-t border-stone-200 text-center">
-
-            <Link
-
-              to={`/directory/state/${currentBookshop.state}`}
-
-              className="inline-flex items-center gap-2 text-base font-semibold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors group"
-
-            >
-
-              See all bookshops in {currentBookshop.state}
-
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-
-            </Link>
-
-          </div>
-
-        </div>
+        })}
 
       </div>
 
-    </section>
+
+
+      {/* See All Link - Centered below cards */}
+
+      <div className="mt-8 pt-6 border-t border-stone-200 text-center">
+
+        <Link
+
+          to={`/directory/state/${currentBookshop.state}`}
+
+          className="inline-flex items-center gap-2 text-base font-semibold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors group"
+
+        >
+
+          See all bookshops in {currentBookshop.state}
+
+          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+
+        </Link>
+
+      </div>
+
+    </div>
 
   );
 

@@ -218,7 +218,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
             <div className="flex items-center gap-2 text-white/95 text-base md:text-lg">
 
-              <MapPin className="w-5 h-5 flex-shrink-0" />
+              <MapPin className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
 
               <span className="font-sans" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.3)' }}>
 
@@ -392,7 +392,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
                   <div className="flex gap-3">
 
-                    <MapPin className="w-5 h-5 text-[#2A6B7C] flex-shrink-0 mt-0.5" />
+                    <MapPin className="w-5 h-5 text-[#2A6B7C] flex-shrink-0 mt-0.5" aria-hidden="true" />
 
                     <div className="text-sm">
 
@@ -418,7 +418,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
                   <div className="flex gap-3">
 
-                    <Phone className="w-5 h-5 text-[#2A6B7C] flex-shrink-0 mt-0.5" />
+                    <Phone className="w-5 h-5 text-[#2A6B7C] flex-shrink-0 mt-0.5" aria-hidden="true" />
 
                     <div className="text-sm">
 
@@ -450,7 +450,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
                   <div className="flex gap-3">
 
-                    <Globe className="w-5 h-5 text-[#2A6B7C] flex-shrink-0 mt-0.5" />
+                    <Globe className="w-5 h-5 text-[#2A6B7C] flex-shrink-0 mt-0.5" aria-hidden="true" />
 
                     <div className="text-sm min-w-0">
 
@@ -470,7 +470,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
                         {formatWebsite(website)}
 
-                        <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                        <ExternalLink className="w-3 h-3 flex-shrink-0" aria-hidden="true" />
 
                       </a>
 
@@ -486,7 +486,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
                 <div className="flex gap-3">
 
-                  <Clock className="w-5 h-5 text-[#2A6B7C] flex-shrink-0 mt-0.5" />
+                  <Clock className="w-5 h-5 text-[#2A6B7C] flex-shrink-0 mt-0.5" aria-hidden="true" />
 
                   <div className="text-sm flex-1">
 
@@ -558,7 +558,11 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
                   <a
 
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`}
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+
+                      `${name}${street ? ` ${street}` : ''} ${city}, ${state}${zip ? ` ${zip}` : ''}`
+
+                    )}`}
 
                     target="_blank"
 
@@ -568,7 +572,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
                   >
 
-                    Get Directions
+                    Get Directions on Google Maps
 
                   </a>
 

@@ -365,9 +365,9 @@ export async function middleware(request: Request) {
       
       if (!htmlResponse.ok) {
         // If we can't fetch the HTML, pass through
-        return new Response(null, { status: 200 });
-      }
-      
+    return new Response(null, { status: 200 });
+  }
+
       const html = await htmlResponse.text();
       
       // Inject meta tags
@@ -390,55 +390,55 @@ export async function middleware(request: Request) {
   
   // Handle rate limiting for API routes
   if (pathname.startsWith('/api')) {
-    // Get rate limit config for this path
-    const config = getRateLimitConfig(pathname);
-    if (!config) {
-      // No rate limiting configured for this path
-      return new Response(null, { status: 200 });
-    }
+  // Get rate limit config for this path
+  const config = getRateLimitConfig(pathname);
+  if (!config) {
+    // No rate limiting configured for this path
+    return new Response(null, { status: 200 });
+  }
 
-    // Get client IP
-    const ip = getClientIP(request);
-    
-    // Check rate limit
-    const result = checkRateLimit(ip, pathname, config);
+  // Get client IP
+  const ip = getClientIP(request);
+  
+  // Check rate limit
+  const result = checkRateLimit(ip, pathname, config);
 
-    // If rate limited, return 429 response
-    if (!result.allowed) {
-      const remaining = Math.max(0, result.remaining);
-      const resetTime = Math.ceil(result.resetTime / 1000);
-      const retryAfter = Math.ceil((result.resetTime - Date.now()) / 1000);
-      
-      return new Response(
-        JSON.stringify({ message: config.message }),
-        {
-          status: 429,
-          headers: {
-            'Content-Type': 'application/json',
-            'X-RateLimit-Limit': String(config.max),
-            'X-RateLimit-Remaining': String(remaining),
-            'X-RateLimit-Reset': String(resetTime),
-            'Retry-After': String(retryAfter),
-          },
-        }
-      );
-    }
-
-    // Add rate limit headers to successful response
+  // If rate limited, return 429 response
+  if (!result.allowed) {
     const remaining = Math.max(0, result.remaining);
     const resetTime = Math.ceil(result.resetTime / 1000);
+    const retryAfter = Math.ceil((result.resetTime - Date.now()) / 1000);
     
-    // Return response with rate limit headers
-    // Note: In Vercel Edge Middleware, we can't modify the response headers
-    // of the actual request, so we return a pass-through response
-    return new Response(null, {
-      status: 200,
-      headers: {
-        'X-RateLimit-Limit': String(config.max),
-        'X-RateLimit-Remaining': String(remaining),
-        'X-RateLimit-Reset': String(resetTime),
-      },
-    });
+    return new Response(
+      JSON.stringify({ message: config.message }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-RateLimit-Limit': String(config.max),
+          'X-RateLimit-Remaining': String(remaining),
+          'X-RateLimit-Reset': String(resetTime),
+          'Retry-After': String(retryAfter),
+        },
+      }
+    );
+  }
+
+  // Add rate limit headers to successful response
+  const remaining = Math.max(0, result.remaining);
+  const resetTime = Math.ceil(result.resetTime / 1000);
+  
+  // Return response with rate limit headers
+  // Note: In Vercel Edge Middleware, we can't modify the response headers
+  // of the actual request, so we return a pass-through response
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'X-RateLimit-Limit': String(config.max),
+      'X-RateLimit-Remaining': String(remaining),
+      'X-RateLimit-Reset': String(resetTime),
+    },
+  });
   }
   
   return new Response(null, { status: 200 });

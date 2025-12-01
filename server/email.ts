@@ -23,6 +23,28 @@ if (process.env.SENDGRID_API_KEY) {
 }
 
 export async function sendEmail(params: MailDataRequired): Promise<boolean> {
+  // In development mode, always log the email instead of sending (even if SendGrid is configured)
+  const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+  const hasSendGrid = !!process.env.SENDGRID_API_KEY && !!process.env.SENDGRID_FROM_EMAIL;
+  
+  // In development mode, log the email and return success
+  if (isDevelopment) {
+    console.log("📧 [DEV MODE] Email would be sent:");
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.log("From:", params.from || process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com');
+    console.log("To:", params.to);
+    console.log("Subject:", params.subject);
+    console.log("Reply-To:", params.replyTo || 'N/A');
+    console.log("\nText Content:");
+    console.log(params.text);
+    console.log("\nHTML Content:");
+    console.log(params.html);
+    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    console.log("✅ [DEV MODE] Email logged successfully (not actually sent)");
+    return true; // Return true in dev mode so the form works
+  }
+  
+  // In production, require SendGrid configuration
   if (!process.env.SENDGRID_API_KEY) {
     console.error("❌ Cannot send email: SENDGRID_API_KEY is not set");
     console.error("Check environment variables for SENDGRID_API_KEY");
@@ -102,6 +124,76 @@ ${JSON.stringify(bookstoreData, null, 2)}
   return sendEmail({
     to: adminEmail,
     from: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com', // Use your verified sender
+    subject,
+    text,
+    html
+  });
+}
+
+// Function to send contact form submission
+export async function sendContactFormEmail(
+  adminEmail: string,
+  contactData: {
+    name: string;
+    email: string;
+    reason: string;
+    subject: string;
+    message: string;
+  }
+): Promise<boolean> {
+  // Escape user input to prevent XSS in email
+  const safeName = escapeHtml(contactData.name || '');
+  const safeEmail = escapeHtml(contactData.email || '');
+  const safeReason = escapeHtml(contactData.reason || '');
+  const safeSubject = escapeHtml(contactData.subject || '');
+  const safeMessage = escapeHtml(contactData.message || '');
+  
+  // Map reason codes to readable labels
+  const reasonLabels: { [key: string]: string } = {
+    'listing-update': 'Update a bookshop listing',
+    'listing-issue': 'Report incorrect listing information',
+    'partnership': 'Partnership or collaboration',
+    'technical': 'Technical issue with the site',
+    'feedback': 'General feedback or suggestion',
+    'press': 'Press or media inquiry',
+    'other': 'Other'
+  };
+  
+  const reasonLabel = reasonLabels[contactData.reason] || contactData.reason;
+  
+  const subject = `Contact Form: ${safeSubject}`;
+  
+  // Create text and HTML versions for the email
+  const text = `
+New contact form submission:
+
+Name: ${contactData.name || 'N/A'}
+Email: ${contactData.email || 'N/A'}
+Reason: ${reasonLabel}
+Subject: ${contactData.subject || 'N/A'}
+
+Message:
+${contactData.message || 'N/A'}
+`;
+
+  const html = `
+<h2>New Contact Form Submission</h2>
+<p><strong>Name:</strong> ${safeName}</p>
+<p><strong>Email:</strong> ${safeEmail}</p>
+<p><strong>Reason:</strong> ${escapeHtml(reasonLabel)}</p>
+<p><strong>Subject:</strong> ${safeSubject}</p>
+
+<h3>Message:</h3>
+<p style="white-space: pre-wrap;">${safeMessage}</p>
+
+<hr>
+<p style="color: #666; font-size: 12px;">You can reply directly to this email to respond to ${safeEmail}</p>
+`;
+
+  return sendEmail({
+    to: adminEmail,
+    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com',
+    replyTo: contactData.email, // Allow replying directly to the sender
     subject,
     text,
     html

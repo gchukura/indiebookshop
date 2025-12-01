@@ -7,7 +7,7 @@ import rateLimit from 'express-rate-limit';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { GoogleSheetsStorage } from './sheets-storage';
-import { storage } from './storage';
+import { storage, type IStorage } from './storage';
 import { SupabaseStorage } from './supabase-storage';
 import { createDataPreloadMiddleware } from './dataPreloading';
 import { htmlInjectionMiddleware } from './htmlInjectionMiddleware';

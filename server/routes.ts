@@ -7,7 +7,7 @@ import {
   insertUserSchema,
   insertBookstoreSchema
 } from "@shared/schema";
-import { sendBookstoreSubmissionNotification } from "./email";
+import { sendBookstoreSubmissionNotification, sendContactFormEmail } from "./email";
 import { supabase } from "./supabase";
 import { generateSitemap } from "./sitemap";
 import { z } from "zod";
@@ -919,6 +919,76 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
     } catch (error) {
       console.error("Error processing bookstore submission:", error);
       res.status(500).json({ message: "Failed to process bookstore submission" });
+    }
+  });
+
+  // Contact form submission
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const { name, email, reason, subject, message } = req.body;
+      
+      // Validate required fields
+      if (!name || typeof name !== 'string' || name.trim().length < 2) {
+        return res.status(400).json({ message: "Name is required and must be at least 2 characters" });
+      }
+      
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ message: "Email is required" });
+      }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const sanitizedEmail = email.trim().toLowerCase();
+      if (!emailRegex.test(sanitizedEmail) || sanitizedEmail.length > 254) {
+        return res.status(400).json({ message: "Invalid email format" });
+      }
+      
+      if (!reason || typeof reason !== 'string') {
+        return res.status(400).json({ message: "Reason is required" });
+      }
+      
+      if (!subject || typeof subject !== 'string' || subject.trim().length < 3) {
+        return res.status(400).json({ message: "Subject is required and must be at least 3 characters" });
+      }
+      
+      if (!message || typeof message !== 'string' || message.trim().length < 10) {
+        return res.status(400).json({ message: "Message is required and must be at least 10 characters" });
+      }
+      
+      // Sanitize inputs
+      const sanitizedName = name.trim().slice(0, 100);
+      const sanitizedSubject = subject.trim().slice(0, 200);
+      const sanitizedMessage = message.trim().slice(0, 5000);
+      const sanitizedReason = reason.trim();
+      
+      // Send email to info@bluestonebrands.com
+      const emailSent = await sendContactFormEmail(
+        'info@bluestonebrands.com',
+        {
+          name: sanitizedName,
+          email: sanitizedEmail,
+          reason: sanitizedReason,
+          subject: sanitizedSubject,
+          message: sanitizedMessage
+        }
+      );
+      
+      if (emailSent) {
+        res.status(200).json({ 
+          message: "Your message has been sent successfully. We'll get back to you soon." 
+        });
+      } else {
+        res.status(500).json({ 
+          message: "Failed to send message. Please try again later or email us directly." 
+        });
+      }
+    } catch (error) {
+      console.error("Error processing contact form:", error);
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+      }
+      res.status(500).json({ message: "Failed to process contact form submission" });
     }
   });
 

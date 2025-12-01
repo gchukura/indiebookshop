@@ -1,6 +1,8 @@
 import { Bookstore, Feature } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink } from "lucide-react";
+import { Link } from "wouter";
+import { generateSlugFromName } from "../lib/linkUtils";
 import { 
   Table, 
   TableBody, 
@@ -42,22 +44,21 @@ const BookshopTable = ({
     <div className="w-full">
       {/* Mobile Card View */}
       <div className="block md:hidden space-y-3">
-        {bookshops.map((bookshop) => (
+        {bookshops.map((bookshop) => {
+          const slug = generateSlugFromName(bookshop.name) || String(bookshop.id);
+          const bookshopUrl = `/bookshop/${slug}`;
+          
+          return (
           <div
             key={bookshop.id}
-            role="button"
-            tabIndex={0}
-            aria-label={`View details for ${bookshop.name || 'bookshop'}`}
-            className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] focus:ring-offset-2"
-            onClick={() => showDetails(bookshop.id)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                showDetails(bookshop.id);
-              }
-            }}
+            className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow"
           >
-            <h3 className="font-semibold text-base text-[#5F4B32] mb-2 line-clamp-2">{bookshop.name || 'Unnamed Bookshop'}</h3>
+            <Link 
+              to={bookshopUrl}
+              className="block"
+            >
+              <h3 className="font-semibold text-base text-[#5F4B32] hover:text-[#2A6B7C] mb-2 line-clamp-2 transition-colors">{bookshop.name || 'Unnamed Bookshop'}</h3>
+            </Link>
             <div className="space-y-1.5 mb-3">
               <div className="flex items-center text-sm text-gray-600">
                 <span className="font-medium mr-1">Location:</span>
@@ -85,8 +86,17 @@ const BookshopTable = ({
                 )}
               </div>
             )}
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <Link 
+                to={bookshopUrl}
+                className="text-sm text-[#2A6B7C] hover:text-[#E16D3D] hover:underline font-medium inline-flex items-center gap-1"
+              >
+                View details →
+              </Link>
+            </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Desktop Table View */}
@@ -101,25 +111,22 @@ const BookshopTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {bookshops.map((bookshop) => (
+            {bookshops.map((bookshop) => {
+              const slug = generateSlugFromName(bookshop.name) || String(bookshop.id);
+              const bookshopUrl = `/bookshop/${slug}`;
+              
+              return (
               <TableRow 
                 key={bookshop.id} 
-                role="button"
-                tabIndex={0}
-                aria-label={`View details for ${bookshop.name || 'bookshop'}`}
-                className="hover:bg-gray-50 cursor-pointer focus:outline-none focus:bg-gray-50 transition-colors" 
-                onClick={() => showDetails(bookshop.id)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    showDetails(bookshop.id);
-                  }
-                }}
+                className="hover:bg-gray-50 transition-colors"
               >
                 <TableCell className="font-medium">
-                  <span className="text-[#2A6B7C] hover:text-[#E16D3D] font-semibold transition-colors">
+                  <Link 
+                    to={bookshopUrl}
+                    className="text-[#2A6B7C] hover:text-[#E16D3D] font-semibold transition-colors hover:underline"
+                  >
                     {bookshop.name || 'Unnamed Bookshop'}
-                  </span>
+                  </Link>
                 </TableCell>
                 <TableCell>{bookshop.city || '-'}</TableCell>
                 <TableCell>{bookshop.state || '-'}</TableCell>
@@ -136,7 +143,8 @@ const BookshopTable = ({
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+              );
+            })}
           </TableBody>
         </Table>
       </div>

@@ -1,138 +1,825 @@
-import React, { useMemo } from "react";
-import { MapPin, Mail, Phone } from "lucide-react";
+import React, { useMemo, useState } from "react";
+
+import { Mail, Clock } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
+
 import { Textarea } from "@/components/ui/textarea";
+
 import { Label } from "@/components/ui/label";
+
+import {
+
+  Select,
+
+  SelectContent,
+
+  SelectItem,
+
+  SelectTrigger,
+
+  SelectValue,
+
+} from "@/components/ui/select";
+
 import { SEO } from "../components/SEO";
+
 import { BASE_URL } from "../lib/seo";
 
-const Contact = () => {
-  // SEO metadata
-  const seoTitle = useMemo(() => {
-    return "Contact IndieBookShop.com | Get in Touch with Our Independent Bookshop Directory";
-  }, []);
-  
-  const seoDescription = useMemo(() => {
-    return "Contact the team at IndieBookShop.com. Submit additions or corrections to our independent bookshop directory, suggest features, or ask questions about our mission to support local indie bookstores.";
-  }, []);
-  
-  const seoKeywords = useMemo(() => {
-    return [
-      "contact IndieBookShop",
-      "indie bookshop directory contact",
-      "independent bookstore directory support",
-      "submit bookshop listing",
-      "update bookshop information",
-      "indie bookshop directory help",
-      "contact bookshop directory",
-      "bookstore directory support",
-      "indie bookshop questions",
-      "independent bookstore community contact"
-    ];
-  }, []);
-  
-  const canonicalUrl = useMemo(() => {
-    return `${BASE_URL}/contact`;
-  }, []);
-  
-  return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* SEO Component */}
-      <SEO 
-        title={seoTitle}
-        description={seoDescription}
-        keywords={seoKeywords}
-        canonicalUrl={canonicalUrl}
-      />
-      
-      <div className="max-w-3xl mx-auto mb-12">
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-[#5F4B32] mb-4">
-          Contact Our Independent Bookshop Directory
-        </h1>
-        <p className="text-lg md:text-xl text-gray-600">
-          We'd love to hear from independent bookshop enthusiasts and booksellers
-        </p>
-      </div>
 
-      <div className="max-w-2xl mx-auto mb-16">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-            Contact Our Independent Bookshop Directory Team
-          </h2>
-          
-          <p className="text-gray-700 mb-6">
-            Use the form below to get in touch with our team about our independent bookshop directory. Whether you want to submit a new bookshop, update an existing listing, report an error, or suggest a feature, we're here to help support the indie bookshop community.
-          </p>
-          
-          <form className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Your Name</Label>
-              <Input id="name" placeholder="Enter your name" aria-label="Your name" />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" placeholder="Enter your email address" aria-label="Your email address" />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
-              <Input id="subject" placeholder="What is this regarding?" aria-label="Message subject" />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
-              <Textarea id="message" placeholder="Enter your message here" className="h-32" aria-label="Your message" />
-            </div>
-            
-            <Button className="bg-[#E16D3D] hover:bg-[#E16D3D]/90 text-white w-full">
-              Send Message
-            </Button>
-          </form>
-        </div>
-      </div>
+
+const Contact = () => {
+
+  const [formData, setFormData] = useState({
+
+    name: '',
+
+    email: '',
+
+    reason: '',
+
+    subject: '',
+
+    message: '',
+
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const [validationError, setValidationError] = useState<string>('');
+
+
+
+  // SEO metadata
+
+  const seoTitle = useMemo(() => {
+
+    return "Contact IndieBookShop.com | Get in Touch with Our Independent Bookshop Directory";
+
+  }, []);
+
+  
+
+  const seoDescription = useMemo(() => {
+
+    return "Contact the team at IndieBookShop.com. Submit additions or corrections to our independent bookshop directory, suggest features, or ask questions about our mission to support local indie bookstores.";
+
+  }, []);
+
+  
+
+  const seoKeywords = useMemo(() => {
+
+    return [
+
+      "contact IndieBookShop",
+
+      "indie bookshop directory contact",
+
+      "independent bookstore directory support",
+
+      "submit bookshop listing",
+
+      "update bookshop information",
+
+      "indie bookshop directory help",
+
+      "contact bookshop directory",
+
+      "bookstore directory support",
+
+      "indie bookshop questions",
+
+      "independent bookstore community contact"
+
+    ];
+
+  }, []);
+
+  
+
+  const canonicalUrl = useMemo(() => {
+
+    return `${BASE_URL}/contact`;
+
+  }, []);
+
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+
+    e.preventDefault();
+
+    console.log('Contact form submitted', formData);
+
+    // Clear previous validation errors
+    setValidationError('');
+
+    // Validate form data before submitting
+    if (!formData.name || formData.name.trim().length < 2) {
+
+      setValidationError('Name is required and must be at least 2 characters');
+
+      setSubmitStatus('error');
+
+      return;
+
+    }
+
+    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+
+      setValidationError('Please enter a valid email address');
+
+      setSubmitStatus('error');
+
+      return;
+
+    }
+
+    if (!formData.reason) {
+
+      setValidationError('Please select a reason for contacting us');
+
+      setSubmitStatus('error');
+
+      return;
+
+    }
+
+    if (!formData.subject || formData.subject.trim().length < 3) {
+
+      setValidationError('Subject is required and must be at least 3 characters');
+
+      setSubmitStatus('error');
+
+      return;
+
+    }
+
+    if (!formData.message || formData.message.trim().length < 10) {
+
+      setValidationError('Message is required and must be at least 10 characters');
+
+      setSubmitStatus('error');
+
+      return;
+
+    }
+
+    setIsSubmitting(true);
+
+    setSubmitStatus('idle');
+
+    
+
+    try {
+
+      console.log('Making fetch request to /api/contact with data:', JSON.stringify(formData));
+
+      const response = await fetch('/api/contact', {
+
+        method: 'POST',
+
+        headers: {
+
+          'Content-Type': 'application/json',
+
+        },
+
+        body: JSON.stringify(formData),
+
+      });
+
       
-      {/* Contact Information Section */}
-      <div className="max-w-2xl mx-auto mb-16">
-        <div className="bg-[#F7F3E8] rounded-lg p-8">
-          <h2 className="text-2xl font-serif font-bold text-[#5F4B32] mb-4">
-            Other Ways to Connect with Our Bookshop Directory
-          </h2>
-          
-          <p className="text-gray-700 mb-6">
-            We're dedicated to supporting independent bookshops across America. If you prefer alternate methods of communication, please use the options below:
-          </p>
-          
-          <div className="space-y-4">
-            <div className="flex items-start">
-              <Mail className="w-5 h-5 text-[#2A6B7C] mt-1 mr-3" />
-              <div>
-                <h3 className="font-medium text-[#5F4B32]">Email Us</h3>
-                <p className="text-gray-700">For directory updates, feedback, or general inquiries: <a href="mailto:info@bluestonebrands.com" className="text-[#2A6B7C] hover:underline">info@bluestonebrands.com</a></p>
-              </div>
-            </div>
-            
-            <div className="flex items-start">
-              <MapPin className="w-5 h-5 text-[#2A6B7C] mt-1 mr-3" />
-              <div>
-                <h3 className="font-medium text-[#5F4B32]">Submit a Bookshop</h3>
-                <p className="text-gray-700">Know an independent bookshop that should be in our directory? Use our <a href="/submit-bookshop" className="text-[#2A6B7C] hover:underline">submission form</a> to add it to our growing list.</p>
-              </div>
-            </div>
-            
-            <div className="flex items-start">
-              <Phone className="w-5 h-5 text-[#2A6B7C] mt-1 mr-3" />
-              <div>
-                <h3 className="font-medium text-[#5F4B32]">Response Time</h3>
-                <p className="text-gray-700">We aim to respond to all inquiries within 2-3 business days. For urgent matters related to our independent bookshop directory, please indicate so in your subject line.</p>
-              </div>
-            </div>
+
+      // Check if response is ok before parsing JSON
+      if (!response.ok) {
+
+        // Try to get error message from response
+        let errorMessage = 'Failed to send message. Please try again.';
+
+        try {
+
+          const errorData = await response.json();
+
+          errorMessage = errorData.message || errorMessage;
+
+        } catch {
+
+          // If response isn't JSON, use status text
+
+          errorMessage = response.statusText || errorMessage;
+
+        }
+
+        setSubmitStatus('error');
+
+        console.error('Contact form error:', errorMessage, 'Status:', response.status);
+
+        return;
+
+      }
+
+      
+
+      // Parse successful response
+
+      const data = await response.json();
+
+      setSubmitStatus('success');
+
+      setFormData({ name: '', email: '', reason: '', subject: '', message: '' });
+
+    } catch (error) {
+
+      setSubmitStatus('error');
+
+      console.error('Contact form submission error:', error);
+
+      // Log more details for debugging
+
+      if (error instanceof Error) {
+
+        console.error('Error message:', error.message);
+
+        console.error('Error stack:', error.stack);
+
+      }
+
+    } finally {
+
+      setIsSubmitting(false);
+
+    }
+
+  };
+
+
+
+  const handleChange = (field: string, value: string) => {
+
+    setFormData(prev => ({ ...prev, [field]: value }));
+
+  };
+
+  
+
+  return (
+
+    <>
+
+      {/* SEO Component */}
+
+      <SEO 
+
+        title={seoTitle}
+
+        description={seoDescription}
+
+        keywords={seoKeywords}
+
+        canonicalUrl={canonicalUrl}
+
+      />
+
+
+
+      {/* Hero Section */}
+
+      <section className="py-6 md:py-8 lg:py-10 bg-[#F7F3E8]">
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="max-w-3xl mx-auto text-center">
+
+            <h1 className="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-[#5F4B32] mb-4 md:mb-6">
+
+              Get in Touch
+
+            </h1>
+
+            <p className="font-sans text-sm md:text-base text-gray-700 leading-relaxed">
+
+              Have a question, suggestion, or want to help us grow the directory? We'd love to hear from you.
+
+            </p>
+
           </div>
+
         </div>
-      </div>
-    </div>
+
+      </section>
+
+
+
+      {/* Before You Contact Section */}
+
+      <section className="py-6 md:py-8 lg:py-10">
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="max-w-3xl mx-auto">
+
+            <div className="bg-white rounded-lg shadow-sm border-l-4 border-[#2A6B7C] p-6 md:p-8 lg:p-10">
+
+              <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#5F4B32] mb-4 md:mb-6">
+
+                Looking for Something Specific?
+
+              </h2>
+
+              <div className="space-y-3 font-sans text-sm md:text-base text-gray-700">
+
+                <p className="flex items-start">
+
+                  <span className="text-[#E16D3D] font-semibold mr-2">→</span>
+
+                  <span>
+
+                    <strong>Add a bookshop:</strong>{' '}
+
+                    <a href="/submit-bookshop" className="text-[#2A6B7C] underline hover:text-[#E16D3D] transition-colors">
+
+                      Use our submission form
+
+                    </a>
+
+                  </span>
+
+                </p>
+
+                <p className="flex items-start">
+
+                  <span className="text-[#E16D3D] font-semibold mr-2">→</span>
+
+                  <span>
+
+                    <strong>Submit an event:</strong>{' '}
+
+                    <a href="/submit-event" className="text-[#2A6B7C] underline hover:text-[#E16D3D] transition-colors">
+
+                      Share your bookshop event
+
+                    </a>
+
+                  </span>
+
+                </p>
+
+                <p className="flex items-start">
+
+                  <span className="text-[#E16D3D] font-semibold mr-2">→</span>
+
+                  <span>
+
+                    <strong>Common questions:</strong>{' '}
+
+                    <a href="/about#faq" className="text-[#2A6B7C] underline hover:text-[#E16D3D] transition-colors">
+
+                      Check our FAQ
+
+                    </a>
+
+                  </span>
+
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      {/* Contact Form Section */}
+
+      <section className="py-6 md:py-8 lg:py-10">
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="max-w-3xl mx-auto">
+
+            <div className="bg-white rounded-lg shadow-sm p-6 md:p-8 lg:p-10">
+
+              <div className="mb-6 md:mb-8">
+
+                <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#5F4B32] mb-3 md:mb-4">
+
+                  Send Us a Message
+
+                </h2>
+
+                <p className="font-sans text-sm md:text-base text-gray-600">
+
+                  We typically respond within 2-3 business days.
+
+                </p>
+
+              </div>
+
+
+
+              {/* Success Message */}
+
+              {submitStatus === 'success' && (
+
+                <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+
+                  <p className="font-sans text-sm md:text-base text-green-800">
+
+                    <strong>Thank you!</strong> Your message has been sent. We'll get back to you soon.
+
+                  </p>
+
+                </div>
+
+              )}
+
+
+
+              {/* Error Message */}
+
+              {submitStatus === 'error' && (
+
+                <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
+
+                  <p className="font-sans text-sm md:text-base text-red-800">
+
+                    <strong>Oops!</strong>{' '}
+
+                    {validationError || "Something went wrong. Please try again or email us directly at"}{' '}
+
+                    {!validationError && (
+
+                      <a href="mailto:info@bluestonebrands.com" className="underline hover:text-red-900 transition-colors">
+
+                        info@bluestonebrands.com
+
+                      </a>
+
+                    )}
+
+                  </p>
+
+                </div>
+
+              )}
+
+
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+
+                {/* Name Field */}
+
+                <div className="space-y-2">
+
+                  <Label htmlFor="name" className="font-sans text-sm font-medium text-gray-700">
+
+                    Your Name <span className="text-red-500">*</span>
+
+                  </Label>
+
+                  <Input 
+
+                    id="name" 
+
+                    value={formData.name}
+
+                    onChange={(e) => handleChange('name', e.target.value)}
+
+                    placeholder="Enter your name" 
+
+                    required
+
+                    className="font-sans border border-gray-300 rounded-lg focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0"
+
+                  />
+
+                </div>
+
+
+
+                {/* Email Field */}
+
+                <div className="space-y-2">
+
+                  <Label htmlFor="email" className="font-sans text-sm font-medium text-gray-700">
+
+                    Email Address <span className="text-red-500">*</span>
+
+                  </Label>
+
+                  <Input 
+
+                    id="email" 
+
+                    type="email" 
+
+                    value={formData.email}
+
+                    onChange={(e) => handleChange('email', e.target.value)}
+
+                    placeholder="your.email@example.com" 
+
+                    required
+
+                    className="font-sans border border-gray-300 rounded-lg focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0"
+
+                  />
+
+                </div>
+
+
+
+                {/* Contact Reason Dropdown */}
+
+                <div className="space-y-2">
+
+                  <Label htmlFor="reason" className="font-sans text-sm font-medium text-gray-700">
+
+                    What is this regarding? <span className="text-red-500">*</span>
+
+                  </Label>
+
+                  <Select 
+
+                    value={formData.reason} 
+
+                    onValueChange={(value) => handleChange('reason', value)}
+
+                    required
+
+                  >
+
+                    <SelectTrigger className="font-sans border border-gray-300 rounded-lg focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0">
+
+                      <SelectValue placeholder="Select a reason" />
+
+                    </SelectTrigger>
+
+                    <SelectContent>
+
+                      <SelectItem value="listing-update">Update a bookshop listing</SelectItem>
+
+                      <SelectItem value="listing-issue">Report incorrect listing information</SelectItem>
+
+                      <SelectItem value="partnership">Partnership or collaboration</SelectItem>
+
+                      <SelectItem value="technical">Technical issue with the site</SelectItem>
+
+                      <SelectItem value="feedback">General feedback or suggestion</SelectItem>
+
+                      <SelectItem value="press">Press or media inquiry</SelectItem>
+
+                      <SelectItem value="other">Other</SelectItem>
+
+                    </SelectContent>
+
+                  </Select>
+
+                </div>
+
+
+
+                {/* Subject Field */}
+
+                <div className="space-y-2">
+
+                  <Label htmlFor="subject" className="font-sans text-sm font-medium text-gray-700">
+
+                    Subject <span className="text-red-500">*</span>
+
+                  </Label>
+
+                  <Input 
+
+                    id="subject" 
+
+                    value={formData.subject}
+
+                    onChange={(e) => handleChange('subject', e.target.value)}
+
+                    placeholder="Brief summary of your message" 
+
+                    required
+
+                    className="font-sans border border-gray-300 rounded-lg focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0"
+
+                  />
+
+                </div>
+
+
+
+                {/* Message Field */}
+
+                <div className="space-y-2">
+
+                  <Label htmlFor="message" className="font-sans text-sm font-medium text-gray-700">
+
+                    Message <span className="text-red-500">*</span>
+
+                  </Label>
+
+                  <Textarea 
+
+                    id="message" 
+
+                    value={formData.message}
+
+                    onChange={(e) => handleChange('message', e.target.value)}
+
+                    placeholder="Tell us more about your inquiry..." 
+
+                    className="h-40 font-sans border border-gray-300 rounded-lg focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0 resize-none" 
+
+                    required
+
+                  />
+
+                  <p className="text-xs text-gray-500 font-sans">
+
+                    Please provide as much detail as possible to help us respond effectively.
+
+                  </p>
+
+                </div>
+
+
+
+                {/* Privacy Statement */}
+
+                <div className="bg-gray-50 rounded-lg p-4 md:p-6">
+
+                  <p className="text-xs md:text-sm text-gray-600 font-sans leading-relaxed">
+
+                    By submitting this form, you agree that we may use your email address to respond to your inquiry. 
+
+                    We will never share your information with third parties or use it for marketing purposes.
+
+                  </p>
+
+                </div>
+
+
+
+                {/* Submit Button */}
+
+                <Button 
+
+                  type="submit"
+
+                  disabled={isSubmitting}
+
+                  className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white rounded-full px-6 py-3 min-h-[44px] font-semibold w-full text-base md:text-sm transition-colors"
+
+                >
+
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+
+                </Button>
+
+              </form>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      {/* Alternative Contact Methods Section */}
+
+      <section className="py-6 md:py-8 lg:py-10 bg-[#F7F3E8]">
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+
+          <div className="max-w-3xl mx-auto">
+
+            <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#5F4B32] mb-6 md:mb-8 text-center">
+
+              Other Ways to Reach Us
+
+            </h2>
+
+            
+
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
+
+              {/* Email Card */}
+
+              <div className="bg-white rounded-lg shadow-sm p-4 md:p-5 lg:p-6">
+
+                <div className="flex items-start mb-4">
+
+                  <Mail className="w-6 h-6 text-[#2A6B7C] mt-1 mr-3 flex-shrink-0" />
+
+                  <div>
+
+                    <h3 className="font-serif text-xl md:text-2xl font-bold text-[#5F4B32] mb-2">
+
+                      Email Us Directly
+
+                    </h3>
+
+                    <p className="font-sans text-sm md:text-base text-gray-600 mb-3">
+
+                      Prefer to use your own email client?
+
+                    </p>
+
+                    <a 
+
+                      href="mailto:info@bluestonebrands.com?subject=IndieBookShop Directory Inquiry" 
+
+                      className="font-sans text-[#2A6B7C] font-semibold hover:text-[#E16D3D] underline text-sm md:text-base break-all transition-colors"
+
+                    >
+
+                      info@bluestonebrands.com
+
+                    </a>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+
+              {/* Response Time Card */}
+
+              <div className="bg-white rounded-lg shadow-sm p-4 md:p-5 lg:p-6">
+
+                <div className="flex items-start mb-4">
+
+                  <Clock className="w-6 h-6 text-[#2A6B7C] mt-1 mr-3 flex-shrink-0" />
+
+                  <div>
+
+                    <h3 className="font-serif text-xl md:text-2xl font-bold text-[#5F4B32] mb-2">
+
+                      Response Time
+
+                    </h3>
+
+                    <p className="font-sans text-sm md:text-base text-gray-700 leading-relaxed">
+
+                      We typically respond within 2-3 business days. For urgent issues regarding 
+
+                      incorrect or harmful listing information, please include "URGENT" in your subject line.
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            {/* Mission Statement */}
+
+            <div className="mt-6 md:mt-8 text-center">
+
+              <p className="font-sans text-sm md:text-base text-gray-700 leading-relaxed max-w-2xl mx-auto">
+
+                We're dedicated to supporting independent bookshops across America. Whether you're a reader 
+
+                looking for your next literary haven or a bookshop owner wanting to be featured, we're here to help.
+
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </>
+
   );
+
 };
+
+
 
 export default Contact;

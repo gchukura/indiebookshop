@@ -200,6 +200,67 @@ ${JSON.stringify(bookstoreData, null, 2)}
   });
 }
 
+// Function to send contact form submission
+async function sendContactFormEmail(adminEmail, contactData) {
+  // Escape user input to prevent XSS in email
+  const safeName = escapeHtml(contactData.name || '');
+  const safeEmail = escapeHtml(contactData.email || '');
+  const safeReason = escapeHtml(contactData.reason || '');
+  const safeSubject = escapeHtml(contactData.subject || '');
+  const safeMessage = escapeHtml(contactData.message || '');
+  
+  // Map reason codes to readable labels
+  const reasonLabels = {
+    'listing-update': 'Update a bookshop listing',
+    'listing-issue': 'Report incorrect listing information',
+    'partnership': 'Partnership or collaboration',
+    'technical': 'Technical issue with the site',
+    'feedback': 'General feedback or suggestion',
+    'press': 'Press or media inquiry',
+    'other': 'Other'
+  };
+  
+  const reasonLabel = reasonLabels[contactData.reason] || contactData.reason;
+  
+  const subject = `Contact Form: ${safeSubject}`;
+  
+  // Create text and HTML versions for the email
+  const text = `
+New contact form submission:
+
+Name: ${contactData.name || 'N/A'}
+Email: ${contactData.email || 'N/A'}
+Reason: ${reasonLabel}
+Subject: ${contactData.subject || 'N/A'}
+
+Message:
+${contactData.message || 'N/A'}
+`;
+
+  const html = `
+<h2>New Contact Form Submission</h2>
+<p><strong>Name:</strong> ${safeName}</p>
+<p><strong>Email:</strong> ${safeEmail}</p>
+<p><strong>Reason:</strong> ${escapeHtml(reasonLabel)}</p>
+<p><strong>Subject:</strong> ${safeSubject}</p>
+
+<h3>Message:</h3>
+<p style="white-space: pre-wrap;">${safeMessage}</p>
+
+<hr>
+<p style="color: #666; font-size: 12px;">You can reply directly to this email to respond to ${safeEmail}</p>
+`;
+
+  return sendEmail({
+    to: adminEmail,
+    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com',
+    replyTo: contactData.email, // Allow replying directly to the sender
+    subject,
+    text,
+    html
+  });
+}
+
 /**
  * Rate limiting middleware for submission endpoints
  * Limits: 5 requests per 15 minutes per IP
@@ -849,6 +910,80 @@ export async function registerRoutes(app, storageImpl) {
     } catch (error) {
       console.error("Serverless: Error creating event:", error);
       res.status(500).json({ message: "Failed to create event" });
+    }
+  });
+
+  // Contact form submission
+  app.post('/api/contact', submissionLimiter, async (req, res) => {
+    try {
+      console.log('Serverless: Contact form submission received');
+      console.log('Serverless: Request body:', JSON.stringify(req.body));
+      
+      const { name, email, reason, subject, message } = req.body;
+      
+      // Validate required fields
+      if (!name || typeof name !== 'string' || name.trim().length < 2) {
+        return res.status(400).json({ message: "Name is required and must be at least 2 characters" });
+      }
+      
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ message: "Email is required" });
+      }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const sanitizedEmail = email.trim().toLowerCase();
+      if (!emailRegex.test(sanitizedEmail) || sanitizedEmail.length > 254) {
+        return res.status(400).json({ message: "Invalid email format" });
+      }
+      
+      if (!reason || typeof reason !== 'string') {
+        return res.status(400).json({ message: "Reason is required" });
+      }
+      
+      if (!subject || typeof subject !== 'string' || subject.trim().length < 3) {
+        return res.status(400).json({ message: "Subject is required and must be at least 3 characters" });
+      }
+      
+      if (!message || typeof message !== 'string' || message.trim().length < 10) {
+        return res.status(400).json({ message: "Message is required and must be at least 10 characters" });
+      }
+      
+      // Sanitize inputs
+      const sanitizedName = name.trim().slice(0, 100);
+      const sanitizedSubject = subject.trim().slice(0, 200);
+      const sanitizedMessage = message.trim().slice(0, 5000);
+      const sanitizedReason = reason.trim();
+      
+      // Send email to info@bluestonebrands.com
+      console.log('Serverless: Attempting to send contact form email to info@bluestonebrands.com');
+      console.log('Serverless: SENDGRID_API_KEY exists?', !!process.env.SENDGRID_API_KEY);
+      console.log('Serverless: SENDGRID_FROM_EMAIL:', process.env.SENDGRID_FROM_EMAIL || 'NOT SET');
+      
+      const emailSent = await sendContactFormEmail('info@bluestonebrands.com', {
+        name: sanitizedName,
+        email: sanitizedEmail,
+        reason: sanitizedReason,
+        subject: sanitizedSubject,
+        message: sanitizedMessage
+      });
+      
+      console.log('Serverless: Email send result:', emailSent);
+      
+      if (emailSent) {
+        console.log('Serverless: ✅ Contact form email sent successfully');
+        res.status(200).json({ 
+          message: "Your message has been sent successfully. We'll get back to you soon." 
+        });
+      } else {
+        console.error('Serverless: ❌ Failed to send contact form email');
+        res.status(500).json({ 
+          message: "Failed to send message. Please try again later or email us directly." 
+        });
+      }
+    } catch (error) {
+      console.error("Serverless: Error processing contact form:", error);
+      res.status(500).json({ message: "Failed to process contact form submission" });
     }
   });
 

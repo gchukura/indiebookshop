@@ -114,7 +114,7 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
         
         // Store map reference only if component is still mounted
         if (isMounted) {
-          mapRef.current = mapInstance;
+        mapRef.current = mapInstance;
         } else {
           // Component unmounted, clean up the map
           mapInstance.remove();

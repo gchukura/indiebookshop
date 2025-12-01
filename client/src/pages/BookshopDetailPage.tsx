@@ -12,6 +12,10 @@ import { BookshopDetailContent } from '@/components/BookshopDetailContent';
 
 import RelatedBookshops from '@/components/RelatedBookshops';
 
+import Breadcrumbs, { BreadcrumbItem } from '@/components/Breadcrumbs';
+
+import { Link } from 'wouter';
+
 import { SEO } from '../components/SEO';
 
 import { 
@@ -272,7 +276,21 @@ const BookshopDetailPage = () => {
 
   }, [bookshop]);
 
-
+  // Generate breadcrumb items - MUST be before early returns to follow Rules of Hooks
+  const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
+    if (!bookshop || !bookshop.city || !bookshop.state) return [];
+    
+    const citySlug = generateSlugFromName(bookshop.city);
+    const stateLower = bookshop.state.toLowerCase();
+    
+    return [
+      { label: 'Home', href: '/' },
+      { label: 'Directory', href: '/directory' },
+      { label: bookshop.state, href: `/directory/state/${bookshop.state}` },
+      { label: bookshop.city, href: `/directory/city/${stateLower}/${citySlug}` },
+      { label: bookshop.name, href: canonicalUrl.replace(BASE_URL, ''), isCurrent: true }
+    ];
+  }, [bookshop, canonicalUrl]);
 
   if (isLoadingBookshop) {
 
@@ -517,6 +535,12 @@ const BookshopDetailPage = () => {
       />
 
       
+      {/* Breadcrumb Navigation */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <Breadcrumbs items={breadcrumbItems} className="text-sm" />
+        </div>
+      </div>
 
       {/* Main Bookshop Detail Content */}
 
@@ -531,7 +555,8 @@ const BookshopDetailPage = () => {
       
 
       {/* Photo Gallery Section - Full Width */}
-
+      {/* COMMENTED OUT: Photo gallery until we have actual photos */}
+      {false && (
       <div className="bg-[#F7F3E8]">
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
@@ -550,9 +575,9 @@ const BookshopDetailPage = () => {
 
                 <img 
 
-                  src={bookshop.imageUrl || "/images/bookshop-interior.svg"} 
+                  src={bookshop?.imageUrl || "/images/bookshop-interior.svg"} 
 
-                  alt={`${bookshop.name} bookshop interior`}
+                  alt={`${bookshop?.name || 'Bookshop'} bookshop interior`}
 
                   className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
 
@@ -578,7 +603,7 @@ const BookshopDetailPage = () => {
 
                   src="/images/bookshop-display.svg" 
 
-                  alt={`Book display at ${bookshop.name}`}
+                  alt={`Book display at ${bookshop?.name || 'bookshop'}`}
 
                   className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
 
@@ -598,7 +623,7 @@ const BookshopDetailPage = () => {
 
                   src="/images/bookshop-reading.svg" 
 
-                  alt={`Reading area at ${bookshop.name}`}
+                  alt={`Reading area at ${bookshop?.name || 'bookshop'}`}
 
                   className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
 
@@ -618,7 +643,7 @@ const BookshopDetailPage = () => {
 
                   src="/images/bookshop-storefront.svg" 
 
-                  alt={`${bookshop.name} storefront`}
+                  alt={`${bookshop?.name || 'Bookshop'} storefront`}
 
                   className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
 
@@ -638,7 +663,7 @@ const BookshopDetailPage = () => {
 
                   src="/images/bookshop-cafe.svg" 
 
-                  alt={`Café area at ${bookshop.name}`}
+                  alt={`Café area at ${bookshop?.name || 'bookshop'}`}
 
                   className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
 
@@ -658,7 +683,7 @@ const BookshopDetailPage = () => {
 
                   src="/images/bookshop-event.svg" 
 
-                  alt={`Author event at ${bookshop.name}`}
+                  alt={`Author event at ${bookshop?.name || 'bookshop'}`}
 
                   className="h-full w-full object-cover hover:scale-105 transition-transform duration-300"
 
@@ -679,8 +704,9 @@ const BookshopDetailPage = () => {
         </div>
 
       </div>
+      )}
 
-
+      
 
       {/* Events Section - Full Width */}
 
@@ -737,6 +763,268 @@ const BookshopDetailPage = () => {
         </div>
 
       </div>
+
+      
+
+      {/* Navigation Links Section - Full Width */}
+      {/* COMMENTED OUT: Explore More Independent Bookshops module - uncomment when ready */}
+      {false && (
+      <div className="bg-white border-t border-gray-200">
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+          <div className="max-w-4xl mx-auto">
+
+            <div className="bg-[#F7F3E8] rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
+
+              <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#5F4B32] mb-6 text-center">
+
+                Explore More Independent Bookshops
+
+              </h2>
+
+              
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+                <Link
+
+                  to="/directory"
+
+                  className="block bg-white hover:bg-stone-50 border-2 border-stone-200 hover:border-[#2A6B7C] rounded-lg p-4 transition-all group"
+
+                >
+
+                  <div className="flex items-center gap-3">
+
+                    <div className="flex-shrink-0 w-10 h-10 bg-[#2A6B7C] rounded-full flex items-center justify-center group-hover:bg-[#E16D3D] transition-colors">
+
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+
+                      </svg>
+
+                    </div>
+
+                    <div>
+
+                      <h3 className="font-serif font-bold text-lg text-[#5F4B32] group-hover:text-[#2A6B7C] transition-colors">
+
+                        Browse Directory
+
+                      </h3>
+
+                      <p className="font-sans text-sm text-gray-600">
+
+                        Discover 2,000+ independent bookshops
+
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </Link>
+
+                
+
+                <Link
+
+                  to={`/directory/state/${bookshop?.state || ''}`}
+
+                  className="block bg-white hover:bg-stone-50 border-2 border-stone-200 hover:border-[#2A6B7C] rounded-lg p-4 transition-all group"
+
+                >
+
+                  <div className="flex items-center gap-3">
+
+                    <div className="flex-shrink-0 w-10 h-10 bg-[#2A6B7C] rounded-full flex items-center justify-center group-hover:bg-[#E16D3D] transition-colors">
+
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+
+                      </svg>
+
+                    </div>
+
+                    <div>
+
+                      <h3 className="font-serif font-bold text-lg text-[#5F4B32] group-hover:text-[#2A6B7C] transition-colors">
+
+                        More in {bookshop?.state || ''}
+
+                      </h3>
+
+                      <p className="font-sans text-sm text-gray-600">
+
+                        Find bookshops in {bookshop?.state || ''}
+
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </Link>
+
+                
+
+                <Link
+
+                  to={`/directory/city/${bookshop?.state?.toLowerCase() || ''}/${generateSlugFromName(bookshop?.city || '')}`}
+
+                  className="block bg-white hover:bg-stone-50 border-2 border-stone-200 hover:border-[#2A6B7C] rounded-lg p-4 transition-all group"
+
+                >
+
+                  <div className="flex items-center gap-3">
+
+                    <div className="flex-shrink-0 w-10 h-10 bg-[#2A6B7C] rounded-full flex items-center justify-center group-hover:bg-[#E16D3D] transition-colors">
+
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+
+                      </svg>
+
+                    </div>
+
+                    <div>
+
+                      <h3 className="font-serif font-bold text-lg text-[#5F4B32] group-hover:text-[#2A6B7C] transition-colors">
+
+                        Bookshops in {bookshop?.city || ''}
+
+                      </h3>
+
+                      <p className="font-sans text-sm text-gray-600">
+
+                        Explore indie bookshops in {bookshop?.city || ''}, {bookshop?.state || ''}
+
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </Link>
+
+                
+
+                <Link
+
+                  to="/events"
+
+                  className="block bg-white hover:bg-stone-50 border-2 border-stone-200 hover:border-[#2A6B7C] rounded-lg p-4 transition-all group"
+
+                >
+
+                  <div className="flex items-center gap-3">
+
+                    <div className="flex-shrink-0 w-10 h-10 bg-[#2A6B7C] rounded-full flex items-center justify-center group-hover:bg-[#E16D3D] transition-colors">
+
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+
+                      </svg>
+
+                    </div>
+
+                    <div>
+
+                      <h3 className="font-serif font-bold text-lg text-[#5F4B32] group-hover:text-[#2A6B7C] transition-colors">
+
+                        Bookshop Events
+
+                      </h3>
+
+                      <p className="font-sans text-sm text-gray-600">
+
+                        Find author signings and literary events
+
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </Link>
+
+              </div>
+
+              
+
+              {/* Additional Internal Links */}
+
+              <div className="pt-6 border-t border-stone-200">
+
+                <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm">
+
+                  <Link
+
+                    to="/about"
+
+                    className="text-[#2A6B7C] hover:text-[#E16D3D] hover:underline font-medium transition-colors"
+
+                  >
+
+                    About Us
+
+                  </Link>
+
+                  <Link
+
+                    to="/contact"
+
+                    className="text-[#2A6B7C] hover:text-[#E16D3D] hover:underline font-medium transition-colors"
+
+                  >
+
+                    Contact
+
+                  </Link>
+
+                  <Link
+
+                    to="/blog"
+
+                    className="text-[#2A6B7C] hover:text-[#E16D3D] hover:underline font-medium transition-colors"
+
+                  >
+
+                    Blog
+
+                  </Link>
+
+                  <Link
+
+                    to="/submit-bookshop"
+
+                    className="text-[#2A6B7C] hover:text-[#E16D3D] hover:underline font-medium transition-colors"
+
+                  >
+
+                    Submit a Bookshop
+
+                  </Link>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+      )}
 
     </>
 

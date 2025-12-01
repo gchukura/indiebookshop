@@ -137,6 +137,7 @@ const Directory = () => {
   const [notification, setNotification] = useState<NotificationType>(null);
 
   const mapRef = useRef<{ getMap: () => any } | null>(null);
+  const mapBoundsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [viewState, setViewState] = useState<{
     longitude: number;
     latitude: number;
@@ -180,22 +181,22 @@ const Directory = () => {
       // Try Supabase first if available
       if (supabase) {
         try {
-          const { data, error } = await supabase
-            .from('bookstores')
-            .select('*')
-            .eq('live', true)
-            .order('name');
-          
-          if (error) throw error;
-          
-          // Map Supabase column names to match Bookstore type
-          return (data || []).map((item: any) => ({
-            ...item,
-            latitude: item.lat_numeric?.toString() || item.latitude || null,
-            longitude: item.lng_numeric?.toString() || item.longitude || null,
-            featureIds: item.feature_ids || item.featureIds || [],
-            imageUrl: item.image_url || item.imageUrl || null,
-          })) as Bookstore[];
+      const { data, error } = await supabase
+        .from('bookstores')
+        .select('*')
+        .eq('live', true)
+        .order('name');
+      
+      if (error) throw error;
+      
+      // Map Supabase column names to match Bookstore type
+      return (data || []).map((item: any) => ({
+        ...item,
+        latitude: item.lat_numeric?.toString() || item.latitude || null,
+        longitude: item.lng_numeric?.toString() || item.longitude || null,
+        featureIds: item.feature_ids || item.featureIds || [],
+        imageUrl: item.image_url || item.imageUrl || null,
+      })) as Bookstore[];
         } catch (error) {
           logger.warn('Supabase query failed, falling back to API', { 
             error: error instanceof Error ? error.message : String(error) 
@@ -741,7 +742,10 @@ const Directory = () => {
 
   // Set initial map bounds when map loads
   const handleMapLoad = useCallback(() => {
-    updateMapBounds();
+    // Wait a bit for map to fully render before updating bounds
+    setTimeout(() => {
+      updateMapBounds();
+    }, 100);
   }, [updateMapBounds]);
 
   // Search current map area
@@ -809,8 +813,18 @@ const Directory = () => {
 
   // Automatically fit map to filtered bookshops when filters change
   useEffect(() => {
+    // Cleanup function to clear timeout on unmount or dependency change
+    const cleanup = () => {
+      if (mapBoundsTimeoutRef.current) {
+        clearTimeout(mapBoundsTimeoutRef.current);
+        mapBoundsTimeoutRef.current = null;
+      }
+    };
+
     // Don't try to fit if still loading or no bookshops
-    if (isLoading || !mapRef.current || !mapboxToken || filteredBookshops.length === 0) return;
+    if (isLoading || !mapRef.current || !mapboxToken || filteredBookshops.length === 0) {
+      return cleanup;
+    }
 
     // Get all bookshops with valid coordinates
     const bookshopsWithCoords = filteredBookshops.filter(b => {
@@ -834,6 +848,46 @@ const Directory = () => {
       const map = mapRef.current.getMap();
       if (!map || !map.fitBounds) return;
 
+      // Wait for map to be fully loaded and have valid dimensions
+      if (!map.loaded() || !map.getContainer()) {
+        // Clear any existing timeout
+        if (mapBoundsTimeoutRef.current) {
+          clearTimeout(mapBoundsTimeoutRef.current);
+        }
+        // Retry after a short delay if map isn't ready
+        mapBoundsTimeoutRef.current = setTimeout(() => {
+          if (mapRef.current) {
+            const retryMap = mapRef.current.getMap();
+            if (retryMap && retryMap.loaded() && retryMap.getContainer()) {
+              // Retry the fitBounds logic
+              const container = retryMap.getContainer();
+              const containerWidth = container.clientWidth;
+              const containerHeight = container.clientHeight;
+              
+              // Only proceed if container has valid dimensions
+              if (containerWidth > 0 && containerHeight > 0) {
+                // Recalculate bounds (code will be called again via useEffect)
+                return;
+              }
+            }
+          }
+          mapBoundsTimeoutRef.current = null;
+        }, 100);
+        return;
+      }
+
+      // Check if map container has valid dimensions
+      const container = map.getContainer();
+      if (!container) return;
+      
+      const containerWidth = container.clientWidth;
+      const containerHeight = container.clientHeight;
+      
+      if (containerWidth <= 0 || containerHeight <= 0) {
+        // Container not ready, skip this attempt
+        return;
+      }
+
       // Calculate bounds of all filtered bookshops
       const lngs = bookshopsWithCoords.map(b => parseFloat(b.longitude!));
       const lats = bookshopsWithCoords.map(b => parseFloat(b.latitude!));
@@ -847,6 +901,12 @@ const Directory = () => {
       const lngSpan = maxLng - minLng;
       const latSpan = maxLat - minLat;
 
+      // Validate bounds are valid
+      if (isNaN(minLng) || isNaN(maxLng) || isNaN(minLat) || isNaN(maxLat)) {
+        logger.warn('Invalid bounds calculated, skipping fitBounds');
+        return;
+      }
+
       // Add padding (10% on each side, with minimum span to prevent zero-width)
       const lngPadding = Math.max(lngSpan * DIRECTORY_MAP.BOUNDS_PADDING_PERCENT, DIRECTORY_MAP.MINIMUM_BOUNDS_SPAN);
       const latPadding = Math.max(latSpan * DIRECTORY_MAP.BOUNDS_PADDING_PERCENT, DIRECTORY_MAP.MINIMUM_BOUNDS_SPAN);
@@ -856,16 +916,22 @@ const Directory = () => {
         [maxLng + lngPadding, maxLat + latPadding]
       ];
 
+      // Calculate padding values, ensuring they don't exceed container size
+      const leftPadding = isPanelCollapsed 
+        ? DIRECTORY_MAP.BOUNDS_PADDING.left.collapsed 
+        : DIRECTORY_MAP.BOUNDS_PADDING.left.expanded;
+      
+      // Ensure padding doesn't exceed 50% of container dimensions
+      const maxPadding = {
+        top: Math.min(DIRECTORY_MAP.BOUNDS_PADDING.top, containerHeight * 0.5),
+        bottom: Math.min(DIRECTORY_MAP.BOUNDS_PADDING.bottom, containerHeight * 0.5),
+        left: Math.min(leftPadding, containerWidth * 0.5),
+        right: Math.min(DIRECTORY_MAP.BOUNDS_PADDING.right, containerWidth * 0.5)
+      };
+
       // Fit map to bounds with animation
       map.fitBounds(bounds, {
-        padding: { 
-          top: DIRECTORY_MAP.BOUNDS_PADDING.top, 
-          bottom: DIRECTORY_MAP.BOUNDS_PADDING.bottom, 
-          left: isPanelCollapsed 
-            ? DIRECTORY_MAP.BOUNDS_PADDING.left.collapsed 
-            : DIRECTORY_MAP.BOUNDS_PADDING.left.expanded,
-          right: DIRECTORY_MAP.BOUNDS_PADDING.right 
-        },
+        padding: maxPadding,
         duration: DIRECTORY_MAP.TRANSITION_DURATION,
         maxZoom: DIRECTORY_MAP.MAX_AUTO_ZOOM
       });
@@ -874,10 +940,17 @@ const Directory = () => {
         setHasFitInitialView(true);
       }
     } catch (error) {
+      // Silently handle fitBounds errors - they're often due to timing issues
       if (process.env.NODE_ENV === 'development') {
-        logger.debug('Error fitting map bounds', { error: String(error) });
+        logger.debug('Error fitting map bounds', { 
+          error: error instanceof Error ? error.message : String(error) 
+        });
       }
+      // Don't throw - just skip this fitBounds attempt
     }
+
+    // Return cleanup function
+    return cleanup;
   }, [selectedState, selectedCity, selectedCounty, selectedFeatures, searchQuery, isPanelCollapsed, isLoading, mapboxToken, filteredBookshops.length, hasFitInitialView]);
 
   return (

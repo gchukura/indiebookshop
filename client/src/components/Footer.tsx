@@ -90,12 +90,113 @@ const Footer = () => {
       <footer 
         className="bg-[#5F4B32] py-8 md:py-12" 
         style={{ 
-          minHeight: '100px',
-          containIntrinsicSize: 'auto 100px'
+          minHeight: '200px',
+          containIntrinsicSize: 'auto 200px'
         }}
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="border-white/20 pt-2 text-center" style={{ minHeight: '24px' }}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8">
+            {/* Navigation Links */}
+            <div>
+              <h3 className="font-serif font-bold text-white mb-4 text-sm md:text-base">Directory</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link 
+                    to="/directory" 
+                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                  >
+                    Browse All Bookshops
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/events" 
+                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                  >
+                    Events
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/submit-bookshop" 
+                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                  >
+                    Submit a Bookshop
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-serif font-bold text-white mb-4 text-sm md:text-base">About</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link 
+                    to="/about" 
+                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                  >
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/contact" 
+                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                  >
+                    Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/blog" 
+                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                  >
+                    Blog
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-serif font-bold text-white mb-4 text-sm md:text-base">Resources</h3>
+              <ul className="space-y-2">
+                <li>
+                  <Link 
+                    to="/submit-event" 
+                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                  >
+                    Submit an Event
+                  </Link>
+                </li>
+                <li>
+                  <a 
+                    href="https://www.google.com/maps" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                  >
+                    Find on Google Maps
+                  </a>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 className="font-serif font-bold text-white mb-4 text-sm md:text-base">Connect</h3>
+              <ul className="space-y-2">
+                <li>
+                  <a 
+                    href="mailto:info@bluestonebrands.com" 
+                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                  >
+                    Email Us
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-white/20 pt-6 text-center">
             <p 
               className="font-sans text-sm md:text-base text-gray-100"
               style={{ 

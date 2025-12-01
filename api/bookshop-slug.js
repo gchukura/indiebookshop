@@ -247,10 +247,10 @@ export default async function handler(req, res) {
     
     // Method 2: Extract from pathname if it contains /bookshop/
     if (!slug) {
-      if (pathname.startsWith('/api/bookshop/')) {
-        slug = pathname.replace('/api/bookshop/', '').split('/')[0];
-      } else if (pathname.startsWith('/bookshop/')) {
-        slug = pathname.replace('/bookshop/', '').split('/')[0];
+    if (pathname.startsWith('/api/bookshop/')) {
+      slug = pathname.replace('/api/bookshop/', '').split('/')[0];
+    } else if (pathname.startsWith('/bookshop/')) {
+      slug = pathname.replace('/bookshop/', '').split('/')[0];
       }
     }
     
