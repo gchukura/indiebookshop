@@ -11,11 +11,7 @@ export default async function handler(req, res) {
   }
 
   // Return ads.txt content directly (no filesystem access needed)
-  const adsTxtContent = `# ads.txt file for IndiebookShop.com
-# This file authorizes ad networks to sell your inventory
-# 
-# Publisher ID: ca-pub-4357894821158922
-google.com, pub-4357894821158922, DIRECT, f08c47fec0942fa0
+  const adsTxtContent = `google.com, pub-4357894821158922, DIRECT, f08c47fec0942fa0
 `;
 
   // Set appropriate headers
