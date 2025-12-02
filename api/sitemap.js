@@ -40,6 +40,7 @@ export default async function handler(req, res) {
     
     // Fetch data
     const bookstores = await storage.getBookstores();
+    console.log(`Serverless: Fetched ${bookstores.length} bookstores for sitemap`);
     
     // Get base URL from request or use a default
     const protocol = req.headers['x-forwarded-proto'] || 'https';
@@ -54,8 +55,15 @@ export default async function handler(req, res) {
     const addUrl = (relativeUrl, priority = 0.5, changefreq = 'weekly', lastmod = null) => {
       const loc = `${baseUrl}${relativeUrl}`;
       const lastmodStr = lastmod || new Date().toISOString();
+      // Escape XML special characters in URL
+      const escapedLoc = loc
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
       xml += '<url>';
-      xml += `<loc>${loc}</loc>`;
+      xml += `<loc>${escapedLoc}</loc>`;
       xml += `<priority>${priority}</priority>`;
       xml += `<changefreq>${changefreq}</changefreq>`;
       xml += `<lastmod>${lastmodStr}</lastmod>`;
@@ -70,15 +78,33 @@ export default async function handler(req, res) {
     addUrl('/blog', 0.8, 'weekly');
     addUrl('/events', 0.8, 'daily');
     addUrl('/submit-bookshop', 0.6, 'monthly');
+    addUrl('/submit-event', 0.6, 'monthly');
     
     // Add bookshop pages with name-based slugs
     // These are still important for SEO - each bookshop gets its own page
+    let bookshopCount = 0;
+    let skippedCount = 0;
     for (const bookshop of bookstores) {
       if (bookshop.id && bookshop.name) {
-        const bookshopSlug = generateSlug(bookshop.name);
-        addUrl(`/bookshop/${bookshopSlug}`, 0.7, 'weekly');
+        try {
+          const bookshopSlug = generateSlug(bookshop.name);
+          if (bookshopSlug) {
+            addUrl(`/bookshop/${bookshopSlug}`, 0.7, 'weekly');
+            bookshopCount++;
+          } else {
+            skippedCount++;
+            console.warn(`Serverless: Skipped bookshop with empty slug: "${bookshop.name}" (ID: ${bookshop.id})`);
+          }
+        } catch (err) {
+          skippedCount++;
+          console.error(`Serverless: Error processing bookshop "${bookshop.name}" (ID: ${bookshop.id}):`, err);
+        }
+      } else {
+        skippedCount++;
       }
     }
+    
+    console.log(`Serverless: Added ${bookshopCount} bookshop URLs to sitemap, skipped ${skippedCount}`);
     
     // REMOVED: Old directory structure URLs
     // - /directory/state/[state]
@@ -92,13 +118,17 @@ export default async function handler(req, res) {
     // Close the XML
     xml += '</urlset>';
     
+    // Log sitemap stats
+    const sitemapSize = Buffer.byteLength(xml, 'utf8');
+    const sitemapSizeKB = (sitemapSize / 1024).toFixed(2);
+    const totalUrls = 8 + bookshopCount; // 8 static pages + bookshop pages
+    console.log(`Serverless: Sitemap generated successfully - ${totalUrls} URLs, ${sitemapSizeKB} KB`);
+    
     // Set headers and send response
     res.setHeader('Content-Type', 'application/xml; charset=utf-8');
     // Allow caching for 1 hour - sitemap doesn't change that frequently
     res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
     res.status(200).send(xml);
-    
-    console.log('Serverless: Sitemap generated successfully');
   } catch (error) {
     console.error('Serverless Error generating sitemap:', error);
     res.status(500).send('Error generating sitemap');

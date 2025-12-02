@@ -229,7 +229,9 @@ function Router() {
           <Route path="/directory/county-old/:state/:county" component={CountyDirectory} />
           <Route path="/directory/category-old/:featureId" component={CategoryDirectory} />
           <Route path="/bookshop/:idslug" component={BookshopDetailPage} />
+          {/* Submit bookshop routes - support both /submit and /submit-bookshop for consistency */}
           <Route path="/submit" component={SubmitBookshop} />
+          <Route path="/submit-bookshop" component={SubmitBookshop} />
           <Route path="/submit-event" component={SubmitEvent} />
           <Route path="/blog" component={Blog} />
           <Route path="/about" component={About} />

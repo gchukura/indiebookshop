@@ -52,25 +52,42 @@ export class SupabaseStorage implements IStorage {
       console.log('Initializing bookshop slug mappings from Supabase...');
       this.slugToBookstoreId.clear();
 
-      // Fetch all live bookstores
-      const { data: bookstores, error } = await supabase
-        .from('bookstores')
-        .select('id, name, live')
-        .eq('live', true);
+      // Fetch all live bookstores with pagination to handle Supabase's 1000 row limit
+      const allBookstores: any[] = [];
+      const pageSize = 1000;
+      let from = 0;
+      let hasMore = true;
 
-      if (error) {
-        console.error('Error fetching bookstores for slug mapping:', error);
-        return;
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from('bookstores')
+          .select('id, name, live')
+          .eq('live', true)
+          .range(from, from + pageSize - 1);
+
+        if (error) {
+          console.error('Error fetching bookstores for slug mapping:', error);
+          break;
+        }
+
+        if (data && data.length > 0) {
+          allBookstores.push(...data);
+          from += pageSize;
+          // If we got fewer than pageSize, we've reached the end
+          hasMore = data.length === pageSize;
+        } else {
+          hasMore = false;
+        }
       }
 
-      if (!bookstores) {
+      if (allBookstores.length === 0) {
         console.warn('No bookstores returned from Supabase');
         return;
       }
 
       let duplicatesFound = 0;
 
-      bookstores.forEach(bookstore => {
+      allBookstores.forEach(bookstore => {
         const slug = this.generateSlugFromName(bookstore.name);
 
         if (this.slugToBookstoreId.has(slug)) {
@@ -86,7 +103,7 @@ export class SupabaseStorage implements IStorage {
         console.log(`Found ${duplicatesFound} duplicate slugs. In cases of duplicates, the last bookshop with that slug will be used.`);
       }
 
-      console.log(`Created ${this.slugToBookstoreId.size} slug mappings for bookshops`);
+      console.log(`Created ${this.slugToBookstoreId.size} slug mappings for bookshops (fetched ${allBookstores.length} total)`);
       this.isInitialized = true;
     } catch (error) {
       console.error('Error initializing slug mappings:', error);
@@ -135,24 +152,64 @@ export class SupabaseStorage implements IStorage {
     }
 
     try {
-      const { data, error } = await supabase
-        .from('bookstores')
-        .select('*')
-        .eq('live', true)
-        .order('name');
+      // Fetch all bookstores with pagination to handle Supabase's 1000 row limit
+      const allBookstores: any[] = [];
+      const pageSize = 1000;
+      let from = 0;
+      let hasMore = true;
 
-      if (error) {
-        console.error('Error fetching bookstores from Supabase:', error);
-        return [];
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from('bookstores')
+          .select('*')
+          .eq('live', true)
+          .order('name')
+          .range(from, from + pageSize - 1);
+
+        if (error) {
+          console.error('Error fetching bookstores from Supabase:', error);
+          break;
+        }
+
+        if (data && data.length > 0) {
+          allBookstores.push(...data);
+          from += pageSize;
+          // If we got fewer than pageSize, we've reached the end
+          hasMore = data.length === pageSize;
+        } else {
+          hasMore = false;
+        }
       }
 
+      console.log(`Fetched ${allBookstores.length} bookstores (paginated)`);
+
       // Map Supabase column names to match Bookstore type
-      const bookstores = (data || []).map((item: any) => ({
+      const bookstores = allBookstores.map((item: any) => ({
         ...item,
         latitude: item.lat_numeric?.toString() || item.latitude || null,
         longitude: item.lng_numeric?.toString() || item.longitude || null,
         featureIds: item.feature_ids || item.featureIds || [],
         imageUrl: item.image_url || item.imageUrl || null,
+        // Map hours from hours_json (jsonb) to hours for frontend
+        // Prefer hours_json (jsonb) over "hours (JSON)" (text)
+        hours: (() => {
+          if (item.hours_json) {
+            return typeof item.hours_json === 'string' ? JSON.parse(item.hours_json) : item.hours_json;
+          }
+          if (item['hours (JSON)']) {
+            return typeof item['hours (JSON)'] === 'string' ? JSON.parse(item['hours (JSON)']) : item['hours (JSON)'];
+          }
+          return null;
+        })(),
+        // Map Google Places fields from snake_case to camelCase
+        googlePlaceId: item.google_place_id || null,
+        googleRating: item.google_rating || null,
+        googleReviewCount: item.google_review_count || null,
+        googleDescription: item.google_description || null,
+        googlePhotos: item.google_photos || null,
+        googleReviews: item.google_reviews || null,
+        googlePriceLevel: item.google_price_level || null,
+        googleDataUpdatedAt: item.google_data_updated_at || null,
       })) as Bookstore[];
 
       return populateCountyData(bookstores);
@@ -181,6 +238,26 @@ export class SupabaseStorage implements IStorage {
         longitude: data.lng_numeric?.toString() || data.longitude || null,
         featureIds: data.feature_ids || data.featureIds || [],
         imageUrl: data.image_url || data.imageUrl || null,
+        // Map hours from hours_json (jsonb) to hours for frontend
+        // Prefer hours_json (jsonb) over "hours (JSON)" (text)
+        hours: (() => {
+          if (data.hours_json) {
+            return typeof data.hours_json === 'string' ? JSON.parse(data.hours_json) : data.hours_json;
+          }
+          if (data['hours (JSON)']) {
+            return typeof data['hours (JSON)'] === 'string' ? JSON.parse(data['hours (JSON)']) : data['hours (JSON)'];
+          }
+          return null;
+        })(),
+        // Map Google Places fields from snake_case to camelCase
+        googlePlaceId: data.google_place_id || null,
+        googleRating: data.google_rating || null,
+        googleReviewCount: data.google_review_count || null,
+        googleDescription: data.google_description || null,
+        googlePhotos: data.google_photos || null,
+        googleReviews: data.google_reviews || null,
+        googlePriceLevel: data.google_price_level || null,
+        googleDataUpdatedAt: data.google_data_updated_at || null,
       } as Bookstore;
     } catch (error) {
       console.error('Error fetching bookstore by ID:', error);
@@ -249,6 +326,15 @@ export class SupabaseStorage implements IStorage {
       longitude: item.lng_numeric?.toString() || item.longitude || null,
       featureIds: item.feature_ids || item.featureIds || [],
       imageUrl: item.image_url || item.imageUrl || null,
+      // Map Google Places fields from snake_case to camelCase
+      googlePlaceId: item.google_place_id || null,
+      googleRating: item.google_rating || null,
+      googleReviewCount: item.google_review_count || null,
+      googleDescription: item.google_description || null,
+      googlePhotos: item.google_photos || null,
+      googleReviews: item.google_reviews || null,
+      googlePriceLevel: item.google_price_level || null,
+      googleDataUpdatedAt: item.google_data_updated_at || null,
     })) as Bookstore[];
   }
 
@@ -269,6 +355,15 @@ export class SupabaseStorage implements IStorage {
       longitude: item.lng_numeric?.toString() || item.longitude || null,
       featureIds: item.feature_ids || item.featureIds || [],
       imageUrl: item.image_url || item.imageUrl || null,
+      // Map Google Places fields from snake_case to camelCase
+      googlePlaceId: item.google_place_id || null,
+      googleRating: item.google_rating || null,
+      googleReviewCount: item.google_review_count || null,
+      googleDescription: item.google_description || null,
+      googlePhotos: item.google_photos || null,
+      googleReviews: item.google_reviews || null,
+      googlePriceLevel: item.google_price_level || null,
+      googleDataUpdatedAt: item.google_data_updated_at || null,
     })) as Bookstore[];
   }
 
@@ -291,6 +386,15 @@ export class SupabaseStorage implements IStorage {
       longitude: item.lng_numeric?.toString() || item.longitude || null,
       featureIds: item.feature_ids || item.featureIds || [],
       imageUrl: item.image_url || item.imageUrl || null,
+      // Map Google Places fields from snake_case to camelCase
+      googlePlaceId: item.google_place_id || null,
+      googleRating: item.google_rating || null,
+      googleReviewCount: item.google_review_count || null,
+      googleDescription: item.google_description || null,
+      googlePhotos: item.google_photos || null,
+      googleReviews: item.google_reviews || null,
+      googlePriceLevel: item.google_price_level || null,
+      googleDataUpdatedAt: item.google_data_updated_at || null,
     })) as Bookstore[];
 
     return bookstores.filter(b => {

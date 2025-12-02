@@ -83,6 +83,12 @@ export async function generateSitemap(req: Request, res: Response): Promise<void
         changefreq: 'monthly' as const,
         priority: 0.6,
         lastmod: new Date().toISOString()
+      },
+      {
+        url: '/submit-event',
+        changefreq: 'monthly' as const,
+        priority: 0.6,
+        lastmod: new Date().toISOString()
       }
     ];
 

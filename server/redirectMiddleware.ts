@@ -209,6 +209,11 @@ export function redirectMiddleware(req: Request, res: Response, next: NextFuncti
     return res.redirect(301, `/directory?state=${encodeURIComponent(stateAbbr)}`);
   }
 
+  // Case 12: Redirect /submit to /submit-bookshop for SEO consistency (canonical URL)
+  if (path === '/submit') {
+    return res.redirect(301, '/submit-bookshop');
+  }
+
   // No redirects needed, continue to next middleware
   next();
 }
