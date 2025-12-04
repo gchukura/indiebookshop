@@ -12,11 +12,15 @@ export function htmlInjectionMiddleware(req, res, next) {
         const preloadedData = req.preloadedData || {};
         
         // Create a script to inject preloaded data
+        // Properly escape the Mapbox token to prevent XSS/injection attacks
+        const mapboxToken = process.env.MAPBOX_ACCESS_TOKEN || '';
+        const escapedToken = JSON.stringify(mapboxToken);
+        
         const dataScript = `
           <script>
             window.__PRELOADED_STATE__ = ${JSON.stringify(preloadedData)};
             window.ENV = {
-              MAPBOX_ACCESS_TOKEN: "${process.env.MAPBOX_ACCESS_TOKEN || ''}",
+              MAPBOX_ACCESS_TOKEN: ${escapedToken},
               IS_SERVERLESS: true
             };
           </script>

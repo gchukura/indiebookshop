@@ -34,6 +34,7 @@ process.env.USE_SAMPLE_DATA = process.env.USE_SAMPLE_DATA || ENV.USE_SAMPLE_DATA
 process.env.GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID || ENV.GOOGLE_SHEETS_ID;
 process.env.USE_MEM_STORAGE = process.env.USE_MEM_STORAGE || ENV.USE_MEM_STORAGE;
 process.env.MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN || ENV.MAPBOX_ACCESS_TOKEN;
+process.env.GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY || ENV.GOOGLE_PLACES_API_KEY;
 process.env.SENDGRID_API_KEY = process.env.SENDGRID_API_KEY || ENV.SENDGRID_API_KEY;
 process.env.SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || ENV.SENDGRID_FROM_EMAIL;
 process.env.ADMIN_EMAIL = process.env.ADMIN_EMAIL || ENV.ADMIN_EMAIL;
@@ -115,6 +116,10 @@ async function setupServer() {
         // Handle client-side routing for non-API routes
         app.get('*', (req, res) => {
           if (!req.path.startsWith('/api/')) {
+            // Properly escape the Mapbox token to prevent XSS/injection attacks
+            const mapboxToken = process.env.MAPBOX_ACCESS_TOKEN || '';
+            const escapedToken = JSON.stringify(mapboxToken);
+            
             res.status(200).send(`
               <!DOCTYPE html>
               <html>
@@ -123,7 +128,7 @@ async function setupServer() {
                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
                   <script>
                     window.ENV = {
-                      MAPBOX_ACCESS_TOKEN: "${process.env.MAPBOX_ACCESS_TOKEN || ''}",
+                      MAPBOX_ACCESS_TOKEN: ${escapedToken},
                       IS_SERVERLESS: true
                     };
                   </script>
