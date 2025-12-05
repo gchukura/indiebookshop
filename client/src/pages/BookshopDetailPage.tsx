@@ -12,11 +12,15 @@ import { BookshopDetailContent } from '@/components/BookshopDetailContent';
 
 import RelatedBookshops from '@/components/RelatedBookshops';
 
+import EmailSignupSection from '@/components/EmailSignupSection';
+
 import Breadcrumbs, { BreadcrumbItem } from '@/components/Breadcrumbs';
 
 import { Link } from 'wouter';
 
 import { SEO } from '../components/SEO';
+
+import SchemaOrg from '../components/SchemaOrg';
 
 import { 
 
@@ -512,6 +516,15 @@ const BookshopDetailPage = () => {
     imageUrl: bookshop.imageUrl || undefined,
     latitude: (typeof bookshop.latitude === 'number' ? bookshop.latitude : undefined),
     longitude: (typeof bookshop.longitude === 'number' ? bookshop.longitude : undefined),
+    // Google Places API fields
+    googlePlaceId: bookshop.googlePlaceId || undefined,
+    googleRating: bookshop.googleRating || undefined,
+    googleReviewCount: bookshop.googleReviewCount || undefined,
+    googleDescription: bookshop.googleDescription || undefined,
+    googlePhotos: bookshop.googlePhotos || undefined,
+    googleReviews: bookshop.googleReviews || undefined,
+    googlePriceLevel: bookshop.googlePriceLevel || undefined,
+    googleDataUpdatedAt: bookshop.googleDataUpdatedAt || undefined,
   };
 
   return (
@@ -533,14 +546,6 @@ const BookshopDetailPage = () => {
         ogImage={getImageUrl}
 
       />
-
-      
-      {/* Breadcrumb Navigation */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <Breadcrumbs items={breadcrumbItems} className="text-sm" />
-        </div>
-      </div>
 
       {/* Main Bookshop Detail Content */}
 
@@ -763,6 +768,9 @@ const BookshopDetailPage = () => {
         </div>
 
       </div>
+
+      {/* Email Signup Section */}
+      <EmailSignupSection />
 
       
 

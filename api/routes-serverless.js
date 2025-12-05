@@ -987,5 +987,40 @@ export async function registerRoutes(app, storageImpl) {
     }
   });
 
+  // Newsletter signup
+  app.post('/api/newsletter-signup', async (req, res) => {
+    try {
+      console.log('Serverless: Newsletter signup received');
+      
+      const { email } = req.body;
+
+      // Validate email
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const sanitizedEmail = email.trim().toLowerCase();
+      if (!emailRegex.test(sanitizedEmail) || sanitizedEmail.length > 254) {
+        return res.status(400).json({ error: 'Invalid email address' });
+      }
+
+      // TODO: Integrate with your email service (SendGrid, Mailchimp, etc.)
+      // For now, just log it
+      console.log('Newsletter signup:', sanitizedEmail);
+      
+      // Example: You could save to Supabase
+      // const { data, error } = await supabase
+      //   .from('newsletter_subscribers')
+      //   .insert({ email: sanitizedEmail, subscribed_at: new Date().toISOString() });
+
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.error('Newsletter signup error:', error);
+      return res.status(500).json({ error: 'Signup failed' });
+    }
+  });
+
   return { app };
 }

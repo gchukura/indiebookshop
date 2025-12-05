@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Bookstore as Bookshop, Feature } from "@shared/schema";
+import { MapPin, Map, Sparkles } from "lucide-react";
 import BookshopIcon from "@/components/BookshopIcon";
 import { SEO } from "../components/SEO";
 import { 
@@ -150,9 +151,9 @@ const Home = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* By Location */}
               <div className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent hover:border-[#2A6B7C] flex flex-col">
-                <div className="text-4xl mb-4">📍</div>
-                <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-3">
-                  Search by Location
+                <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-3 flex items-center gap-2 justify-start">
+                  <MapPin className="w-6 h-6 text-[#2A6B7C] flex-shrink-0" />
+                  <span>Search by Location</span>
                 </h3>
                 <p className="text-gray-700 mb-4 text-sm flex-grow">
                   Find bookshops near you or in cities you're visiting
@@ -168,9 +169,9 @@ const Home = () => {
               
               {/* By State */}
               <div className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent hover:border-[#2A6B7C] flex flex-col">
-                <div className="text-4xl mb-4">🗺️</div>
-                <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-3">
-                  Browse by State
+                <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-3 flex items-center gap-2 justify-start">
+                  <Map className="w-6 h-6 text-[#2A6B7C] flex-shrink-0" />
+                  <span>Browse by State</span>
                 </h3>
                 <p className="text-gray-700 mb-4 text-sm flex-grow">
                   Explore all bookshops state by state
@@ -187,9 +188,9 @@ const Home = () => {
               
               {/* Featured/Discover */}
               <div className="bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent hover:border-[#2A6B7C] flex flex-col">
-                <div className="text-4xl mb-4">✨</div>
-                <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-3">
-                  Discover Featured Shops
+                <h3 className="font-serif font-bold text-xl text-[#5F4B32] mb-3 flex items-start gap-2">
+                  <Sparkles className="w-6 h-6 text-[#2A6B7C] flex-shrink-0 mt-0.5" />
+                  <span className="leading-tight">Discover Featured Shops</span>
                 </h3>
                 <p className="text-gray-700 mb-4 text-sm flex-grow">
                   Browse curated selections from our directory
