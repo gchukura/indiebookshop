@@ -75,6 +75,7 @@ interface BookshopDetailContentProps {
 export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bookshop, features = [] }) => {
 
   const {
+    id,
     name,
     city,
     state,
@@ -94,6 +95,20 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
     googleReviews,
     googlePriceLevel,
   } = bookshop;
+
+  // Debug: Log photos data
+  React.useEffect(() => {
+    if (googlePhotos) {
+      console.log('BookshopDetailContent - googlePhotos:', {
+        isArray: Array.isArray(googlePhotos),
+        length: googlePhotos.length,
+        firstPhoto: googlePhotos[0],
+        allPhotos: googlePhotos
+      });
+    } else {
+      console.log('BookshopDetailContent - No googlePhotos found');
+    }
+  }, [googlePhotos]);
 
   // State for photo carousel
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -122,6 +137,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
   // Helper to get photo URL
   const getPhotoUrl = (photoReference: string, maxWidth: number = 400): string => {
+    if (!photoReference) return '';
     return `/api/place-photo?photo_reference=${encodeURIComponent(photoReference)}&maxwidth=${maxWidth}`;
   };
 
@@ -325,7 +341,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
             </section>
 
             {/* Google Photos Gallery */}
-            {googlePhotos && googlePhotos.length > 0 && (
+            {googlePhotos && Array.isArray(googlePhotos) && googlePhotos.length > 0 && (
               <section className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
                 <h3 className="font-serif text-xl md:text-2xl text-[#5F4B32] font-bold mb-4">Photos</h3>
                 
@@ -333,11 +349,17 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                 <div className="md:hidden relative mb-4">
                   <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-stone-200">
                     <img 
-                      src={getPhotoUrl(googlePhotos[currentPhotoIndex]?.photo_reference, 800)}
+                      src={getPhotoUrl(
+                        googlePhotos[currentPhotoIndex]?.photo_reference || 
+                        googlePhotos[currentPhotoIndex]?.photoReference ||
+                        googlePhotos[currentPhotoIndex],
+                        800
+                      )}
                       alt={`${name} - Photo ${currentPhotoIndex + 1}`}
                       className="w-full h-full object-cover"
                       loading="lazy"
                       onError={(e) => {
+                        console.error(`Failed to load photo ${currentPhotoIndex + 1} for ${name}:`, googlePhotos[currentPhotoIndex]);
                         e.currentTarget.src = "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
                       }}
                     />
@@ -371,23 +393,31 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                 
                 {/* Desktop Grid (>= 768px) */}
                 <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4">
-                  {googlePhotos.map((photo, index) => (
-                    <div 
-                      key={index}
-                      className="relative aspect-[4/3] rounded-lg overflow-hidden bg-stone-200 group cursor-pointer"
-                    >
-                      <img 
-                        src={getPhotoUrl(photo.photo_reference, 400)}
-                        alt={`${name} - Photo ${index + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        loading="lazy"
-                        onError={(e) => {
-                          e.currentTarget.src = "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300";
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                    </div>
-                  ))}
+                  {googlePhotos.map((photo, index) => {
+                    const photoRef = photo?.photo_reference || photo?.photoReference || photo;
+                    if (!photoRef || typeof photoRef !== 'string') {
+                      console.warn(`Invalid photo at index ${index}:`, photo);
+                      return null;
+                    }
+                    return (
+                      <div 
+                        key={index}
+                        className="relative aspect-[4/3] rounded-lg overflow-hidden bg-stone-200 group cursor-pointer"
+                      >
+                        <img 
+                          src={getPhotoUrl(photoRef, 400)}
+                          alt={`${name} - Photo ${index + 1}`}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                          onError={(e) => {
+                            console.error(`Failed to load photo ${index + 1} for ${name}:`, photoRef);
+                            e.currentTarget.src = "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300";
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
             )}

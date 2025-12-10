@@ -33,7 +33,7 @@ const Home = () => {
   }, []);
   
   const seoDescription = useMemo(() => {
-    return "Explore over 2,000 independent bookshops across all 50 states. Search by location, browse by specialty, or discover shops near you on our interactive map.";
+    return "Explore over 3,000 independent bookshops across all 50 states. Search by location, browse by specialty, or discover shops near you on our interactive map.";
   }, []);
   
   const seoKeywords = useMemo(() => {
@@ -114,7 +114,7 @@ const Home = () => {
               Find Independent Bookshops Across North America
             </h1>
             <p className="font-sans text-base md:text-body-lg text-gray-100 mb-8 md:mb-10 max-w-4xl mx-auto px-4 md:px-2">
-              Explore over 2,000 independent bookshops in all 50 U.S. states and Canada. Search by location, browse by specialty, or discover shops near you on our interactive map.
+              Explore over 3,000 independent bookshops in all 50 U.S. states and Canada. Search by location, browse by specialty, or discover shops near you on our interactive map.
             </p>
             
             {/* Primary CTA */}
@@ -214,7 +214,7 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-4xl mx-auto">
             <div>
-              <div className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#E16D3D] mb-2">2,000+</div>
+              <div className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#E16D3D] mb-2">3,000+</div>
               <div className="text-gray-700 font-medium">Independent Bookshops</div>
             </div>
             <div>
@@ -481,7 +481,7 @@ const Home = () => {
               </div>
               <div className="prose prose-lg prose-p:text-gray-700 mx-auto mt-2 md:mt-0">
                 <p>
-                  IndiebookShop.com features over 2,000 independent bookshops across all 50 states - the most comprehensive 
+                  IndiebookShop.com features over 3,000 independent bookshops across all 50 states - the most comprehensive 
                   directory of indie bookshops available. Our searchable database connects book lovers with local independent 
                   booksellers, helping you discover unique literary spaces in your neighborhood or while traveling.
                 </p>

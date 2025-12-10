@@ -521,8 +521,8 @@ const BookshopDetailPage = () => {
     googleRating: bookshop.googleRating || undefined,
     googleReviewCount: bookshop.googleReviewCount || undefined,
     googleDescription: bookshop.googleDescription || undefined,
-    googlePhotos: bookshop.googlePhotos || undefined,
-    googleReviews: bookshop.googleReviews || undefined,
+    googlePhotos: (bookshop.googlePhotos && Array.isArray(bookshop.googlePhotos) && bookshop.googlePhotos.length > 0) ? bookshop.googlePhotos : undefined,
+    googleReviews: (bookshop.googleReviews && Array.isArray(bookshop.googleReviews) && bookshop.googleReviews.length > 0) ? bookshop.googleReviews : undefined,
     googlePriceLevel: bookshop.googlePriceLevel || undefined,
     googleDataUpdatedAt: bookshop.googleDataUpdatedAt || undefined,
   };
