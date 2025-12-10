@@ -15,6 +15,91 @@ import { z } from "zod";
 export async function registerRoutes(app: Express, storageImpl: IStorage = storage): Promise<Server> {
   // IMPORTANT: The order of routes matter. More specific routes should come first.
   
+  // Google Places Photo Proxy - MUST be registered first to avoid being caught by other routes
+  app.get("/api/place-photo", async (req, res) => {
+    console.log('[Place Photo] Request received:', { 
+      photo_reference: req.query.photo_reference?.substring(0, 50) + '...',
+      maxwidth: req.query.maxwidth 
+    });
+
+    const { photo_reference, maxwidth = '400' } = req.query;
+
+    // Validate photo_reference
+    if (!photo_reference || typeof photo_reference !== 'string') {
+      console.error('[Place Photo] Missing photo_reference');
+      return res.status(400).json({ error: 'photo_reference parameter is required' });
+    }
+
+    // Validate maxwidth
+    const maxWidthNum = parseInt(maxwidth as string, 10);
+    if (isNaN(maxWidthNum) || maxWidthNum < 1 || maxWidthNum > 1600) {
+      console.error('[Place Photo] Invalid maxwidth:', maxwidth);
+      return res.status(400).json({ error: 'maxwidth must be between 1 and 1600' });
+    }
+
+    const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+
+    if (!GOOGLE_PLACES_API_KEY) {
+      console.error('[Place Photo] GOOGLE_PLACES_API_KEY environment variable is not set');
+      return res.status(500).json({ error: 'Server configuration error' });
+    }
+
+    try {
+      // Construct Google Places Photo API URL
+      const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?` +
+        `maxwidth=${maxWidthNum}` +
+        `&photo_reference=${encodeURIComponent(photo_reference)}` +
+        `&key=${GOOGLE_PLACES_API_KEY}`;
+
+      console.log('[Place Photo] Fetching from Google:', photoUrl.substring(0, 100) + '...');
+
+      // Fetch the photo from Google
+      const response = await fetch(photoUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'IndieBookShop/1.0'
+        }
+      });
+
+      console.log('[Place Photo] Google response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[Place Photo] Google Places Photo API returned status ${response.status}:`, errorText.substring(0, 200));
+        return res.status(response.status).json({ 
+          error: 'Failed to fetch photo from Google Places API',
+          details: response.status === 403 ? 'API key may be invalid or missing required permissions' : 'Unknown error'
+        });
+      }
+
+      // Get the image buffer
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      // Get content type from response (default to jpeg)
+      const contentType = response.headers.get('content-type') || 'image/jpeg';
+
+      console.log('[Place Photo] Successfully fetched photo:', { 
+        size: buffer.length, 
+        contentType 
+      });
+
+      // Set appropriate headers
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // Cache for 1 year
+      res.setHeader('Content-Length', buffer.length.toString());
+
+      // Send the image
+      res.send(buffer);
+    } catch (error) {
+      console.error('[Place Photo] Error fetching Google Places photo:', error);
+      if (error instanceof Error) {
+        console.error('[Place Photo] Error details:', error.message, error.stack);
+      }
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
   // Get filtered bookstores - must come before bookstores/:id
   app.get("/api/bookstores/filter", async (req, res) => {
     try {
@@ -991,6 +1076,7 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       res.status(500).json({ message: "Failed to process contact form submission" });
     }
   });
+
 
   // Sitemap route
   app.get("/sitemap.xml", generateSitemap);

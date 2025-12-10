@@ -521,7 +521,23 @@ const BookshopDetailPage = () => {
     googleRating: bookshop.googleRating || undefined,
     googleReviewCount: bookshop.googleReviewCount || undefined,
     googleDescription: bookshop.googleDescription || undefined,
-    googlePhotos: (bookshop.googlePhotos && Array.isArray(bookshop.googlePhotos) && bookshop.googlePhotos.length > 0) ? bookshop.googlePhotos : undefined,
+    googlePhotos: (() => {
+      const photos = bookshop.googlePhotos;
+      if (!photos) {
+        logger.debug('[BookshopDetailPage] No googlePhotos in bookshop data');
+        return undefined;
+      }
+      if (!Array.isArray(photos)) {
+        logger.warn('[BookshopDetailPage] googlePhotos is not an array', { type: typeof photos, value: photos });
+        return undefined;
+      }
+      if (photos.length === 0) {
+        logger.debug('[BookshopDetailPage] googlePhotos array is empty');
+        return undefined;
+      }
+      logger.debug('[BookshopDetailPage] googlePhotos found', { count: photos.length, firstPhoto: photos[0] });
+      return photos;
+    })(),
     googleReviews: (bookshop.googleReviews && Array.isArray(bookshop.googleReviews) && bookshop.googleReviews.length > 0) ? bookshop.googleReviews : undefined,
     googlePriceLevel: bookshop.googlePriceLevel || undefined,
     googleDataUpdatedAt: bookshop.googleDataUpdatedAt || undefined,
