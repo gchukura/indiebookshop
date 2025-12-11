@@ -21,6 +21,10 @@ type BookshopSchema = {
   };
   openingHours?: string;
   features?: string[];
+  aggregateRating?: {
+    ratingValue: string;
+    reviewCount: number;
+  };
 };
 
 type EventSchema = {
@@ -140,7 +144,14 @@ export const SchemaOrg: React.FC<SchemaProps> = ({ schema }) => {
               'longitude': schema.geo.longitude
             }
           }),
-          'openingHours': schema.openingHours
+          'openingHours': schema.openingHours,
+          ...(schema.aggregateRating && {
+            'aggregateRating': {
+              '@type': 'AggregateRating',
+              'ratingValue': schema.aggregateRating.ratingValue,
+              'reviewCount': schema.aggregateRating.reviewCount
+            }
+          })
         };
       
       case 'event':

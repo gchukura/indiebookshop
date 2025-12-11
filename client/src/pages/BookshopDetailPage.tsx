@@ -12,11 +12,14 @@ import { BookshopDetailContent } from '@/components/BookshopDetailContent';
 
 import RelatedBookshops from '@/components/RelatedBookshops';
 
+
 import Breadcrumbs, { BreadcrumbItem } from '@/components/Breadcrumbs';
 
 import { Link } from 'wouter';
 
 import { SEO } from '../components/SEO';
+
+import SchemaOrg from '../components/SchemaOrg';
 
 import { 
 
@@ -302,7 +305,7 @@ const BookshopDetailPage = () => {
 
         <div className="relative w-full h-64 md:h-96 bg-stone-200 animate-pulse" />
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 py-8 md:py-12">
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
@@ -512,6 +515,31 @@ const BookshopDetailPage = () => {
     imageUrl: bookshop.imageUrl || undefined,
     latitude: (typeof bookshop.latitude === 'number' ? bookshop.latitude : undefined),
     longitude: (typeof bookshop.longitude === 'number' ? bookshop.longitude : undefined),
+    // Google Places API fields
+    googlePlaceId: bookshop.googlePlaceId || undefined,
+    googleRating: bookshop.googleRating || undefined,
+    googleReviewCount: bookshop.googleReviewCount || undefined,
+    googleDescription: bookshop.googleDescription || undefined,
+    googlePhotos: (() => {
+      const photos = bookshop.googlePhotos;
+      if (!photos) {
+        logger.debug('[BookshopDetailPage] No googlePhotos in bookshop data');
+        return undefined;
+      }
+      if (!Array.isArray(photos)) {
+        logger.warn('[BookshopDetailPage] googlePhotos is not an array', { type: typeof photos, value: photos });
+        return undefined;
+      }
+      if (photos.length === 0) {
+        logger.debug('[BookshopDetailPage] googlePhotos array is empty');
+        return undefined;
+      }
+      logger.debug('[BookshopDetailPage] googlePhotos found', { count: photos.length, firstPhoto: photos[0] });
+      return photos;
+    })(),
+    googleReviews: (bookshop.googleReviews && Array.isArray(bookshop.googleReviews) && bookshop.googleReviews.length > 0) ? bookshop.googleReviews : undefined,
+    googlePriceLevel: bookshop.googlePriceLevel || undefined,
+    googleDataUpdatedAt: bookshop.googleDataUpdatedAt || undefined,
   };
 
   return (
@@ -534,14 +562,6 @@ const BookshopDetailPage = () => {
 
       />
 
-      
-      {/* Breadcrumb Navigation */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <Breadcrumbs items={breadcrumbItems} className="text-sm" />
-        </div>
-      </div>
-
       {/* Main Bookshop Detail Content */}
 
       <BookshopDetailContent 
@@ -559,7 +579,7 @@ const BookshopDetailPage = () => {
       {false && (
       <div className="bg-[#F7F3E8]">
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 pb-8">
 
           <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
 
@@ -714,7 +734,7 @@ const BookshopDetailPage = () => {
 
         <div className="bg-[#F7F3E8]">
 
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 pb-8">
 
             <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
 
@@ -756,13 +776,14 @@ const BookshopDetailPage = () => {
 
       <div className="bg-[#F7F3E8]">
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 pb-8">
 
           <RelatedBookshops currentBookshop={bookshop} />
 
         </div>
 
       </div>
+
 
       
 
@@ -771,7 +792,7 @@ const BookshopDetailPage = () => {
       {false && (
       <div className="bg-white border-t border-gray-200">
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 py-8 md:py-12">
 
           <div className="max-w-4xl mx-auto">
 

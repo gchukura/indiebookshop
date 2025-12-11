@@ -86,11 +86,11 @@ export const PAGINATION = {
 
 // Directory Map Configuration
 export const DIRECTORY_MAP = {
-  // Default view state
+  // Default view state - centered to show full US
   DEFAULT_VIEW: {
-    longitude: -95.7129,
-    latitude: 37.0902,
-    zoom: 4,
+    longitude: -96.5,  // Slightly adjusted to better show both coasts
+    latitude: 38.5,    // Slightly adjusted to better center vertically
+    zoom: 3.9,         // Slightly zoomed out to ensure full US is visible
     pitch: 0,
     bearing: 0,
   },

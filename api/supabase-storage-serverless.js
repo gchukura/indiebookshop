@@ -350,8 +350,36 @@ export class SupabaseStorage {
         googleRating: item.google_rating || null,
         googleReviewCount: item.google_review_count || null,
         googleDescription: item.google_description || null,
-        googlePhotos: item.google_photos || null,
-        googleReviews: item.google_reviews || null,
+        googlePhotos: (() => {
+          if (!item.google_photos) return null;
+          // If it's already an array, return it
+          if (Array.isArray(item.google_photos)) return item.google_photos;
+          // If it's a string, try to parse it
+          if (typeof item.google_photos === 'string') {
+            try {
+              return JSON.parse(item.google_photos);
+            } catch (e) {
+              console.error('Serverless: Error parsing google_photos JSON:', e);
+              return null;
+            }
+          }
+          return null;
+        })(),
+        googleReviews: (() => {
+          if (!item.google_reviews) return null;
+          // If it's already an array, return it
+          if (Array.isArray(item.google_reviews)) return item.google_reviews;
+          // If it's a string, try to parse it
+          if (typeof item.google_reviews === 'string') {
+            try {
+              return JSON.parse(item.google_reviews);
+            } catch (e) {
+              console.error('Serverless: Error parsing google_reviews JSON:', e);
+              return null;
+            }
+          }
+          return null;
+        })(),
         googlePriceLevel: item.google_price_level || null,
         googleDataUpdatedAt: item.google_data_updated_at || null,
       }));
@@ -398,8 +426,36 @@ export class SupabaseStorage {
         googleRating: data.google_rating || null,
         googleReviewCount: data.google_review_count || null,
         googleDescription: data.google_description || null,
-        googlePhotos: data.google_photos || null,
-        googleReviews: data.google_reviews || null,
+        googlePhotos: (() => {
+          if (!data.google_photos) return null;
+          // If it's already an array, return it
+          if (Array.isArray(data.google_photos)) return data.google_photos;
+          // If it's a string, try to parse it
+          if (typeof data.google_photos === 'string') {
+            try {
+              return JSON.parse(data.google_photos);
+            } catch (e) {
+              console.error('Serverless: Error parsing google_photos JSON:', e);
+              return null;
+            }
+          }
+          return null;
+        })(),
+        googleReviews: (() => {
+          if (!data.google_reviews) return null;
+          // If it's already an array, return it
+          if (Array.isArray(data.google_reviews)) return data.google_reviews;
+          // If it's a string, try to parse it
+          if (typeof data.google_reviews === 'string') {
+            try {
+              return JSON.parse(data.google_reviews);
+            } catch (e) {
+              console.error('Serverless: Error parsing google_reviews JSON:', e);
+              return null;
+            }
+          }
+          return null;
+        })(),
         googlePriceLevel: data.google_price_level || null,
         googleDataUpdatedAt: data.google_data_updated_at || null,
       };
@@ -569,19 +625,70 @@ export class SupabaseStorage {
 
     if (error || !data) return [];
 
+    // Debug: Check if google_photos is in the raw data (development only)
+    if (process.env.NODE_ENV === 'development' && data && data.length > 0) {
+      const sample = data.find(item => item.google_photos);
+      if (sample) {
+        console.log('Serverless: Sample google_photos from filter query:', {
+          name: sample.name,
+          hasGooglePhotos: !!sample.google_photos,
+          type: typeof sample.google_photos,
+          isArray: Array.isArray(sample.google_photos)
+        });
+      }
+    }
+
     let bookstores = (data || []).map((item) => ({
       ...item,
       latitude: item.lat_numeric?.toString() || item.latitude || null,
       longitude: item.lng_numeric?.toString() || item.longitude || null,
       featureIds: item.feature_ids || item.featureIds || [],
       imageUrl: item.image_url || item.imageUrl || null,
+      // Map hours from hours_json (jsonb) to hours for frontend
+      hours: (() => {
+        if (item.hours_json) {
+          return typeof item.hours_json === 'string' ? JSON.parse(item.hours_json) : item.hours_json;
+        }
+        if (item['hours (JSON)']) {
+          return typeof item['hours (JSON)'] === 'string' ? JSON.parse(item['hours (JSON)']) : item['hours (JSON)'];
+        }
+        return null;
+      })(),
       // Map Google Places fields from snake_case to camelCase
       googlePlaceId: item.google_place_id || null,
       googleRating: item.google_rating || null,
       googleReviewCount: item.google_review_count || null,
       googleDescription: item.google_description || null,
-      googlePhotos: item.google_photos || null,
-      googleReviews: item.google_reviews || null,
+      googlePhotos: (() => {
+        if (!item.google_photos) return null;
+        // If it's already an array, return it
+        if (Array.isArray(item.google_photos)) return item.google_photos;
+        // If it's a string, try to parse it
+        if (typeof item.google_photos === 'string') {
+          try {
+            return JSON.parse(item.google_photos);
+          } catch (e) {
+            console.error('Serverless: Error parsing google_photos JSON in getFilteredBookstores:', e);
+            return null;
+          }
+        }
+        return null;
+      })(),
+      googleReviews: (() => {
+        if (!item.google_reviews) return null;
+        // If it's already an array, return it
+        if (Array.isArray(item.google_reviews)) return item.google_reviews;
+        // If it's a string, try to parse it
+        if (typeof item.google_reviews === 'string') {
+          try {
+            return JSON.parse(item.google_reviews);
+          } catch (e) {
+            console.error('Serverless: Error parsing google_reviews JSON in getFilteredBookstores:', e);
+            return null;
+          }
+        }
+        return null;
+      })(),
       googlePriceLevel: item.google_price_level || null,
       googleDataUpdatedAt: item.google_data_updated_at || null,
     }));

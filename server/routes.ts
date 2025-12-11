@@ -1,5 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
+import rateLimit from "express-rate-limit";
 import { storage, IStorage } from "./storage";
 import { 
   bookstoreFiltersSchema,
@@ -14,6 +15,31 @@ import { z } from "zod";
 
 export async function registerRoutes(app: Express, storageImpl: IStorage = storage): Promise<Server> {
   // IMPORTANT: The order of routes matter. More specific routes should come first.
+  
+  // Google Places Photo Proxy - MUST be registered first to avoid being caught by other routes
+  // Apply rate limiting to prevent abuse and quota exhaustion
+  const photoProxyLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 50, // 50 requests per window per IP
+    message: 'Too many photo requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  // Import shared handler to avoid code duplication
+  const { handlePlacePhotoRequest } = await import('../api/utils/place-photo-handler.js');
+
+  app.get("/api/place-photo", photoProxyLimiter, async (req, res) => {
+    // Log request in development only
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Place Photo] Request received:', { 
+        photo_reference: req.query.photo_reference?.substring(0, 50) + '...',
+        maxwidth: req.query.maxwidth 
+      });
+    }
+
+    return handlePlacePhotoRequest(req, res);
+  });
   
   // Get filtered bookstores - must come before bookstores/:id
   app.get("/api/bookstores/filter", async (req, res) => {
@@ -124,6 +150,55 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       const duration = Date.now() - startTime;
       console.error(`[PERF] GET /api/bookstores: ERROR after ${duration}ms`, error);
       res.status(500).json({ message: "Failed to fetch bookstores" });
+    }
+  });
+
+  // Batch endpoint: Get multiple bookshops by IDs (optimized for related bookshops)
+  // IMPORTANT: Must come BEFORE /api/bookstores/:id to avoid route conflict
+  app.get("/api/bookstores/batch", async (req, res) => {
+    try {
+      const idsParam = req.query.ids as string;
+      
+      if (!idsParam || typeof idsParam !== 'string') {
+        return res.status(400).json({ error: 'ids parameter is required (comma-separated list of IDs)' });
+      }
+
+      // Parse and validate IDs
+      const ids = idsParam.split(',').map(id => {
+        const parsed = parseInt(id.trim(), 10);
+        return isNaN(parsed) ? null : parsed;
+      }).filter((id): id is number => id !== null);
+
+      if (ids.length === 0) {
+        return res.status(400).json({ error: 'No valid IDs provided' });
+      }
+
+      // Limit batch size to prevent abuse
+      if (ids.length > 20) {
+        return res.status(400).json({ error: 'Maximum 20 bookshops per batch request' });
+      }
+
+      // Fetch all bookshops in parallel
+      const bookstores = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            return await storageImpl.getBookstore(id);
+          } catch (error) {
+            console.error(`Error getting bookstore ${id}:`, error);
+            return null; // Return null for failed fetches
+          }
+        })
+      );
+
+      // Filter out null results (failed fetches)
+      const validBookstores = bookstores.filter((bookstore): bookstore is NonNullable<typeof bookstore> => 
+        bookstore !== null && bookstore !== undefined
+      );
+      
+      res.json(validBookstores);
+    } catch (error) {
+      console.error('Error in batch bookstore fetch:', error);
+      res.status(500).json({ error: 'Failed to fetch bookshops' });
     }
   });
 
@@ -991,6 +1066,7 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       res.status(500).json({ message: "Failed to process contact form submission" });
     }
   });
+
 
   // Sitemap route
   app.get("/sitemap.xml", generateSitemap);

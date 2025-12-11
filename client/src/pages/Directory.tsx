@@ -153,6 +153,31 @@ const Directory = () => {
     bearing: DIRECTORY_MAP.DEFAULT_VIEW.bearing
   });
 
+  // Wrapper for setViewState that validates coordinates
+  const setViewStateSafe = useCallback((newState: typeof viewState | ((prev: typeof viewState) => typeof viewState)) => {
+      setViewState(prev => {
+        const state = typeof newState === 'function' ? newState(prev) : newState;
+        // Validate longitude is within reasonable US bounds (-180 to -50)
+        // This prevents the map from jumping to the Pacific Ocean or other invalid locations
+        if (state.longitude < -180 || state.longitude > -50) {
+          logger.warn('Invalid longitude in setViewState, using previous value', { 
+            attempted: state.longitude, 
+            previous: prev.longitude 
+          });
+          return prev;
+        }
+        // Validate latitude is within reasonable bounds (-90 to 90)
+        if (state.latitude < -90 || state.latitude > 90) {
+          logger.warn('Invalid latitude in setViewState, using previous value', { 
+            attempted: state.latitude, 
+            previous: prev.latitude 
+          });
+          return prev;
+        }
+        return state;
+      });
+  }, []);
+
   // Fetch Mapbox token from API
   useEffect(() => {
     const fetchToken = async () => {
@@ -668,7 +693,7 @@ const Directory = () => {
         CLUSTER_CONFIG.expansionMaxZoom
       );
       
-      setViewState(prev => ({
+      setViewStateSafe(prev => ({
         ...prev,
         longitude,
         latitude,
@@ -678,7 +703,7 @@ const Directory = () => {
     } catch (error) {
       logger.error('Error expanding cluster', error);
       // Fallback: just zoom in two levels
-      setViewState(prev => ({
+      setViewStateSafe(prev => ({
         ...prev,
         longitude,
         latitude,
@@ -728,11 +753,24 @@ const Directory = () => {
   }, []);
 
   // Handle map movement - just update viewState
+  // Add validation to prevent invalid positions (like Pacific Ocean)
   const handleMapMove = useCallback((evt: any) => {
     if (evt.viewState) {
-      setViewState(evt.viewState);
+      const { longitude, latitude } = evt.viewState;
+      // Validate longitude is within reasonable US bounds (-180 to -50)
+      // This prevents the map from jumping to the Pacific Ocean or other invalid locations
+      if (longitude < -180 || longitude > -50) {
+        logger.warn('Invalid longitude detected, preventing map move', { longitude, latitude });
+        return; // Don't update viewState if invalid
+      }
+      // Validate latitude is within reasonable bounds (-90 to 90)
+      if (latitude < -90 || latitude > 90) {
+        logger.warn('Invalid latitude detected, preventing map move', { longitude, latitude });
+        return; // Don't update viewState if invalid
+      }
+      setViewStateSafe(evt.viewState);
     }
-  }, []);
+  }, [setViewStateSafe]);
 
   // Handle map movement end - update bounds on move end (debounced naturally)
   const handleMapMoveEnd = useCallback(() => {
@@ -773,7 +811,7 @@ const Directory = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        setViewState(prev => ({
+        setViewStateSafe(prev => ({
           ...prev,
           longitude,
           latitude,
@@ -830,10 +868,25 @@ const Directory = () => {
     const bookshopsWithCoords = filteredBookshops.filter(b => {
       const lat = b.latitude ? parseFloat(b.latitude) : null;
       const lon = b.longitude ? parseFloat(b.longitude) : null;
-      return lat !== null && lon !== null && !isNaN(lat) && !isNaN(lon);
+      // Additional validation: ensure coordinates are within reasonable US bounds
+      if (lat === null || lon === null || isNaN(lat) || isNaN(lon)) return false;
+      // US longitude range: approximately -180 to -50 (west to east coast)
+      // US latitude range: approximately 24 to 50 (south to north)
+      if (lon < -180 || lon > -50 || lat < 24 || lat > 50) {
+        logger.warn('Bookshop coordinates outside US bounds, skipping', { 
+          name: b.name, 
+          lat, 
+          lon 
+        });
+        return false;
+      }
+      return true;
     });
 
-    if (bookshopsWithCoords.length === 0) return;
+    if (bookshopsWithCoords.length === 0) {
+      logger.warn('No bookshops with valid coordinates found for fitBounds');
+      return cleanup;
+    }
 
     const hasActiveFilters = 
       selectedState !== "all" || 
@@ -901,9 +954,25 @@ const Directory = () => {
       const lngSpan = maxLng - minLng;
       const latSpan = maxLat - minLat;
 
-      // Validate bounds are valid
+      // Validate bounds are valid and within reasonable US bounds
+      // US longitude range: approximately -180 to -66 (west to east coast)
+      // US latitude range: approximately 24 to 50 (south to north)
       if (isNaN(minLng) || isNaN(maxLng) || isNaN(minLat) || isNaN(maxLat)) {
         logger.warn('Invalid bounds calculated, skipping fitBounds');
+        return;
+      }
+
+      // Additional validation: ensure bounds are within reasonable US geographic limits
+      // This prevents the map from jumping to invalid locations
+      if (minLng < -180 || maxLng > 180 || minLat < -90 || maxLat > 90) {
+        logger.warn('Bounds outside valid geographic range, skipping fitBounds');
+        return;
+      }
+
+      // Validate that bounds represent a reasonable US area (not crossing the Pacific)
+      // US longitude should be between -180 and -66
+      if (minLng < -180 || maxLng > -50) {
+        logger.warn('Bounds outside US geographic range, skipping fitBounds');
         return;
       }
 
