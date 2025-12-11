@@ -96,17 +96,14 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
     googlePriceLevel,
   } = bookshop;
 
-  // Debug: Log photos data
+  // Debug: Log photos data (development only)
   React.useEffect(() => {
-    if (googlePhotos) {
+    if (process.env.NODE_ENV === 'development' && googlePhotos) {
       console.log('BookshopDetailContent - googlePhotos:', {
         isArray: Array.isArray(googlePhotos),
         length: googlePhotos.length,
-        firstPhoto: googlePhotos[0],
-        allPhotos: googlePhotos
+        firstPhoto: googlePhotos[0]
       });
-    } else {
-      console.log('BookshopDetailContent - No googlePhotos found');
     }
   }, [googlePhotos]);
 
@@ -362,7 +359,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                       className="w-full h-full object-cover"
                       loading="lazy"
                       onError={(e) => {
-                        console.error(`Failed to load photo ${currentPhotoIndex + 1} for ${name}:`, googlePhotos[currentPhotoIndex]);
+                        // Silently handle image load errors - fallback image will display
                         e.currentTarget.src = "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
                       }}
                     />
@@ -399,7 +396,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                   {googlePhotos.map((photo, index) => {
                     const photoRef = photo?.photo_reference || photo?.photoReference || photo;
                     if (!photoRef || typeof photoRef !== 'string') {
-                      console.warn(`Invalid photo at index ${index}:`, photo);
+                      // Skip invalid photo entries
                       return null;
                     }
                     return (
@@ -413,7 +410,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                           loading="lazy"
                           onError={(e) => {
-                            console.error(`Failed to load photo ${index + 1} for ${name}:`, photoRef);
+                            // Silently handle image load errors - fallback image will display
                             e.currentTarget.src = "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300";
                           }}
                         />

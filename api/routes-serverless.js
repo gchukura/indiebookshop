@@ -281,6 +281,20 @@ const submissionLimiter = rateLimit({
   store: undefined, // Use default MemoryStore
 });
 
+// Rate limiter for photo proxy endpoint
+// Limits: 50 requests per 15 minutes per IP to prevent abuse and quota exhaustion
+const photoProxyLimiter = rateLimit({
+  validate: {
+    trustProxy: false,
+  },
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // 50 requests per window
+  message: 'Too many photo requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: undefined, // Use default MemoryStore
+});
+
 /**
  * Register API routes for the serverless environment
  */
@@ -327,6 +341,53 @@ export async function registerRoutes(app, storageImpl) {
     } catch (error) {
       console.error('Serverless Error filtering bookstores:', error);
       res.status(500).json({ error: 'Failed to filter bookstores', details: error.message });
+    }
+  });
+
+  // Batch endpoint: Get multiple bookshops by IDs (optimized for related bookshops)
+  // IMPORTANT: Must come BEFORE /api/bookstores/:id to avoid route conflict
+  app.get('/api/bookstores/batch', async (req, res) => {
+    try {
+      const idsParam = req.query.ids;
+      
+      if (!idsParam || typeof idsParam !== 'string') {
+        return res.status(400).json({ error: 'ids parameter is required (comma-separated list of IDs)' });
+      }
+
+      // Parse and validate IDs
+      const ids = idsParam.split(',').map(id => {
+        const parsed = parseInt(id.trim(), 10);
+        return isNaN(parsed) ? null : parsed;
+      }).filter(id => id !== null);
+
+      if (ids.length === 0) {
+        return res.status(400).json({ error: 'No valid IDs provided' });
+      }
+
+      // Limit batch size to prevent abuse
+      if (ids.length > 20) {
+        return res.status(400).json({ error: 'Maximum 20 bookshops per batch request' });
+      }
+
+      // Fetch all bookshops in parallel
+      const bookstores = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            return await storageImpl.getBookstore(id);
+          } catch (error) {
+            console.error(`Serverless Error getting bookstore ${id}:`, error);
+            return null; // Return null for failed fetches
+          }
+        })
+      );
+
+      // Filter out null results (failed fetches)
+      const validBookstores = bookstores.filter(bookstore => bookstore !== null && bookstore !== undefined);
+      
+      res.json(validBookstores);
+    } catch (error) {
+      console.error('Serverless Error in batch bookstore fetch:', error);
+      res.status(500).json({ error: 'Failed to fetch bookshops' });
     }
   });
 
@@ -1022,73 +1083,17 @@ export async function registerRoutes(app, storageImpl) {
     }
   });
 
-  // Google Places Photo Proxy
-  app.get('/api/place-photo', async (req, res) => {
+  // Google Places Photo Proxy - with rate limiting
+  // Import shared handler to avoid code duplication
+  const { handlePlacePhotoRequest } = await import('./utils/place-photo-handler.js');
+  
+  app.get('/api/place-photo', photoProxyLimiter, async (req, res) => {
     // Only allow GET requests
     if (req.method !== 'GET') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { photo_reference, maxwidth = '400' } = req.query;
-
-    // Validate photo_reference
-    if (!photo_reference || typeof photo_reference !== 'string') {
-      return res.status(400).json({ error: 'photo_reference parameter is required' });
-    }
-
-    // Validate maxwidth
-    const maxWidthNum = parseInt(maxwidth, 10);
-    if (isNaN(maxWidthNum) || maxWidthNum < 1 || maxWidthNum > 1600) {
-      return res.status(400).json({ error: 'maxwidth must be between 1 and 1600' });
-    }
-
-    const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
-
-    if (!GOOGLE_PLACES_API_KEY) {
-      console.error('GOOGLE_PLACES_API_KEY environment variable is not set');
-      return res.status(500).json({ error: 'Server configuration error' });
-    }
-
-    try {
-      // Construct Google Places Photo API URL
-      const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?` +
-        `maxwidth=${maxWidthNum}` +
-        `&photo_reference=${encodeURIComponent(photo_reference)}` +
-        `&key=${GOOGLE_PLACES_API_KEY}`;
-
-      // Fetch the photo from Google
-      const response = await fetch(photoUrl, {
-        method: 'GET',
-        headers: {
-          'User-Agent': 'IndieBookShop/1.0'
-        }
-      });
-
-      if (!response.ok) {
-        console.error(`Google Places Photo API returned status ${response.status}`);
-        return res.status(response.status).json({ 
-          error: 'Failed to fetch photo from Google Places API' 
-        });
-      }
-
-      // Get the image buffer
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      // Get content type from response (default to jpeg)
-      const contentType = response.headers.get('content-type') || 'image/jpeg';
-
-      // Set appropriate headers
-      res.setHeader('Content-Type', contentType);
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable'); // Cache for 1 year
-      res.setHeader('Content-Length', buffer.length);
-
-      // Send the image
-      res.send(buffer);
-    } catch (error) {
-      console.error('Error fetching Google Places photo:', error);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
+    return handlePlacePhotoRequest(req, res);
   });
 
   return { app };

@@ -58,18 +58,66 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
     return sorted.slice(0, maxResults).map(shop => shop.id);
   }, [filteredBookshops, currentBookshop.id, currentBookshop.city, maxResults]);
 
-  // Fetch full bookshop data for each ID (this ensures we get googlePhotos)
+  // Fetch full bookshop data using batch endpoint (optimized - single API call)
+  // Fallback to individual calls if batch endpoint fails
   const bookshopQueries = useQuery<Bookstore[]>({
     queryKey: ['related-bookshops-full', processedBookshopIds],
     queryFn: async () => {
       if (processedBookshopIds.length === 0) return [];
       
-      // Fetch each bookshop individually to get full data including googlePhotos
-      const promises = processedBookshopIds.map(id => 
-        fetch(`/api/bookstores/${id}`).then(res => res.json() as Promise<Bookstore>)
-      );
-      
-      return Promise.all(promises);
+      try {
+        // Use batch endpoint for better performance - single API call instead of N calls
+        const idsParam = processedBookshopIds.join(',');
+        const res = await fetch(`/api/bookstores/batch?ids=${idsParam}`);
+        
+        if (!res.ok) {
+          // If batch endpoint fails, fallback to individual calls
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Batch endpoint failed, falling back to individual calls');
+          }
+          throw new Error('Batch endpoint failed');
+        }
+        
+        const data = await res.json();
+        
+        // Check if we got an array (success) or an error object
+        if (Array.isArray(data)) {
+          return data as Bookstore[];
+        }
+        
+        // If not an array, fallback to individual calls
+        throw new Error('Batch endpoint returned invalid data');
+      } catch (error) {
+        // Fallback: Fetch each bookshop individually
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Batch endpoint failed, using individual calls as fallback');
+        }
+        
+        try {
+          const promises = processedBookshopIds.map(async (id) => {
+            try {
+              const res = await fetch(`/api/bookstores/${id}`);
+              if (!res.ok) {
+                throw new Error(`Failed to fetch bookshop ${id}: ${res.statusText}`);
+              }
+              return await res.json() as Bookstore;
+            } catch (error) {
+              if (process.env.NODE_ENV === 'development') {
+                console.error(`Error fetching bookshop ${id}:`, error);
+              }
+              return null;
+            }
+          });
+          
+          const results = await Promise.all(promises);
+          return results.filter((bookshop): bookshop is Bookstore => bookshop !== null);
+        } catch (fallbackError) {
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Error in fallback fetch:', fallbackError);
+          }
+          return [];
+        }
+      }
     },
     enabled: processedBookshopIds.length > 0,
   });

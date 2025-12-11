@@ -625,16 +625,15 @@ export class SupabaseStorage {
 
     if (error || !data) return [];
 
-    // Debug: Check if google_photos is in the raw data
-    if (data && data.length > 0) {
+    // Debug: Check if google_photos is in the raw data (development only)
+    if (process.env.NODE_ENV === 'development' && data && data.length > 0) {
       const sample = data.find(item => item.google_photos);
       if (sample) {
         console.log('Serverless: Sample google_photos from filter query:', {
           name: sample.name,
           hasGooglePhotos: !!sample.google_photos,
           type: typeof sample.google_photos,
-          isArray: Array.isArray(sample.google_photos),
-          value: typeof sample.google_photos === 'string' ? sample.google_photos.substring(0, 100) : sample.google_photos
+          isArray: Array.isArray(sample.google_photos)
         });
       }
     }
