@@ -625,19 +625,71 @@ export class SupabaseStorage {
 
     if (error || !data) return [];
 
+    // Debug: Check if google_photos is in the raw data
+    if (data && data.length > 0) {
+      const sample = data.find(item => item.google_photos);
+      if (sample) {
+        console.log('Serverless: Sample google_photos from filter query:', {
+          name: sample.name,
+          hasGooglePhotos: !!sample.google_photos,
+          type: typeof sample.google_photos,
+          isArray: Array.isArray(sample.google_photos),
+          value: typeof sample.google_photos === 'string' ? sample.google_photos.substring(0, 100) : sample.google_photos
+        });
+      }
+    }
+
     let bookstores = (data || []).map((item) => ({
       ...item,
       latitude: item.lat_numeric?.toString() || item.latitude || null,
       longitude: item.lng_numeric?.toString() || item.longitude || null,
       featureIds: item.feature_ids || item.featureIds || [],
       imageUrl: item.image_url || item.imageUrl || null,
+      // Map hours from hours_json (jsonb) to hours for frontend
+      hours: (() => {
+        if (item.hours_json) {
+          return typeof item.hours_json === 'string' ? JSON.parse(item.hours_json) : item.hours_json;
+        }
+        if (item['hours (JSON)']) {
+          return typeof item['hours (JSON)'] === 'string' ? JSON.parse(item['hours (JSON)']) : item['hours (JSON)'];
+        }
+        return null;
+      })(),
       // Map Google Places fields from snake_case to camelCase
       googlePlaceId: item.google_place_id || null,
       googleRating: item.google_rating || null,
       googleReviewCount: item.google_review_count || null,
       googleDescription: item.google_description || null,
-      googlePhotos: item.google_photos || null,
-      googleReviews: item.google_reviews || null,
+      googlePhotos: (() => {
+        if (!item.google_photos) return null;
+        // If it's already an array, return it
+        if (Array.isArray(item.google_photos)) return item.google_photos;
+        // If it's a string, try to parse it
+        if (typeof item.google_photos === 'string') {
+          try {
+            return JSON.parse(item.google_photos);
+          } catch (e) {
+            console.error('Serverless: Error parsing google_photos JSON in getFilteredBookstores:', e);
+            return null;
+          }
+        }
+        return null;
+      })(),
+      googleReviews: (() => {
+        if (!item.google_reviews) return null;
+        // If it's already an array, return it
+        if (Array.isArray(item.google_reviews)) return item.google_reviews;
+        // If it's a string, try to parse it
+        if (typeof item.google_reviews === 'string') {
+          try {
+            return JSON.parse(item.google_reviews);
+          } catch (e) {
+            console.error('Serverless: Error parsing google_reviews JSON in getFilteredBookstores:', e);
+            return null;
+          }
+        }
+        return null;
+      })(),
       googlePriceLevel: item.google_price_level || null,
       googleDataUpdatedAt: item.google_data_updated_at || null,
     }));

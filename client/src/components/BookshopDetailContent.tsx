@@ -238,60 +238,63 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
       {/* Clean Header Section */}
       <div className="bg-white border-b-2 border-stone-200">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 py-8 md:py-12">
           {/* Breadcrumb Navigation */}
           <div className="mb-4">
             <Breadcrumbs items={breadcrumbItems} className="text-sm" />
           </div>
 
-          {/* Title and Location */}
-          <div className="mb-6">
-            <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#5F4B32] mb-3">
-              {name}
-            </h1>
-            <div className="flex flex-wrap items-center gap-4 text-stone-600">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-[#2A6B7C]" />
-                <span className="text-base md:text-lg">{city}, {state}</span>
+          {/* Title, Location, and Actions - aligned with About section content */}
+          <div className="px-6 md:px-8 -mx-6 md:-mx-8">
+            {/* Title and Location */}
+            <div className="mb-6">
+              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#5F4B32] mb-3">
+                {name}
+              </h1>
+              <div className="flex flex-wrap items-center gap-4 text-stone-600">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-[#2A6B7C]" />
+                  <span className="text-base md:text-lg">{city}, {state}</span>
+                </div>
+                <span className="text-stone-400">•</span>
+                <span className="text-base md:text-lg">Independent Bookshop</span>
               </div>
-              <span className="text-stone-400">•</span>
-              <span className="text-base md:text-lg">Independent Bookshop</span>
             </div>
-          </div>
 
-          {/* Quick Action Buttons */}
-          <div className="flex flex-wrap gap-3">
-            {(street || city) && (
-              <a 
-                href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddressString)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#E16D3D] hover:bg-[#C55A2F] text-white font-medium rounded-lg transition-colors"
-              >
-                <MapPin className="w-5 h-5" />
-                Get Directions
-              </a>
-            )}
-            {website && (
-              <a 
-                href={website.startsWith('http') ? website : `https://${website}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-stone-50 text-[#2A6B7C] border-2 border-[#2A6B7C] font-medium rounded-lg transition-colors"
-              >
-                <Globe className="w-5 h-5" />
-                Visit Website
-              </a>
-            )}
-            {phone && (
-              <a 
-                href={`tel:${phone}`}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-stone-50 text-[#2A6B7C] border-2 border-stone-300 font-medium rounded-lg transition-colors"
-              >
-                <Phone className="w-5 h-5" />
-                Call Now
-              </a>
-            )}
+            {/* Quick Action Buttons */}
+            <div className="flex flex-wrap gap-3">
+              {(street || city) && (
+                <a 
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddressString)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#E16D3D] hover:bg-[#C55A2F] text-white font-medium rounded-lg transition-colors"
+                >
+                  <MapPin className="w-5 h-5" />
+                  Get Directions
+                </a>
+              )}
+              {website && (
+                <a 
+                  href={website.startsWith('http') ? website : `https://${website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-stone-50 text-[#2A6B7C] border-2 border-[#2A6B7C] font-medium rounded-lg transition-colors"
+                >
+                  <Globe className="w-5 h-5" />
+                  Visit Website
+                </a>
+              )}
+              {phone && (
+                <a 
+                  href={`tel:${phone}`}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-stone-50 text-[#2A6B7C] border-2 border-stone-300 font-medium rounded-lg transition-colors"
+                >
+                  <Phone className="w-5 h-5" />
+                  Call Now
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -300,15 +303,15 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
       {/* Main Content */}
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 py-8 md:py-12">
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
 
           
 
           {/* Left Column - Main Content */}
 
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-8 space-y-6">
 
             {/* About Section */}
             <section className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
@@ -476,63 +479,6 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
 
 
-            {/* Features Section */}
-
-            <section 
-
-              className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8"
-
-            >
-
-              <h2 className="font-serif text-2xl md:text-3xl text-[#5F4B32] font-bold mb-4">
-
-                Specialty Areas & Features
-
-              </h2>
-
-              {features && features.length > 0 ? (
-
-                <div className="flex flex-wrap gap-2">
-
-                  {features.map((feature) => (
-
-                    <span
-
-                      key={feature.id}
-
-                      className="inline-flex items-center px-3 py-1.5 rounded-full bg-[#2A6B7C]/10 text-[#2A6B7C] text-sm font-semibold hover:bg-[#2A6B7C]/15 transition-all"
-
-                    >
-
-                      {feature.name}
-
-                    </span>
-
-                  ))}
-
-                </div>
-
-              ) : (
-
-                <div className="bg-amber-50 rounded-lg border border-amber-200 p-6 text-center">
-
-                  <p className="text-amber-900 font-medium mb-2">
-
-                    Help us complete this listing!
-
-                  </p>
-
-                  <p className="text-sm text-amber-800">
-
-                    We're still gathering information about {name}'s specialty areas and features.
-
-                  </p>
-
-                </div>
-
-              )}
-
-            </section>
 
           </div>
 
@@ -540,7 +486,8 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
           {/* Right Column - Store Information Sidebar */}
 
-          <div className="lg:col-span-1">
+          {/* Right Column - Sidebar */}
+          <div className="lg:col-span-4">
 
             <div 
 
@@ -752,7 +699,34 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
             </div>
 
+            {/* Features Section - Moved to sidebar */}
+            <section className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 mb-6">
+              <h2 className="font-serif text-xl md:text-2xl text-[#5F4B32] font-bold mb-4">
+                Specialty Areas & Features
+              </h2>
 
+              {features && features.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {features.map((feature) => (
+                    <span
+                      key={feature.id}
+                      className="inline-flex items-center px-3 py-1.5 rounded-full bg-[#2A6B7C]/10 text-[#2A6B7C] text-sm font-semibold hover:bg-[#2A6B7C]/15 transition-all"
+                    >
+                      {feature.name}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-amber-50 rounded-lg border border-amber-200 p-6 text-center">
+                  <p className="text-amber-900 font-medium mb-2">
+                    Help us complete this listing!
+                  </p>
+                  <p className="text-sm text-amber-800">
+                    We're still gathering information about {name}'s specialty areas and features.
+                  </p>
+                </div>
+              )}
+            </section>
 
             {/* Map Section */}
 

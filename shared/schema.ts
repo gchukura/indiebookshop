@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, json, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -31,6 +31,20 @@ export const bookstores = pgTable("bookstores", {
   longitude: text("longitude"),
   featureIds: integer("feature_ids").array().default([]),
   live: boolean("live").default(true),
+  // Google Places API enrichment fields
+  googlePlaceId: text("google_place_id"),
+  googleRating: text("google_rating"), // Stored as text to match latitude/longitude pattern
+  googleReviewCount: integer("google_review_count"),
+  googleDescription: text("google_description"),
+  googlePhotos: json("google_photos").$type<Array<{ photo_reference: string }>>(),
+  googleReviews: json("google_reviews").$type<Array<{
+    author_name: string;
+    rating: number;
+    text: string;
+    time: number;
+  }>>(),
+  googlePriceLevel: integer("google_price_level"),
+  googleDataUpdatedAt: timestamp("google_data_updated_at"),
 });
 
 export const events = pgTable("events", {

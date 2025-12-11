@@ -11,6 +11,9 @@ export const ENV = {
   // Mapbox API key
   MAPBOX_ACCESS_TOKEN: process.env.MAPBOX_ACCESS_TOKEN || '',
   
+  // Google Places API key
+  GOOGLE_PLACES_API_KEY: process.env.GOOGLE_PLACES_API_KEY || '',
+  
   // SendGrid for email notifications
   SENDGRID_API_KEY: process.env.SENDGRID_API_KEY || '',
   SENDGRID_FROM_EMAIL: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com',

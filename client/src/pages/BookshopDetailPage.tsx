@@ -12,7 +12,6 @@ import { BookshopDetailContent } from '@/components/BookshopDetailContent';
 
 import RelatedBookshops from '@/components/RelatedBookshops';
 
-import EmailSignupSection from '@/components/EmailSignupSection';
 
 import Breadcrumbs, { BreadcrumbItem } from '@/components/Breadcrumbs';
 
@@ -306,7 +305,7 @@ const BookshopDetailPage = () => {
 
         <div className="relative w-full h-64 md:h-96 bg-stone-200 animate-pulse" />
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 py-8 md:py-12">
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
@@ -580,7 +579,7 @@ const BookshopDetailPage = () => {
       {false && (
       <div className="bg-[#F7F3E8]">
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 pb-8">
 
           <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
 
@@ -735,7 +734,7 @@ const BookshopDetailPage = () => {
 
         <div className="bg-[#F7F3E8]">
 
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 pb-8">
 
             <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
 
@@ -777,7 +776,7 @@ const BookshopDetailPage = () => {
 
       <div className="bg-[#F7F3E8]">
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 pb-8">
 
           <RelatedBookshops currentBookshop={bookshop} />
 
@@ -785,8 +784,6 @@ const BookshopDetailPage = () => {
 
       </div>
 
-      {/* Email Signup Section */}
-      <EmailSignupSection />
 
       
 
@@ -795,7 +792,7 @@ const BookshopDetailPage = () => {
       {false && (
       <div className="bg-white border-t border-gray-200">
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 py-8 md:py-12">
 
           <div className="max-w-4xl mx-auto">
 
