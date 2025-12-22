@@ -45,7 +45,11 @@
       "dest": "/api/health.js"
     },
     {
-      "src": "/api/((?!bookshop-slug).*)",
+      "src": "/api/bookshop-slug",
+      "dest": "/api/bookshop-slug.js"
+    },
+    {
+      "src": "/api/:path*",
       "dest": "/api/serverless.js"
     },
     {
