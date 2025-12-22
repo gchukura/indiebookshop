@@ -343,7 +343,9 @@ export default async function handler(req, res) {
       const modifiedHtml = injectMetaTags(baseHtml, metaTags);
       console.log('[Serverless Function] Meta tags injected, returning modified HTML');
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+      // Use shorter cache for now to ensure fresh content during testing
+      // Can increase to 'public, s-maxage=3600, stale-while-revalidate=86400' once verified
+      res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
       return res.status(200).send(modifiedHtml);
     }
     

@@ -40,7 +40,7 @@
     },
     {
       "src": "/bookshop/(.*)",
-      "dest": "/api/bookshop-slug",
+      "dest": "/api/bookshop-slug.js",
       "headers": {
         "x-vercel-original-path": "/bookshop/$1"
       }
