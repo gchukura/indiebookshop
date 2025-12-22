@@ -25,6 +25,12 @@
       }
     }
   ],
+  "rewrites": [
+    {
+      "source": "/bookshop/:slug*",
+      "destination": "/api/bookshop-slug?slug=:slug"
+    }
+  ],
   "routes": [
     {
       "src": "/sitemap.xml",
@@ -37,13 +43,6 @@
     {
       "src": "/api/health",
       "dest": "/api/health.js"
-    },
-    {
-      "src": "/bookshop/(.*)",
-      "dest": "/api/bookshop-slug.js",
-      "headers": {
-        "x-vercel-original-path": "/bookshop/$1"
-      }
     },
     {
       "src": "/api/(?!bookshop-slug)(.*)",
@@ -60,6 +59,17 @@
     {
       "src": "/(.*)",
       "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/bookshop-slug",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60, s-maxage=60, stale-while-revalidate=300"
+        }
+      ]
     }
   ],
   "env": {

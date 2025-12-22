@@ -238,91 +238,54 @@ async function fetchBookshopBySlug(slug) {
  */
 export default async function handler(req, res) {
   try {
-    // Log all request details for debugging
-    console.log('[Serverless Function] ===== BOOKSHOP SLUG FUNCTION CALLED =====');
-    console.log('[Serverless Function] Request URL:', req.url);
-    console.log('[Serverless Function] Request method:', req.method);
-    console.log('[Serverless Function] Request headers:', JSON.stringify(req.headers, null, 2));
-    console.log('[Serverless Function] Request query:', req.query);
+    // Get slug from query parameter (passed by vercel.json rewrite)
+    const slug = req.query.slug;
     
-    // Extract slug from request
-    // When Vercel routes /bookshop/powell-books to /api/bookshop-slug.js,
-    // the original path should be in x-vercel-original-path header
-    let slug = null;
+    console.log('[Serverless] ===== FUNCTION INVOKED =====');
+    console.log('[Serverless] Request URL:', req.url);
+    console.log('[Serverless] Request method:', req.method);
+    console.log('[Serverless] Slug from query:', slug);
+    console.log('[Serverless] Full query object:', JSON.stringify(req.query));
     
-    // Method 1: Try to get from x-vercel-original-path header (set by vercel.json route)
-    // Vercel may lowercase headers, so check both cases
-    const originalPath = req.headers['x-vercel-original-path'] || 
-                         req.headers['x-vercel-original-path'.toLowerCase()] ||
-                         req.headers['x-invoke-path'] ||
-                         req.headers['x-invoke-path'.toLowerCase()] ||
-                         req.headers['x-vercel-rewrite-path'] ||
-                         req.headers['x-vercel-rewrite-path'.toLowerCase()];
-    
-    console.log('[Serverless Function] Original path header (case-sensitive):', req.headers['x-vercel-original-path']);
-    console.log('[Serverless Function] Original path header (lowercase):', req.headers['x-vercel-original-path'.toLowerCase()]);
-    console.log('[Serverless Function] All x-vercel headers:', JSON.stringify(
-      Object.keys(req.headers).filter(k => k.toLowerCase().includes('vercel') || k.toLowerCase().includes('invoke'))
-        .reduce((acc, k) => { acc[k] = req.headers[k]; return acc; }, {}), null, 2
-    ));
-    
-    if (originalPath) {
-      console.log('[Serverless Function] Original path from header:', originalPath);
-      const match = originalPath.match(/^\/bookshop\/([^/]+)/);
-      if (match) {
-        slug = decodeURIComponent(match[1]);
-        console.log('[Serverless Function] Extracted slug from header:', slug);
-      } else {
-        console.log('[Serverless Function] Original path did not match /bookshop/ pattern:', originalPath);
-      }
-    } else {
-      console.log('[Serverless Function] No original path header found');
-    }
-    
-    // Method 2: Extract from req.url pathname
-    if (!slug) {
-      const url = new URL(req.url, `http://${req.headers.host}`);
-      const pathname = url.pathname;
-      console.log('[Serverless Function] Request URL pathname:', pathname);
-      
-      if (pathname.startsWith('/api/bookshop-slug')) {
-        // If we're at /api/bookshop-slug.js, try to get slug from query or referer
-        slug = url.searchParams.get('slug') || req.query?.slug;
-        console.log('[Serverless Function] Extracted slug from query:', slug);
-      } else if (pathname.startsWith('/bookshop/')) {
-        slug = decodeURIComponent(pathname.replace('/bookshop/', '').split('/')[0]);
-        console.log('[Serverless Function] Extracted slug from pathname:', slug);
-      }
-    }
-    
-    // Method 3: Try referer header as last resort
-    if (!slug && req.headers.referer) {
-      const refererMatch = req.headers.referer.match(/\/bookshop\/([^/?#]+)/);
-      if (refererMatch) {
-        slug = decodeURIComponent(refererMatch[1]);
-        console.log('[Serverless Function] Extracted slug from referer:', slug);
-      }
-    }
-    
-    console.log('[Serverless Function] Final extracted slug:', slug);
-    
-    // If no slug, just return base HTML (let React handle routing)
-    if (!slug || slug === 'bookshop' || slug === 'api' || slug === 'bookshop-slug' || slug === 'bookshop-slug.js') {
-      console.log('[Serverless Function] No valid slug found, returning base HTML');
-      // Return minimal HTML that React can hydrate
+    // Validate slug
+    if (!slug || typeof slug !== 'string' || slug.trim() === '') {
+      console.log('[Serverless] ERROR: No slug provided in query');
+      // Return base HTML to let React handle routing
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=60');
       return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>');
     }
     
-    // Always fetch base HTML first (for fallback)
+    // Decode slug in case it's URL encoded
+    const decodedSlug = decodeURIComponent(slug);
+    console.log('[Serverless] Decoded slug:', decodedSlug);
+    
+    // Fetch bookshop data from Supabase
+    console.log('[Serverless] Fetching bookshop for slug:', decodedSlug);
+    const bookshop = await fetchBookshopBySlug(decodedSlug);
+    console.log('[Serverless] Bookshop found:', !!bookshop);
+    
+    // If bookshop not found, return base HTML (let React handle 404)
+    if (!bookshop) {
+      console.log('[Serverless] Bookshop not found for slug:', decodedSlug, '- returning base HTML');
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, s-maxage=60');
+      return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>');
+    }
+    
+    // Generate meta tags
+    console.log('[Serverless] Generating meta tags for:', bookshop.name);
+    const metaTags = generateBookshopMetaTags(bookshop);
+    console.log('[Serverless] Meta tags generated, length:', metaTags.length);
+    
+    // Fetch base HTML to inject meta tags into
     const protocol = req.headers['x-forwarded-proto'] || 'https';
     const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.indiebookshop.com';
     const baseUrl = `${protocol}://${host}`;
     let baseHtml = null;
     
     try {
-      console.log('[Serverless Function] Fetching base HTML from:', baseUrl);
+      console.log('[Serverless] Fetching base HTML from:', baseUrl);
       const htmlResponse = await fetch(`${baseUrl}/`, {
         headers: {
           'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0',
@@ -332,56 +295,38 @@ export default async function handler(req, res) {
       
       if (htmlResponse.ok) {
         baseHtml = await htmlResponse.text();
-        console.log('[Serverless Function] Base HTML fetched, length:', baseHtml?.length || 0);
+        console.log('[Serverless] Base HTML fetched, length:', baseHtml?.length || 0);
       } else {
-        console.error('[Serverless Function] Failed to fetch base HTML, status:', htmlResponse.status);
+        console.error('[Serverless] Failed to fetch base HTML, status:', htmlResponse.status);
       }
     } catch (error) {
-      console.error('[Serverless Function] Error fetching base HTML:', error);
+      console.error('[Serverless] Error fetching base HTML:', error);
     }
-    
-    // Fetch bookshop data from Supabase
-    console.log('[Serverless Function] Fetching bookshop for slug:', slug);
-    const bookshop = await fetchBookshopBySlug(slug);
-    console.log('[Serverless Function] Bookshop found:', !!bookshop);
-    
-    // If bookshop not found, return base HTML (let React handle 404)
-    if (!bookshop) {
-      console.log('[Serverless Function] Bookshop not found for slug:', slug, '- returning base HTML');
-      if (baseHtml) {
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.status(200).send(baseHtml);
-      }
-      // Fallback if we can't fetch base HTML
-      return res.status(200).send('<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>');
-    }
-    
-    // Generate meta tags
-    console.log('[Serverless Function] Generating meta tags for:', bookshop.name);
-    const metaTags = generateBookshopMetaTags(bookshop);
-    console.log('[Serverless Function] Meta tags generated, length:', metaTags.length);
     
     // Inject meta tags into base HTML
     if (baseHtml) {
-      console.log('[Serverless Function] Injecting meta tags into base HTML');
+      console.log('[Serverless] Injecting meta tags into base HTML');
       const modifiedHtml = injectMetaTags(baseHtml, metaTags);
-      console.log('[Serverless Function] Meta tags injected, returning modified HTML');
+      console.log('[Serverless] Meta tags injected, returning modified HTML');
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      // Use shorter cache for now to ensure fresh content during testing
-      // Can increase to 'public, s-maxage=3600, stale-while-revalidate=86400' once verified
       res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
       return res.status(200).send(modifiedHtml);
     }
     
     // Fallback: return basic HTML with meta tags if we couldn't fetch base HTML
-    console.error('[Serverless Function] Could not fetch base HTML, using fallback');
+    console.log('[Serverless] Could not fetch base HTML, using fallback HTML with meta tags');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).send(
       `<!DOCTYPE html><html><head>${metaTags}</head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>`
     );
   } catch (error) {
-    console.error('[Serverless Function] Error in bookshop function:', error);
-    return res.status(500).send('Internal Server Error');
+    console.error('[Serverless] ERROR in bookshop function:', error);
+    console.error('[Serverless] Error stack:', error.stack);
+    // Return base HTML on error to let React handle it
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, s-maxage=60');
+    return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>');
   }
 }
 
