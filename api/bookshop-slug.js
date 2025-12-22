@@ -128,18 +128,46 @@ function generateBookshopMetaTags(bookshop) {
  * Inject meta tags into HTML
  */
 function injectMetaTags(html, metaTags) {
-  // Replace the default title if it exists
-  html = html.replace(/<title>.*?<\/title>/i, metaTags);
+  if (!html || typeof html !== 'string') {
+    console.error('[Serverless] injectMetaTags: Invalid HTML input');
+    return html;
+  }
   
-  // Also inject before closing </head> tag as backup
+  console.log('[Serverless] Injecting meta tags, HTML length:', html.length);
+  console.log('[Serverless] Meta tags to inject:', metaTags.substring(0, 200));
+  
+  // Check if meta tags are already injected (avoid duplicates)
+  if (html.includes('<!-- Server-side injected meta tags for SEO -->')) {
+    console.log('[Serverless] Meta tags already injected, skipping');
+    return html;
+  }
+  
+  // Replace the default title if it exists
+  const titleReplaced = html.replace(/<title>.*?<\/title>/i, metaTags);
+  if (titleReplaced !== html) {
+    console.log('[Serverless] Replaced title tag');
+    html = titleReplaced;
+  }
+  
+  // Inject before closing </head> tag (most reliable method)
   if (html.includes('</head>')) {
-    // Check if meta tags are already injected (avoid duplicates)
-    if (!html.includes('<!-- Server-side injected meta tags for SEO -->')) {
-      html = html.replace('</head>', `${metaTags}</head>`);
-    }
+    html = html.replace('</head>', `${metaTags}</head>`);
+    console.log('[Serverless] Injected meta tags before </head> tag');
   } else if (html.includes('<head>')) {
     // If no closing head tag, inject after opening head tag
     html = html.replace('<head>', `<head>${metaTags}`);
+    console.log('[Serverless] Injected meta tags after <head> tag');
+  } else {
+    console.error('[Serverless] No <head> tag found in HTML!');
+    // Last resort: prepend to HTML
+    html = `${metaTags}${html}`;
+  }
+  
+  // Verify injection worked
+  if (html.includes('<!-- Server-side injected meta tags for SEO -->')) {
+    console.log('[Serverless] Meta tags successfully injected');
+  } else {
+    console.error('[Serverless] WARNING: Meta tags may not have been injected correctly');
   }
   
   return html;
@@ -239,25 +267,40 @@ async function fetchBookshopBySlug(slug) {
 export default async function handler(req, res) {
   try {
     // Get slug from query parameter (passed by vercel.json rewrite)
-    const slug = req.query.slug;
+    // Vercel rewrites /bookshop/powell-books to /api/bookshop-slug?slug=powell-books
+    let slug = req.query.slug;
+    
+    // Handle array case (shouldn't happen but be defensive)
+    if (Array.isArray(slug)) {
+      slug = slug[0];
+    }
     
     console.log('[Serverless] ===== FUNCTION INVOKED =====');
     console.log('[Serverless] Request URL:', req.url);
     console.log('[Serverless] Request method:', req.method);
+    console.log('[Serverless] Raw query object:', JSON.stringify(req.query, null, 2));
     console.log('[Serverless] Slug from query:', slug);
-    console.log('[Serverless] Full query object:', JSON.stringify(req.query));
+    console.log('[Serverless] Slug type:', typeof slug);
     
     // Validate slug
-    if (!slug || typeof slug !== 'string' || slug.trim() === '') {
+    if (!slug) {
       console.log('[Serverless] ERROR: No slug provided in query');
+      console.log('[Serverless] Available query keys:', Object.keys(req.query || {}));
       // Return base HTML to let React handle routing
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=60');
       return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>');
     }
     
+    if (typeof slug !== 'string' || slug.trim() === '') {
+      console.log('[Serverless] ERROR: Invalid slug type or empty:', slug);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, s-maxage=60');
+      return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>');
+    }
+    
     // Decode slug in case it's URL encoded
-    const decodedSlug = decodeURIComponent(slug);
+    const decodedSlug = decodeURIComponent(slug.trim());
     console.log('[Serverless] Decoded slug:', decodedSlug);
     
     // Fetch bookshop data from Supabase
@@ -279,28 +322,42 @@ export default async function handler(req, res) {
     console.log('[Serverless] Meta tags generated, length:', metaTags.length);
     
     // Fetch base HTML to inject meta tags into
+    // Use internal Vercel URL to avoid recursive calls
     const protocol = req.headers['x-forwarded-proto'] || 'https';
     const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.indiebookshop.com';
     const baseUrl = `${protocol}://${host}`;
     let baseHtml = null;
     
     try {
-      console.log('[Serverless] Fetching base HTML from:', baseUrl);
+      // Fetch from root path - this should return the static index.html
+      // Add a header to prevent it from being routed back to this function
+      console.log('[Serverless] Fetching base HTML from:', `${baseUrl}/`);
       const htmlResponse = await fetch(`${baseUrl}/`, {
         headers: {
           'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0',
           'Accept': 'text/html',
+          'X-Internal-Request': 'true', // Prevent routing back to this function
         },
       });
       
       if (htmlResponse.ok) {
         baseHtml = await htmlResponse.text();
-        console.log('[Serverless] Base HTML fetched, length:', baseHtml?.length || 0);
+        console.log('[Serverless] Base HTML fetched successfully, length:', baseHtml?.length || 0);
+        
+        // Verify we got actual HTML
+        if (!baseHtml || baseHtml.length < 100) {
+          console.error('[Serverless] Base HTML seems too short, might be an error page');
+          baseHtml = null;
+        } else if (!baseHtml.includes('<head>') && !baseHtml.includes('<!DOCTYPE')) {
+          console.error('[Serverless] Base HTML doesn\'t look like valid HTML');
+          baseHtml = null;
+        }
       } else {
         console.error('[Serverless] Failed to fetch base HTML, status:', htmlResponse.status);
       }
     } catch (error) {
       console.error('[Serverless] Error fetching base HTML:', error);
+      console.error('[Serverless] Error details:', error.message, error.stack);
     }
     
     // Inject meta tags into base HTML

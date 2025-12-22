@@ -27,7 +27,7 @@
   ],
   "rewrites": [
     {
-      "source": "/bookshop/:slug*",
+      "source": "/bookshop/:slug",
       "destination": "/api/bookshop-slug?slug=:slug"
     }
   ],
