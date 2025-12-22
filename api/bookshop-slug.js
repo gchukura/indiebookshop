@@ -134,7 +134,7 @@ function injectMetaTags(html, metaTags) {
   }
   
   console.log('[Serverless] Injecting meta tags, HTML length:', html.length);
-  console.log('[Serverless] Meta tags to inject:', metaTags.substring(0, 200));
+  console.log('[Serverless] Meta tags to inject (first 200 chars):', metaTags.substring(0, 200));
   
   // Check if meta tags are already injected (avoid duplicates)
   if (html.includes('<!-- Server-side injected meta tags for SEO -->')) {
@@ -142,17 +142,37 @@ function injectMetaTags(html, metaTags) {
     return html;
   }
   
-  // Replace the default title if it exists
-  const titleReplaced = html.replace(/<title>.*?<\/title>/i, metaTags);
-  if (titleReplaced !== html) {
-    console.log('[Serverless] Replaced title tag');
-    html = titleReplaced;
+  // Extract just the title from metaTags (metaTags includes title + all meta tags)
+  const titleMatch = metaTags.match(/<title>(.*?)<\/title>/i);
+  const titleOnly = titleMatch ? titleMatch[0] : '';
+  const metaTagsWithoutTitle = metaTags.replace(/<title>.*?<\/title>/i, '').trim();
+  
+  console.log('[Serverless] Title to inject:', titleOnly.substring(0, 100));
+  console.log('[Serverless] Meta tags (without title) length:', metaTagsWithoutTitle.length);
+  
+  // Step 1: Replace the default title if it exists
+  if (titleOnly) {
+    const titleReplaced = html.replace(/<title>.*?<\/title>/i, titleOnly);
+    if (titleReplaced !== html) {
+      console.log('[Serverless] Replaced title tag');
+      html = titleReplaced;
+    } else {
+      console.log('[Serverless] No existing title tag found, will inject new one');
+    }
   }
   
-  // Inject before closing </head> tag (most reliable method)
+  // Step 2: Inject meta tags (without title) before closing </head> tag
   if (html.includes('</head>')) {
-    html = html.replace('</head>', `${metaTags}</head>`);
-    console.log('[Serverless] Injected meta tags before </head> tag');
+    // Check if title was already in metaTags and we need to add it
+    if (titleOnly && !html.includes(titleOnly)) {
+      // Title wasn't replaced, inject it with meta tags
+      html = html.replace('</head>', `${metaTags}</head>`);
+      console.log('[Serverless] Injected title + meta tags before </head> tag');
+    } else {
+      // Title was already replaced, just inject meta tags
+      html = html.replace('</head>', `${metaTagsWithoutTitle}</head>`);
+      console.log('[Serverless] Injected meta tags (without title) before </head> tag');
+    }
   } else if (html.includes('<head>')) {
     // If no closing head tag, inject after opening head tag
     html = html.replace('<head>', `<head>${metaTags}`);
@@ -166,6 +186,12 @@ function injectMetaTags(html, metaTags) {
   // Verify injection worked
   if (html.includes('<!-- Server-side injected meta tags for SEO -->')) {
     console.log('[Serverless] Meta tags successfully injected');
+    // Verify canonical tag is present
+    if (html.includes('<link rel="canonical"')) {
+      console.log('[Serverless] Canonical tag verified in HTML');
+    } else {
+      console.error('[Serverless] WARNING: Canonical tag not found in HTML!');
+    }
   } else {
     console.error('[Serverless] WARNING: Meta tags may not have been injected correctly');
   }
@@ -266,34 +292,37 @@ async function fetchBookshopBySlug(slug) {
  */
 export default async function handler(req, res) {
   try {
-    // Get slug from query parameter (passed by vercel.json rewrite)
-    // Vercel rewrites /bookshop/powell-books to /api/bookshop-slug?slug=powell-books
+    console.log('[Serverless] ===== FUNCTION INVOKED =====');
+    console.log('[Serverless] Request URL:', req.url);
+    console.log('[Serverless] Request method:', req.method);
+    console.log('[Serverless] Query object:', JSON.stringify(req.query));
+    
+    // Get slug from query parameter OR header (rewrite may not be working, fallback to header)
     let slug = req.query.slug;
     
-    // Handle array case (shouldn't happen but be defensive)
+    // Handle array case
     if (Array.isArray(slug)) {
       slug = slug[0];
     }
     
-    console.log('[Serverless] ===== FUNCTION INVOKED =====');
-    console.log('[Serverless] Request URL:', req.url);
-    console.log('[Serverless] Request method:', req.method);
-    console.log('[Serverless] Raw query object:', JSON.stringify(req.query, null, 2));
-    console.log('[Serverless] Slug from query:', slug);
-    console.log('[Serverless] Slug type:', typeof slug);
-    
-    // Validate slug
+    // Fallback: Extract from x-vercel-original-path header if query is empty
     if (!slug) {
-      console.log('[Serverless] ERROR: No slug provided in query');
-      console.log('[Serverless] Available query keys:', Object.keys(req.query || {}));
-      // Return base HTML to let React handle routing
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.setHeader('Cache-Control', 'public, s-maxage=60');
-      return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>');
+      const originalPath = req.headers['x-vercel-original-path'];
+      console.log('[Serverless] No slug in query, checking header:', originalPath);
+      if (originalPath) {
+        const match = originalPath.match(/^\/bookshop\/([^/]+)/);
+        if (match) {
+          slug = decodeURIComponent(match[1]);
+          console.log('[Serverless] Extracted slug from header:', slug);
+        }
+      }
     }
     
-    if (typeof slug !== 'string' || slug.trim() === '') {
-      console.log('[Serverless] ERROR: Invalid slug type or empty:', slug);
+    console.log('[Serverless] Final slug:', slug);
+    
+    // Validate slug
+    if (!slug || typeof slug !== 'string' || slug.trim() === '') {
+      console.log('[Serverless] ERROR: No valid slug found');
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=60');
       return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>');
@@ -301,7 +330,7 @@ export default async function handler(req, res) {
     
     // Decode slug in case it's URL encoded
     const decodedSlug = decodeURIComponent(slug.trim());
-    console.log('[Serverless] Decoded slug:', decodedSlug);
+    console.log('[Serverless] Using slug:', decodedSlug);
     
     // Fetch bookshop data from Supabase
     console.log('[Serverless] Fetching bookshop for slug:', decodedSlug);
