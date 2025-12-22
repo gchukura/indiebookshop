@@ -159,40 +159,64 @@ async function fetchBookshopBySlug(slug) {
   }
   
   try {
-    // Fetch all live bookstores using Supabase REST API
+    // Fetch all live bookstores using Supabase REST API with pagination
     // Note: We fetch all because we don't have a slug column indexed
     // This could be optimized by adding a slug column to Supabase
-    const response = await fetch(
-      `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=*`,
-      {
-        headers: {
-          'apikey': supabaseAnonKey,
-          'Authorization': `Bearer ${supabaseAnonKey}`,
-          'Content-Type': 'application/json',
-        },
+    const allBookstores = [];
+    const pageSize = 1000;
+    let from = 0;
+    let hasMore = true;
+    
+    while (hasMore) {
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=*&order=name&limit=${pageSize}&offset=${from}`,
+        {
+          headers: {
+            'apikey': supabaseAnonKey,
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'count=exact',
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        console.error('Failed to fetch bookstores from Supabase:', response.status);
+        break;
       }
-    );
+      
+      const bookstores = await response.json();
+      
+      if (!bookstores || bookstores.length === 0) {
+        hasMore = false;
+        break;
+      }
+      
+      allBookstores.push(...bookstores);
+      from += pageSize;
+      // If we got fewer than pageSize, we've reached the end
+      hasMore = bookstores.length === pageSize;
+    }
     
-    if (!response.ok) {
-      console.error('Failed to fetch bookstores from Supabase:', response.status);
+    if (allBookstores.length === 0) {
+      console.log(`[Serverless Function] No bookstores found in Supabase`);
       return null;
     }
     
-    const bookstores = await response.json();
-    
-    if (!bookstores || bookstores.length === 0) {
-      return null;
-    }
+    console.log(`[Serverless Function] Fetched ${allBookstores.length} bookstores from Supabase`);
     
     // Find bookshop by matching slug
-    const bookshop = bookstores.find((b) => {
+    const bookshop = allBookstores.find((b) => {
       const bookshopSlug = generateSlugFromName(b.name);
       return bookshopSlug === slug;
     });
     
     if (!bookshop) {
+      console.log(`[Serverless Function] Bookshop not found for slug: ${slug}`);
       return null;
     }
+    
+    console.log(`[Serverless Function] Found bookshop: ${bookshop.name} (ID: ${bookshop.id})`);
     
     // Map Supabase column names to expected format
     return {
