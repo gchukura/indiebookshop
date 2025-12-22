@@ -245,75 +245,99 @@ export default async function handler(req, res) {
     console.log('[Serverless Function] Request headers:', JSON.stringify(req.headers, null, 2));
     console.log('[Serverless Function] Request query:', req.query);
     
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    const pathname = url.pathname;
-    
-    console.log('[Serverless Function] Parsed pathname:', pathname);
-    console.log('[Serverless Function] Parsed search params:', url.searchParams.toString());
-    
-    // Extract slug from pathname
-    // Route rewrite: /bookshop/113-books -> /api/bookshop-slug
-    // Vercel should pass the original path in headers or we extract from referer
+    // Extract slug from request
+    // When Vercel routes /bookshop/powell-books to /api/bookshop-slug.js,
+    // the original path should be in x-vercel-original-path header
     let slug = null;
     
-    // Method 1: Try to get from x-vercel-original-path or x-invoke-path header
+    // Method 1: Try to get from x-vercel-original-path header (set by vercel.json route)
+    // Vercel may lowercase headers, so check both cases
     const originalPath = req.headers['x-vercel-original-path'] || 
+                         req.headers['x-vercel-original-path'.toLowerCase()] ||
                          req.headers['x-invoke-path'] ||
-                         req.headers['x-vercel-rewrite-path'];
+                         req.headers['x-invoke-path'.toLowerCase()] ||
+                         req.headers['x-vercel-rewrite-path'] ||
+                         req.headers['x-vercel-rewrite-path'.toLowerCase()];
+    
+    console.log('[Serverless Function] Original path header (case-sensitive):', req.headers['x-vercel-original-path']);
+    console.log('[Serverless Function] Original path header (lowercase):', req.headers['x-vercel-original-path'.toLowerCase()]);
+    console.log('[Serverless Function] All x-vercel headers:', JSON.stringify(
+      Object.keys(req.headers).filter(k => k.toLowerCase().includes('vercel') || k.toLowerCase().includes('invoke'))
+        .reduce((acc, k) => { acc[k] = req.headers[k]; return acc; }, {}), null, 2
+    ));
     
     if (originalPath) {
       console.log('[Serverless Function] Original path from header:', originalPath);
       const match = originalPath.match(/^\/bookshop\/([^/]+)/);
       if (match) {
-        slug = match[1];
+        slug = decodeURIComponent(match[1]);
+        console.log('[Serverless Function] Extracted slug from header:', slug);
+      } else {
+        console.log('[Serverless Function] Original path did not match /bookshop/ pattern:', originalPath);
+      }
+    } else {
+      console.log('[Serverless Function] No original path header found');
+    }
+    
+    // Method 2: Extract from req.url pathname
+    if (!slug) {
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const pathname = url.pathname;
+      console.log('[Serverless Function] Request URL pathname:', pathname);
+      
+      if (pathname.startsWith('/api/bookshop-slug')) {
+        // If we're at /api/bookshop-slug.js, try to get slug from query or referer
+        slug = url.searchParams.get('slug') || req.query?.slug;
+        console.log('[Serverless Function] Extracted slug from query:', slug);
+      } else if (pathname.startsWith('/bookshop/')) {
+        slug = decodeURIComponent(pathname.replace('/bookshop/', '').split('/')[0]);
+        console.log('[Serverless Function] Extracted slug from pathname:', slug);
       }
     }
     
-    // Method 2: Extract from pathname if it contains /bookshop/
-    if (!slug) {
-    if (pathname.startsWith('/api/bookshop/')) {
-      slug = pathname.replace('/api/bookshop/', '').split('/')[0];
-    } else if (pathname.startsWith('/bookshop/')) {
-      slug = pathname.replace('/bookshop/', '').split('/')[0];
+    // Method 3: Try referer header as last resort
+    if (!slug && req.headers.referer) {
+      const refererMatch = req.headers.referer.match(/\/bookshop\/([^/?#]+)/);
+      if (refererMatch) {
+        slug = decodeURIComponent(refererMatch[1]);
+        console.log('[Serverless Function] Extracted slug from referer:', slug);
       }
     }
     
-    // Method 3: Try query parameter (fallback)
-    if (!slug) {
-      slug = url.searchParams.get('slug') || req.query?.slug;
-    }
+    console.log('[Serverless Function] Final extracted slug:', slug);
     
-    console.log('[Serverless Function] Extracted slug:', slug);
+    // If no slug, just return base HTML (let React handle routing)
+    if (!slug || slug === 'bookshop' || slug === 'api' || slug === 'bookshop-slug' || slug === 'bookshop-slug.js') {
+      console.log('[Serverless Function] No valid slug found, returning base HTML');
+      // Return minimal HTML that React can hydrate
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, s-maxage=60');
+      return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>');
+    }
     
     // Always fetch base HTML first (for fallback)
-    const baseUrl = url.origin || `https://${req.headers.host}`;
+    const protocol = req.headers['x-forwarded-proto'] || 'https';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.indiebookshop.com';
+    const baseUrl = `${protocol}://${host}`;
     let baseHtml = null;
     
     try {
       console.log('[Serverless Function] Fetching base HTML from:', baseUrl);
       const htmlResponse = await fetch(`${baseUrl}/`, {
         headers: {
-          'User-Agent': req.headers['user-agent'] || '',
+          'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0',
           'Accept': 'text/html',
         },
       });
       
       if (htmlResponse.ok) {
         baseHtml = await htmlResponse.text();
+        console.log('[Serverless Function] Base HTML fetched, length:', baseHtml?.length || 0);
+      } else {
+        console.error('[Serverless Function] Failed to fetch base HTML, status:', htmlResponse.status);
       }
     } catch (error) {
       console.error('[Serverless Function] Error fetching base HTML:', error);
-    }
-    
-    // If no slug, just return base HTML (let React handle routing)
-    if (!slug || slug === 'bookshop' || slug === 'api' || slug === 'bookshop-slug') {
-      console.log('[Serverless Function] No valid slug found, returning base HTML');
-      if (baseHtml) {
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        return res.status(200).send(baseHtml);
-      }
-      // Fallback if we can't fetch base HTML
-      return res.status(200).send('<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>');
     }
     
     // Fetch bookshop data from Supabase
