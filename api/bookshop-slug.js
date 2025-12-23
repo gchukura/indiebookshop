@@ -199,9 +199,15 @@ function injectMetaTags(html, metaTags) {
   return html;
 }
 
+// Simple in-memory cache to reduce database queries
+// Key: slug, Value: { bookshop, timestamp }
+const slugCache = new Map();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 /**
  * Fetch bookshop data from Supabase by slug using REST API
  * Uses direct fetch to Supabase REST API (compatible with edge runtime)
+ * OPTIMIZED: Stops early when match is found, uses caching, limits query size
  */
 async function fetchBookshopBySlug(slug) {
   const supabaseUrl = process.env.SUPABASE_URL;
@@ -212,76 +218,87 @@ async function fetchBookshopBySlug(slug) {
     return null;
   }
   
+  // Check cache first
+  const cached = slugCache.get(slug);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log(`[Serverless] Cache hit for slug: ${slug}`);
+    return cached.bookshop;
+  }
+  
   try {
-    // Fetch all live bookstores using Supabase REST API with pagination
-    // Note: We fetch all because we don't have a slug column indexed
-    // This could be optimized by adding a slug column to Supabase
-    const allBookstores = [];
-    const pageSize = 1000;
+    // CRITICAL FIX: Query in batches but STOP EARLY when we find a match
+    // This dramatically reduces database egress
+    const pageSize = 500; // Smaller pages for faster early exit
+    const maxPages = 5; // Limit to 5 pages max (2500 bookstores) to prevent runaway queries
     let from = 0;
-    let hasMore = true;
+    let pageCount = 0;
     
-    while (hasMore) {
+    while (pageCount < maxPages) {
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=*&order=name&limit=${pageSize}&offset=${from}`,
+        `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=id,name,city,state,street,zip,description,phone,website,image_url,lat_numeric,lng_numeric,feature_ids&order=name&limit=${pageSize}&offset=${from}`,
         {
           headers: {
             'apikey': supabaseAnonKey,
             'Authorization': `Bearer ${supabaseAnonKey}`,
             'Content-Type': 'application/json',
-            'Prefer': 'count=exact',
           },
         }
       );
       
       if (!response.ok) {
-        console.error('Failed to fetch bookstores from Supabase:', response.status);
+        console.error('[Serverless] Failed to fetch bookstores from Supabase:', response.status);
         break;
       }
       
       const bookstores = await response.json();
       
       if (!bookstores || bookstores.length === 0) {
-        hasMore = false;
+        break; // No more bookstores
+      }
+      
+      // Search for matching slug in this batch
+      const bookshop = bookstores.find((b) => {
+        const bookshopSlug = generateSlugFromName(b.name);
+        return bookshopSlug === slug;
+      });
+      
+      if (bookshop) {
+        console.log(`[Serverless] Found bookshop: ${bookshop.name} (ID: ${bookshop.id}) after querying ${from + bookstores.length} bookstores`);
+        
+        // Map Supabase column names to expected format
+        const mappedBookshop = {
+          ...bookshop,
+          latitude: bookshop.lat_numeric?.toString() || bookshop.latitude || null,
+          longitude: bookshop.lng_numeric?.toString() || bookshop.longitude || null,
+          featureIds: bookshop.feature_ids || bookshop.featureIds || [],
+          imageUrl: bookshop.image_url || bookshop.imageUrl || null,
+        };
+        
+        // Cache the result
+        slugCache.set(slug, { bookshop: mappedBookshop, timestamp: Date.now() });
+        
+        // Clean up old cache entries (keep cache size reasonable)
+        if (slugCache.size > 1000) {
+          const oldestKey = slugCache.keys().next().value;
+          slugCache.delete(oldestKey);
+        }
+        
+        return mappedBookshop;
+      }
+      
+      // If we got fewer than pageSize, we've reached the end
+      if (bookstores.length < pageSize) {
         break;
       }
       
-      allBookstores.push(...bookstores);
       from += pageSize;
-      // If we got fewer than pageSize, we've reached the end
-      hasMore = bookstores.length === pageSize;
+      pageCount++;
     }
     
-    if (allBookstores.length === 0) {
-      console.log(`[Serverless Function] No bookstores found in Supabase`);
-      return null;
-    }
-    
-    console.log(`[Serverless Function] Fetched ${allBookstores.length} bookstores from Supabase`);
-    
-    // Find bookshop by matching slug
-    const bookshop = allBookstores.find((b) => {
-      const bookshopSlug = generateSlugFromName(b.name);
-      return bookshopSlug === slug;
-    });
-    
-    if (!bookshop) {
-      console.log(`[Serverless Function] Bookshop not found for slug: ${slug}`);
-      return null;
-    }
-    
-    console.log(`[Serverless Function] Found bookshop: ${bookshop.name} (ID: ${bookshop.id})`);
-    
-    // Map Supabase column names to expected format
-    return {
-      ...bookshop,
-      latitude: bookshop.lat_numeric?.toString() || bookshop.latitude || null,
-      longitude: bookshop.lng_numeric?.toString() || bookshop.longitude || null,
-      featureIds: bookshop.feature_ids || bookshop.featureIds || [],
-      imageUrl: bookshop.image_url || bookshop.imageUrl || null,
-    };
+    console.log(`[Serverless] Bookshop not found for slug: ${slug} (searched ${from} bookstores)`);
+    return null;
   } catch (error) {
-    console.error('Error fetching bookshop from Supabase:', error);
+    console.error('[Serverless] Error fetching bookshop from Supabase:', error);
     return null;
   }
 }
