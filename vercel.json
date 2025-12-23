@@ -91,7 +91,7 @@
       "handle": "filesystem"
     },
     {
-      "src": "/(.*)",
+      "src": "/:path*",
       "dest": "/index.html"
     }
   ],
