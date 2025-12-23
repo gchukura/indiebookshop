@@ -53,7 +53,37 @@
       "dest": "/api/serverless.js"
     },
     {
-      "src": "/(assets|images|fonts|css|js|favicon|apple-touch-icon)/.*",
+      "src": "/assets/:path*",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "continue": true
+    },
+    {
+      "src": "/images/:path*",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "continue": true
+    },
+    {
+      "src": "/fonts/:path*",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "continue": true
+    },
+    {
+      "src": "/css/:path*",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "continue": true
+    },
+    {
+      "src": "/js/:path*",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "continue": true
+    },
+    {
+      "src": "/favicon.ico",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "continue": true
+    },
+    {
+      "src": "/apple-touch-icon.png",
       "headers": { "cache-control": "public, max-age=31536000, immutable" },
       "continue": true
     },
