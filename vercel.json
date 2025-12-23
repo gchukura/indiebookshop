@@ -49,31 +49,31 @@
       "dest": "/api/bookshop-slug.js"
     },
     {
-      "src": "/api/:path*",
+      "src": "/api/(.*)",
       "dest": "/api/serverless.js"
     },
     {
-      "src": "/assets/:path*",
+      "src": "/assets/(.*)",
       "headers": { "cache-control": "public, max-age=31536000, immutable" },
       "continue": true
     },
     {
-      "src": "/images/:path*",
+      "src": "/images/(.*)",
       "headers": { "cache-control": "public, max-age=31536000, immutable" },
       "continue": true
     },
     {
-      "src": "/fonts/:path*",
+      "src": "/fonts/(.*)",
       "headers": { "cache-control": "public, max-age=31536000, immutable" },
       "continue": true
     },
     {
-      "src": "/css/:path*",
+      "src": "/css/(.*)",
       "headers": { "cache-control": "public, max-age=31536000, immutable" },
       "continue": true
     },
     {
-      "src": "/js/:path*",
+      "src": "/js/(.*)",
       "headers": { "cache-control": "public, max-age=31536000, immutable" },
       "continue": true
     },
@@ -91,7 +91,7 @@
       "handle": "filesystem"
     },
     {
-      "src": "/:path*",
+      "src": "/(.*)",
       "dest": "/index.html"
     }
   ],
