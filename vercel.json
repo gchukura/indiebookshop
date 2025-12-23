@@ -29,70 +29,26 @@
     {
       "source": "/bookshop/:slug",
       "destination": "/api/bookshop-slug?slug=:slug"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/sitemap.xml",
-      "dest": "/api/sitemap.js"
     },
     {
-      "src": "/ads.txt",
-      "dest": "/api/ads-txt.js"
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap.js"
     },
     {
-      "src": "/api/health",
-      "dest": "/api/health.js"
+      "source": "/ads.txt",
+      "destination": "/api/ads-txt.js"
     },
     {
-      "src": "/api/bookshop-slug",
-      "dest": "/api/bookshop-slug.js"
+      "source": "/api/health",
+      "destination": "/api/health.js"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/serverless.js"
+      "source": "/api/bookshop-slug",
+      "destination": "/api/bookshop-slug.js"
     },
     {
-      "src": "/assets/(.*)",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
-      "continue": true
-    },
-    {
-      "src": "/images/(.*)",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
-      "continue": true
-    },
-    {
-      "src": "/fonts/(.*)",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
-      "continue": true
-    },
-    {
-      "src": "/css/(.*)",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
-      "continue": true
-    },
-    {
-      "src": "/js/(.*)",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
-      "continue": true
-    },
-    {
-      "src": "/favicon.ico",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
-      "continue": true
-    },
-    {
-      "src": "/apple-touch-icon.png",
-      "headers": { "cache-control": "public, max-age=31536000, immutable" },
-      "continue": true
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/api/:path*",
+      "destination": "/api/serverless.js"
     }
   ],
   "headers": [
@@ -102,6 +58,69 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=60, s-maxage=60, stale-while-revalidate=300"
+        }
+      ]
+    },
+    {
+      "source": "/assets/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/images/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/fonts/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/css/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/js/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/favicon.ico",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/apple-touch-icon.png",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     }
