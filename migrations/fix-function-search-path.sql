@@ -38,7 +38,7 @@ $$;
 
 -- Fix 2: set_bookstore_slug trigger function
 -- Add SET search_path = '' to prevent search_path injection
--- Note: We need to use fully qualified table names when search_path is empty
+-- Note: We need to use fully qualified names when search_path is empty
 CREATE OR REPLACE FUNCTION set_bookstore_slug()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -46,15 +46,16 @@ SET search_path = ''
 AS $$
 BEGIN
   IF NEW.slug IS NULL OR NEW.slug = '' THEN
-    NEW.slug := generate_slug(NEW.name);
+    -- Use fully qualified function name since search_path is empty
+    NEW.slug := public.generate_slug(NEW.name);
     
     -- If slug still conflicts, append city or ID
-    -- Use fully qualified table name since search_path is empty
+    -- Use fully qualified table and function names since search_path is empty
     WHILE EXISTS (SELECT 1 FROM public.bookstores WHERE slug = NEW.slug AND id != NEW.id) LOOP
       IF NEW.city IS NOT NULL AND NEW.city != '' THEN
-        NEW.slug := generate_slug(NEW.name || ' ' || NEW.city);
+        NEW.slug := public.generate_slug(NEW.name || ' ' || NEW.city);
       ELSE
-        NEW.slug := generate_slug(NEW.name || ' ' || NEW.id::TEXT);
+        NEW.slug := public.generate_slug(NEW.name || ' ' || NEW.id::TEXT);
       END IF;
     END LOOP;
   END IF;
