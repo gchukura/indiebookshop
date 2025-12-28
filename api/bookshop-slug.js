@@ -94,7 +94,19 @@ function generateBookshopMetaTags(bookshop) {
   
   // Generate title (shortened to under 60 characters for Google display)
   // Format: "[Bookshop Name] | Indie Bookshop in [City]"
-  const title = `${bookshop.name} | Indie Bookshop in ${bookshop.city}`;
+  let title = `${bookshop.name} | Indie Bookshop in ${bookshop.city}`;
+  
+  // If title is too long (over 60 chars), truncate the bookshop name
+  // Google's display limit is 60 characters, so we ensure we stay under
+  if (title.length > 60) {
+    const suffix = ` | Indie Bookshop in ${bookshop.city}`;
+    const maxNameLength = 60 - suffix.length;
+    const truncatedName = bookshop.name.length > maxNameLength
+      ? bookshop.name.substring(0, maxNameLength - 3) + '...'
+      : bookshop.name;
+    title = `${truncatedName}${suffix}`;
+  }
+  
   const escapedTitle = escapeHtml(title);
   
   // Generate description
