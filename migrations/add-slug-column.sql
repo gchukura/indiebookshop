@@ -228,16 +228,23 @@ BEGIN
   END IF;
   
   -- Re-enable all disabled triggers
-  FOR trigger_name IN 
-    SELECT unnest(disabled_triggers)
-  LOOP
-    BEGIN
-      EXECUTE format('ALTER TABLE bookstores ENABLE TRIGGER %I', trigger_name);
-      RAISE NOTICE 'Re-enabled trigger: %', trigger_name;
-    EXCEPTION WHEN OTHERS THEN
-      RAISE NOTICE 'Could not re-enable trigger %: %', trigger_name, SQLERRM;
-    END;
-  END LOOP;
+  DECLARE
+    trigger_name TEXT;
+    i INTEGER;
+  BEGIN
+    IF array_length(disabled_triggers, 1) > 0 THEN
+      FOR i IN 1..array_length(disabled_triggers, 1)
+      LOOP
+        trigger_name := disabled_triggers[i];
+        BEGIN
+          EXECUTE format('ALTER TABLE bookstores ENABLE TRIGGER %I', trigger_name);
+          RAISE NOTICE 'Re-enabled trigger: %', trigger_name;
+        EXCEPTION WHEN OTHERS THEN
+          RAISE NOTICE 'Could not re-enable trigger %: %', trigger_name, SQLERRM;
+        END;
+      END LOOP;
+    END IF;
+  END;
 END $$;
 
 -- Step 7: Verify all bookshops have slugs
