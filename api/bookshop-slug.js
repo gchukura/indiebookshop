@@ -367,62 +367,60 @@ export default async function handler(req, res) {
     const metaTags = generateBookshopMetaTags(bookshop);
     console.log('[Serverless] Meta tags generated, length:', metaTags.length);
     
-    // Fetch base HTML to inject meta tags into
-    // Use internal Vercel URL to avoid recursive calls
-    const protocol = req.headers['x-forwarded-proto'] || 'https';
-    const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.indiebookshop.com';
-    const baseUrl = `${protocol}://${host}`;
-    let baseHtml = null;
+    // Construct production HTML template with all necessary scripts and styles
+    // This matches the built index.html structure from Vite
+    const baseHtml = `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     
-    try {
-      // Fetch from root path - this should return the static index.html
-      // Add a header to prevent it from being routed back to this function
-      console.log('[Serverless] Fetching base HTML from:', `${baseUrl}/`);
-      const htmlResponse = await fetch(`${baseUrl}/`, {
-        headers: {
-          'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0',
-          'Accept': 'text/html',
-          'X-Internal-Request': 'true', // Prevent routing back to this function
-        },
-      });
-      
-      if (htmlResponse.ok) {
-        baseHtml = await htmlResponse.text();
-        console.log('[Serverless] Base HTML fetched successfully, length:', baseHtml?.length || 0);
-        
-        // Verify we got actual HTML
-        if (!baseHtml || baseHtml.length < 100) {
-          console.error('[Serverless] Base HTML seems too short, might be an error page');
-          baseHtml = null;
-        } else if (!baseHtml.includes('<head>') && !baseHtml.includes('<!DOCTYPE')) {
-          console.error('[Serverless] Base HTML doesn\'t look like valid HTML');
-          baseHtml = null;
-        }
-      } else {
-        console.error('[Serverless] Failed to fetch base HTML, status:', htmlResponse.status);
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KK1N43FCQZ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-KK1N43FCQZ');
+    </script>
+    
+    ${metaTags}
+    
+    <!-- Google AdSense Verification -->
+    <meta name="google-adsense-account" content="ca-pub-4357894821158922">
+    <!-- AdSense Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4357894821158922" crossorigin="anonymous"></script>
+    <!-- Ahrefs Analytics -->
+    <script src="https://analytics.ahrefs.com/analytics.js" data-key="WXyCVg4DSjVfmskFzEGl9Q" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+      /* Prevent font loading layout shifts */
+      body {
+        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       }
-    } catch (error) {
-      console.error('[Serverless] Error fetching base HTML:', error);
-      console.error('[Serverless] Error details:', error.message, error.stack);
-    }
+      .font-serif {
+        font-family: 'Libre Baskerville', Georgia, serif;
+      }
+    </style>
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <!-- Mapbox CSS -->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/assets/index.js"></script>
+  </body>
+</html>`;
     
-    // Inject meta tags into base HTML
-    if (baseHtml) {
-      console.log('[Serverless] Injecting meta tags into base HTML');
-      const modifiedHtml = injectMetaTags(baseHtml, metaTags);
-      console.log('[Serverless] Meta tags injected, returning modified HTML');
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
-      return res.status(200).send(modifiedHtml);
-    }
-    
-    // Fallback: return basic HTML with meta tags if we couldn't fetch base HTML
-    console.log('[Serverless] Could not fetch base HTML, using fallback HTML with meta tags');
+    console.log('[Serverless] Using production HTML template with meta tags');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
-    return res.status(200).send(
-      `<!DOCTYPE html><html><head>${metaTags}</head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>`
-    );
+    return res.status(200).send(baseHtml);
   } catch (error) {
     console.error('[Serverless] ERROR in bookshop function:', error);
     console.error('[Serverless] Error stack:', error.stack);
