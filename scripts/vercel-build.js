@@ -1,13 +1,17 @@
 // This script runs when Vercel builds the project
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 console.log('Starting Vercel build process...');
 
 // Run the Vite build
 console.log('Building frontend with Vite...');
-execSync('vite build', { stdio: 'inherit' });
+execSync('npx vite build', { stdio: 'inherit' });
 
 // Run TypeScript type checking (non-blocking - errors won't fail the build)
 console.log('Checking TypeScript types...');

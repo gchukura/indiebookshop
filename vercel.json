@@ -49,10 +49,6 @@
     {
       "source": "/api/:path*",
       "destination": "/api/serverless.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
     }
   ],
   "headers": [
