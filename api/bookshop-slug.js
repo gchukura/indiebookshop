@@ -292,8 +292,13 @@ async function fetchBookshopBySlug(slug) {
       
       // Search for matching slug in this batch
       const bookshop = bookstores.find((b) => {
+        if (!b.name) return false;
         const bookshopSlug = generateSlugFromName(b.name);
-        return bookshopSlug === slug;
+        const matches = bookshopSlug === slug;
+        if (matches) {
+          console.log(`[Serverless] Slug match found: "${bookshopSlug}" === "${slug}" for bookshop: ${b.name}`);
+        }
+        return matches;
       });
       
       if (bookshop) {
@@ -400,8 +405,15 @@ export default async function handler(req, res) {
     
     // Fetch bookshop data from Supabase
     console.log('[Serverless] Fetching bookshop for slug:', decodedSlug);
+    console.log('[Serverless] Slug type:', typeof decodedSlug, 'length:', decodedSlug.length);
     const bookshop = await fetchBookshopBySlug(decodedSlug);
     console.log('[Serverless] Bookshop found:', !!bookshop);
+    if (bookshop) {
+      console.log('[Serverless] Found bookshop name:', bookshop.name);
+      console.log('[Serverless] Generated slug from name:', generateSlugFromName(bookshop.name));
+    } else {
+      console.log('[Serverless] Bookshop lookup returned null/undefined');
+    }
     
     // If bookshop not found, return base HTML (let React handle 404)
     if (!bookshop) {
