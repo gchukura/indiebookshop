@@ -274,7 +274,7 @@ async function fetchBookshopBySlug(slug) {
     try {
       // Use PostgREST filter syntax: slug=eq.value (not slug=eq.value)
       const directResponse = await fetch(
-        `${supabaseUrl}/rest/v1/bookstores?slug=eq.${encodeURIComponent(slug)}&live=eq.true&select=id,name,city,state,street,zip,description,phone,website,imageUrl,latitude,longitude,featureIds&limit=1`,
+        `${supabaseUrl}/rest/v1/bookstores?slug=eq.${encodeURIComponent(slug)}&live=eq.true&select=*&limit=1`,
         {
           headers: {
             'apikey': supabaseAnonKey,
@@ -343,7 +343,7 @@ async function fetchBookshopBySlug(slug) {
     
     while (pageCount < maxPages) {
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=id,name,city,state,street,zip,description,phone,website,imageUrl,latitude,longitude,featureIds&order=name&limit=${pageSize}&offset=${from}`,
+        `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=*&order=name&limit=${pageSize}&offset=${from}`,
         {
           headers: {
             'apikey': supabaseAnonKey,
@@ -471,13 +471,13 @@ async function fetchBookshopBySlug(slug) {
         // Try to find bookshop by searching for name parts
         // Use Postgres text search: name ILIKE '%fables%' AND name ILIKE '%books%'
         const nameFilters = nameParts.map(part => `name.ilike.%${part}%`).join(',');
-        const fallbackUrl = `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=id,name,city,state,street,zip,description,phone,website,imageUrl,latitude,longitude,featureIds&limit=10`;
+        const fallbackUrl = `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=*&limit=10`;
         
         // Try a simpler approach: search for first name part using PostgREST ilike syntax
         const firstPart = nameParts[0];
         // PostgREST syntax: name.ilike.*pattern* for case-insensitive pattern matching
         const response = await fetch(
-          `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=id,name,city,state,street,zip,description,phone,website,imageUrl,latitude,longitude,featureIds&name=ilike.*${encodeURIComponent(firstPart)}*&limit=50`,
+          `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=*&name=ilike.*${encodeURIComponent(firstPart)}*&limit=50`,
           {
             headers: {
               'apikey': supabaseAnonKey,
