@@ -60,23 +60,14 @@ BEGIN
     END;
   END LOOP;
   
-  -- Store disabled triggers in a temporary table for later re-enabling
-  CREATE TEMP TABLE IF NOT EXISTS disabled_bookstore_triggers (tgname TEXT);
-  TRUNCATE disabled_bookstore_triggers;
-  INSERT INTO disabled_bookstore_triggers SELECT unnest(disabled_triggers);
-END $$;
-
--- Now update slugs (triggers are disabled)
-UPDATE bookstores 
-SET slug = generate_slug(name)
-WHERE slug IS NULL OR slug = '';
-
--- Re-enable all disabled triggers
-DO $$
-DECLARE
-  trigger_name TEXT;
-BEGIN
-  FOR trigger_name IN SELECT tgname FROM disabled_bookstore_triggers
+  -- Now update slugs (triggers are disabled)
+  UPDATE bookstores 
+  SET slug = generate_slug(name)
+  WHERE slug IS NULL OR slug = '';
+  
+  -- Re-enable all disabled triggers
+  FOR trigger_name IN 
+    SELECT unnest(disabled_triggers)
   LOOP
     BEGIN
       EXECUTE format('ALTER TABLE bookstores ENABLE TRIGGER %I', trigger_name);
@@ -86,8 +77,6 @@ BEGIN
     END;
   END LOOP;
 END $$;
-
-DROP TABLE IF EXISTS disabled_bookstore_triggers;
 
 -- Step 5: Check for duplicate slugs
 -- Run this query to see duplicates:
@@ -125,10 +114,6 @@ BEGIN
       RAISE NOTICE 'Could not disable trigger %: %', trigger_record.tgname, SQLERRM;
     END;
   END LOOP;
-  
-  CREATE TEMP TABLE IF NOT EXISTS disabled_bookstore_triggers (tgname TEXT);
-  TRUNCATE disabled_bookstore_triggers;
-  INSERT INTO disabled_bookstore_triggers SELECT unnest(disabled_triggers);
   
   -- Iteratively resolve duplicates until none remain
   LOOP
@@ -236,7 +221,8 @@ BEGIN
   END IF;
   
   -- Re-enable all disabled triggers
-  FOR trigger_name IN SELECT tgname FROM disabled_bookstore_triggers
+  FOR trigger_name IN 
+    SELECT unnest(disabled_triggers)
   LOOP
     BEGIN
       EXECUTE format('ALTER TABLE bookstores ENABLE TRIGGER %I', trigger_name);
@@ -245,8 +231,6 @@ BEGIN
       RAISE NOTICE 'Could not re-enable trigger %: %', trigger_name, SQLERRM;
     END;
   END LOOP;
-  
-  DROP TABLE IF EXISTS disabled_bookstore_triggers;
 END $$;
 
 -- Step 7: Verify all bookshops have slugs
