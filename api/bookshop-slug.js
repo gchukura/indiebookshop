@@ -4,7 +4,12 @@
 // Note: This uses the Supabase REST API directly for compatibility
 
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Constants for meta tag generation
 const BASE_URL = 'https://www.indiebookshop.com';
@@ -373,21 +378,41 @@ export default async function handler(req, res) {
     // Try to read the built index.html file to get correct script paths
     // Vite generates hashed filenames that change with each build
     let baseHtml = null;
-    try {
-      const indexPath = join(process.cwd(), 'dist', 'public', 'index.html');
-      baseHtml = readFileSync(indexPath, 'utf-8');
-      console.log('[Serverless] Read built index.html from filesystem');
-    } catch (error) {
-      console.log('[Serverless] Could not read index.html from filesystem, trying fetch:', error.message);
-      
-      // Fallback: Fetch from root URL (should return the static index.html)
+    
+    // Try multiple possible paths for the built index.html
+    const possiblePaths = [
+      join(process.cwd(), 'dist', 'public', 'index.html'),
+      join(process.cwd(), 'public', 'index.html'),
+      join(__dirname, '..', 'dist', 'public', 'index.html'),
+      join(__dirname, '..', 'public', 'index.html'),
+    ];
+    
+    for (const indexPath of possiblePaths) {
       try {
+        baseHtml = readFileSync(indexPath, 'utf-8');
+        console.log('[Serverless] Read built index.html from:', indexPath);
+        break;
+      } catch (error) {
+        // Try next path
+        continue;
+      }
+    }
+    
+    // If filesystem read failed, try fetching from a direct static file URL
+    // Use the deployment URL to bypass rewrites
+    if (!baseHtml) {
+      try {
+        const deploymentUrl = process.env.VERCEL_URL || req.headers['x-vercel-deployment-url'];
         const protocol = req.headers['x-forwarded-proto'] || 'https';
         const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.indiebookshop.com';
-        const baseUrl = `${protocol}://${host}`;
         
-        // Use a special header to bypass our rewrite and get the actual static file
-        const htmlResponse = await fetch(`${baseUrl}/index.html`, {
+        // Try fetching from the deployment URL directly (bypasses rewrites)
+        const fetchUrl = deploymentUrl 
+          ? `${protocol}://${deploymentUrl}/index.html`
+          : `${protocol}://${host}/index.html`;
+        
+        console.log('[Serverless] Attempting to fetch index.html from:', fetchUrl);
+        const htmlResponse = await fetch(fetchUrl, {
           headers: {
             'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0',
             'Accept': 'text/html',
@@ -396,7 +421,9 @@ export default async function handler(req, res) {
         
         if (htmlResponse.ok) {
           baseHtml = await htmlResponse.text();
-          console.log('[Serverless] Fetched index.html from static files');
+          console.log('[Serverless] Fetched index.html successfully');
+        } else {
+          console.error('[Serverless] Failed to fetch index.html, status:', htmlResponse.status);
         }
       } catch (fetchError) {
         console.error('[Serverless] Failed to fetch index.html:', fetchError.message);
