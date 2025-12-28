@@ -7,6 +7,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Helper to get current working directory
+const cwd = process.cwd();
+
 console.log('Starting Vercel build process...');
 
 // Run the Vite build
@@ -27,7 +30,7 @@ try {
 console.log('Copying files for serverless functions...');
 
 // Ensure public folder exists
-const distPublicDir = path.join(process.cwd(), 'dist', 'public');
+const distPublicDir = path.join(cwd, 'dist', 'public');
 if (!fs.existsSync(distPublicDir)) {
   fs.mkdirSync(distPublicDir, { recursive: true });
 }
@@ -48,7 +51,7 @@ fs.writeFileSync('api/env-config.js', envConfigContent);
 
 // Extract script and CSS paths from built index.html for bookshop-slug function
 console.log('Extracting script paths from built index.html...');
-const indexPath = path.join(process.cwd(), 'dist', 'public', 'index.html');
+const indexPath = path.join(cwd, 'dist', 'public', 'index.html');
 if (fs.existsSync(indexPath)) {
   const indexHtml = fs.readFileSync(indexPath, 'utf-8');
   const scriptMatch = indexHtml.match(/<script[^>]+src="([^"]+)"[^>]*>/);
