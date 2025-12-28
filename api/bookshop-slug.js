@@ -268,6 +268,55 @@ async function fetchBookshopBySlug(slug) {
   }
   
   try {
+    // OPTIMIZATION: Try direct slug column query first (if slug column exists)
+    // This is much faster than fetching all bookstores and generating slugs
+    console.log('[Serverless] Attempting direct slug column query...');
+    try {
+      const directResponse = await fetch(
+        `${supabaseUrl}/rest/v1/bookstores?slug=eq.${encodeURIComponent(slug)}&live=eq.true&select=id,name,city,state,street,zip,description,phone,website,image_url,lat_numeric,lng_numeric,feature_ids&limit=1`,
+        {
+          headers: {
+            'apikey': supabaseAnonKey,
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
+          },
+        }
+      );
+      
+      if (directResponse.ok) {
+        const directResults = await directResponse.json();
+        if (directResults && directResults.length > 0) {
+          const bookshop = directResults[0];
+          console.log(`[Serverless] ✓ Found bookshop via slug column: ${bookshop.name} (ID: ${bookshop.id})`);
+          
+          // Map Supabase column names to expected format
+          const mappedBookshop = {
+            ...bookshop,
+            latitude: bookshop.lat_numeric?.toString() || bookshop.latitude || null,
+            longitude: bookshop.lng_numeric?.toString() || bookshop.longitude || null,
+            featureIds: bookshop.feature_ids || bookshop.featureIds || [],
+            imageUrl: bookshop.image_url || bookshop.imageUrl || null,
+          };
+          
+          // Cache the result
+          slugCache.set(slug, { bookshop: mappedBookshop, timestamp: Date.now() });
+          
+          console.log('================================');
+          return mappedBookshop;
+        }
+      } else if (directResponse.status === 400) {
+        // 400 might mean slug column doesn't exist - fall through to fallback
+        console.log('[Serverless] Slug column query returned 400, slug column may not exist - using fallback');
+      } else {
+        console.log(`[Serverless] Slug column query returned ${directResponse.status}, using fallback`);
+      }
+    } catch (directError) {
+      console.log('[Serverless] Direct slug query failed, using fallback:', directError.message);
+    }
+    
+    // FALLBACK: If slug column doesn't exist or query failed, use the old method
+    console.log('[Serverless] Using fallback: generating slugs from names...');
     // CRITICAL FIX: Query in batches but STOP EARLY when we find a match
     // This dramatically reduces database egress
     const pageSize = 500; // Smaller pages for faster early exit
