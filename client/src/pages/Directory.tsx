@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect, Component, ReactNode } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect, Component, ReactNode, startTransition } from "react";
 import { Search, MapPin, Filter, X, ChevronDown, ChevronLeft, ChevronRight, Crosshair, Loader2, AlertCircle } from "lucide-react";
 // react-map-gl v8 uses /mapbox subpath
 import Map from "react-map-gl/mapbox";
@@ -629,15 +629,19 @@ const Directory = () => {
     );
   };
 
-  // Clear all filters
-  const clearFilters = () => {
-    setSearchQuery("");
-    setSelectedState("all");
-    setSelectedCity("all");
-    setSelectedCounty("all");
-    setSelectedFeatures([]);
-    setHasFitInitialView(false);
-  };
+  // Clear all filters - optimized with startTransition to prevent blocking
+  const clearFilters = useCallback(() => {
+    // Use startTransition to mark these as non-urgent updates
+    // This allows React to yield to more urgent work (like user interactions)
+    startTransition(() => {
+      setSearchQuery("");
+      setSelectedState("all");
+      setSelectedCity("all");
+      setSelectedCounty("all");
+      setSelectedFeatures([]);
+      setHasFitInitialView(false);
+    });
+  }, []);
 
   // Active filter count
   const activeFilterCount = useMemo(() => {
@@ -786,9 +790,13 @@ const Directory = () => {
     }, 100);
   }, [updateMapBounds]);
 
-  // Search current map area
+  // Search current map area - optimized to prevent blocking
   const searchThisArea = useCallback(() => {
-    setShowSearchThisArea(false);
+    // Use startTransition to mark this as non-urgent
+    // This prevents blocking the UI thread
+    startTransition(() => {
+      setShowSearchThisArea(false);
+    });
   }, []);
 
   // Use current location - with comprehensive error handling
@@ -1126,7 +1134,12 @@ const Directory = () => {
               type="text"
               placeholder="Search state, city, or bookshop name..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                // Use startTransition for search input to prevent blocking
+                startTransition(() => {
+                  setSearchQuery(e.target.value);
+                });
+              }}
               className="w-full pl-12 pr-4 py-4 font-sans text-base rounded-full border-0 focus:ring-2 focus:ring-[#2A6B7C]"
             />
           </div>
@@ -1238,12 +1251,15 @@ const Directory = () => {
                     <select
                       value={selectedState}
                       onChange={(e) => {
-                        setSelectedState(e.target.value);
-                        // Reset city/county when state changes
-                        if (e.target.value === "all") {
-                          setSelectedCity("all");
-                          setSelectedCounty("all");
-                        }
+                        const newState = e.target.value;
+                        startTransition(() => {
+                          setSelectedState(newState);
+                          // Reset city/county when state changes
+                          if (newState === "all") {
+                            setSelectedCity("all");
+                            setSelectedCounty("all");
+                          }
+                        });
                       }}
                       className="appearance-none w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 pr-10 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#2A6B7C]"
                     >
@@ -1259,7 +1275,11 @@ const Directory = () => {
                   <div className="relative">
                     <select
                       value={selectedCity}
-                      onChange={(e) => setSelectedCity(e.target.value)}
+                      onChange={(e) => {
+                        startTransition(() => {
+                          setSelectedCity(e.target.value);
+                        });
+                      }}
                       disabled={cities.length === 0}
                       className={`appearance-none w-full border rounded-lg px-3 py-2 pr-10 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] ${
                         cities.length === 0 
@@ -1288,7 +1308,11 @@ const Directory = () => {
                   <div className="relative">
                     <select
                       value={selectedCounty}
-                      onChange={(e) => setSelectedCounty(e.target.value)}
+                      onChange={(e) => {
+                        startTransition(() => {
+                          setSelectedCounty(e.target.value);
+                        });
+                      }}
                       disabled={counties.length === 0}
                       className={`appearance-none w-full border rounded-lg px-3 py-2 pr-10 font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] ${
                         counties.length === 0 
@@ -1429,7 +1453,12 @@ const Directory = () => {
                 type="text"
                 placeholder="Search bookshops..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  // Use startTransition for search input to prevent blocking
+                  startTransition(() => {
+                    setSearchQuery(e.target.value);
+                  });
+                }}
                 className="w-full pl-12 pr-4 py-3 font-sans text-sm rounded-full border-2 border-gray-200 focus:ring-2 focus:ring-[#2A6B7C] focus:border-transparent"
               />
             </div>
