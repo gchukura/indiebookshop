@@ -80,15 +80,23 @@ export default async function handler(req, res) {
     addUrl('/submit-bookshop', 0.6, 'monthly');
     addUrl('/submit-event', 0.6, 'monthly');
     
-    // Add bookshop pages with name-based slugs
-    // These are still important for SEO - each bookshop gets its own page
+    // Add bookshop pages using the slug column from the database
+    // This ensures consistency with the bookshop-slug.js function which queries by slug
+    // The slug column handles duplicates by appending city/state/ID when needed
     let bookshopCount = 0;
     let skippedCount = 0;
     for (const bookshop of bookstores) {
       if (bookshop.id && bookshop.name) {
         try {
-          const bookshopSlug = generateSlug(bookshop.name);
-          if (bookshopSlug) {
+          // Prefer the slug column from database (handles duplicates correctly)
+          // Fallback to generating slug from name if slug column is missing
+          let bookshopSlug = bookshop.slug;
+          if (!bookshopSlug || bookshopSlug.trim() === '') {
+            bookshopSlug = generateSlug(bookshop.name);
+            console.warn(`Serverless: Bookshop "${bookshop.name}" (ID: ${bookshop.id}) missing slug column, using generated slug: "${bookshopSlug}"`);
+          }
+          
+          if (bookshopSlug && bookshopSlug.trim() !== '') {
             addUrl(`/bookshop/${bookshopSlug}`, 0.7, 'weekly');
             bookshopCount++;
           } else {
