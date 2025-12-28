@@ -124,7 +124,7 @@ function getRateLimitConfig(path: string): RateLimitConfig | null {
 }
 
 // Constants for meta tag generation
-const BASE_URL = 'https://indiebookshop.com';
+const BASE_URL = 'https://www.indiebookshop.com';
 const DESCRIPTION_TEMPLATE = '{name} is an independent bookshop in {city}, {state}. Discover events, specialty offerings, and more information about this local bookshop at IndiebookShop.com.';
 
 /**

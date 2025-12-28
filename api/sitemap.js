@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     
     // Get base URL from request or use a default
     const protocol = req.headers['x-forwarded-proto'] || 'https';
-    const host = req.headers['x-forwarded-host'] || req.headers.host || 'indiebookshop.com';
+    const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.indiebookshop.com';
     const baseUrl = `${protocol}://${host}`;
     
     // Start building the sitemap XML

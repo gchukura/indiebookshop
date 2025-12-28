@@ -1,7 +1,7 @@
 // SEO constants and utility functions
 
 // Base URL for canonical links
-export const BASE_URL = 'https://indiebookshop.com';
+export const BASE_URL = 'https://www.indiebookshop.com';
 
 // Main keywords for SEO - general keywords without location specifics
 export const MAIN_KEYWORDS = [

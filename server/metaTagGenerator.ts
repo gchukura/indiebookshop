@@ -1,7 +1,7 @@
 import { Bookstore } from '@shared/schema';
 
 // Constants - must match client/src/lib/seo.ts
-const BASE_URL = 'https://indiebookshop.com';
+const BASE_URL = 'https://www.indiebookshop.com';
 
 const DESCRIPTION_TEMPLATES = {
   detail: '{name} is an independent bookshop in {city}, {state}. Discover events, specialty offerings, and more information about this local bookshop at IndiebookShop.com.',
