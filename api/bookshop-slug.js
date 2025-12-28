@@ -306,11 +306,21 @@ async function fetchBookshopBySlug(slug) {
           console.log('================================');
           return mappedBookshop;
         }
-      } else if (directResponse.status === 400) {
-        // 400 might mean slug column doesn't exist - fall through to fallback
-        console.log('[Serverless] Slug column query returned 400, slug column may not exist - using fallback');
       } else {
-        console.log(`[Serverless] Slug column query returned ${directResponse.status}, using fallback`);
+        const errorText = await directResponse.text().catch(() => '');
+        const errorJson = (() => {
+          try {
+            return JSON.parse(errorText);
+          } catch {
+            return { message: errorText };
+          }
+        })();
+        console.error(`[Serverless] Slug column query failed with ${directResponse.status}:`, errorJson);
+        console.error(`[Serverless] Query URL: ${supabaseUrl}/rest/v1/bookstores?slug=eq.${encodeURIComponent(slug)}&live=eq.true&...`);
+        if (directResponse.status === 400) {
+          // 400 might mean slug column doesn't exist or query syntax error - fall through to fallback
+          console.log('[Serverless] Slug column query returned 400, using fallback');
+        }
       }
     } catch (directError) {
       console.log('[Serverless] Direct slug query failed, using fallback:', directError.message);
