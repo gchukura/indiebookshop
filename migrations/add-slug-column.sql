@@ -100,12 +100,16 @@ DROP TABLE IF EXISTS disabled_bookstore_triggers;
 
 -- Step 6: Handle duplicates by appending city (if available)
 -- This ensures unique slugs while keeping them readable
--- Disable all user-defined triggers again for this update
+-- We'll iterate until all duplicates are resolved
 DO $$
 DECLARE
   trigger_record RECORD;
   disabled_triggers TEXT[] := ARRAY[]::TEXT[];
+  duplicate_count INTEGER;
+  iteration_count INTEGER := 0;
+  max_iterations INTEGER := 10; -- Safety limit
 BEGIN
+  -- Disable all user-defined triggers
   FOR trigger_record IN 
     SELECT tgname 
     FROM pg_trigger 
@@ -125,37 +129,81 @@ BEGIN
   CREATE TEMP TABLE IF NOT EXISTS disabled_bookstore_triggers (tgname TEXT);
   TRUNCATE disabled_bookstore_triggers;
   INSERT INTO disabled_bookstore_triggers SELECT unnest(disabled_triggers);
-END $$;
-
-WITH duplicates AS (
-  SELECT slug, COUNT(*) as count
-  FROM bookstores
-  WHERE slug IS NOT NULL AND slug != ''
-  GROUP BY slug
-  HAVING COUNT(*) > 1
-)
-UPDATE bookstores b
-SET slug = generate_slug(
-  CASE 
-    WHEN b.city IS NOT NULL AND b.city != '' 
-    THEN b.name || ' ' || b.city
-    ELSE b.name || ' ' || b.id::TEXT
-  END
-)
-FROM duplicates d
-WHERE b.slug = d.slug
-  AND b.id NOT IN (
-    -- Keep the first occurrence (lowest ID) with original slug
-    SELECT MIN(id) 
-    FROM bookstores 
-    WHERE slug = d.slug
-  );
-
--- Re-enable all disabled triggers
-DO $$
-DECLARE
-  trigger_name TEXT;
-BEGIN
+  
+  -- Iteratively resolve duplicates until none remain
+  LOOP
+    iteration_count := iteration_count + 1;
+    
+    -- Count remaining duplicates
+    SELECT COUNT(*) INTO duplicate_count
+    FROM (
+      SELECT slug, COUNT(*) as cnt
+      FROM bookstores
+      WHERE slug IS NOT NULL AND slug != ''
+      GROUP BY slug
+      HAVING COUNT(*) > 1
+    ) dup_check;
+    
+    EXIT WHEN duplicate_count = 0 OR iteration_count > max_iterations;
+    
+    RAISE NOTICE 'Iteration %: Found % duplicate slug groups', iteration_count, duplicate_count;
+    
+    -- Update duplicates: append city, then state, then ID if still duplicate
+    WITH duplicates AS (
+      SELECT slug, COUNT(*) as count
+      FROM bookstores
+      WHERE slug IS NOT NULL AND slug != ''
+      GROUP BY slug
+      HAVING COUNT(*) > 1
+    ),
+    to_update AS (
+      SELECT b.id, b.name, b.city, b.state, d.slug,
+        ROW_NUMBER() OVER (PARTITION BY d.slug ORDER BY b.id) as rn
+      FROM bookstores b
+      JOIN duplicates d ON b.slug = d.slug
+      WHERE b.id NOT IN (
+        -- Keep the first occurrence (lowest ID) with original slug
+        SELECT MIN(id) 
+        FROM bookstores 
+        WHERE slug = d.slug
+      )
+    )
+    UPDATE bookstores b
+    SET slug = generate_slug(
+      CASE 
+        -- First try: name + city
+        WHEN tu.city IS NOT NULL AND tu.city != '' 
+        THEN tu.name || ' ' || tu.city
+        -- Second try: name + state
+        WHEN tu.state IS NOT NULL AND tu.state != ''
+        THEN tu.name || ' ' || tu.state
+        -- Last resort: name + ID
+        ELSE tu.name || ' ' || b.id::TEXT
+      END
+    )
+    FROM to_update tu
+    WHERE b.id = tu.id;
+    
+    RAISE NOTICE 'Updated duplicates in iteration %', iteration_count;
+  END LOOP;
+  
+  -- Check final duplicate count
+  SELECT COUNT(*) INTO duplicate_count
+  FROM (
+    SELECT slug, COUNT(*) as cnt
+    FROM bookstores
+    WHERE slug IS NOT NULL AND slug != ''
+    GROUP BY slug
+    HAVING COUNT(*) > 1
+  ) final_check;
+  
+  IF duplicate_count > 0 THEN
+    RAISE WARNING 'Still have % duplicate slug groups after % iterations. Manual review needed.', duplicate_count, iteration_count;
+  ELSE
+    RAISE NOTICE 'All duplicates resolved after % iterations', iteration_count;
+  END IF;
+  
+  -- Re-enable all disabled triggers
   FOR trigger_name IN SELECT tgname FROM disabled_bookstore_triggers
   LOOP
     BEGIN
@@ -165,9 +213,9 @@ BEGIN
       RAISE NOTICE 'Could not re-enable trigger %: %', trigger_name, SQLERRM;
     END;
   END LOOP;
+  
+  DROP TABLE IF EXISTS disabled_bookstore_triggers;
 END $$;
-
-DROP TABLE IF EXISTS disabled_bookstore_triggers;
 
 -- Step 7: Verify all bookshops have slugs
 -- Run this to check:
@@ -175,10 +223,39 @@ DROP TABLE IF EXISTS disabled_bookstore_triggers;
 -- FROM bookstores 
 -- WHERE slug IS NULL OR slug = '';
 
--- Step 8: (Optional) Add unique constraint after deduplication
--- Uncomment this after verifying no duplicates remain:
--- ALTER TABLE bookstores 
--- ADD CONSTRAINT unique_slug UNIQUE (slug);
+-- Step 8: Add unique constraint after deduplication
+-- First check if duplicates still exist
+DO $$
+DECLARE
+  duplicate_count INTEGER;
+BEGIN
+  -- Count remaining duplicates
+  SELECT COUNT(*) INTO duplicate_count
+  FROM (
+    SELECT slug, COUNT(*) as cnt
+    FROM bookstores
+    WHERE slug IS NOT NULL AND slug != ''
+    GROUP BY slug
+    HAVING COUNT(*) > 1
+  ) dup_check;
+  
+  IF duplicate_count > 0 THEN
+    RAISE WARNING 'Cannot add unique constraint: % duplicate slug groups still exist. Run this query to see them:', duplicate_count;
+    RAISE NOTICE 'SELECT slug, COUNT(*) as count, array_agg(name ORDER BY id) as names FROM bookstores WHERE slug IS NOT NULL AND slug != '' GROUP BY slug HAVING COUNT(*) > 1 ORDER BY count DESC;';
+    RAISE EXCEPTION 'Please resolve all duplicate slugs before adding unique constraint';
+  ELSE
+    -- Add unique constraint only if no duplicates exist
+    BEGIN
+      ALTER TABLE bookstores 
+      ADD CONSTRAINT unique_slug UNIQUE (slug);
+      RAISE NOTICE 'Successfully added unique constraint on slug column';
+    EXCEPTION WHEN duplicate_object THEN
+      RAISE NOTICE 'Unique constraint already exists';
+    WHEN OTHERS THEN
+      RAISE WARNING 'Could not add unique constraint: %', SQLERRM;
+    END;
+  END IF;
+END $$;
 
 -- Step 9: Create a trigger to auto-generate slugs for new bookshops
 CREATE OR REPLACE FUNCTION set_bookstore_slug()
