@@ -11,16 +11,30 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Import script paths (generated at build time)
-let SCRIPT_PATH = '/assets/index.js';
-let CSS_PATH = null;
-try {
-  const scriptPaths = await import('./script-paths.js');
-  SCRIPT_PATH = scriptPaths.SCRIPT_PATH || SCRIPT_PATH;
-  CSS_PATH = scriptPaths.CSS_PATH || null;
-  console.log('[Serverless] Using script path from build config:', SCRIPT_PATH);
-} catch (error) {
-  console.log('[Serverless] Could not import script-paths.js, using defaults');
+// Script paths will be loaded dynamically (generated at build time)
+let scriptPathsCache = null;
+
+async function loadScriptPaths() {
+  if (scriptPathsCache) {
+    return scriptPathsCache;
+  }
+  
+  try {
+    const scriptPaths = await import('./script-paths.js');
+    scriptPathsCache = {
+      SCRIPT_PATH: scriptPaths.SCRIPT_PATH || '/assets/index.js',
+      CSS_PATH: scriptPaths.CSS_PATH || null
+    };
+    console.log('[Serverless] Loaded script paths from build config:', scriptPathsCache.SCRIPT_PATH);
+    return scriptPathsCache;
+  } catch (error) {
+    console.log('[Serverless] Could not import script-paths.js, using defaults:', error.message);
+    scriptPathsCache = {
+      SCRIPT_PATH: '/assets/index.js',
+      CSS_PATH: null
+    };
+    return scriptPathsCache;
+  }
 }
 
 // Constants for meta tag generation
@@ -454,11 +468,12 @@ export default async function handler(req, res) {
     
     // Last resort: Return HTML with script path from build config
     console.warn('[Serverless] Using fallback HTML with build-time script path');
-    const cssLink = CSS_PATH ? `<link rel="stylesheet" crossorigin href="${CSS_PATH}">` : '';
+    const scriptPaths = await loadScriptPaths();
+    const cssLink = scriptPaths.CSS_PATH ? `<link rel="stylesheet" crossorigin href="${scriptPaths.CSS_PATH}">` : '';
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
     return res.status(200).send(
-      `<!DOCTYPE html><html><head>${metaTags}${cssLink}</head><body><div id="root"></div><script type="module" crossorigin src="${SCRIPT_PATH}"></script></body></html>`
+      `<!DOCTYPE html><html><head>${metaTags}${cssLink}</head><body><div id="root"></div><script type="module" crossorigin src="${scriptPaths.SCRIPT_PATH}"></script></body></html>`
     );
   } catch (error) {
     console.error('[Serverless] ERROR in bookshop function:', error);
