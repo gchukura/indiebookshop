@@ -19,3 +19,4 @@ attached_assets/
 !postcss.config.js
 !tailwind.config.ts
 !vercel.json
+!api/*.vercel.json
