@@ -391,6 +391,67 @@ async function fetchBookshopBySlug(slug) {
     }
     
     console.log(`[Serverless] ✗ Bookshop not found for slug: "${slug}" (searched ${totalSearched} bookstores across ${pageCount} pages)`);
+    
+    // FALLBACK: Try searching by name pattern (decode slug back to potential name)
+    // Example: "fables-books" -> search for names containing "fables" and "books"
+    console.log('[Serverless] Attempting fallback: searching by name pattern...');
+    try {
+      const nameParts = slug.split('-').filter(p => p.length > 0);
+      if (nameParts.length > 0) {
+        // Try to find bookshop by searching for name parts
+        // Use Postgres text search: name ILIKE '%fables%' AND name ILIKE '%books%'
+        const nameFilters = nameParts.map(part => `name.ilike.%${part}%`).join(',');
+        const fallbackUrl = `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=id,name,city,state,street,zip,description,phone,website,image_url,lat_numeric,lng_numeric,feature_ids&limit=10`;
+        
+        // Try a simpler approach: search for first name part
+        const firstPart = nameParts[0];
+        const response = await fetch(
+          `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=id,name,city,state,street,zip,description,phone,website,image_url,lat_numeric,lng_numeric,feature_ids&name=ilike.*${firstPart}*&limit=50`,
+          {
+            headers: {
+              'apikey': supabaseAnonKey,
+              'Authorization': `Bearer ${supabaseAnonKey}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        
+        if (response.ok) {
+          const candidates = await response.json();
+          console.log(`[Serverless] Fallback search found ${candidates?.length || 0} candidates for "${firstPart}"`);
+          
+          if (candidates && candidates.length > 0) {
+            // Check if any candidate matches the slug
+            for (const candidate of candidates) {
+              const candidateSlug = generateSlugFromName(candidate.name || '');
+              if (candidateSlug === slug || candidateSlug.toLowerCase() === normalizedSearchSlug) {
+                console.log(`[Serverless] ✓ Found match in fallback search: "${candidate.name}"`);
+                const mappedBookshop = {
+                  ...candidate,
+                  latitude: candidate.lat_numeric?.toString() || candidate.latitude || null,
+                  longitude: candidate.lng_numeric?.toString() || candidate.longitude || null,
+                  featureIds: candidate.feature_ids || candidate.featureIds || [],
+                  imageUrl: candidate.image_url || candidate.imageUrl || null,
+                };
+                slugCache.set(slug, { bookshop: mappedBookshop, timestamp: Date.now() });
+                console.log('================================');
+                return mappedBookshop;
+              }
+            }
+            
+            // Log close matches for debugging
+            const closeMatches = candidates.slice(0, 3).map(c => ({
+              name: c.name,
+              generatedSlug: generateSlugFromName(c.name || ''),
+            }));
+            console.log('[Serverless] Close matches (for debugging):', JSON.stringify(closeMatches, null, 2));
+          }
+        }
+      }
+    } catch (fallbackError) {
+      console.error('[Serverless] Fallback search failed:', fallbackError.message);
+    }
+    
     console.log('================================');
     return null;
   } catch (error) {
