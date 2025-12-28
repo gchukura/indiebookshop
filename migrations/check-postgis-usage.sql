@@ -1,5 +1,10 @@
 -- Check if PostGIS extension is installed and if it's being used
 -- Run this in Supabase SQL Editor
+--
+-- NOTE: If this script shows PostGIS IS being used (geography/geometry columns exist),
+-- then the spatial_ref_sys table is REQUIRED and cannot be removed.
+-- The security warning about spatial_ref_sys being public is a false positive
+-- since it only contains reference data (SRID definitions), not user data.
 
 -- 1. Check if PostGIS extension is installed
 SELECT 
