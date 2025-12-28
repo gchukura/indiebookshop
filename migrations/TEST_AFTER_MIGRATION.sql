@@ -50,8 +50,24 @@ WHERE conrelid = 'bookstores'::regclass
 -- 7. Check triggers are set up
 SELECT 
   tgname as trigger_name,
-  tgenabled as enabled
+  tgenabled as enabled,
+  CASE tgenabled
+    WHEN 'O' THEN 'ENABLED (Origin)'
+    WHEN 'D' THEN 'DISABLED'
+    WHEN 'R' THEN 'Replica'
+    WHEN 'A' THEN 'Always'
+    ELSE 'Unknown: ' || tgenabled
+  END as status
 FROM pg_trigger
 WHERE tgrelid = 'bookstores'::regclass
   AND tgname LIKE '%slug%';
+
+-- 8. Test trigger by inserting a bookshop with NULL slug (should auto-generate)
+-- Uncomment to test:
+-- INSERT INTO bookstores (name, city, state, live) 
+-- VALUES ('Test Bookshop ' || random()::text, 'Test City', 'CA', true)
+-- RETURNING id, name, slug;
+-- 
+-- Then delete the test record:
+-- DELETE FROM bookstores WHERE name LIKE 'Test Bookshop%';
 
