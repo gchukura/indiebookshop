@@ -37,38 +37,57 @@ END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
 -- Step 4: Generate slugs for all existing bookshops
--- Temporarily disable the bookstore_auto_convert trigger that uses PostGIS
--- (if it exists - this prevents PostGIS geography errors during bulk updates)
+-- First, let's find and disable all user-defined triggers on bookstores table
 DO $$
+DECLARE
+  trigger_record RECORD;
+  disabled_triggers TEXT[] := ARRAY[]::TEXT[];
 BEGIN
-  -- Check if the trigger exists and disable it
-  IF EXISTS (
-    SELECT 1 FROM pg_trigger 
-    WHERE tgname = 'bookstore_auto_convert' 
-    AND tgrelid = 'bookstores'::regclass
-  ) THEN
-    ALTER TABLE bookstores DISABLE TRIGGER bookstore_auto_convert;
-    RAISE NOTICE 'Disabled bookstore_auto_convert trigger';
-  END IF;
+  -- Find all non-system triggers on bookstores table
+  FOR trigger_record IN 
+    SELECT tgname 
+    FROM pg_trigger 
+    WHERE tgrelid = 'bookstores'::regclass
+      AND NOT tgisinternal  -- Exclude system triggers
+      AND tgenabled = 'O'   -- Only enabled triggers
+  LOOP
+    BEGIN
+      EXECUTE format('ALTER TABLE bookstores DISABLE TRIGGER %I', trigger_record.tgname);
+      disabled_triggers := array_append(disabled_triggers, trigger_record.tgname);
+      RAISE NOTICE 'Disabled trigger: %', trigger_record.tgname;
+    EXCEPTION WHEN OTHERS THEN
+      RAISE NOTICE 'Could not disable trigger %: %', trigger_record.tgname, SQLERRM;
+    END;
+  END LOOP;
+  
+  -- Store disabled triggers in a temporary table for later re-enabling
+  CREATE TEMP TABLE IF NOT EXISTS disabled_bookstore_triggers (tgname TEXT);
+  TRUNCATE disabled_bookstore_triggers;
+  INSERT INTO disabled_bookstore_triggers SELECT unnest(disabled_triggers);
 END $$;
 
+-- Now update slugs (triggers are disabled)
 UPDATE bookstores 
 SET slug = generate_slug(name)
 WHERE slug IS NULL OR slug = '';
 
--- Re-enable the trigger if it was disabled
+-- Re-enable all disabled triggers
 DO $$
+DECLARE
+  trigger_name TEXT;
 BEGIN
-  IF EXISTS (
-    SELECT 1 FROM pg_trigger 
-    WHERE tgname = 'bookstore_auto_convert' 
-    AND tgrelid = 'bookstores'::regclass
-    AND NOT tgisinternal
-  ) THEN
-    ALTER TABLE bookstores ENABLE TRIGGER bookstore_auto_convert;
-    RAISE NOTICE 'Re-enabled bookstore_auto_convert trigger';
-  END IF;
+  FOR trigger_name IN SELECT tgname FROM disabled_bookstore_triggers
+  LOOP
+    BEGIN
+      EXECUTE format('ALTER TABLE bookstores ENABLE TRIGGER %I', trigger_name);
+      RAISE NOTICE 'Re-enabled trigger: %', trigger_name;
+    EXCEPTION WHEN OTHERS THEN
+      RAISE NOTICE 'Could not re-enable trigger %: %', trigger_name, SQLERRM;
+    END;
+  END LOOP;
 END $$;
+
+DROP TABLE IF EXISTS disabled_bookstore_triggers;
 
 -- Step 5: Check for duplicate slugs
 -- Run this query to see duplicates:
@@ -81,17 +100,31 @@ END $$;
 
 -- Step 6: Handle duplicates by appending city (if available)
 -- This ensures unique slugs while keeping them readable
--- Temporarily disable the bookstore_auto_convert trigger to avoid PostGIS errors
+-- Disable all user-defined triggers again for this update
 DO $$
+DECLARE
+  trigger_record RECORD;
+  disabled_triggers TEXT[] := ARRAY[]::TEXT[];
 BEGIN
-  IF EXISTS (
-    SELECT 1 FROM pg_trigger 
-    WHERE tgname = 'bookstore_auto_convert' 
-    AND tgrelid = 'bookstores'::regclass
-  ) THEN
-    ALTER TABLE bookstores DISABLE TRIGGER bookstore_auto_convert;
-    RAISE NOTICE 'Disabled bookstore_auto_convert trigger for duplicate handling';
-  END IF;
+  FOR trigger_record IN 
+    SELECT tgname 
+    FROM pg_trigger 
+    WHERE tgrelid = 'bookstores'::regclass
+      AND NOT tgisinternal
+      AND tgenabled = 'O'
+  LOOP
+    BEGIN
+      EXECUTE format('ALTER TABLE bookstores DISABLE TRIGGER %I', trigger_record.tgname);
+      disabled_triggers := array_append(disabled_triggers, trigger_record.tgname);
+      RAISE NOTICE 'Disabled trigger: %', trigger_record.tgname;
+    EXCEPTION WHEN OTHERS THEN
+      RAISE NOTICE 'Could not disable trigger %: %', trigger_record.tgname, SQLERRM;
+    END;
+  END LOOP;
+  
+  CREATE TEMP TABLE IF NOT EXISTS disabled_bookstore_triggers (tgname TEXT);
+  TRUNCATE disabled_bookstore_triggers;
+  INSERT INTO disabled_bookstore_triggers SELECT unnest(disabled_triggers);
 END $$;
 
 WITH duplicates AS (
@@ -118,19 +151,23 @@ WHERE b.slug = d.slug
     WHERE slug = d.slug
   );
 
--- Re-enable the trigger if it was disabled
+-- Re-enable all disabled triggers
 DO $$
+DECLARE
+  trigger_name TEXT;
 BEGIN
-  IF EXISTS (
-    SELECT 1 FROM pg_trigger 
-    WHERE tgname = 'bookstore_auto_convert' 
-    AND tgrelid = 'bookstores'::regclass
-    AND NOT tgisinternal
-  ) THEN
-    ALTER TABLE bookstores ENABLE TRIGGER bookstore_auto_convert;
-    RAISE NOTICE 'Re-enabled bookstore_auto_convert trigger';
-  END IF;
+  FOR trigger_name IN SELECT tgname FROM disabled_bookstore_triggers
+  LOOP
+    BEGIN
+      EXECUTE format('ALTER TABLE bookstores ENABLE TRIGGER %I', trigger_name);
+      RAISE NOTICE 'Re-enabled trigger: %', trigger_name;
+    EXCEPTION WHEN OTHERS THEN
+      RAISE NOTICE 'Could not re-enable trigger %: %', trigger_name, SQLERRM;
+    END;
+  END LOOP;
 END $$;
+
+DROP TABLE IF EXISTS disabled_bookstore_triggers;
 
 -- Step 7: Verify all bookshops have slugs
 -- Run this to check:
