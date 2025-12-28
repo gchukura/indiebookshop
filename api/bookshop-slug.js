@@ -247,8 +247,15 @@ async function fetchBookshopBySlug(slug) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
   
+  console.log('=== BOOKSHOP LOOKUP DEBUG ===');
+  console.log('1. Slug from query:', slug);
+  console.log('2. Slug type:', typeof slug);
+  console.log('3. Slug length:', slug?.length);
+  console.log('4. Slug trimmed:', slug?.trim());
+  
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase environment variables not set in edge function');
+    console.error('[Serverless] Supabase environment variables not set in edge function');
+    console.log('================================');
     return null;
   }
   
@@ -256,6 +263,7 @@ async function fetchBookshopBySlug(slug) {
   const cached = slugCache.get(slug);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
     console.log(`[Serverless] Cache hit for slug: ${slug}`);
+    console.log('================================');
     return cached.bookshop;
   }
   
@@ -266,6 +274,12 @@ async function fetchBookshopBySlug(slug) {
     const maxPages = 5; // Limit to 5 pages max (2500 bookstores) to prevent runaway queries
     let from = 0;
     let pageCount = 0;
+    let totalSearched = 0;
+    let sampleSlugs = []; // For debugging
+    
+    // Normalize the search slug (lowercase, trimmed)
+    const normalizedSearchSlug = slug.toLowerCase().trim();
+    console.log('5. Normalized search slug:', normalizedSearchSlug);
     
     while (pageCount < maxPages) {
       const response = await fetch(
@@ -281,28 +295,68 @@ async function fetchBookshopBySlug(slug) {
       
       if (!response.ok) {
         console.error('[Serverless] Failed to fetch bookstores from Supabase:', response.status);
+        console.error('[Serverless] Response status text:', response.statusText);
         break;
       }
       
       const bookstores = await response.json();
       
       if (!bookstores || bookstores.length === 0) {
+        console.log('[Serverless] No more bookstores to search');
         break; // No more bookstores
       }
       
+      totalSearched += bookstores.length;
+      console.log(`[Serverless] Searching batch ${pageCount + 1}: ${bookstores.length} bookstores (total searched: ${totalSearched})`);
+      
+      // Collect sample slugs for first batch (for debugging)
+      if (pageCount === 0 && bookstores.length > 0) {
+        sampleSlugs = bookstores.slice(0, 5).map(b => ({
+          name: b.name,
+          generatedSlug: generateSlugFromName(b.name || ''),
+        }));
+        console.log('6. Sample generated slugs from first batch:', JSON.stringify(sampleSlugs, null, 2));
+      }
+      
       // Search for matching slug in this batch
-      const bookshop = bookstores.find((b) => {
+      // Try exact match first, then case-insensitive
+      let bookshop = bookstores.find((b) => {
         if (!b.name) return false;
         const bookshopSlug = generateSlugFromName(b.name);
-        const matches = bookshopSlug === slug;
-        if (matches) {
-          console.log(`[Serverless] Slug match found: "${bookshopSlug}" === "${slug}" for bookshop: ${b.name}`);
+        const normalizedBookshopSlug = bookshopSlug.toLowerCase().trim();
+        const exactMatch = bookshopSlug === slug;
+        const normalizedMatch = normalizedBookshopSlug === normalizedSearchSlug;
+        
+        if (exactMatch || normalizedMatch) {
+          console.log(`[Serverless] ✓ Slug match found!`);
+          console.log(`   Bookshop name: "${b.name}"`);
+          console.log(`   Generated slug: "${bookshopSlug}"`);
+          console.log(`   Search slug: "${slug}"`);
+          console.log(`   Exact match: ${exactMatch}, Normalized match: ${normalizedMatch}`);
+          return true;
         }
-        return matches;
+        return false;
       });
       
+      // If no exact match, try fuzzy matching (for debugging)
+      if (!bookshop && pageCount === 0) {
+        const fuzzyMatches = bookstores
+          .map(b => ({
+            name: b.name,
+            generatedSlug: generateSlugFromName(b.name || ''),
+            similarity: slug.toLowerCase().includes(generateSlugFromName(b.name || '').toLowerCase()) || 
+                       generateSlugFromName(b.name || '').toLowerCase().includes(slug.toLowerCase())
+          }))
+          .filter(b => b.similarity)
+          .slice(0, 3);
+        
+        if (fuzzyMatches.length > 0) {
+          console.log('7. Fuzzy matches found (for debugging):', JSON.stringify(fuzzyMatches, null, 2));
+        }
+      }
+      
       if (bookshop) {
-        console.log(`[Serverless] Found bookshop: ${bookshop.name} (ID: ${bookshop.id}) after querying ${from + bookstores.length} bookstores`);
+        console.log(`[Serverless] ✓ Found bookshop: ${bookshop.name} (ID: ${bookshop.id}) after querying ${totalSearched} bookstores`);
         
         // Map Supabase column names to expected format
         const mappedBookshop = {
@@ -322,11 +376,13 @@ async function fetchBookshopBySlug(slug) {
           slugCache.delete(oldestKey);
         }
         
+        console.log('================================');
         return mappedBookshop;
       }
       
       // If we got fewer than pageSize, we've reached the end
       if (bookstores.length < pageSize) {
+        console.log('[Serverless] Reached end of bookstores list');
         break;
       }
       
@@ -334,10 +390,14 @@ async function fetchBookshopBySlug(slug) {
       pageCount++;
     }
     
-    console.log(`[Serverless] Bookshop not found for slug: ${slug} (searched ${from} bookstores)`);
+    console.log(`[Serverless] ✗ Bookshop not found for slug: "${slug}" (searched ${totalSearched} bookstores across ${pageCount} pages)`);
+    console.log('================================');
     return null;
   } catch (error) {
-    console.error('[Serverless] Error fetching bookshop from Supabase:', error);
+    console.error('[Serverless] ✗ Error fetching bookshop from Supabase:', error);
+    console.error('[Serverless] Error message:', error.message);
+    console.error('[Serverless] Error stack:', error.stack);
+    console.log('================================');
     return null;
   }
 }
