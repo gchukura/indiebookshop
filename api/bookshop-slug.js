@@ -547,15 +547,26 @@ export default async function handler(req, res) {
       slug = slug[0];
     }
     
+    // Fix: If slug is the literal "$slug" string, extract from URL path instead
+    if (slug === '$slug' || slug === '%24slug') {
+      console.log('[Serverless] Detected literal $slug, extracting from URL path');
+      const urlPath = req.url.split('?')[0]; // Get path without query string
+      const match = urlPath.match(/^\/bookshop\/([^/]+)/);
+      if (match) {
+        slug = decodeURIComponent(match[1]);
+        console.log('[Serverless] Extracted slug from URL path:', slug);
+      }
+    }
+    
     // Fallback: Extract from x-vercel-original-path header if query is empty
-    if (!slug) {
-      const originalPath = req.headers['x-vercel-original-path'];
-      console.log('[Serverless] No slug in query, checking header:', originalPath);
+    if (!slug || slug === '$slug' || slug === '%24slug') {
+      const originalPath = req.headers['x-vercel-original-path'] || req.url;
+      console.log('[Serverless] No valid slug in query, checking path:', originalPath);
       if (originalPath) {
         const match = originalPath.match(/^\/bookshop\/([^/]+)/);
         if (match) {
           slug = decodeURIComponent(match[1]);
-          console.log('[Serverless] Extracted slug from header:', slug);
+          console.log('[Serverless] Extracted slug from path:', slug);
         }
       }
     }

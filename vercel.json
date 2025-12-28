@@ -31,8 +31,8 @@
       "destination": "/bookshop/$id"
     },
     {
-      "source": "/bookshop/:slug",
-      "destination": "/api/bookshop-slug?slug=$slug"
+      "source": "/bookshop/:slug*",
+      "destination": "/api/bookshop-slug?slug=:slug"
     },
     {
       "source": "/sitemap.xml",
