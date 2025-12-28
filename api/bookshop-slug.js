@@ -272,6 +272,7 @@ async function fetchBookshopBySlug(slug) {
     // This is much faster than fetching all bookstores and generating slugs
     console.log('[Serverless] Attempting direct slug column query...');
     try {
+      // Use PostgREST filter syntax: slug=eq.value (not slug=eq.value)
       const directResponse = await fetch(
         `${supabaseUrl}/rest/v1/bookstores?slug=eq.${encodeURIComponent(slug)}&live=eq.true&select=id,name,city,state,street,zip,description,phone,website,image_url,lat_numeric,lng_numeric,feature_ids&limit=1`,
         {
