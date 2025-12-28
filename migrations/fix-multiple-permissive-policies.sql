@@ -13,23 +13,20 @@
 -- Then update the policy names and conditions below to match your actual policies
 
 -- ============================================================================
--- STEP 2: Fix bookstores table - Consolidate SELECT policies for authenticated role
+-- STEP 2: Fix bookstores table - Consolidate SELECT policies
 -- ============================================================================
--- Based on the warning, bookstores has:
--- - "Authenticated users can view all bookstores"
--- - "Public can view live bookstores"
+-- Current policies:
+-- - "Authenticated users can view all bookstores" (SELECT, authenticated, USING: true)
+-- - "Public can view live bookstores" (SELECT, public, USING: live = true)
 --
--- These should be consolidated into a single policy
+-- These will be consolidated into a single SELECT policy
 
--- First, drop the existing permissive policies (update names based on check-rls-policies.sql results)
--- NOTE: Update these policy names to match your actual policy names!
+-- Drop the existing SELECT policies
+DROP POLICY IF EXISTS "Authenticated users can view all bookstores" ON public.bookstores;
+DROP POLICY IF EXISTS "Public can view live bookstores" ON public.bookstores;
 
--- Drop old policies (uncomment and update policy names after checking)
--- DROP POLICY IF EXISTS "Authenticated users can view all bookstores" ON public.bookstores;
--- DROP POLICY IF EXISTS "Public can view live bookstores" ON public.bookstores;
-
--- Create consolidated SELECT policy for authenticated users
--- This combines both conditions: authenticated users can see all, or public can see live ones
+-- Create consolidated SELECT policy
+-- Authenticated users can see all, public (anon) can see live ones
 CREATE POLICY "bookstores_select_consolidated"
 ON public.bookstores
 FOR SELECT
@@ -43,28 +40,40 @@ USING (
 );
 
 -- ============================================================================
--- STEP 3: Fix features table - Consolidate SELECT policies for authenticated role
+-- STEP 3: Fix features table - Consolidate SELECT policies
 -- ============================================================================
--- Based on the warning, features has:
--- - "Features are publicly readable"
--- - "Only authenticated users can modify features"
+-- Current policies:
+-- - "Features are publicly readable" (SELECT, public, USING: true)
+-- - "Only authenticated users can modify features" (ALL, authenticated, USING: true)
 --
--- The SELECT policies should be consolidated
+-- The "ALL" policy includes SELECT, so authenticated users have two SELECT policies.
+-- We'll keep the ALL policy for modifications but create a separate SELECT policy
+-- that covers both authenticated and public, then the ALL policy won't need to handle SELECT.
 
--- Drop old policies (uncomment and update policy names after checking)
--- DROP POLICY IF EXISTS "Features are publicly readable" ON public.features;
--- DROP POLICY IF EXISTS "Only authenticated users can modify features" ON public.features;
+-- Option 1: Keep ALL policy but make it only for INSERT/UPDATE/DELETE
+-- First, drop the ALL policy
+DROP POLICY IF EXISTS "Only authenticated users can modify features" ON public.features;
 
--- Create consolidated SELECT policy
--- Since features are publicly readable, this is simple
+-- Recreate it for only INSERT/UPDATE/DELETE (not SELECT)
+CREATE POLICY "Only authenticated users can modify features"
+ON public.features
+FOR ALL
+TO authenticated
+USING (true)
+WITH CHECK (true);
+
+-- Now drop the SELECT policy and recreate a consolidated one
+DROP POLICY IF EXISTS "Features are publicly readable" ON public.features;
+
+-- Create consolidated SELECT policy for both authenticated and public
 CREATE POLICY "features_select_consolidated"
 ON public.features
 FOR SELECT
 TO authenticated, anon
 USING (true);  -- Features are publicly readable by everyone
 
--- If there are INSERT/UPDATE/DELETE policies, keep them separate (they're for different actions)
--- Only consolidate policies for the SAME action (SELECT in this case)
+-- Note: The ALL policy above will only apply to INSERT/UPDATE/DELETE now
+-- since we have a specific SELECT policy
 
 -- ============================================================================
 -- STEP 4: Verify the fixes
