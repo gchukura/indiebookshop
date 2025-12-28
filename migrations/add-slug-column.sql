@@ -37,9 +37,15 @@ END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
 -- Step 4: Generate slugs for all existing bookshops
+-- Temporarily disable triggers that might interfere (e.g., geography conversion)
+ALTER TABLE bookstores DISABLE TRIGGER ALL;
+
 UPDATE bookstores 
 SET slug = generate_slug(name)
 WHERE slug IS NULL OR slug = '';
+
+-- Re-enable triggers
+ALTER TABLE bookstores ENABLE TRIGGER ALL;
 
 -- Step 5: Check for duplicate slugs
 -- Run this query to see duplicates:
@@ -52,6 +58,9 @@ WHERE slug IS NULL OR slug = '';
 
 -- Step 6: Handle duplicates by appending city (if available)
 -- This ensures unique slugs while keeping them readable
+-- Temporarily disable triggers to avoid PostGIS errors
+ALTER TABLE bookstores DISABLE TRIGGER ALL;
+
 WITH duplicates AS (
   SELECT slug, COUNT(*) as count
   FROM bookstores
@@ -75,6 +84,9 @@ WHERE b.slug = d.slug
     FROM bookstores 
     WHERE slug = d.slug
   );
+
+-- Re-enable triggers
+ALTER TABLE bookstores ENABLE TRIGGER ALL;
 
 -- Step 7: Verify all bookshops have slugs
 -- Run this to check:
