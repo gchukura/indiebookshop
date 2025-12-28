@@ -176,6 +176,27 @@ function injectMetaTags(html, metaTags) {
     return html;
   }
   
+  // Remove existing meta description tags to avoid duplicates
+  const beforeDescriptionRemoval = html;
+  html = html.replace(/<meta\s+name=["']description["'][^>]*>/gi, '');
+  if (beforeDescriptionRemoval !== html) {
+    console.log('[Serverless] Removed existing meta description tag(s)');
+  }
+  
+  // Remove existing og:description tags to avoid duplicates
+  const beforeOgDescriptionRemoval = html;
+  html = html.replace(/<meta\s+property=["']og:description["'][^>]*>/gi, '');
+  if (beforeOgDescriptionRemoval !== html) {
+    console.log('[Serverless] Removed existing og:description tag(s)');
+  }
+  
+  // Remove existing twitter:description tags to avoid duplicates
+  const beforeTwitterDescriptionRemoval = html;
+  html = html.replace(/<meta\s+name=["']twitter:description["'][^>]*>/gi, '');
+  if (beforeTwitterDescriptionRemoval !== html) {
+    console.log('[Serverless] Removed existing twitter:description tag(s)');
+  }
+  
   // Extract just the title from metaTags (metaTags includes title + all meta tags)
   const titleMatch = metaTags.match(/<title>(.*?)<\/title>/i);
   const titleOnly = titleMatch ? titleMatch[0] : '';
