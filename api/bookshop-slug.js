@@ -403,10 +403,11 @@ async function fetchBookshopBySlug(slug) {
         const nameFilters = nameParts.map(part => `name.ilike.%${part}%`).join(',');
         const fallbackUrl = `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=id,name,city,state,street,zip,description,phone,website,image_url,lat_numeric,lng_numeric,feature_ids&limit=10`;
         
-        // Try a simpler approach: search for first name part
+        // Try a simpler approach: search for first name part using PostgREST ilike syntax
         const firstPart = nameParts[0];
+        // PostgREST syntax: name.ilike.*pattern* for case-insensitive pattern matching
         const response = await fetch(
-          `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=id,name,city,state,street,zip,description,phone,website,image_url,lat_numeric,lng_numeric,feature_ids&name=ilike.*${firstPart}*&limit=50`,
+          `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=id,name,city,state,street,zip,description,phone,website,image_url,lat_numeric,lng_numeric,feature_ids&name=ilike.*${encodeURIComponent(firstPart)}*&limit=50`,
           {
             headers: {
               'apikey': supabaseAnonKey,
