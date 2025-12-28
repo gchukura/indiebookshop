@@ -55,13 +55,21 @@ const indexPath = path.join(cwd, 'dist', 'public', 'index.html');
 if (fs.existsSync(indexPath)) {
   const indexHtml = fs.readFileSync(indexPath, 'utf-8');
   
-  // Match the Vite-generated script (type="module" and in /assets/)
-  const scriptMatch = indexHtml.match(/<script[^>]+type="module"[^>]+src="([^"]+)"[^>]*>/);
+  // Match the Vite-generated script (type="module", crossorigin, and in /assets/)
+  // More specific regex to match: <script type="module" crossorigin src="/assets/index-XXXXX.js"></script>
+  const scriptMatch = indexHtml.match(/<script[^>]*type=["']module["'][^>]*crossorigin[^>]*src=["']([^"']+)["'][^>]*>/i);
+  // If that doesn't match, try a simpler pattern
+  const scriptMatch2 = scriptMatch ? null : indexHtml.match(/<script[^>]*type=["']module["'][^>]*src=["']([^"']+)["'][^>]*>/i);
   // Match the Vite-generated CSS (in /assets/ and has crossorigin)
-  const cssMatch = indexHtml.match(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+\.css)"[^>]*>/);
+  const cssMatch = indexHtml.match(/<link[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+\.css)["'][^>]*>/i);
   
-  const scriptPath = scriptMatch ? scriptMatch[1] : '/assets/index.js';
+  const finalScriptMatch = scriptMatch || scriptMatch2;
+  
+  const scriptPath = finalScriptMatch ? finalScriptMatch[1] : '/assets/index.js';
   const cssPath = cssMatch ? cssMatch[1] : null;
+  
+  console.log('Script match result:', finalScriptMatch ? finalScriptMatch[1] : 'NOT FOUND');
+  console.log('CSS match result:', cssPath || 'NOT FOUND');
   
   // Create a config file with the script paths
   const scriptConfigContent = `
