@@ -344,8 +344,18 @@ async function fetchBookshopBySlug(slug) {
       );
       
       if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        const errorJson = (() => {
+          try {
+            return JSON.parse(errorText);
+          } catch {
+            return { message: errorText };
+          }
+        })();
         console.error('[Serverless] Failed to fetch bookstores from Supabase:', response.status);
         console.error('[Serverless] Response status text:', response.statusText);
+        console.error('[Serverless] Error details:', errorJson);
+        console.error('[Serverless] Query URL:', `${supabaseUrl}/rest/v1/bookstores?live=eq.true&...&offset=${from}`);
         break;
       }
       
