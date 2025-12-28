@@ -1703,9 +1703,15 @@ const PanelBookshopCard: React.FC<PanelBookshopCardProps> = ({
           : "border-gray-200 hover:border-gray-300"
       }`}
     >
-      <h3 className="font-serif font-bold text-base text-[#5F4B32] mb-1 break-words line-clamp-1">
-        {bookshop.name}
-      </h3>
+      <Link 
+        to={`/bookshop/${slug}`}
+        onClick={(e) => e.stopPropagation()}
+        className="block"
+      >
+        <h3 className="font-serif font-bold text-base text-[#5F4B32] mb-1 break-words line-clamp-1 hover:text-[#2A6B7C] transition-colors">
+          {bookshop.name}
+        </h3>
+      </Link>
       
       {(bookshop.city || bookshop.state) && (
         <div className="flex items-start text-xs text-gray-600 mb-2">
