@@ -54,8 +54,11 @@ console.log('Extracting script paths from built index.html...');
 const indexPath = path.join(cwd, 'dist', 'public', 'index.html');
 if (fs.existsSync(indexPath)) {
   const indexHtml = fs.readFileSync(indexPath, 'utf-8');
-  const scriptMatch = indexHtml.match(/<script[^>]+src="([^"]+)"[^>]*>/);
-  const cssMatch = indexHtml.match(/<link[^>]+href="([^"]+\.css)"[^>]*>/);
+  
+  // Match the Vite-generated script (type="module" and in /assets/)
+  const scriptMatch = indexHtml.match(/<script[^>]+type="module"[^>]+src="([^"]+)"[^>]*>/);
+  // Match the Vite-generated CSS (in /assets/ and has crossorigin)
+  const cssMatch = indexHtml.match(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+\.css)"[^>]*>/);
   
   const scriptPath = scriptMatch ? scriptMatch[1] : '/assets/index.js';
   const cssPath = cssMatch ? cssMatch[1] : null;
