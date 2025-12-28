@@ -37,15 +37,38 @@ END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
 -- Step 4: Generate slugs for all existing bookshops
--- Temporarily disable triggers that might interfere (e.g., geography conversion)
-ALTER TABLE bookstores DISABLE TRIGGER ALL;
+-- Temporarily disable the bookstore_auto_convert trigger that uses PostGIS
+-- (if it exists - this prevents PostGIS geography errors during bulk updates)
+DO $$
+BEGIN
+  -- Check if the trigger exists and disable it
+  IF EXISTS (
+    SELECT 1 FROM pg_trigger 
+    WHERE tgname = 'bookstore_auto_convert' 
+    AND tgrelid = 'bookstores'::regclass
+  ) THEN
+    ALTER TABLE bookstores DISABLE TRIGGER bookstore_auto_convert;
+    RAISE NOTICE 'Disabled bookstore_auto_convert trigger';
+  END IF;
+END $$;
 
 UPDATE bookstores 
 SET slug = generate_slug(name)
 WHERE slug IS NULL OR slug = '';
 
--- Re-enable triggers
-ALTER TABLE bookstores ENABLE TRIGGER ALL;
+-- Re-enable the trigger if it was disabled
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_trigger 
+    WHERE tgname = 'bookstore_auto_convert' 
+    AND tgrelid = 'bookstores'::regclass
+    AND NOT tgisinternal
+  ) THEN
+    ALTER TABLE bookstores ENABLE TRIGGER bookstore_auto_convert;
+    RAISE NOTICE 'Re-enabled bookstore_auto_convert trigger';
+  END IF;
+END $$;
 
 -- Step 5: Check for duplicate slugs
 -- Run this query to see duplicates:
@@ -58,8 +81,18 @@ ALTER TABLE bookstores ENABLE TRIGGER ALL;
 
 -- Step 6: Handle duplicates by appending city (if available)
 -- This ensures unique slugs while keeping them readable
--- Temporarily disable triggers to avoid PostGIS errors
-ALTER TABLE bookstores DISABLE TRIGGER ALL;
+-- Temporarily disable the bookstore_auto_convert trigger to avoid PostGIS errors
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_trigger 
+    WHERE tgname = 'bookstore_auto_convert' 
+    AND tgrelid = 'bookstores'::regclass
+  ) THEN
+    ALTER TABLE bookstores DISABLE TRIGGER bookstore_auto_convert;
+    RAISE NOTICE 'Disabled bookstore_auto_convert trigger for duplicate handling';
+  END IF;
+END $$;
 
 WITH duplicates AS (
   SELECT slug, COUNT(*) as count
@@ -85,8 +118,19 @@ WHERE b.slug = d.slug
     WHERE slug = d.slug
   );
 
--- Re-enable triggers
-ALTER TABLE bookstores ENABLE TRIGGER ALL;
+-- Re-enable the trigger if it was disabled
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_trigger 
+    WHERE tgname = 'bookstore_auto_convert' 
+    AND tgrelid = 'bookstores'::regclass
+    AND NOT tgisinternal
+  ) THEN
+    ALTER TABLE bookstores ENABLE TRIGGER bookstore_auto_convert;
+    RAISE NOTICE 'Re-enabled bookstore_auto_convert trigger';
+  END IF;
+END $$;
 
 -- Step 7: Verify all bookshops have slugs
 -- Run this to check:
