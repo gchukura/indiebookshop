@@ -149,6 +149,7 @@ BEGIN
     RAISE NOTICE 'Iteration %: Found % duplicate slug groups', iteration_count, duplicate_count;
     
     -- Update duplicates: append city, then state, then ID if still duplicate
+    -- Use ROW_NUMBER to ensure each duplicate gets a unique suffix
     WITH duplicates AS (
       SELECT slug, COUNT(*) as count
       FROM bookstores
@@ -157,8 +158,16 @@ BEGIN
       HAVING COUNT(*) > 1
     ),
     to_update AS (
-      SELECT b.id, b.name, b.city, b.state, d.slug,
-        ROW_NUMBER() OVER (PARTITION BY d.slug ORDER BY b.id) as rn
+      SELECT 
+        b.id, 
+        b.name, 
+        b.city, 
+        b.state, 
+        d.slug,
+        ROW_NUMBER() OVER (PARTITION BY d.slug ORDER BY b.id) as rn,
+        -- Check if name+city combination is also duplicate
+        generate_slug(b.name || COALESCE(' ' || b.city, '')) as name_city_slug,
+        generate_slug(b.name || COALESCE(' ' || b.state, '')) as name_state_slug
       FROM bookstores b
       JOIN duplicates d ON b.slug = d.slug
       WHERE b.id NOT IN (
@@ -167,16 +176,39 @@ BEGIN
         FROM bookstores 
         WHERE slug = d.slug
       )
+    ),
+    slug_usage AS (
+      -- Check which slugs are already in use
+      SELECT slug, COUNT(*) as usage_count
+      FROM bookstores
+      WHERE slug IS NOT NULL AND slug != ''
+      GROUP BY slug
     )
     UPDATE bookstores b
     SET slug = generate_slug(
       CASE 
-        -- First try: name + city
+        -- Strategy 1: name + city (if city exists and the resulting slug is unique)
         WHEN tu.city IS NOT NULL AND tu.city != '' 
+          AND NOT EXISTS (
+            SELECT 1 FROM slug_usage su 
+            WHERE su.slug = tu.name_city_slug 
+            AND su.usage_count > 0
+          )
         THEN tu.name || ' ' || tu.city
-        -- Second try: name + state
+        -- Strategy 2: name + state (if state exists and the resulting slug is unique)
         WHEN tu.state IS NOT NULL AND tu.state != ''
+          AND NOT EXISTS (
+            SELECT 1 FROM slug_usage su 
+            WHERE su.slug = tu.name_state_slug 
+            AND su.usage_count > 0
+          )
         THEN tu.name || ' ' || tu.state
+        -- Strategy 3: name + city + ID (if city exists)
+        WHEN tu.city IS NOT NULL AND tu.city != ''
+        THEN tu.name || ' ' || tu.city || ' ' || b.id::TEXT
+        -- Strategy 4: name + state + ID (if state exists)
+        WHEN tu.state IS NOT NULL AND tu.state != ''
+        THEN tu.name || ' ' || tu.state || ' ' || b.id::TEXT
         -- Last resort: name + ID
         ELSE tu.name || ' ' || b.id::TEXT
       END
