@@ -455,14 +455,11 @@ export default async function handler(req, res) {
     // Use the deployment URL to bypass rewrites
     if (!baseHtml) {
       try {
-        const deploymentUrl = process.env.VERCEL_URL || req.headers['x-vercel-deployment-url'];
         const protocol = req.headers['x-forwarded-proto'] || 'https';
         const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.indiebookshop.com';
         
-        // Try fetching from the deployment URL directly (bypasses rewrites)
-        const fetchUrl = deploymentUrl 
-          ? `${protocol}://${deploymentUrl}/index.html`
-          : `${protocol}://${host}/index.html`;
+        // Try fetching from the production URL directly
+        const fetchUrl = `${protocol}://${host}/index.html`;
         
         console.log('[Serverless] Attempting to fetch index.html from:', fetchUrl);
         const htmlResponse = await fetch(fetchUrl, {
@@ -474,12 +471,19 @@ export default async function handler(req, res) {
         
         if (htmlResponse.ok) {
           baseHtml = await htmlResponse.text();
-          console.log('[Serverless] Fetched index.html successfully');
+          console.log('[Serverless] Fetched index.html successfully, length:', baseHtml.length);
+          
+          // Verify we got valid HTML
+          if (!baseHtml || baseHtml.length < 100 || !baseHtml.includes('<script')) {
+            console.error('[Serverless] Fetched HTML seems invalid, length:', baseHtml?.length);
+            baseHtml = null;
+          }
         } else {
           console.error('[Serverless] Failed to fetch index.html, status:', htmlResponse.status);
         }
       } catch (fetchError) {
         console.error('[Serverless] Failed to fetch index.html:', fetchError.message);
+        console.error('[Serverless] Fetch error stack:', fetchError.stack);
       }
     }
     
@@ -503,7 +507,40 @@ export default async function handler(req, res) {
     }
     
     // Last resort: Return HTML with script path from build config
-    console.warn('[Serverless] Using fallback HTML with build-time script path');
+    // BUT FIRST: Try to extract script path from a fresh fetch of index.html
+    console.warn('[Serverless] baseHtml not available, attempting to fetch index.html for script paths...');
+    try {
+      const protocol = req.headers['x-forwarded-proto'] || 'https';
+      const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.indiebookshop.com';
+      const fetchUrl = `${protocol}://${host}/index.html`;
+      
+      const htmlResponse = await fetch(fetchUrl);
+      if (htmlResponse.ok) {
+        const freshHtml = await htmlResponse.text();
+        // Extract script and CSS paths from fresh HTML
+        const scriptMatch = freshHtml.match(/<script[^>]*type=["']module["'][^>]*crossorigin[^>]*src=["']([^"']+)["'][^>]*>/i) ||
+                          freshHtml.match(/<script[^>]*type=["']module["'][^>]*src=["']([^"']+)["'][^>]*>/i);
+        const cssMatch = freshHtml.match(/<link[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+\.css)["'][^>]*>/i);
+        
+        const actualScriptPath = scriptMatch ? scriptMatch[1] : (scriptPaths?.SCRIPT_PATH || '/assets/index.js');
+        const actualCssPath = cssMatch ? cssMatch[1] : scriptPaths?.CSS_PATH;
+        
+        console.log('[Serverless] Extracted script path from fresh HTML:', actualScriptPath);
+        console.log('[Serverless] Extracted CSS path from fresh HTML:', actualCssPath || 'none');
+        
+        const cssLink = actualCssPath ? `<link rel="stylesheet" crossorigin href="${actualCssPath}">` : '';
+        const fallbackHtml = `<!DOCTYPE html><html><head>${metaTags}${cssLink}</head><body><div id="root"></div><script type="module" crossorigin src="${actualScriptPath}"></script></body></html>`;
+        
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+        return res.status(200).send(fallbackHtml);
+      }
+    } catch (extractError) {
+      console.error('[Serverless] Failed to extract script paths from fresh HTML:', extractError.message);
+    }
+    
+    // Final fallback: Use build-time script paths
+    console.warn('[Serverless] Using build-time script paths as final fallback');
     const cssLink = scriptPaths?.CSS_PATH ? `<link rel="stylesheet" crossorigin href="${scriptPaths.CSS_PATH}">` : '';
     const fallbackHtml = `<!DOCTYPE html><html><head>${metaTags}${cssLink}</head><body><div id="root"></div><script type="module" crossorigin src="${scriptPaths?.SCRIPT_PATH || '/assets/index.js'}"></script></body></html>`;
     
