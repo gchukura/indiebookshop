@@ -42,4 +42,32 @@ export const ENV = {
 
 fs.writeFileSync('api/env-config.js', envConfigContent);
 
+// Extract script and CSS paths from built index.html for bookshop-slug function
+console.log('Extracting script paths from built index.html...');
+const indexPath = path.join(process.cwd(), 'dist', 'public', 'index.html');
+if (fs.existsSync(indexPath)) {
+  const indexHtml = fs.readFileSync(indexPath, 'utf-8');
+  const scriptMatch = indexHtml.match(/<script[^>]+src="([^"]+)"[^>]*>/);
+  const cssMatch = indexHtml.match(/<link[^>]+href="([^"]+\.css)"[^>]*>/);
+  
+  const scriptPath = scriptMatch ? scriptMatch[1] : '/assets/index.js';
+  const cssPath = cssMatch ? cssMatch[1] : null;
+  
+  // Create a config file with the script paths
+  const scriptConfigContent = `
+// Auto-generated script paths from built index.html
+// This file is generated during build to ensure correct hashed filenames
+export const SCRIPT_PATH = '${scriptPath}';
+export const CSS_PATH = ${cssPath ? `'${cssPath}'` : 'null'};
+`;
+  
+  fs.writeFileSync('api/script-paths.js', scriptConfigContent);
+  console.log(`Extracted script path: ${scriptPath}`);
+  if (cssPath) {
+    console.log(`Extracted CSS path: ${cssPath}`);
+  }
+} else {
+  console.warn('Warning: Could not find built index.html to extract script paths');
+}
+
 console.log('Vercel build process completed successfully.');
