@@ -92,10 +92,10 @@ function generateBookshopMetaTags(bookshop) {
   const slug = generateSlugFromName(bookshop.name);
   const canonicalUrl = `${BASE_URL}/bookshop/${slug}`;
   
-  // Generate title
-  const title = `${bookshop.name} | Independent Bookshop in ${bookshop.city}`;
-  const fullTitle = `${title} | IndiebookShop.com`;
-  const escapedTitle = escapeHtml(fullTitle);
+  // Generate title (shortened to under 60 characters for Google display)
+  // Format: "[Bookshop Name] | Indie Bookshop in [City]"
+  const title = `${bookshop.name} | Indie Bookshop in ${bookshop.city}`;
+  const escapedTitle = escapeHtml(title);
   
   // Generate description
   let description = bookshop.description || '';
