@@ -370,60 +370,56 @@ export default async function handler(req, res) {
     const metaTags = generateBookshopMetaTags(bookshop);
     console.log('[Serverless] Meta tags generated, length:', metaTags.length);
     
-    // Construct production HTML template with all necessary scripts and styles
-    // This matches the built index.html structure from Vite
-    const baseHtml = `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KK1N43FCQZ"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-KK1N43FCQZ');
-    </script>
-    
-    ${metaTags}
-    
-    <!-- Google AdSense Verification -->
-    <meta name="google-adsense-account" content="ca-pub-4357894821158922">
-    <!-- AdSense Script -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4357894821158922" crossorigin="anonymous"></script>
-    <!-- Ahrefs Analytics -->
-    <script src="https://analytics.ahrefs.com/analytics.js" data-key="WXyCVg4DSjVfmskFzEGl9Q" defer></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-      /* Prevent font loading layout shifts */
-      body {
-        font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    // Try to read the built index.html file to get correct script paths
+    // Vite generates hashed filenames that change with each build
+    let baseHtml = null;
+    try {
+      const indexPath = join(process.cwd(), 'dist', 'public', 'index.html');
+      baseHtml = readFileSync(indexPath, 'utf-8');
+      console.log('[Serverless] Read built index.html from filesystem');
+    } catch (error) {
+      console.log('[Serverless] Could not read index.html from filesystem, trying fetch:', error.message);
+      
+      // Fallback: Fetch from root URL (should return the static index.html)
+      try {
+        const protocol = req.headers['x-forwarded-proto'] || 'https';
+        const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.indiebookshop.com';
+        const baseUrl = `${protocol}://${host}`;
+        
+        // Use a special header to bypass our rewrite and get the actual static file
+        const htmlResponse = await fetch(`${baseUrl}/index.html`, {
+          headers: {
+            'User-Agent': req.headers['user-agent'] || 'Mozilla/5.0',
+            'Accept': 'text/html',
+          },
+        });
+        
+        if (htmlResponse.ok) {
+          baseHtml = await htmlResponse.text();
+          console.log('[Serverless] Fetched index.html from static files');
+        }
+      } catch (fetchError) {
+        console.error('[Serverless] Failed to fetch index.html:', fetchError.message);
       }
-      .font-serif {
-        font-family: 'Libre Baskerville', Georgia, serif;
-      }
-    </style>
-    <!-- Favicon -->
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <!-- Mapbox CSS -->
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/assets/index.js"></script>
-  </body>
-</html>`;
+    }
     
-    console.log('[Serverless] Using production HTML template with meta tags');
+    // If we have base HTML, inject meta tags
+    if (baseHtml) {
+      console.log('[Serverless] Injecting meta tags into base HTML');
+      const modifiedHtml = injectMetaTags(baseHtml, metaTags);
+      console.log('[Serverless] Meta tags injected, returning modified HTML');
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+      return res.status(200).send(modifiedHtml);
+    }
+    
+    // Last resort: Return basic HTML (this shouldn't happen in production)
+    console.warn('[Serverless] Using fallback HTML - this should not happen in production');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
-    return res.status(200).send(baseHtml);
+    return res.status(200).send(
+      `<!DOCTYPE html><html><head>${metaTags}</head><body><div id="root"></div><script type="module" src="/assets/index.js"></script></body></html>`
+    );
   } catch (error) {
     console.error('[Serverless] ERROR in bookshop function:', error);
     console.error('[Serverless] Error stack:', error.stack);
