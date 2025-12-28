@@ -342,11 +342,26 @@ async function fetchBookshopBySlug(slug) {
  * Node.js serverless function (not Edge Function) for better compatibility
  */
 export default async function handler(req, res) {
+  // Load script paths early so we can use them in error handlers
+  let scriptPaths = null;
+  try {
+    scriptPaths = await loadScriptPaths();
+  } catch (error) {
+    console.error('[Serverless] Failed to load script paths:', error);
+    scriptPaths = { SCRIPT_PATH: '/assets/index.js', CSS_PATH: null };
+  }
+  
+  const getFallbackHtml = () => {
+    const cssLink = scriptPaths?.CSS_PATH ? `<link rel="stylesheet" crossorigin href="${scriptPaths.CSS_PATH}">` : '';
+    return `<!DOCTYPE html><html><head><title>IndiebookShop</title>${cssLink}</head><body><div id="root"></div><script type="module" crossorigin src="${scriptPaths?.SCRIPT_PATH || '/assets/index.js'}"></script></body></html>`;
+  };
+  
   try {
     console.log('[Serverless] ===== FUNCTION INVOKED =====');
     console.log('[Serverless] Request URL:', req.url);
     console.log('[Serverless] Request method:', req.method);
     console.log('[Serverless] Query object:', JSON.stringify(req.query));
+    console.log('[Serverless] Headers:', JSON.stringify(Object.keys(req.headers)));
     
     // Get slug from query parameter OR header (rewrite may not be working, fallback to header)
     let slug = req.query.slug;
@@ -376,7 +391,7 @@ export default async function handler(req, res) {
       console.log('[Serverless] ERROR: No valid slug found');
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=60');
-      return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>');
+      return res.status(200).send(getFallbackHtml());
     }
     
     // Decode slug in case it's URL encoded
@@ -393,7 +408,7 @@ export default async function handler(req, res) {
       console.log('[Serverless] Bookshop not found for slug:', decodedSlug, '- returning base HTML');
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=60');
-      return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>');
+      return res.status(200).send(getFallbackHtml());
     }
     
     // Generate meta tags
@@ -459,8 +474,17 @@ export default async function handler(req, res) {
     // If we have base HTML, inject meta tags
     if (baseHtml) {
       console.log('[Serverless] Injecting meta tags into base HTML');
+      console.log('[Serverless] Base HTML length before injection:', baseHtml.length);
       const modifiedHtml = injectMetaTags(baseHtml, metaTags);
+      console.log('[Serverless] Modified HTML length after injection:', modifiedHtml.length);
       console.log('[Serverless] Meta tags injected, returning modified HTML');
+      
+      // Verify we're actually sending HTML
+      if (!modifiedHtml || modifiedHtml.length < 100) {
+        console.error('[Serverless] WARNING: Modified HTML seems too short, using fallback');
+        throw new Error('Modified HTML too short');
+      }
+      
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
       return res.status(200).send(modifiedHtml);
@@ -468,20 +492,32 @@ export default async function handler(req, res) {
     
     // Last resort: Return HTML with script path from build config
     console.warn('[Serverless] Using fallback HTML with build-time script path');
-    const scriptPaths = await loadScriptPaths();
-    const cssLink = scriptPaths.CSS_PATH ? `<link rel="stylesheet" crossorigin href="${scriptPaths.CSS_PATH}">` : '';
+    const cssLink = scriptPaths?.CSS_PATH ? `<link rel="stylesheet" crossorigin href="${scriptPaths.CSS_PATH}">` : '';
+    const fallbackHtml = `<!DOCTYPE html><html><head>${metaTags}${cssLink}</head><body><div id="root"></div><script type="module" crossorigin src="${scriptPaths?.SCRIPT_PATH || '/assets/index.js'}"></script></body></html>`;
+    
+    console.log('[Serverless] Fallback HTML length:', fallbackHtml.length);
+    console.log('[Serverless] Using script path:', scriptPaths?.SCRIPT_PATH);
+    
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
-    return res.status(200).send(
-      `<!DOCTYPE html><html><head>${metaTags}${cssLink}</head><body><div id="root"></div><script type="module" crossorigin src="${scriptPaths.SCRIPT_PATH}"></script></body></html>`
-    );
+    return res.status(200).send(fallbackHtml);
   } catch (error) {
     console.error('[Serverless] ERROR in bookshop function:', error);
+    console.error('[Serverless] Error message:', error.message);
     console.error('[Serverless] Error stack:', error.stack);
-    // Return base HTML on error to let React handle it
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 'public, s-maxage=60');
-    return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div><script src="/assets/index.js"></script></body></html>');
+    
+    // Ensure we always return HTML, even on error
+    try {
+      const fallbackHtml = getFallbackHtml();
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, s-maxage=60');
+      return res.status(200).send(fallbackHtml);
+    } catch (sendError) {
+      console.error('[Serverless] CRITICAL: Failed to send error response:', sendError);
+      // Last resort - send minimal HTML
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.status(200).send('<!DOCTYPE html><html><head><title>IndiebookShop</title></head><body><div id="root"></div></body></html>');
+    }
   }
 }
 

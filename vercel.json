@@ -28,7 +28,7 @@
   "rewrites": [
     {
       "source": "/bookshop/:slug",
-      "destination": "/api/bookshop-slug?slug=:slug"
+      "destination": "/api/bookshop-slug?slug=$slug"
     },
     {
       "source": "/sitemap.xml",
