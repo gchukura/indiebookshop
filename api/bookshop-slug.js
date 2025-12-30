@@ -85,6 +85,45 @@ function truncate(text, maxLength) {
 }
 
 /**
+ * Generate SEO-critical body content (H1 + navigation links) for crawlers
+ * This content is wrapped in <noscript> so it's hidden when JavaScript runs
+ */
+function generateSeoBodyContent(bookshop) {
+  if (!bookshop) {
+    return '';
+  }
+  
+  const bookshopName = escapeHtml(bookshop.name || '');
+  const city = escapeHtml(bookshop.city || '');
+  const state = escapeHtml(bookshop.state || '');
+  const description = bookshop.description ? escapeHtml(truncate(bookshop.description, 200)) : '';
+  
+  const seoContent = `
+    <noscript>
+      <style>
+        .seo-content { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: system-ui, -apple-system, sans-serif; }
+        .seo-content h1 { font-size: 2em; margin-bottom: 20px; color: #1a1a1a; }
+        .seo-content p { margin-bottom: 15px; line-height: 1.6; color: #333; }
+        .seo-content nav { margin: 20px 0; padding: 15px 0; border-top: 1px solid #e0e0e0; }
+        .seo-content nav a { margin-right: 20px; color: #2A6B7C; text-decoration: none; font-weight: 500; }
+        .seo-content nav a:hover { text-decoration: underline; }
+      </style>
+      <div class="seo-content">
+        <h1>${bookshopName}</h1>
+        <p><strong>Location:</strong> ${city}${state ? `, ${state}` : ''}</p>
+        ${description ? `<p>${description}</p>` : ''}
+        <nav>
+          <a href="/">Home</a>
+          <a href="/directory">Browse All Bookshops</a>
+        </nav>
+      </div>
+    </noscript>
+  `;
+  
+  return seoContent;
+}
+
+/**
  * Generate meta tags HTML for a bookshop detail page
  */
 function generateBookshopMetaTags(bookshop) {
@@ -261,6 +300,67 @@ function injectMetaTags(html, metaTags) {
     }
   } else {
     console.error('[Serverless] WARNING: Meta tags may not have been injected correctly');
+  }
+  
+  return html;
+}
+
+/**
+ * Inject SEO-critical body content (H1 + navigation links) into HTML
+ * Places content in <noscript> block before <div id="root">
+ */
+function injectSeoBodyContent(html, seoContent) {
+  if (!html || typeof html !== 'string') {
+    console.error('[Serverless] injectSeoBodyContent: Invalid HTML input');
+    return html;
+  }
+  
+  if (!seoContent || typeof seoContent !== 'string') {
+    console.error('[Serverless] injectSeoBodyContent: Invalid SEO content input');
+    return html;
+  }
+  
+  console.log('[Serverless] Injecting SEO body content, HTML length:', html.length);
+  console.log('[Serverless] SEO content length:', seoContent.length);
+  
+  // Check if SEO content is already injected (avoid duplicates)
+  if (html.includes('<!-- Server-side injected SEO body content -->')) {
+    console.log('[Serverless] SEO body content already injected, skipping');
+    return html;
+  }
+  
+  // Find <div id="root"> and inject before it
+  const rootDivPattern = /<div\s+id=["']root["'][^>]*>/i;
+  const rootDivMatch = html.match(rootDivPattern);
+  
+  if (rootDivMatch) {
+    const rootDivTag = rootDivMatch[0];
+    // Inject SEO content with a comment marker before the root div
+    const seoContentWithMarker = `<!-- Server-side injected SEO body content -->\n${seoContent}`;
+    html = html.replace(rootDivTag, seoContentWithMarker + '\n' + rootDivTag);
+    console.log('[Serverless] SEO body content injected before <div id="root">');
+    
+    // Verify injection worked
+    if (html.includes('<!-- Server-side injected SEO body content -->')) {
+      console.log('[Serverless] SEO body content successfully injected');
+      // Verify H1 tag is present
+      if (html.includes('<h1>')) {
+        console.log('[Serverless] H1 tag verified in HTML');
+      } else {
+        console.error('[Serverless] WARNING: H1 tag not found in HTML!');
+      }
+    } else {
+      console.error('[Serverless] WARNING: SEO body content may not have been injected correctly');
+    }
+  } else {
+    console.error('[Serverless] No <div id="root"> found in HTML! Cannot inject SEO body content.');
+    // Last resort: try to inject before </body>
+    if (html.includes('</body>')) {
+      html = html.replace('</body>', `<!-- Server-side injected SEO body content -->\n${seoContent}\n</body>`);
+      console.log('[Serverless] Injected SEO body content before </body> as fallback');
+    } else {
+      console.error('[Serverless] No </body> tag found either! Cannot inject SEO body content.');
+    }
   }
   
   return html;
@@ -757,13 +857,24 @@ export default async function handler(req, res) {
       }
     }
     
-    // If we have base HTML, inject meta tags
+    // If we have base HTML, inject meta tags and SEO body content
     if (baseHtml) {
       console.log('[Serverless] Injecting meta tags into base HTML');
       console.log('[Serverless] Base HTML length before injection:', baseHtml.length);
-      const modifiedHtml = injectMetaTags(baseHtml, metaTags);
-      console.log('[Serverless] Modified HTML length after injection:', modifiedHtml.length);
-      console.log('[Serverless] Meta tags injected, returning modified HTML');
+      let modifiedHtml = injectMetaTags(baseHtml, metaTags);
+      console.log('[Serverless] Modified HTML length after meta tag injection:', modifiedHtml.length);
+      
+      // Generate and inject SEO body content (H1 + navigation links)
+      console.log('[Serverless] Generating SEO body content');
+      const seoBodyContent = generateSeoBodyContent(bookshop);
+      if (seoBodyContent) {
+        modifiedHtml = injectSeoBodyContent(modifiedHtml, seoBodyContent);
+        console.log('[Serverless] Modified HTML length after SEO body content injection:', modifiedHtml.length);
+      } else {
+        console.warn('[Serverless] No SEO body content generated');
+      }
+      
+      console.log('[Serverless] Meta tags and SEO body content injected, returning modified HTML');
       
       // Verify we're actually sending HTML
       if (!modifiedHtml || modifiedHtml.length < 100) {
@@ -799,7 +910,8 @@ export default async function handler(req, res) {
         console.log('[Serverless] Extracted CSS path from fresh HTML:', actualCssPath || 'none');
         
         const cssLink = actualCssPath ? `<link rel="stylesheet" crossorigin href="${actualCssPath}">` : '';
-        const fallbackHtml = `<!DOCTYPE html><html><head>${metaTags}${cssLink}</head><body><div id="root"></div><script type="module" crossorigin src="${actualScriptPath}"></script></body></html>`;
+        const seoBodyContent = generateSeoBodyContent(bookshop);
+        const fallbackHtml = `<!DOCTYPE html><html><head>${metaTags}${cssLink}</head><body>${seoBodyContent}<div id="root"></div><script type="module" crossorigin src="${actualScriptPath}"></script></body></html>`;
         
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
@@ -812,7 +924,8 @@ export default async function handler(req, res) {
     // Final fallback: Use build-time script paths
     console.warn('[Serverless] Using build-time script paths as final fallback');
     const cssLink = scriptPaths?.CSS_PATH ? `<link rel="stylesheet" crossorigin href="${scriptPaths.CSS_PATH}">` : '';
-    const fallbackHtml = `<!DOCTYPE html><html><head>${metaTags}${cssLink}</head><body><div id="root"></div><script type="module" crossorigin src="${scriptPaths?.SCRIPT_PATH || '/assets/index.js'}"></script></body></html>`;
+    const seoBodyContent = generateSeoBodyContent(bookshop);
+    const fallbackHtml = `<!DOCTYPE html><html><head>${metaTags}${cssLink}</head><body>${seoBodyContent}<div id="root"></div><script type="module" crossorigin src="${scriptPaths?.SCRIPT_PATH || '/assets/index.js'}"></script></body></html>`;
     
     console.log('[Serverless] Fallback HTML length:', fallbackHtml.length);
     console.log('[Serverless] Using script path:', scriptPaths?.SCRIPT_PATH);
