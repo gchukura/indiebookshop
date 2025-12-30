@@ -133,23 +133,8 @@ const BookshopDetailPage = () => {
 
   
 
-  useEffect(() => {
-
-    if (isErrorBookshop && !isNumericId && bookshopSlug && !isLoadingBookshop) {
-
-      logger.debug('[BookshopDetailPage] Slug-based URL failed, redirecting to directory', {
-
-        slug: bookshopSlug,
-
-        error: bookshopError
-
-      });
-
-      setLocation('/directory');
-
-    }
-
-  }, [isErrorBookshop, bookshopSlug, isNumericId, setLocation, isLoadingBookshop, bookshopError]);
+  // Don't redirect on error - let the error UI handle it
+  // This allows users to see the 404 page and helps with SEO
 
 
 
@@ -279,6 +264,19 @@ const BookshopDetailPage = () => {
 
   }, [bookshop]);
 
+  // SEO metadata for 404 page - MUST be at top level (Rules of Hooks)
+  const seoTitle404 = useMemo(() => {
+    return "Bookshop Not Found | IndieBookShop.com";
+  }, []);
+  
+  const seoDescription404 = useMemo(() => {
+    return "The bookshop you are looking for could not be found. It may have been permanently closed or the URL is incorrect. Browse our directory to find independent bookshops near you.";
+  }, []);
+  
+  const canonicalUrl404 = useMemo(() => {
+    return `${BASE_URL}/404`;
+  }, []);
+
   // Generate breadcrumb items - MUST be before early returns to follow Rules of Hooks
   const breadcrumbItems: BreadcrumbItem[] = useMemo(() => {
     if (!bookshop || !bookshop.city || !bookshop.state) return [];
@@ -360,117 +358,51 @@ const BookshopDetailPage = () => {
 
 
   if (!isLoadingBookshop && (isErrorBookshop || !bookshop)) {
-
-    if (isNumericId) {
-
-      return (
-
-        <div className="bg-[#F7F3E8] min-h-screen">
-
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
-
-            <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-8 max-w-2xl mx-auto text-center">
-
-              <h1 className="font-serif text-3xl text-[#5F4B32] font-bold mb-4">
-
-                Bookshop Not Found
-
-              </h1>
-
-              <p className="text-lg mb-2 text-stone-700">
-
-                Bookshop with ID <strong>{bookshopSlug}</strong> not found.
-
-              </p>
-
-              <p className="mb-6 text-stone-600">
-
-                The bookshop may have been removed or the ID is incorrect.
-
-              </p>
-
-              <div className="flex gap-4 justify-center">
-
-                <Button 
-
-                  className="bg-[#E16D3D] hover:bg-[#C55A2F] text-white"
-
-                  onClick={() => setLocation('/directory')}
-
-                >
-
-                  Browse Directory
-
-                </Button>
-
-                <Button 
-
-                  variant="outline"
-
-                  className="border-[#2A6B7C] text-[#2A6B7C] hover:bg-[#2A6B7C] hover:text-white"
-
-                  onClick={() => window.history.back()}
-
-                >
-
-                  Go Back
-
-                </Button>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      );
-
-    }
-
-    
-
     return (
-
-      <div className="bg-[#F7F3E8] min-h-screen">
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
-
-          <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-8 max-w-2xl mx-auto text-center">
-
-            <h1 className="font-serif text-3xl text-[#5F4B32] font-bold mb-4">
-
-              Bookshop Not Found
-
-            </h1>
-
-            <p className="mb-6 text-stone-600">
-
-              Error loading bookshop. The bookshop may not exist or there was a problem with the connection.
-
-            </p>
-
-            <Button 
-
-              className="bg-[#E16D3D] hover:bg-[#C55A2F] text-white"
-
-              onClick={() => setLocation('/directory')}
-
-            >
-
-              Return to Directory
-
-            </Button>
-
+      <>
+        <SEO 
+          title={seoTitle404}
+          description={seoDescription404}
+          canonicalUrl={canonicalUrl404}
+          noindex={true}
+        />
+        <div className="bg-[#F7F3E8] min-h-screen">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
+            <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-8 max-w-2xl mx-auto text-center">
+              <h1 className="font-serif text-3xl text-[#5F4B32] font-bold mb-4">
+                Bookshop Not Found
+              </h1>
+              <p className="text-lg mb-2 text-stone-700">
+                {isNumericId ? (
+                  <>Bookshop with ID <strong>{bookshopSlug}</strong> not found.</>
+                ) : (
+                  <>The bookshop you're looking for could not be found.</>
+                )}
+              </p>
+              <p className="mb-6 text-stone-600">
+                This bookshop may have been permanently closed or removed from our directory. 
+                We're sorry for any inconvenience.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  className="bg-[#E16D3D] hover:bg-[#C55A2F] text-white"
+                  onClick={() => setLocation('/directory')}
+                >
+                  Browse Directory
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="border-[#2A6B7C] text-[#2A6B7C] hover:bg-[#2A6B7C] hover:text-white"
+                  onClick={() => window.history.back()}
+                >
+                  Go Back
+                </Button>
+              </div>
+            </div>
           </div>
-
         </div>
-
-      </div>
-
+      </>
     );
-
   }
 
 
@@ -540,7 +472,11 @@ const BookshopDetailPage = () => {
     })(),
     googleReviews: (bookshop.googleReviews && Array.isArray(bookshop.googleReviews) && bookshop.googleReviews.length > 0) ? bookshop.googleReviews : undefined,
     googlePriceLevel: bookshop.googlePriceLevel || undefined,
-    googleDataUpdatedAt: bookshop.googleDataUpdatedAt || undefined,
+    googleDataUpdatedAt: bookshop.googleDataUpdatedAt 
+      ? (bookshop.googleDataUpdatedAt instanceof Date 
+          ? bookshop.googleDataUpdatedAt.toISOString() 
+          : String(bookshop.googleDataUpdatedAt))
+      : undefined,
     // NEW: Contact & business data
     formattedPhone: bookshop.formattedPhone || undefined,
     websiteVerified: bookshop.websiteVerified || undefined,

@@ -85,6 +85,30 @@ function truncate(text, maxLength) {
 }
 
 /**
+ * Generate 404 meta tags for SEO (noindex, nofollow to prevent indexing)
+ */
+function generate404MetaTags() {
+  const title = 'Bookshop Not Found | IndieBookShop.com';
+  const description = 'The bookshop you are looking for could not be found. It may have been removed or the URL is incorrect. Browse our directory to find independent bookshops near you.';
+  const canonicalUrl = `${BASE_URL}/404`;
+  
+  return `
+    <!-- Server-side injected meta tags for SEO (404 Page) -->
+    <title>${escapeHtml(title)}</title>
+    <meta name="description" content="${escapeHtml(description)}" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href="${canonicalUrl}" />
+    <meta property="og:title" content="${escapeHtml(title)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta property="og:url" content="${canonicalUrl}" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="${escapeHtml(title)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+  `;
+}
+
+/**
  * Generate SEO-critical body content (H1 + navigation links) for crawlers
  * This content is wrapped in <noscript> so it's hidden when JavaScript runs
  */
@@ -785,12 +809,48 @@ export default async function handler(req, res) {
       console.log('[Serverless] Bookshop lookup returned null/undefined');
     }
     
-    // If bookshop not found, return base HTML (let React handle 404)
+    // If bookshop not found, return 404 with proper SEO meta tags
     if (!bookshop) {
-      console.log('[Serverless] Bookshop not found for slug:', decodedSlug, '- returning base HTML');
+      console.log('[Serverless] Bookshop not found for slug:', decodedSlug, '- returning 404 with SEO meta tags');
+      
+      // Generate 404 meta tags
+      const metaTags = generate404MetaTags();
+      
+      // Try to read the built index.html file
+      let baseHtml = null;
+      const possiblePaths = [
+        join(process.cwd(), 'dist', 'public', 'index.html'),
+        join(process.cwd(), 'public', 'index.html'),
+        join(__dirname, '..', 'dist', 'public', 'index.html'),
+        join(__dirname, '..', 'public', 'index.html'),
+      ];
+      
+      for (const indexPath of possiblePaths) {
+        try {
+          baseHtml = readFileSync(indexPath, 'utf-8');
+          console.log('[Serverless] Read built index.html from:', indexPath);
+          break;
+        } catch (error) {
+          continue;
+        }
+      }
+      
+      // If we have base HTML, inject 404 meta tags
+      if (baseHtml) {
+        const modifiedHtml = injectMetaTags(baseHtml, metaTags);
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+        // Return 404 status code for proper SEO
+        return res.status(404).send(modifiedHtml);
+      }
+      
+      // Fallback: Return 404 with basic HTML
+      const cssLink = scriptPaths?.CSS_PATH ? `<link rel="stylesheet" crossorigin href="${scriptPaths.CSS_PATH}">` : '';
+      const fallbackHtml = `<!DOCTYPE html><html><head>${metaTags}${cssLink}</head><body><div id="root"></div><script type="module" crossorigin src="${scriptPaths?.SCRIPT_PATH || '/assets/index.js'}"></script></body></html>`;
+      
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=60');
-      return res.status(200).send(getFallbackHtml());
+      return res.status(404).send(fallbackHtml);
     }
     
     // Generate meta tags

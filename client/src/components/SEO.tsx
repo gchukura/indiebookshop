@@ -18,6 +18,7 @@ interface SEOProps {
   articleAuthor?: string; // URL to profile
   articleSection?: string;
   articleTags?: string[];
+  noindex?: boolean; // Set to true to prevent indexing (for 404 pages, etc.)
 }
 
 export const SEO = ({
@@ -38,6 +39,7 @@ export const SEO = ({
   articleAuthor,
   articleSection,
   articleTags = [],
+  noindex = false,
 }: SEOProps) => {
   // Ensure all values are strings and filter out any invalid values
   const safeTitle = String(title || 'IndiebookShop.com');
@@ -64,8 +66,12 @@ export const SEO = ({
       {safeDescription && <meta name="description" content={safeDescription} />}
       {keywordsString && <meta name="keywords" content={keywordsString} />}
       
-      {/* Explicitly allow indexing - important for SEO */}
-      <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      {/* Robots meta tag - noindex for 404 pages, index for everything else */}
+      {noindex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+      )}
       
       {/* Canonical URL */}
       {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
