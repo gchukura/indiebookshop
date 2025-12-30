@@ -331,6 +331,15 @@ async function fetchBookshopBySlug(slug) {
             longitude: bookshop.longitude?.toString() || bookshop.longitude || null,
             featureIds: bookshop.featureIds || [],
             imageUrl: bookshop.imageUrl || null,
+            // Map Google Places contact & basic data fields (snake_case to camelCase)
+            formattedPhone: bookshop.formatted_phone || null,
+            websiteVerified: bookshop.website_verified || null,
+            openingHoursJson: bookshop.opening_hours_json || null,
+            googleMapsUrl: bookshop.google_maps_url || null,
+            googleTypes: bookshop.google_types || null,
+            formattedAddressGoogle: bookshop.formatted_address_google || null,
+            businessStatus: bookshop.business_status || null,
+            contactDataFetchedAt: bookshop.contact_data_fetched_at || null,
           };
           
           // Cache the result
@@ -468,6 +477,15 @@ async function fetchBookshopBySlug(slug) {
           longitude: bookshop.longitude?.toString() || bookshop.longitude || null,
           featureIds: bookshop.featureIds || [],
           imageUrl: bookshop.imageUrl || null,
+          // Map Google Places contact & basic data fields (snake_case to camelCase)
+          formattedPhone: bookshop.formatted_phone || null,
+          websiteVerified: bookshop.website_verified || null,
+          openingHoursJson: bookshop.opening_hours_json || null,
+          googleMapsUrl: bookshop.google_maps_url || null,
+          googleTypes: bookshop.google_types || null,
+          formattedAddressGoogle: bookshop.formatted_address_google || null,
+          businessStatus: bookshop.business_status || null,
+          contactDataFetchedAt: bookshop.contact_data_fetched_at || null,
         };
         
         // Cache the result
@@ -536,6 +554,15 @@ async function fetchBookshopBySlug(slug) {
                   longitude: candidate.longitude?.toString() || candidate.longitude || null,
                   featureIds: candidate.featureIds || [],
                   imageUrl: candidate.imageUrl || null,
+                  // Map Google Places contact & basic data fields (snake_case to camelCase)
+                  formattedPhone: candidate.formatted_phone || null,
+                  websiteVerified: candidate.website_verified || null,
+                  openingHoursJson: candidate.opening_hours_json || null,
+                  googleMapsUrl: candidate.google_maps_url || null,
+                  googleTypes: candidate.google_types || null,
+                  formattedAddressGoogle: candidate.formatted_address_google || null,
+                  businessStatus: candidate.business_status || null,
+                  contactDataFetchedAt: candidate.contact_data_fetched_at || null,
                 };
                 slugCache.set(slug, { bookshop: mappedBookshop, timestamp: Date.now() });
                 console.log('================================');

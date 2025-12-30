@@ -45,6 +45,26 @@ export const bookstores = pgTable("bookstores", {
   }>>(),
   googlePriceLevel: integer("google_price_level"),
   googleDataUpdatedAt: timestamp("google_data_updated_at"),
+  // Google Places contact & basic data fields
+  formattedPhone: text("formatted_phone"),
+  websiteVerified: text("website_verified"),
+  openingHoursJson: json("opening_hours_json").$type<{
+    open_now: boolean;
+    weekday_text: string[];
+    periods?: Array<{
+      open: { day: number; time: string };
+      close?: { day: number; time: string };
+    }>;
+  }>(),
+  googleMapsUrl: text("google_maps_url"),
+  googleTypes: text("google_types").array(),
+  formattedAddressGoogle: text("formatted_address_google"),
+  businessStatus: text("business_status"),
+  contactDataFetchedAt: timestamp("contact_data_fetched_at"),
+  // AI-generated description fields
+  aiGeneratedDescription: text("ai_generated_description"),
+  descriptionGeneratedAt: timestamp("description_generated_at"),
+  descriptionValidated: boolean("description_validated").default(false),
 });
 
 export const events = pgTable("events", {

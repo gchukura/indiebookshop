@@ -1,0 +1,55 @@
+-- Create a function to safely update AI description by temporarily disabling triggers
+-- This function disables triggers, updates the columns, then re-enables triggers
+CREATE OR REPLACE FUNCTION update_ai_description(
+  p_bookshop_id INTEGER,
+  p_description TEXT,
+  p_generated_at TIMESTAMPTZ
+) RETURNS VOID AS $$
+DECLARE
+  v_trigger_name TEXT;
+BEGIN
+  -- Get all triggers on the bookstores table
+  FOR v_trigger_name IN 
+    SELECT trigger_name 
+    FROM information_schema.triggers 
+    WHERE event_object_table = 'bookstores'
+  LOOP
+    -- Disable each trigger
+    EXECUTE format('ALTER TABLE public.bookstores DISABLE TRIGGER %I', v_trigger_name);
+  END LOOP;
+  
+  -- Perform the update
+  UPDATE public.bookstores
+  SET 
+    ai_generated_description = p_description,
+    description_generated_at = p_generated_at
+  WHERE id = p_bookshop_id;
+  
+  -- Re-enable all triggers
+  FOR v_trigger_name IN 
+    SELECT trigger_name 
+    FROM information_schema.triggers 
+    WHERE event_object_table = 'bookstores'
+  LOOP
+    EXECUTE format('ALTER TABLE public.bookstores ENABLE TRIGGER %I', v_trigger_name);
+  END LOOP;
+  
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Make sure triggers are re-enabled even if update fails
+    FOR v_trigger_name IN 
+      SELECT trigger_name 
+      FROM information_schema.triggers 
+      WHERE event_object_table = 'bookstores'
+    LOOP
+      BEGIN
+        EXECUTE format('ALTER TABLE public.bookstores ENABLE TRIGGER %I', v_trigger_name);
+      EXCEPTION
+        WHEN OTHERS THEN
+          NULL; -- Ignore errors when re-enabling
+      END;
+    END LOOP;
+    RAISE;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+

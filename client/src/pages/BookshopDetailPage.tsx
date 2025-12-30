@@ -509,8 +509,9 @@ const BookshopDetailPage = () => {
     street: bookshop.street || undefined,
     zip: bookshop.zip || undefined,
     description: bookshop.description || undefined,
-    phone: bookshop.phone || undefined,
-    website: bookshop.website || undefined,
+    // Contact info - prioritize Google-verified data
+    phone: bookshop.formattedPhone || bookshop.phone || undefined,
+    website: bookshop.websiteVerified || bookshop.website || undefined,
     hours: bookshop.hours || undefined,
     imageUrl: bookshop.imageUrl || undefined,
     latitude: (typeof bookshop.latitude === 'number' ? bookshop.latitude : undefined),
@@ -540,6 +541,14 @@ const BookshopDetailPage = () => {
     googleReviews: (bookshop.googleReviews && Array.isArray(bookshop.googleReviews) && bookshop.googleReviews.length > 0) ? bookshop.googleReviews : undefined,
     googlePriceLevel: bookshop.googlePriceLevel || undefined,
     googleDataUpdatedAt: bookshop.googleDataUpdatedAt || undefined,
+    // NEW: Contact & business data
+    formattedPhone: bookshop.formattedPhone || undefined,
+    websiteVerified: bookshop.websiteVerified || undefined,
+    openingHoursJson: bookshop.openingHoursJson || undefined,
+    googleMapsUrl: bookshop.googleMapsUrl || undefined,
+    googleTypes: bookshop.googleTypes || undefined,
+    formattedAddressGoogle: bookshop.formattedAddressGoogle || undefined,
+    businessStatus: bookshop.businessStatus || undefined,
   };
 
   return (

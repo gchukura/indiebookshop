@@ -197,14 +197,43 @@ async function enrichBookshop(bookshop: Bookshop, delayMs: number = 100): Promis
       google_data_updated_at: new Date().toISOString()
     };
     
-    const { error } = await supabase
-      .from('bookstores')
-      .update(updateData)
-      .eq('id', bookshop.id);
-    
-    if (error) {
-      console.error(`  ❌ Error updating ${bookshop.name}:`, error);
-      return false;
+    // Try RPC function first (avoids geography trigger issues)
+    const { error: rpcError } = await supabase.rpc('update_google_places_data', {
+      p_bookshop_id: bookshop.id,
+      p_google_place_id: updateData.google_place_id,
+      p_google_rating: updateData.google_rating,
+      p_google_review_count: updateData.google_review_count,
+      p_google_description: updateData.google_description,
+      p_google_photos: updateData.google_photos,
+      p_google_reviews: updateData.google_reviews,
+      p_google_price_level: updateData.google_price_level,
+      p_google_data_updated_at: updateData.google_data_updated_at
+    });
+
+    if (rpcError) {
+      // Fallback to REST API
+      const updateResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/bookstores?id=eq.${bookshop.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_SERVICE_ROLE_KEY!,
+            'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(updateData)
+        }
+      );
+
+      if (!updateResponse.ok) {
+        const errorText = await updateResponse.text();
+        console.error(`  ❌ Error updating ${bookshop.name}:`, errorText);
+        if (errorText.includes('geography')) {
+          console.error(`  ⚠️  Database function may not exist. Run: migrations/create-update-google-places-function.sql`);
+        }
+        return false;
+      }
     }
     
     console.log(`  ✅ Enriched ${bookshop.name} (Rating: ${place.rating || 'N/A'}, Reviews: ${place.user_ratings_total || 0})`);
@@ -228,30 +257,49 @@ async function enrichAllBookshops(options: {
   console.log('🚀 Starting Google Places API enrichment...\n');
   
   try {
-    let query = supabase
-      .from('bookstores')
-      .select('id, name, street, city, state, zip, google_place_id')
-      .eq('live', true);
-    
-    if (refreshStale) {
-      // Refresh data older than 3 months
-      const threeMonthsAgo = new Date();
-      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-      query = query.or(`google_data_updated_at.is.null,google_data_updated_at.lt.${threeMonthsAgo.toISOString()}`);
-      console.log('🔄 Refreshing stale data (older than 3 months)...\n');
-    } else {
-      // Only enrich those without Google data
-      query = query.is('google_place_id', null);
-      console.log('📝 Enriching bookshops without Google Places data...\n');
+    // Process in batches to handle Supabase's 1000 row limit
+    const BATCH_SIZE_FETCH = batchSize || 1000;
+    let allBookshops: Bookshop[] = [];
+    let offset = 0;
+    let hasMore = true;
+
+    console.log('📝 Enriching bookshops without Google Places data...\n');
+
+    while (hasMore && allBookshops.length < BATCH_SIZE_FETCH) {
+      let query = supabase
+        .from('bookstores')
+        .select('id, name, street, city, state, zip, google_place_id')
+        .is('google_place_id', null)
+        .order('id')
+        .range(offset, offset + 1000 - 1)
+        .limit(Math.min(1000, BATCH_SIZE_FETCH - allBookshops.length));
+
+      if (refreshStale) {
+        // Refresh data older than 3 months
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        query = query.or(`google_data_updated_at.is.null,google_data_updated_at.lt.${threeMonthsAgo.toISOString()}`);
+        console.log('🔄 Refreshing stale data (older than 3 months)...\n');
+      }
+
+      const { data: bookshops, error } = await query;
+
+      if (error) {
+        console.error('❌ Error fetching bookshops:', error);
+        return;
+      }
+
+      if (!bookshops || bookshops.length === 0) {
+        hasMore = false;
+      } else {
+        allBookshops = allBookshops.concat(bookshops);
+        offset += 1000;
+        hasMore = bookshops.length === 1000 && allBookshops.length < BATCH_SIZE_FETCH;
+      }
     }
-    
-    const { data: bookshops, error } = await query.limit(batchSize);
-    
-    if (error) {
-      console.error('❌ Error fetching bookshops:', error);
-      return;
-    }
-    
+
+    const bookshops = allBookshops;
+
     if (!bookshops || bookshops.length === 0) {
       console.log('✅ No bookshops to enrich!');
       return;

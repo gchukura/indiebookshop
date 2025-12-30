@@ -12,6 +12,8 @@ import { generateSlugFromName } from '@/lib/linkUtils';
 
 import { BASE_URL } from '@/lib/seo';
 
+import { OpeningHours } from '@/components/OpeningHours';
+
 
 
 interface Feature {
@@ -58,6 +60,21 @@ interface BookshopDetails {
   googleReviews?: GoogleReview[] | null;
   googlePriceLevel?: number | null;
   googleDataUpdatedAt?: string | null;
+  // NEW: Contact & business data
+  formattedPhone?: string;
+  websiteVerified?: string;
+  openingHoursJson?: {
+    open_now: boolean;
+    weekday_text: string[];
+    periods?: Array<{
+      open: { day: number; time: string };
+      close?: { day: number; time: string };
+    }>;
+  };
+  googleMapsUrl?: string;
+  googleTypes?: string[];
+  formattedAddressGoogle?: string;
+  businessStatus?: string;
 }
 
 
@@ -94,6 +111,13 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
     googlePhotos,
     googleReviews,
     googlePriceLevel,
+    formattedPhone,
+    websiteVerified,
+    openingHoursJson,
+    googleMapsUrl,
+    googleTypes,
+    formattedAddressGoogle,
+    businessStatus,
   } = bookshop;
 
   // Debug: Log photos data (development only)
@@ -229,6 +253,11 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
     ];
   }, [name, city, state, stateLower, citySlug, id]);
 
+  // Compute CTA values (prioritize Google Places verified fields)
+  const websiteUrl = websiteVerified || website;
+  const phoneNumber = formattedPhone || phone;
+  const hasDirections = googleMapsUrl || (street || city);
+
   return (
 
     <div className="bg-[#F7F3E8] min-h-screen">
@@ -260,9 +289,9 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
             {/* Quick Action Buttons */}
             <div className="flex flex-wrap gap-3">
-              {(street || city) && (
+              {hasDirections && (
                 <a 
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddressString)}`}
+                  href={googleMapsUrl || `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddressString)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#E16D3D] hover:bg-[#C55A2F] text-white font-medium rounded-lg transition-colors"
@@ -271,9 +300,9 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                   Get Directions
                 </a>
               )}
-              {website && (
+              {websiteUrl && (
                 <a 
-                  href={website.startsWith('http') ? website : `https://${website}`}
+                  href={websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-stone-50 text-[#2A6B7C] border-2 border-[#2A6B7C] font-medium rounded-lg transition-colors"
@@ -282,9 +311,9 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                   Visit Website
                 </a>
               )}
-              {phone && (
+              {phoneNumber && (
                 <a 
-                  href={`tel:${phone}`}
+                  href={`tel:${phoneNumber}`}
                   className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-stone-50 text-[#2A6B7C] border-2 border-stone-300 font-medium rounded-lg transition-colors"
                 >
                   <Phone className="w-5 h-5" />
@@ -498,11 +527,44 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                 Store Information
               </h2>
 
+              {/* Business Status Warning (if closed) */}
+              {businessStatus === 'CLOSED_PERMANENTLY' && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <div>
+                      <p className="font-semibold text-red-900">Permanently Closed</p>
+                      <p className="text-sm text-red-700 mt-1">
+                        This bookshop is no longer in operation.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {businessStatus === 'CLOSED_TEMPORARILY' && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <svg className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p className="font-semibold text-yellow-900">Temporarily Closed</p>
+                      <p className="text-sm text-yellow-700 mt-1">
+                        Please check their website or call for updated hours.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-6">
 
                 {/* Address */}
 
-                {(street || city) && (
+                {(formattedAddressGoogle || street || city) && (
 
                   <div className="flex gap-3">
 
@@ -514,7 +576,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
                       <p className="text-stone-700 leading-relaxed whitespace-pre-line">
 
-                        {fullAddress}
+                        {formattedAddressGoogle || fullAddress}
 
                       </p>
 
@@ -596,100 +658,33 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
 
 
-                {/* Hours */}
-
-                <div className="flex gap-3">
-
-                  <Clock className="w-5 h-5 text-[#2A6B7C] flex-shrink-0 mt-0.5" aria-hidden="true" />
-
-                  <div className="text-sm flex-1">
-
-                    <p className="font-bold text-stone-900 mb-1.5">Hours</p>
-
-                    {hours && Object.keys(hours).length > 0 ? (
-
-                      <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-stone-700">
-
-                        {Object.entries(hours).map(([day, time]) => (
-
-                          <React.Fragment key={day}>
-
-                            <p className="font-medium">{day}:</p>
-
-                            <p>{time}</p>
-
-                          </React.Fragment>
-
-                        ))}
-
-                      </div>
-
-                    ) : phone ? (
-
-                      <p className="text-stone-500 italic">Call for hours</p>
-
-                    ) : (
-
-                      <p className="text-stone-500 italic">Hours not available</p>
-
-                    )}
-
+                {/* Hours - Use Google Places hours if available, otherwise fallback to manual hours */}
+                {openingHoursJson && businessStatus === 'OPERATIONAL' ? (
+                  <div>
+                    <p className="font-bold text-stone-900 mb-3 text-sm">Hours</p>
+                    <OpeningHours openingHours={openingHoursJson} />
                   </div>
-
-                </div>
-
-              </div>
-
-
-
-              {/* CTA Buttons */}
-
-              <div className="mt-8 pt-6 border-t border-stone-200 space-y-3">
-
-                {website && (
-
-                  <a
-
-                    href={website.startsWith('http') ? website : `https://${website}`}
-
-                    target="_blank"
-
-                    rel="noopener noreferrer"
-
-                    className="block w-full bg-[#E16D3D] hover:bg-[#C55A2F] text-white text-center py-3 px-4 rounded-lg font-medium transition-colors"
-
-                  >
-
-                    Visit Website
-
-                  </a>
-
-                )}
-
-                
-
-                {(latitude && longitude) && (
-
-                  <a
-
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-
-                      `${name}${street ? ` ${street}` : ''} ${city}, ${state}${zip ? ` ${zip}` : ''}`
-
-                    )}`}
-
-                    target="_blank"
-
-                    rel="noopener noreferrer"
-
-                    className="block w-full bg-white hover:bg-stone-50 text-[#2A6B7C] text-center py-3 px-4 rounded-lg font-medium border-2 border-[#2A6B7C] transition-colors"
-
-                  >
-
-                    Get Directions on Google Maps
-
-                  </a>
-
+                ) : (
+                  <div className="flex gap-3">
+                    <Clock className="w-5 h-5 text-[#2A6B7C] flex-shrink-0 mt-0.5" aria-hidden="true" />
+                    <div className="text-sm flex-1">
+                      <p className="font-bold text-stone-900 mb-1.5">Hours</p>
+                      {hours && Object.keys(hours).length > 0 ? (
+                        <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-stone-700">
+                          {Object.entries(hours).map(([day, time]) => (
+                            <React.Fragment key={day}>
+                              <p className="font-medium">{day}:</p>
+                              <p>{time}</p>
+                            </React.Fragment>
+                          ))}
+                        </div>
+                      ) : phone ? (
+                        <p className="text-stone-500 italic">Call for hours</p>
+                      ) : (
+                        <p className="text-stone-500 italic">Hours not available</p>
+                      )}
+                    </div>
+                  </div>
                 )}
 
               </div>
@@ -723,7 +718,47 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                   </p>
                 </div>
               )}
+
+              {/* Google Types (additional context) */}
+              {googleTypes && googleTypes.length > 0 && (
+                <div className="mt-4 text-xs text-stone-500">
+                  Google categories: {googleTypes
+                    .filter(type => type !== 'point_of_interest' && type !== 'establishment')
+                    .map(type => type.replace(/_/g, ' '))
+                    .join(', ')}
+                </div>
+              )}
             </section>
+
+            {/* Price Level Indicator */}
+            {googlePriceLevel !== undefined && googlePriceLevel !== null && (
+              <section className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 mb-6">
+                <h3 className="font-serif font-semibold text-sm text-[#5F4B32] mb-2">
+                  Price Range
+                </h3>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <span
+                      key={i}
+                      className={`text-lg ${
+                        i < (googlePriceLevel || 0) 
+                          ? 'text-[#5F4B32]' 
+                          : 'text-stone-300'
+                      }`}
+                    >
+                      $
+                    </span>
+                  ))}
+                  <span className="text-xs text-stone-500 ml-2">
+                    {googlePriceLevel === 0 && 'Free'}
+                    {googlePriceLevel === 1 && 'Inexpensive'}
+                    {googlePriceLevel === 2 && 'Moderate'}
+                    {googlePriceLevel === 3 && 'Expensive'}
+                    {googlePriceLevel === 4 && 'Very Expensive'}
+                  </span>
+                </div>
+              </section>
+            )}
 
             {/* Map Section */}
 

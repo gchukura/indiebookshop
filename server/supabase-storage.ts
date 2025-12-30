@@ -210,6 +210,15 @@ export class SupabaseStorage implements IStorage {
         googleReviews: item.google_reviews || null,
         googlePriceLevel: item.google_price_level || null,
         googleDataUpdatedAt: item.google_data_updated_at || null,
+        // Map Google Places contact & basic data fields
+        formattedPhone: item.formatted_phone || null,
+        websiteVerified: item.website_verified || null,
+        openingHoursJson: item.opening_hours_json || null,
+        googleMapsUrl: item.google_maps_url || null,
+        googleTypes: item.google_types || null,
+        formattedAddressGoogle: item.formatted_address_google || null,
+        businessStatus: item.business_status || null,
+        contactDataFetchedAt: item.contact_data_fetched_at || null,
       })) as Bookstore[];
 
       return populateCountyData(bookstores);
@@ -258,6 +267,15 @@ export class SupabaseStorage implements IStorage {
         googleReviews: data.google_reviews || null,
         googlePriceLevel: data.google_price_level || null,
         googleDataUpdatedAt: data.google_data_updated_at || null,
+        // Map Google Places contact & basic data fields
+        formattedPhone: data.formatted_phone || null,
+        websiteVerified: data.website_verified || null,
+        openingHoursJson: data.opening_hours_json || null,
+        googleMapsUrl: data.google_maps_url || null,
+        googleTypes: data.google_types || null,
+        formattedAddressGoogle: data.formatted_address_google || null,
+        businessStatus: data.business_status || null,
+        contactDataFetchedAt: data.contact_data_fetched_at || null,
       } as Bookstore;
     } catch (error) {
       console.error('Error fetching bookstore by ID:', error);
@@ -335,6 +353,15 @@ export class SupabaseStorage implements IStorage {
       googleReviews: item.google_reviews || null,
       googlePriceLevel: item.google_price_level || null,
       googleDataUpdatedAt: item.google_data_updated_at || null,
+      // Map Google Places contact & basic data fields
+      formattedPhone: item.formatted_phone || null,
+      websiteVerified: item.website_verified || null,
+      openingHoursJson: item.opening_hours_json || null,
+      googleMapsUrl: item.google_maps_url || null,
+      googleTypes: item.google_types || null,
+      formattedAddressGoogle: item.formatted_address_google || null,
+      businessStatus: item.business_status || null,
+      contactDataFetchedAt: item.contact_data_fetched_at || null,
     })) as Bookstore[];
   }
 
@@ -364,6 +391,15 @@ export class SupabaseStorage implements IStorage {
       googleReviews: item.google_reviews || null,
       googlePriceLevel: item.google_price_level || null,
       googleDataUpdatedAt: item.google_data_updated_at || null,
+      // Map Google Places contact & basic data fields
+      formattedPhone: item.formatted_phone || null,
+      websiteVerified: item.website_verified || null,
+      openingHoursJson: item.opening_hours_json || null,
+      googleMapsUrl: item.google_maps_url || null,
+      googleTypes: item.google_types || null,
+      formattedAddressGoogle: item.formatted_address_google || null,
+      businessStatus: item.business_status || null,
+      contactDataFetchedAt: item.contact_data_fetched_at || null,
     })) as Bookstore[];
   }
 
@@ -395,6 +431,15 @@ export class SupabaseStorage implements IStorage {
       googleReviews: item.google_reviews || null,
       googlePriceLevel: item.google_price_level || null,
       googleDataUpdatedAt: item.google_data_updated_at || null,
+      // Map Google Places contact & basic data fields
+      formattedPhone: item.formatted_phone || null,
+      websiteVerified: item.website_verified || null,
+      openingHoursJson: item.opening_hours_json || null,
+      googleMapsUrl: item.google_maps_url || null,
+      googleTypes: item.google_types || null,
+      formattedAddressGoogle: item.formatted_address_google || null,
+      businessStatus: item.business_status || null,
+      contactDataFetchedAt: item.contact_data_fetched_at || null,
     })) as Bookstore[];
 
     return bookstores.filter(b => {
