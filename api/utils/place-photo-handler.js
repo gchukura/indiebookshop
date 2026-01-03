@@ -13,13 +13,21 @@ export async function handlePlacePhotoRequest(req, res) {
 
   // Validate photo_reference
   if (!photo_reference || typeof photo_reference !== 'string') {
+    console.error('place-photo: Missing or invalid photo_reference parameter');
     return res.status(400).json({ error: 'photo_reference parameter is required' });
   }
 
-  // Validate photo_reference format (Google uses base64-like strings, can be 100-1000+ chars)
-  // Some photo references can be quite long, so we only check minimum length
+  // Validate photo_reference format (Google uses base64-like strings, can be 100-2000+ chars)
+  // Some photo references are very long, so we allow up to 2000 characters
   if (photo_reference.length < 10 || photo_reference.length > 2000) {
-    return res.status(400).json({ error: 'Invalid photo_reference format' });
+    console.error('place-photo: Invalid photo_reference length', { 
+      length: photo_reference.length,
+      preview: photo_reference.substring(0, 50) + '...'
+    });
+    return res.status(400).json({ 
+      error: 'Invalid photo_reference format',
+      details: `Photo reference length must be between 10 and 2000 characters, got ${photo_reference.length}`
+    });
   }
 
   // Validate maxwidth
