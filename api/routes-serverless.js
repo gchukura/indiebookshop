@@ -1107,27 +1107,5 @@ export async function registerRoutes(app, storageImpl) {
     return handlePlacePhotoRequest(req, res);
   });
 
-  // Sitemap route - import and use the sitemap handler
-  app.get('/api/sitemap.js', async (req, res) => {
-    try {
-      const sitemapHandler = (await import('./sitemap.js')).default;
-      return sitemapHandler(req, res);
-    } catch (error) {
-      console.error('Error importing sitemap handler:', error);
-      return res.status(500).send('Error loading sitemap');
-    }
-  });
-
-  // Also handle /sitemap.xml directly
-  app.get('/sitemap.xml', async (req, res) => {
-    try {
-      const sitemapHandler = (await import('./sitemap.js')).default;
-      return sitemapHandler(req, res);
-    } catch (error) {
-      console.error('Error importing sitemap handler:', error);
-      return res.status(500).send('Error loading sitemap');
-    }
-  });
-
   return { app };
 }
