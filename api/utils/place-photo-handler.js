@@ -44,22 +44,35 @@ export async function handlePlacePhotoRequest(req, res) {
     photoRefString = String(photoRefString);
   }
   
-  // Decode if it's already encoded (handle double-encoding)
-  try {
-    const decoded = decodeURIComponent(photoRefString);
-    // If decoding changed it, use the decoded version
-    if (decoded !== photoRefString && decoded.length > 10) {
-      console.log('place-photo: Decoded photo_reference (was URL encoded)');
-      photoRefString = decoded;
+  // Express automatically URL-decodes query parameters, so photoRefString should already be decoded
+  // But handle edge case where it might be double-encoded or contain encoded characters
+  // Only decode if it looks like it's still encoded (contains % characters)
+  if (photoRefString.includes('%')) {
+    try {
+      const decoded = decodeURIComponent(photoRefString);
+      // Only use decoded version if it's valid and longer (means it was actually encoded)
+      if (decoded && decoded.length >= photoRefString.length * 0.8) {
+        console.log('place-photo: Decoded photo_reference (contained encoded characters)');
+        photoRefString = decoded;
+      }
+    } catch (e) {
+      // Decoding failed, keep original
+      console.warn('place-photo: Failed to decode photo_reference, using as-is', e.message);
     }
-  } catch (e) {
-    // Not URL encoded, that's fine
-    console.log('place-photo: photo_reference is not URL encoded');
   }
   
+  // Trim whitespace
+  photoRefString = photoRefString.trim();
+  
   if (!photoRefString || photoRefString.length < 10) {
-    console.error('place-photo: photo_reference too short after processing', { length: photoRefString?.length });
-    return res.status(400).json({ error: 'Invalid photo_reference format' });
+    console.error('place-photo: photo_reference too short after processing', { 
+      length: photoRefString?.length,
+      value: photoRefString?.substring(0, 50)
+    });
+    return res.status(400).json({ 
+      error: 'Invalid photo_reference format',
+      details: `Photo reference is too short (${photoRefString?.length || 0} chars, minimum 10)`
+    });
   }
 
   // Validate photo_reference format (Google uses base64-like strings, can be 100-2000+ chars)
