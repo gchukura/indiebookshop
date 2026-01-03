@@ -257,10 +257,10 @@ async function fetchBookshopBySlug(slug: string): Promise<any | null> {
   }
   
   try {
-    // Fetch all live bookstores and find by slug
-    // Note: We can't use a slug index in edge runtime, so we fetch and filter
+    // OPTIMIZATION: Use direct slug column query instead of fetching all bookstores
+    // This dramatically reduces egress (from all bookstores to just 1 record)
     const response = await fetch(
-      `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=*`,
+      `${supabaseUrl}/rest/v1/bookstores?slug=eq.${encodeURIComponent(slug)}&live=eq.true&select=*&limit=1`,
       {
         headers: {
           'apikey': supabaseAnonKey,
@@ -271,21 +271,21 @@ async function fetchBookshopBySlug(slug: string): Promise<any | null> {
     );
     
     if (!response.ok) {
-      console.error('Failed to fetch bookstores from Supabase:', response.status);
+      if (response.status === 404) {
+        // No bookshop found with this slug - this is expected
+        return null;
+      }
+      console.error('Failed to fetch bookshop from Supabase:', response.status);
       return null;
     }
     
     const bookstores = await response.json();
     
-    // Find bookshop by matching slug
-    const bookshop = bookstores.find((b: any) => {
-      const bookshopSlug = generateSlugFromName(b.name);
-      return bookshopSlug === slug;
-    });
-    
-    if (!bookshop) {
+    if (!bookstores || bookstores.length === 0) {
       return null;
     }
+    
+    const bookshop = bookstores[0];
     
     // Map Supabase column names to expected format
     return {

@@ -483,9 +483,15 @@ async function fetchBookshopBySlug(slug) {
         })();
         console.error(`[Serverless] Slug column query failed with ${directResponse.status}:`, errorJson);
         console.error(`[Serverless] Query URL: ${supabaseUrl}/rest/v1/bookstores?slug=eq.${encodeURIComponent(slug)}&live=eq.true&...`);
+        console.error(`[Serverless] This failure triggers expensive fallback query - investigate why direct query failed`);
         if (directResponse.status === 400) {
           // 400 might mean slug column doesn't exist or query syntax error - fall through to fallback
           console.log('[Serverless] Slug column query returned 400, using fallback');
+        } else if (directResponse.status === 404) {
+          // 404 means no match found - this is expected, don't use fallback
+          console.log('[Serverless] No bookshop found with this slug (404) - returning null');
+          console.log('================================');
+          return null;
         }
       }
     } catch (directError) {
@@ -495,6 +501,7 @@ async function fetchBookshopBySlug(slug) {
     // FALLBACK: If slug column doesn't exist or query failed, use the old method
     console.log('[Serverless] Using fallback: generating slugs from names...');
     // CRITICAL FIX: Query in batches but STOP EARLY when we find a match
+    // OPTIMIZATION: Only select id and name columns to minimize egress (90%+ reduction)
     // This dramatically reduces database egress
     const pageSize = 500; // Smaller pages for faster early exit
     const maxPages = 5; // Limit to 5 pages max (2500 bookstores) to prevent runaway queries
@@ -508,8 +515,9 @@ async function fetchBookshopBySlug(slug) {
     console.log('5. Normalized search slug:', normalizedSearchSlug);
     
     while (pageCount < maxPages) {
+      // OPTIMIZATION: Only fetch id and name for slug matching (dramatically reduces egress)
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=*&order=name&limit=${pageSize}&offset=${from}`,
+        `${supabaseUrl}/rest/v1/bookstores?live=eq.true&select=id,name&order=name&limit=${pageSize}&offset=${from}`,
         {
           headers: {
             'apikey': supabaseAnonKey,
@@ -556,7 +564,7 @@ async function fetchBookshopBySlug(slug) {
       
       // Search for matching slug in this batch
       // Try exact match first, then case-insensitive
-      let bookshop = bookstores.find((b) => {
+      let matchedBookshop = bookstores.find((b) => {
         if (!b.name) return false;
         const bookshopSlug = generateSlugFromName(b.name);
         const normalizedBookshopSlug = bookshopSlug.toLowerCase().trim();
@@ -575,7 +583,7 @@ async function fetchBookshopBySlug(slug) {
       });
       
       // If no exact match, try fuzzy matching (for debugging)
-      if (!bookshop && pageCount === 0) {
+      if (!matchedBookshop && pageCount === 0) {
         const fuzzyMatches = bookstores
           .map(b => ({
             name: b.name,
@@ -591,8 +599,35 @@ async function fetchBookshopBySlug(slug) {
         }
       }
       
-      if (bookshop) {
-        console.log(`[Serverless] ✓ Found bookshop: ${bookshop.name} (ID: ${bookshop.id}) after querying ${totalSearched} bookstores`);
+      if (matchedBookshop) {
+        console.log(`[Serverless] ✓ Found bookshop: ${matchedBookshop.name} (ID: ${matchedBookshop.id}) after querying ${totalSearched} bookstores`);
+        
+        // Now fetch the full bookshop data for the matched ID (only 1 record, minimal egress)
+        const fullDataResponse = await fetch(
+          `${supabaseUrl}/rest/v1/bookstores?id=eq.${matchedBookshop.id}&select=*&limit=1`,
+          {
+            headers: {
+              'apikey': supabaseAnonKey,
+              'Authorization': `Bearer ${supabaseAnonKey}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        
+        if (!fullDataResponse.ok) {
+          console.error('[Serverless] Failed to fetch full bookshop data:', fullDataResponse.status);
+          console.log('================================');
+          return null;
+        }
+        
+        const fullDataResults = await fullDataResponse.json();
+        const bookshop = fullDataResults && fullDataResults.length > 0 ? fullDataResults[0] : null;
+        
+        if (!bookshop) {
+          console.error('[Serverless] Bookshop data not found after match');
+          console.log('================================');
+          return null;
+        }
         
         // Map Supabase column names to expected format (columns are already camelCase)
         const mappedBookshop = {
