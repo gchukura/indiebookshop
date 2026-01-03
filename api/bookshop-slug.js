@@ -464,6 +464,11 @@ async function fetchBookshopBySlug(slug) {
             formattedAddressGoogle: bookshop.formatted_address_google || null,
             businessStatus: bookshop.business_status || null,
             contactDataFetchedAt: bookshop.contact_data_fetched_at || null,
+            // Map AI-generated description fields from snake_case to camelCase
+            aiGeneratedDescription: bookshop.ai_generated_description || null,
+            descriptionGeneratedAt: bookshop.description_generated_at || null,
+            descriptionValidated: bookshop.description_validated ?? null,
+            descriptionSource: bookshop.description_source || null,
           };
           
           // Cache the result
@@ -645,6 +650,50 @@ async function fetchBookshopBySlug(slug) {
           formattedAddressGoogle: bookshop.formatted_address_google || null,
           businessStatus: bookshop.business_status || null,
           contactDataFetchedAt: bookshop.contact_data_fetched_at || null,
+          // Map Google Places API fields (snake_case to camelCase)
+          googlePlaceId: bookshop.google_place_id || bookshop.googlePlaceId || null,
+          googleRating: bookshop.google_rating || bookshop.googleRating || null,
+          googleReviewCount: bookshop.google_review_count || bookshop.googleReviewCount || null,
+          googleDescription: bookshop.google_description || bookshop.googleDescription || null,
+          googlePhotos: (() => {
+            const photos = bookshop.google_photos || bookshop.googlePhotos;
+            if (!photos) return null;
+            // If it's already an array, return it
+            if (Array.isArray(photos)) return photos;
+            // If it's a string, try to parse it
+            if (typeof photos === 'string') {
+              try {
+                return JSON.parse(photos);
+              } catch (e) {
+                console.error('[Serverless] Error parsing google_photos JSON in bookshop-slug:', e);
+                return null;
+              }
+            }
+            return null;
+          })(),
+          googleReviews: (() => {
+            const reviews = bookshop.google_reviews || bookshop.googleReviews;
+            if (!reviews) return null;
+            // If it's already an array, return it
+            if (Array.isArray(reviews)) return reviews;
+            // If it's a string, try to parse it
+            if (typeof reviews === 'string') {
+              try {
+                return JSON.parse(reviews);
+              } catch (e) {
+                console.error('[Serverless] Error parsing google_reviews JSON in bookshop-slug:', e);
+                return null;
+              }
+            }
+            return null;
+          })(),
+          googlePriceLevel: bookshop.google_price_level || bookshop.googlePriceLevel || null,
+          googleDataUpdatedAt: bookshop.google_data_updated_at || bookshop.googleDataUpdatedAt || null,
+          // Map AI-generated description fields from snake_case to camelCase
+          aiGeneratedDescription: bookshop.ai_generated_description || null,
+          descriptionGeneratedAt: bookshop.description_generated_at || null,
+          descriptionValidated: bookshop.description_validated ?? null,
+          descriptionSource: bookshop.description_source || null,
         };
         
         // Cache the result
@@ -722,6 +771,11 @@ async function fetchBookshopBySlug(slug) {
                   formattedAddressGoogle: candidate.formatted_address_google || null,
                   businessStatus: candidate.business_status || null,
                   contactDataFetchedAt: candidate.contact_data_fetched_at || null,
+                  // Map AI-generated description fields from snake_case to camelCase
+                  aiGeneratedDescription: candidate.ai_generated_description || null,
+                  descriptionGeneratedAt: candidate.description_generated_at || null,
+                  descriptionValidated: candidate.description_validated ?? null,
+                  descriptionSource: candidate.description_source || null,
                 };
                 slugCache.set(slug, { bookshop: mappedBookshop, timestamp: Date.now() });
                 console.log('================================');
