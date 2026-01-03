@@ -16,8 +16,9 @@ export async function handlePlacePhotoRequest(req, res) {
     return res.status(400).json({ error: 'photo_reference parameter is required' });
   }
 
-  // Validate photo_reference format (Google uses base64-like strings, typically 100-200 chars)
-  if (photo_reference.length < 10 || photo_reference.length > 500) {
+  // Validate photo_reference format (Google uses base64-like strings, can be 100-1000+ chars)
+  // Some photo references can be quite long, so we only check minimum length
+  if (photo_reference.length < 10 || photo_reference.length > 2000) {
     return res.status(400).json({ error: 'Invalid photo_reference format' });
   }
 
