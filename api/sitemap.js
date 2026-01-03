@@ -15,30 +15,19 @@ function generateSlug(name) {
 }
 
 export default async function handler(req, res) {
+  console.log('=== SITEMAP FUNCTION CALLED ===');
+  console.log('Request URL:', req.url);
+  console.log('Request method:', req.method);
+  console.log('Request path:', req.path);
+  console.log('Request headers:', JSON.stringify(req.headers, null, 2));
+  
   try {
     console.log('Serverless: Generating sitemap.xml');
     
     // Initialize storage - use Supabase by default
     const storage = new SupabaseStorage();
     
-    // Wait for storage to initialize and load data
-    await new Promise(resolve => {
-      const checkInit = async () => {
-        try {
-          const bookstores = await storage.getBookstores();
-          if (bookstores && bookstores.length > 0) {
-            resolve();
-          } else {
-            setTimeout(checkInit, 500);
-          }
-        } catch (err) {
-          setTimeout(checkInit, 500);
-        }
-      };
-      checkInit();
-    });
-    
-    // Fetch data
+    // Fetch data directly (remove the wait loop which could cause timeouts)
     const bookstores = await storage.getBookstores();
     console.log(`Serverless: Fetched ${bookstores.length} bookstores for sitemap`);
     
