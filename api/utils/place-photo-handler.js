@@ -9,14 +9,21 @@
  * @returns {Promise<void>}
  */
 export async function handlePlacePhotoRequest(req, res) {
-  const { photo_reference, maxwidth = '400' } = req.query;
+  // Extract photo_reference from query - handle array case
+  let photo_reference = req.query.photo_reference;
+  if (Array.isArray(photo_reference)) {
+    photo_reference = photo_reference[0];
+  }
+  
+  const maxwidth = req.query.maxwidth || '400';
 
   // Log the incoming request for debugging
   console.log('place-photo: Request received', {
     hasPhotoRef: !!photo_reference,
     photoRefType: typeof photo_reference,
-    photoRefLength: photo_reference?.length,
-    photoRefPreview: photo_reference ? photo_reference.substring(0, 100) : null
+    photoRefLength: typeof photo_reference === 'string' ? photo_reference.length : 'N/A',
+    photoRefPreview: typeof photo_reference === 'string' ? photo_reference.substring(0, 100) : null,
+    rawQuery: JSON.stringify(req.query)
   });
 
   // Validate photo_reference
@@ -27,14 +34,32 @@ export async function handlePlacePhotoRequest(req, res) {
 
   // Handle both string and object formats (in case it's passed as JSON)
   let photoRefString = photo_reference;
-  if (typeof photo_reference === 'object') {
+  if (typeof photo_reference === 'object' && photo_reference !== null) {
     photoRefString = photo_reference.photo_reference || photo_reference.photoReference || String(photo_reference);
     console.warn('place-photo: photo_reference was an object, extracted:', photoRefString?.substring(0, 50));
   }
   
+  // Ensure it's a string
   if (typeof photoRefString !== 'string') {
-    console.error('place-photo: Invalid photo_reference type', { type: typeof photoRefString, value: photoRefString });
-    return res.status(400).json({ error: 'photo_reference must be a string' });
+    photoRefString = String(photoRefString);
+  }
+  
+  // Decode if it's already encoded (handle double-encoding)
+  try {
+    const decoded = decodeURIComponent(photoRefString);
+    // If decoding changed it, use the decoded version
+    if (decoded !== photoRefString && decoded.length > 10) {
+      console.log('place-photo: Decoded photo_reference (was URL encoded)');
+      photoRefString = decoded;
+    }
+  } catch (e) {
+    // Not URL encoded, that's fine
+    console.log('place-photo: photo_reference is not URL encoded');
+  }
+  
+  if (!photoRefString || photoRefString.length < 10) {
+    console.error('place-photo: photo_reference too short after processing', { length: photoRefString?.length });
+    return res.status(400).json({ error: 'Invalid photo_reference format' });
   }
 
   // Validate photo_reference format (Google uses base64-like strings, can be 100-2000+ chars)
@@ -50,9 +75,14 @@ export async function handlePlacePhotoRequest(req, res) {
     });
   }
 
-  // Validate maxwidth
-  const maxWidthNum = parseInt(maxwidth, 10);
+  // Validate maxwidth - handle array case
+  let maxwidthValue = maxwidth;
+  if (Array.isArray(maxwidthValue)) {
+    maxwidthValue = maxwidthValue[0];
+  }
+  const maxWidthNum = parseInt(String(maxwidthValue || '400'), 10);
   if (isNaN(maxWidthNum) || maxWidthNum < 1 || maxWidthNum > 1600) {
+    console.error('place-photo: Invalid maxwidth', { maxwidth: maxwidthValue, parsed: maxWidthNum });
     return res.status(400).json({ error: 'maxwidth must be between 1 and 1600' });
   }
 
