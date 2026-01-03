@@ -21,7 +21,7 @@ Mixing the old `routes` section with the modern `rewrites` section causes patter
     },
     {
       "source": "/sitemap.xml",
-      "destination": "/api/sitemap.js"
+      "destination": "/api/sitemap"
     },
     {
       "source": "/api/:path*",

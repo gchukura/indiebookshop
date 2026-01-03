@@ -389,6 +389,8 @@ export async function middleware(request: Request) {
   }
   
   // Handle rate limiting for API routes
+  // Note: /sitemap.xml rewrites to /api/sitemap, but middleware runs on original path
+  // so /sitemap.xml won't match /api/:path* and won't be rate limited (which is correct)
   if (pathname.startsWith('/api')) {
   // Get rate limit config for this path
   const config = getRateLimitConfig(pathname);
@@ -451,4 +453,6 @@ export const config = {
     '/api/:path*',
   ],
   runtime: 'edge',
+  // Exclude sitemap from middleware - it's a public resource that shouldn't be rate limited
+  // The matcher above will still match /api/sitemap, but the middleware logic will pass it through
 };
