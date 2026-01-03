@@ -1,7 +1,7 @@
 // Serverless-compatible routes implementation
 import rateLimit from 'express-rate-limit';
 import { createClient } from '@supabase/supabase-js';
-import sgMail from '@sendgrid/mail';
+import { Resend } from 'resend';
 
 // Create Supabase client for serverless functions
 // This is inlined here to ensure it's included in the Vercel bundle
@@ -66,12 +66,12 @@ function getSupabaseClient() {
   }
 }
 
-// Initialize SendGrid
-if (!process.env.SENDGRID_API_KEY) {
-  console.warn('Serverless: SENDGRID_API_KEY environment variable is not set. Email notifications will not be sent.');
-} else {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// Initialize Resend
+if (!process.env.RESEND_API_KEY) {
+  console.warn('Serverless: RESEND_API_KEY environment variable is not set. Email notifications will not be sent.');
 }
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 // Escape HTML entities to prevent XSS attacks
 function escapeHtml(text) {
@@ -117,44 +117,55 @@ function isDevelopment() {
   return process.env.NODE_ENV === 'development';
 }
 
-// Send email using SendGrid
+// Send email using Resend
 async function sendEmail(params) {
-  if (!process.env.SENDGRID_API_KEY) {
-    console.error('Serverless: ❌ Cannot send email: SENDGRID_API_KEY is not set');
-    console.error('Serverless: Check Vercel environment variables for SENDGRID_API_KEY');
+  if (!process.env.RESEND_API_KEY) {
+    console.error('Serverless: ❌ Cannot send email: RESEND_API_KEY is not set');
+    console.error('Serverless: Check Vercel environment variables for RESEND_API_KEY');
     return false;
   }
   
-  if (!process.env.SENDGRID_FROM_EMAIL) {
-    console.error('Serverless: ❌ Cannot send email: SENDGRID_FROM_EMAIL is not set');
-    console.error('Serverless: Check Vercel environment variables for SENDGRID_FROM_EMAIL');
+  if (!process.env.RESEND_FROM_EMAIL) {
+    console.error('Serverless: ❌ Cannot send email: RESEND_FROM_EMAIL is not set');
+    console.error('Serverless: Check Vercel environment variables for RESEND_FROM_EMAIL');
+    return false;
+  }
+  
+  if (!resend) {
+    console.error('Serverless: ❌ Cannot send email: Resend client not initialized');
     return false;
   }
   
   try {
     console.log('Serverless: Attempting to send email...');
-    console.log('Serverless: From:', params.from || process.env.SENDGRID_FROM_EMAIL);
+    console.log('Serverless: From:', params.from || process.env.RESEND_FROM_EMAIL);
     console.log('Serverless: To:', params.to);
     console.log('Serverless: Subject:', params.subject);
     
-    const result = await sgMail.send(params);
-    console.log('Serverless: ✅ Email sent successfully to', params.to);
-    console.log('Serverless: SendGrid response status:', result[0]?.statusCode);
-    return true;
-  } catch (error) {
-    console.error('Serverless: ❌ SendGrid email error:', error.message);
-    console.error('Serverless: Error code:', error.code);
-    console.error('Serverless: Error response:', error.response?.body);
+    // Resend expects 'from' to be a string, and 'to' can be string or array
+    const fromEmail = params.from || process.env.RESEND_FROM_EMAIL || 'noreply@indiebookshop.com';
+    const toEmail = Array.isArray(params.to) ? params.to[0] : params.to;
     
-    // Log more details if available
-    if (error.response) {
-      console.error('Serverless: SendGrid response status:', error.response.statusCode);
-      console.error('Serverless: SendGrid response headers:', error.response.headers);
-      if (error.response.body) {
-        console.error('Serverless: SendGrid error details:', JSON.stringify(error.response.body, null, 2));
-      }
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: toEmail,
+      replyTo: params.replyTo,
+      subject: params.subject,
+      text: params.text,
+      html: params.html,
+    });
+    
+    if (error) {
+      console.error('Serverless: ❌ Resend email error:', error);
+      return false;
     }
     
+    console.log('Serverless: ✅ Email sent successfully to', toEmail);
+    console.log('Serverless: Resend email ID:', data?.id);
+    return true;
+  } catch (error) {
+    console.error('Serverless: ❌ Resend email error:', error.message);
+    console.error('Serverless: Error details:', error);
     return false;
   }
 }
@@ -193,7 +204,7 @@ ${JSON.stringify(bookstoreData, null, 2)}
 
   return sendEmail({
     to: adminEmail,
-    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com',
+    from: process.env.RESEND_FROM_EMAIL || 'noreply@indiebookshop.com',
     subject,
     text,
     html
@@ -253,7 +264,7 @@ ${contactData.message || 'N/A'}
 
   return sendEmail({
     to: adminEmail,
-    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com',
+    from: process.env.RESEND_FROM_EMAIL || 'noreply@indiebookshop.com',
     replyTo: contactData.email, // Allow replying directly to the sender
     subject,
     text,
@@ -731,8 +742,8 @@ export async function registerRoutes(app, storageImpl) {
           const adminEmail = process.env.ADMIN_EMAIL || 'admin@indiebookshop.com';
           console.log('Serverless: Preparing to send email notification...');
           console.log('Serverless: Admin email:', adminEmail);
-          console.log('Serverless: SENDGRID_API_KEY exists?', !!process.env.SENDGRID_API_KEY);
-          console.log('Serverless: SENDGRID_FROM_EMAIL:', process.env.SENDGRID_FROM_EMAIL || 'NOT SET');
+          console.log('Serverless: RESEND_API_KEY exists?', !!process.env.RESEND_API_KEY);
+          console.log('Serverless: RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL || 'NOT SET');
           
           const notificationSent = await sendBookstoreSubmissionNotification(
             adminEmail,
@@ -1018,8 +1029,8 @@ export async function registerRoutes(app, storageImpl) {
       
       // Send email to info@bluestonebrands.com
       console.log('Serverless: Attempting to send contact form email to info@bluestonebrands.com');
-      console.log('Serverless: SENDGRID_API_KEY exists?', !!process.env.SENDGRID_API_KEY);
-      console.log('Serverless: SENDGRID_FROM_EMAIL:', process.env.SENDGRID_FROM_EMAIL || 'NOT SET');
+      console.log('Serverless: RESEND_API_KEY exists?', !!process.env.RESEND_API_KEY);
+      console.log('Serverless: RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL || 'NOT SET');
       
       const emailSent = await sendContactFormEmail('info@bluestonebrands.com', {
         name: sanitizedName,
@@ -1067,7 +1078,7 @@ export async function registerRoutes(app, storageImpl) {
         return res.status(400).json({ error: 'Invalid email address' });
       }
 
-      // TODO: Integrate with your email service (SendGrid, Mailchimp, etc.)
+      // TODO: Integrate with your email service (Resend, Mailchimp, etc.)
       // For now, just log it
       console.log('Newsletter signup:', sanitizedEmail);
       
@@ -1094,6 +1105,28 @@ export async function registerRoutes(app, storageImpl) {
     }
 
     return handlePlacePhotoRequest(req, res);
+  });
+
+  // Sitemap route - import and use the sitemap handler
+  app.get('/api/sitemap.js', async (req, res) => {
+    try {
+      const sitemapHandler = (await import('./sitemap.js')).default;
+      return sitemapHandler(req, res);
+    } catch (error) {
+      console.error('Error importing sitemap handler:', error);
+      return res.status(500).send('Error loading sitemap');
+    }
+  });
+
+  // Also handle /sitemap.xml directly
+  app.get('/sitemap.xml', async (req, res) => {
+    try {
+      const sitemapHandler = (await import('./sitemap.js')).default;
+      return sitemapHandler(req, res);
+    } catch (error) {
+      console.error('Error importing sitemap handler:', error);
+      return res.status(500).send('Error loading sitemap');
+    }
   });
 
   return { app };
