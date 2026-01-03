@@ -1,0 +1,34 @@
+name: Refresh Google Places Photos
+
+on:
+  schedule:
+    # Run on the 1st of every other month at 2 AM UTC
+    # This ensures photos are refreshed before they expire (typically 2-3 months)
+    - cron: '0 2 1 */2 *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  refresh-photos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run photo refresh script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+        run: npx tsx scripts/enrich-google-data.ts --refresh-stale --batch-size=1000
+

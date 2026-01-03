@@ -18,6 +18,10 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/cron/refresh-google-photos.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -49,6 +53,10 @@
     {
       "source": "/api/bookshop-slug",
       "destination": "/api/bookshop-slug.js"
+    },
+    {
+      "source": "/api/cron/:path*",
+      "destination": "/api/cron/$path.js"
     },
     {
       "source": "/api/:path*",
@@ -131,5 +139,11 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/refresh-google-photos",
+      "schedule": "0 2 1 */2 *"
+    }
+  ]
 }

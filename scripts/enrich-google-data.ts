@@ -251,35 +251,48 @@ async function enrichAllBookshops(options: {
   batchSize?: number;
   delayMs?: number;
   refreshStale?: boolean;
+  refreshAll?: boolean;
 } = {}) {
-  const { batchSize = 100, delayMs = 100, refreshStale = false } = options;
+  const { batchSize = 100, delayMs = 100, refreshStale = false, refreshAll = false } = options;
   
   console.log('🚀 Starting Google Places API enrichment...\n');
   
   try {
     // Process in batches to handle Supabase's 1000 row limit
-    const BATCH_SIZE_FETCH = batchSize || 1000;
+    // For refreshAll, we want to process ALL bookshops, not just a batch
+    const BATCH_SIZE_FETCH = refreshAll ? Infinity : (batchSize || 1000);
     let allBookshops: Bookshop[] = [];
     let offset = 0;
     let hasMore = true;
 
-    console.log('📝 Enriching bookshops without Google Places data...\n');
+    if (refreshAll) {
+      console.log('🔄 Refreshing ALL bookshops with Google Places data...\n');
+    } else if (refreshStale) {
+      console.log('🔄 Refreshing stale data (older than 3 months)...\n');
+    } else {
+      console.log('📝 Enriching bookshops without Google Places data...\n');
+    }
 
-    while (hasMore && allBookshops.length < BATCH_SIZE_FETCH) {
+    while (hasMore) {
       let query = supabase
         .from('bookstores')
         .select('id, name, street, city, state, zip, google_place_id')
-        .is('google_place_id', null)
+        .eq('live', true)
         .order('id')
         .range(offset, offset + 1000 - 1)
         .limit(Math.min(1000, BATCH_SIZE_FETCH - allBookshops.length));
 
-      if (refreshStale) {
+      if (refreshAll) {
+        // Refresh ALL bookshops that have a google_place_id (regardless of when updated)
+        query = query.not('google_place_id', 'is', null);
+      } else if (refreshStale) {
         // Refresh data older than 3 months
         const threeMonthsAgo = new Date();
         threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
         query = query.or(`google_data_updated_at.is.null,google_data_updated_at.lt.${threeMonthsAgo.toISOString()}`);
-        console.log('🔄 Refreshing stale data (older than 3 months)...\n');
+      } else {
+        // If not refreshStale, only get bookshops without Google data
+        query = query.is('google_place_id', null);
       }
 
       const { data: bookshops, error } = await query;
@@ -294,7 +307,8 @@ async function enrichAllBookshops(options: {
       } else {
         allBookshops = allBookshops.concat(bookshops);
         offset += 1000;
-        hasMore = bookshops.length === 1000 && allBookshops.length < BATCH_SIZE_FETCH;
+        // Continue fetching if we got a full batch (1000) and haven't hit the limit
+        hasMore = bookshops.length === 1000 && (refreshAll || allBookshops.length < BATCH_SIZE_FETCH);
       }
     }
 
@@ -343,9 +357,10 @@ const args = process.argv.slice(2);
 const batchSize = parseInt(args.find(arg => arg.startsWith('--batch-size='))?.split('=')[1] || '100');
 const delayMs = parseInt(args.find(arg => arg.startsWith('--delay='))?.split('=')[1] || '100');
 const refreshStale = args.includes('--refresh-stale');
+const refreshAll = args.includes('--refresh-all');
 
 // Run the enrichment
-enrichAllBookshops({ batchSize, delayMs, refreshStale })
+enrichAllBookshops({ batchSize, delayMs, refreshStale, refreshAll })
   .then(() => {
     console.log('\n✨ Done!');
     process.exit(0);

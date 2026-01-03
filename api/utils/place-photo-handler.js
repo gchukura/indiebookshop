@@ -143,6 +143,14 @@ export async function handlePlacePhotoRequest(req, res) {
         urlPreview: photoUrl.substring(0, 200) + '...'
       });
       
+      // If it's a 400 error, the photo reference is likely expired
+      // Log this for potential batch refresh later
+      if (response.status === 400) {
+        console.warn('place-photo: Photo reference appears expired (400 error) - may need refresh');
+        // Note: We could trigger an async refresh here, but that would slow down the response
+        // Better to handle via scheduled cron job
+      }
+      
       // Return more detailed error
       return res.status(response.status).json({ 
         error: 'Failed to fetch photo from Google Places API',
