@@ -12,22 +12,38 @@ Google Places photo references are temporary tokens that expire for security and
 
 We've set up two automated refresh mechanisms:
 
-#### Option A: Vercel Cron Jobs (Primary)
+#### Option A: GitHub Actions (Recommended - Works on All Plans)
+- **Location**: `.github/workflows/refresh-google-photos.yml`
+- **Schedule**: Every 2 months (1st of every other month at 2 AM UTC)
+- **How it works**: Runs the enrichment script with `--refresh-stale` flag
+- **Cost**: Free (GitHub Actions provides 2,000 minutes/month for free)
+
+**To enable:**
+1. Add secrets to GitHub Actions:
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `GOOGLE_PLACES_API_KEY`
+2. The workflow will run automatically on schedule
+3. You can also trigger manually from GitHub Actions tab
+
+**Note**: This is the recommended solution for Hobby/Free/V0 Premium plans.
+
+#### Option B: Vercel Cron Jobs (Requires Pro Plan or Higher)
 - **Location**: `api/cron/refresh-google-photos.js`
 - **Schedule**: Every 2 months (1st of every other month at 2 AM UTC)
 - **Configuration**: Defined in `vercel.json`
 - **How it works**: Automatically refreshes photos older than 2 months
+- **Plan Requirement**: Vercel Pro plan ($20/month) or Enterprise plan
 
 **To enable:**
-1. Ensure `CRON_SECRET_TOKEN` is set in Vercel environment variables (optional, for security)
-2. The cron job will run automatically on the schedule
+1. Upgrade to Vercel Pro plan (cron jobs not available on Hobby/Free/V0 Premium)
+2. Ensure `CRON_SECRET_TOKEN` is set in Vercel environment variables (optional, for security)
+3. The cron job will run automatically on the schedule
 
 **To test manually:**
 ```bash
 curl -X GET https://your-site.vercel.app/api/cron/refresh-google-photos?token=YOUR_CRON_SECRET_TOKEN
 ```
-
-#### Option B: GitHub Actions (Backup)
 - **Location**: `.github/workflows/refresh-google-photos.yml`
 - **Schedule**: Every 2 months (same schedule as Vercel cron)
 - **How it works**: Runs the enrichment script with `--refresh-stale` flag
@@ -87,10 +103,10 @@ Check refresh status:
 
 ### Cron Job Not Running
 
-1. **Vercel Plan**: Ensure your Vercel plan supports cron jobs (Pro plan or higher)
-2. **Configuration**: Verify `vercel.json` has the cron configuration
+1. **Vercel Plan**: Vercel Cron Jobs require Pro plan ($20/month) or Enterprise. If you're on Hobby/Free/V0 Premium, use GitHub Actions instead.
+2. **Configuration**: Verify `vercel.json` has the cron configuration (only works on Pro+)
 3. **Environment Variables**: Ensure all required env vars are set
-4. **Fallback**: Use GitHub Actions as a backup
+4. **Use GitHub Actions**: GitHub Actions works on all plans and is free (2,000 minutes/month)
 
 ## Cost Considerations
 
