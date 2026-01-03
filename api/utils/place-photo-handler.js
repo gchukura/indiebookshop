@@ -108,6 +108,8 @@ export async function handlePlacePhotoRequest(req, res) {
 
   try {
     // Construct Google Places Photo API URL
+    // Note: Google Places Photo API requires maxwidth OR maxheight (not both)
+    // Photo references can expire, so old references may not work
     const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?` +
       `maxwidth=${maxWidthNum}` +
       `&photo_reference=${encodeURIComponent(photoRefString)}` +
@@ -115,7 +117,10 @@ export async function handlePlacePhotoRequest(req, res) {
     
     console.log('place-photo: Fetching from Google', {
       photoRefLength: photoRefString.length,
-      maxWidth: maxWidthNum
+      maxWidth: maxWidthNum,
+      photoRefStart: photoRefString.substring(0, 20),
+      hasApiKey: !!GOOGLE_PLACES_API_KEY,
+      apiKeyLength: GOOGLE_PLACES_API_KEY?.length || 0
     });
 
     // Fetch the photo from Google
