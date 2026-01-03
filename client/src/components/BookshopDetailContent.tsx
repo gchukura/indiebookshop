@@ -379,9 +379,17 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                         if (typeof photo === 'string') {
                           photoRef = photo;
                         } else if (photo && typeof photo === 'object') {
-                          photoRef = photo.photo_reference || photo.photoReference || photo;
+                          // Try to extract photo_reference from object
+                          photoRef = photo.photo_reference || photo.photoReference;
+                          if (!photoRef) {
+                            console.warn('Invalid photo object in carousel, missing photo_reference', photo);
+                            return '';
+                          }
+                        } else {
+                          console.warn('Invalid photo type in carousel', typeof photo, photo);
+                          return '';
                         }
-                        return photoRef ? getPhotoUrl(photoRef, 800) : '';
+                        return photoRef && typeof photoRef === 'string' ? getPhotoUrl(photoRef, 800) : '';
                       })()}
                       alt={`${name} - Photo ${currentPhotoIndex + 1}`}
                       className="w-full h-full object-cover"
@@ -427,12 +435,21 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                     if (typeof photo === 'string') {
                       photoRef = photo;
                     } else if (photo && typeof photo === 'object') {
-                      photoRef = photo.photo_reference || photo.photoReference || photo;
+                      // Try to extract photo_reference from object
+                      photoRef = photo.photo_reference || photo.photoReference;
+                      // If still not found and photo is an object, skip it
+                      if (!photoRef) {
+                        console.warn('Invalid photo object at index', index, 'missing photo_reference', photo);
+                        return null;
+                      }
+                    } else {
+                      console.warn('Invalid photo type at index', index, typeof photo, photo);
+                      return null;
                     }
                     
                     if (!photoRef || typeof photoRef !== 'string' || photoRef.length < 10) {
                       // Skip invalid photo entries
-                      console.warn('Invalid photo reference at index', index, photo);
+                      console.warn('Invalid photo reference at index', index, { photoRef, type: typeof photoRef, length: photoRef?.length });
                       return null;
                     }
                     
