@@ -1,7 +1,6 @@
 // Serverless-compatible routes implementation
 import rateLimit from 'express-rate-limit';
 import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
 
 // Create Supabase client for serverless functions
 // This is inlined here to ensure it's included in the Vercel bundle
@@ -66,12 +65,7 @@ function getSupabaseClient() {
   }
 }
 
-// Initialize Resend
-if (!process.env.RESEND_API_KEY) {
-  console.warn('Serverless: RESEND_API_KEY environment variable is not set. Email notifications will not be sent.');
-}
-
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+// Email functionality has been removed - emails are now logged only
 
 // Escape HTML entities to prevent XSS attacks
 function escapeHtml(text) {
@@ -117,57 +111,17 @@ function isDevelopment() {
   return process.env.NODE_ENV === 'development';
 }
 
-// Send email using Resend
+// Email sending has been removed - log email details instead
 async function sendEmail(params) {
-  if (!process.env.RESEND_API_KEY) {
-    console.error('Serverless: ❌ Cannot send email: RESEND_API_KEY is not set');
-    console.error('Serverless: Check Vercel environment variables for RESEND_API_KEY');
-    return false;
+  console.log('Serverless: [EMAIL LOGGED] Email sending is disabled');
+  console.log('Serverless: [EMAIL LOGGED] To:', params.to);
+  console.log('Serverless: [EMAIL LOGGED] Subject:', params.subject);
+  console.log('Serverless: [EMAIL LOGGED] From:', params.from || 'noreply@indiebookshop.com');
+  if (params.text) {
+    console.log('Serverless: [EMAIL LOGGED] Text preview:', params.text.substring(0, 200));
   }
-  
-  if (!process.env.RESEND_FROM_EMAIL) {
-    console.error('Serverless: ❌ Cannot send email: RESEND_FROM_EMAIL is not set');
-    console.error('Serverless: Check Vercel environment variables for RESEND_FROM_EMAIL');
-    return false;
-  }
-  
-  if (!resend) {
-    console.error('Serverless: ❌ Cannot send email: Resend client not initialized');
-    return false;
-  }
-  
-  try {
-    console.log('Serverless: Attempting to send email...');
-    console.log('Serverless: From:', params.from || process.env.RESEND_FROM_EMAIL);
-    console.log('Serverless: To:', params.to);
-    console.log('Serverless: Subject:', params.subject);
-    
-    // Resend expects 'from' to be a string, and 'to' can be string or array
-    const fromEmail = params.from || process.env.RESEND_FROM_EMAIL || 'noreply@indiebookshop.com';
-    const toEmail = Array.isArray(params.to) ? params.to[0] : params.to;
-    
-    const { data, error } = await resend.emails.send({
-      from: fromEmail,
-      to: toEmail,
-      replyTo: params.replyTo,
-      subject: params.subject,
-      text: params.text,
-      html: params.html,
-    });
-    
-    if (error) {
-      console.error('Serverless: ❌ Resend email error:', error);
-      return false;
-    }
-    
-    console.log('Serverless: ✅ Email sent successfully to', toEmail);
-    console.log('Serverless: Resend email ID:', data?.id);
-    return true;
-  } catch (error) {
-    console.error('Serverless: ❌ Resend email error:', error.message);
-    console.error('Serverless: Error details:', error);
-    return false;
-  }
+  // Return true to indicate "success" so calling code doesn't break
+  return true;
 }
 
 // Function to notify about new bookstore submissions
@@ -405,20 +359,42 @@ export async function registerRoutes(app, storageImpl) {
   // Get a specific bookstore by slug (for SEO-friendly URLs)
   // IMPORTANT: This must come BEFORE the :id route to prevent conflict
   app.get('/api/bookstores/by-slug/:slug', async (req, res) => {
+    console.log('Serverless: ===== /api/bookstores/by-slug/:slug ROUTE HIT =====');
+    console.log('Serverless: Request URL:', req.url);
+    console.log('Serverless: Request path:', req.path);
+    console.log('Serverless: Request params:', JSON.stringify(req.params));
+    console.log('Serverless: Storage implementation type:', storageImpl?.constructor?.name);
+    
     try {
       const slug = req.params.slug;
-      console.log(`Serverless: Looking up bookstore with slug: ${slug}`);
+      console.log(`Serverless: Looking up bookstore with slug: "${slug}"`);
+      console.log(`Serverless: Slug type: ${typeof slug}, length: ${slug?.length}`);
       
-      const bookstore = await storageImpl.getBookstoreBySlug(slug);
+      if (!slug || slug.trim() === '') {
+        console.log(`Serverless: Invalid slug provided: ${slug}`);
+        return res.status(400).json({ message: 'Invalid slug provided' });
+      }
+      
+      // Decode the slug in case it's URL encoded
+      const decodedSlug = decodeURIComponent(slug);
+      console.log(`Serverless: Decoded slug: "${decodedSlug}"`);
+      
+      console.log('Serverless: Calling storageImpl.getBookstoreBySlug...');
+      const bookstore = await storageImpl.getBookstoreBySlug(decodedSlug);
+      
       if (!bookstore) {
-        console.log(`Serverless: No bookstore found with slug: ${slug}`);
+        console.log(`Serverless: No bookstore found with slug: "${decodedSlug}"`);
         return res.status(404).json({ message: 'Bookstore not found' });
       }
       
+      console.log(`Serverless: Successfully found bookstore: ${bookstore.name} (ID: ${bookstore.id})`);
       res.json(bookstore);
     } catch (error) {
+      console.error('Serverless: ===== ERROR in /api/bookstores/by-slug/:slug =====');
       console.error('Serverless Error fetching bookstore by slug:', error);
-      res.status(500).json({ message: 'Failed to fetch bookstore by slug' });
+      console.error('Serverless Error message:', error.message);
+      console.error('Serverless Error stack:', error.stack);
+      res.status(500).json({ message: 'Failed to fetch bookstore by slug', error: error.message });
     }
   });
 
@@ -426,16 +402,25 @@ export async function registerRoutes(app, storageImpl) {
   app.get('/api/bookstores/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        console.log(`Serverless: Invalid bookstore ID provided: ${req.params.id}`);
+        return res.status(400).json({ error: 'Invalid bookstore ID' });
+      }
+      
+      console.log(`Serverless: Looking up bookstore with ID: ${id}`);
       const bookstore = await storageImpl.getBookstore(id);
       
       if (!bookstore) {
+        console.log(`Serverless: No bookstore found with ID: ${id}`);
         return res.status(404).json({ error: 'Bookshop not found' });
       }
       
+      console.log(`Serverless: Successfully found bookstore: ${bookstore.name} (ID: ${id})`);
       res.json(bookstore);
     } catch (error) {
       console.error(`Serverless Error getting bookstore ${req.params.id}:`, error);
-      res.status(500).json({ error: 'Failed to fetch bookshop' });
+      console.error('Serverless Error stack:', error.stack);
+      res.status(500).json({ error: 'Failed to fetch bookshop', message: error.message });
     }
   });
 
@@ -740,10 +725,8 @@ export async function registerRoutes(app, storageImpl) {
           
           // Send notification email to admin
           const adminEmail = process.env.ADMIN_EMAIL || 'admin@indiebookshop.com';
-          console.log('Serverless: Preparing to send email notification...');
+          console.log('Serverless: Preparing to log email notification (email sending disabled)...');
           console.log('Serverless: Admin email:', adminEmail);
-          console.log('Serverless: RESEND_API_KEY exists?', !!process.env.RESEND_API_KEY);
-          console.log('Serverless: RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL || 'NOT SET');
           
           const notificationSent = await sendBookstoreSubmissionNotification(
             adminEmail,
@@ -1027,10 +1010,8 @@ export async function registerRoutes(app, storageImpl) {
       const sanitizedMessage = message.trim().slice(0, 5000);
       const sanitizedReason = reason.trim();
       
-      // Send email to info@bluestonebrands.com
-      console.log('Serverless: Attempting to send contact form email to info@bluestonebrands.com');
-      console.log('Serverless: RESEND_API_KEY exists?', !!process.env.RESEND_API_KEY);
-      console.log('Serverless: RESEND_FROM_EMAIL:', process.env.RESEND_FROM_EMAIL || 'NOT SET');
+      // Log contact form submission (email sending disabled)
+      console.log('Serverless: Logging contact form submission (email sending disabled)');
       
       const emailSent = await sendContactFormEmail('info@bluestonebrands.com', {
         name: sanitizedName,

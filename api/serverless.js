@@ -35,8 +35,7 @@ process.env.GOOGLE_SHEETS_ID = process.env.GOOGLE_SHEETS_ID || ENV.GOOGLE_SHEETS
 process.env.USE_MEM_STORAGE = process.env.USE_MEM_STORAGE || ENV.USE_MEM_STORAGE;
 process.env.MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN || ENV.MAPBOX_ACCESS_TOKEN;
 process.env.GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY || ENV.GOOGLE_PLACES_API_KEY;
-process.env.SENDGRID_API_KEY = process.env.SENDGRID_API_KEY || ENV.SENDGRID_API_KEY;
-process.env.SENDGRID_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || ENV.SENDGRID_FROM_EMAIL;
+// RESEND_API_KEY and RESEND_FROM_EMAIL removed - email functionality disabled
 process.env.ADMIN_EMAIL = process.env.ADMIN_EMAIL || ENV.ADMIN_EMAIL;
 // CRITICAL: Don't overwrite Supabase env vars if they're already set by Vercel
 // Vercel provides these directly, so we should preserve them
@@ -57,6 +56,8 @@ let storageImplementation;
 if (USE_SUPABASE) {
   storageImplementation = new SupabaseStorage();
   console.log('Serverless: Using Supabase storage implementation');
+  console.log('Serverless: Supabase URL:', process.env.SUPABASE_URL ? 'SET' : 'MISSING');
+  console.log('Serverless: Supabase Service Key:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'MISSING');
 } else if (USE_GOOGLE_SHEETS) {
   storageImplementation = new GoogleSheetsStorage();
   console.log('Serverless: Using Google Sheets storage implementation');

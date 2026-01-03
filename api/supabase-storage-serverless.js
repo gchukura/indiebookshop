@@ -189,6 +189,9 @@ export class SupabaseStorage {
   async initializeSlugMappings() {
     if (!supabase) {
       console.warn('Serverless: Supabase client not available, cannot initialize slug mappings');
+      // Mark as initialized even if Supabase isn't available to prevent infinite retries
+      // The fallback in getBookstoreBySlug will handle lookups
+      this.isInitialized = true;
       return;
     }
 
@@ -211,7 +214,10 @@ export class SupabaseStorage {
 
         if (error) {
           console.error('Serverless: Error fetching bookstores for slug mapping:', error);
-          break;
+          // Mark as initialized even on error to prevent infinite retries
+          // The fallback in getBookstoreBySlug will handle lookups
+          this.isInitialized = true;
+          return;
         }
 
         if (data && data.length > 0) {
@@ -226,6 +232,8 @@ export class SupabaseStorage {
 
       if (allBookstores.length === 0) {
         console.warn('Serverless: No bookstores returned from Supabase');
+        // Mark as initialized even if no bookstores found to prevent infinite retries
+        this.isInitialized = true;
         return;
       }
 
@@ -251,6 +259,9 @@ export class SupabaseStorage {
       this.isInitialized = true;
     } catch (error) {
       console.error('Serverless: Error initializing slug mappings:', error);
+      // Mark as initialized even on error to prevent infinite retries
+      // The fallback in getBookstoreBySlug will handle lookups
+      this.isInitialized = true;
     }
   }
 
@@ -391,6 +402,11 @@ export class SupabaseStorage {
         formattedAddressGoogle: item.formatted_address_google || null,
         businessStatus: item.business_status || null,
         contactDataFetchedAt: item.contact_data_fetched_at || null,
+        // Map AI-generated description fields from snake_case to camelCase
+        aiGeneratedDescription: item.ai_generated_description || null,
+        descriptionGeneratedAt: item.description_generated_at || null,
+        descriptionValidated: item.description_validated ?? null,
+        descriptionSource: item.description_source || null,
       }));
 
       return populateCountyData(bookstores);
@@ -476,6 +492,11 @@ export class SupabaseStorage {
         formattedAddressGoogle: data.formatted_address_google || null,
         businessStatus: data.business_status || null,
         contactDataFetchedAt: data.contact_data_fetched_at || null,
+        // Map AI-generated description fields from snake_case to camelCase
+        aiGeneratedDescription: data.ai_generated_description || null,
+        descriptionGeneratedAt: data.description_generated_at || null,
+        descriptionValidated: data.description_validated ?? null,
+        descriptionSource: data.description_source || null,
       };
     } catch (error) {
       console.error('Serverless: Error fetching bookstore by ID:', error);
@@ -484,10 +505,26 @@ export class SupabaseStorage {
   }
 
   async getBookstoreBySlug(slug) {
-    await this.ensureInitialized();
+    console.log('Serverless: [getBookstoreBySlug] Starting lookup for slug:', slug);
+    console.log('Serverless: [getBookstoreBySlug] Supabase client available?', !!supabase);
+    console.log('Serverless: [getBookstoreBySlug] Is initialized?', this.isInitialized);
+    console.log('Serverless: [getBookstoreBySlug] Slug map size:', this.slugToBookstoreId.size);
+    
+    // Ensure initialization, but don't block if it fails
+    try {
+      await this.ensureInitialized();
+      console.log('Serverless: [getBookstoreBySlug] After ensureInitialized - isInitialized:', this.isInitialized);
+      console.log('Serverless: [getBookstoreBySlug] After ensureInitialized - slug map size:', this.slugToBookstoreId.size);
+    } catch (error) {
+      console.error('Serverless: Error ensuring initialization in getBookstoreBySlug:', error);
+      console.error('Serverless: Error stack:', error.stack);
+      // Continue with fallback even if initialization failed
+    }
 
     if (!supabase) {
-      console.warn('Serverless: Supabase client not available');
+      console.error('Serverless: [getBookstoreBySlug] ERROR: Supabase client not available');
+      console.error('Serverless: [getBookstoreBySlug] SUPABASE_URL:', process.env.SUPABASE_URL ? 'SET' : 'MISSING');
+      console.error('Serverless: [getBookstoreBySlug] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'MISSING');
       return undefined;
     }
 
@@ -508,16 +545,24 @@ export class SupabaseStorage {
 
     // Fallback - if no mapping exists, try direct search
     try {
+      console.log(`Serverless: [getBookstoreBySlug] Slug not in map, using fallback search...`);
       // Fetch all bookstores and find by slug (less efficient but works as fallback)
       const bookstores = await this.getBookstores();
+      console.log(`Serverless: [getBookstoreBySlug] Fetched ${bookstores.length} bookstores for fallback search`);
+      
       const bookstoreWithSlug = bookstores.find(b => {
+        if (!b.live) return false; // Skip non-live bookstores
         const nameSlug = this.generateSlugFromName(b.name);
         return nameSlug === slug;
       });
 
       if (bookstoreWithSlug) {
+        console.log(`Serverless: [getBookstoreBySlug] Found bookstore via fallback: "${bookstoreWithSlug.name}" (ID: ${bookstoreWithSlug.id})`);
         // Add to map for future lookups
         this.slugToBookstoreId.set(slug, bookstoreWithSlug.id);
+        return bookstoreWithSlug;
+      } else {
+        console.log(`Serverless: [getBookstoreBySlug] No bookstore found with slug: "${slug}"`);
       }
 
       return bookstoreWithSlug;

@@ -1,5 +1,5 @@
-import { MailService } from '@sendgrid/mail';
-import type { MailDataRequired } from '@sendgrid/mail';
+// Email service - email sending disabled, logs only
+// Resend has been removed from the project
 
 // Escape HTML entities to prevent XSS attacks
 function escapeHtml(text: string): string {
@@ -13,76 +13,33 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, m => map[m]);
 }
 
-if (!process.env.SENDGRID_API_KEY) {
-  console.warn("SENDGRID_API_KEY environment variable is not set. Email notifications will not be sent.");
+interface EmailParams {
+  to: string | string[];
+  from?: string;
+  replyTo?: string;
+  subject: string;
+  text?: string;
+  html?: string;
 }
 
-const mailService = new MailService();
-if (process.env.SENDGRID_API_KEY) {
-  mailService.setApiKey(process.env.SENDGRID_API_KEY);
-}
-
-export async function sendEmail(params: MailDataRequired): Promise<boolean> {
-  // In development mode, always log the email instead of sending (even if SendGrid is configured)
-  const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
-  const hasSendGrid = !!process.env.SENDGRID_API_KEY && !!process.env.SENDGRID_FROM_EMAIL;
-  
-  // In development mode, log the email and return success
-  if (isDevelopment) {
-    console.log("📧 [DEV MODE] Email would be sent:");
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    console.log("From:", params.from || process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com');
-    console.log("To:", params.to);
-    console.log("Subject:", params.subject);
-    console.log("Reply-To:", params.replyTo || 'N/A');
+export async function sendEmail(params: EmailParams): Promise<boolean> {
+  console.log("📧 [EMAIL LOGGED] Email sending is disabled");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("From:", params.from || 'noreply@indiebookshop.com');
+  console.log("To:", params.to);
+  console.log("Subject:", params.subject);
+  console.log("Reply-To:", params.replyTo || 'N/A');
+  if (params.text) {
     console.log("\nText Content:");
     console.log(params.text);
+  }
+  if (params.html) {
     console.log("\nHTML Content:");
     console.log(params.html);
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    console.log("✅ [DEV MODE] Email logged successfully (not actually sent)");
-    return true; // Return true in dev mode so the form works
   }
-  
-  // In production, require SendGrid configuration
-  if (!process.env.SENDGRID_API_KEY) {
-    console.error("❌ Cannot send email: SENDGRID_API_KEY is not set");
-    console.error("Check environment variables for SENDGRID_API_KEY");
-    return false;
-  }
-  
-  if (!process.env.SENDGRID_FROM_EMAIL) {
-    console.error("❌ Cannot send email: SENDGRID_FROM_EMAIL is not set");
-    console.error("Check environment variables for SENDGRID_FROM_EMAIL");
-    return false;
-  }
-  
-  try {
-    console.log("Attempting to send email...");
-    console.log("From:", params.from || process.env.SENDGRID_FROM_EMAIL);
-    console.log("To:", params.to);
-    console.log("Subject:", params.subject);
-    
-    const result = await mailService.send(params);
-    console.log(`✅ Email sent successfully to ${params.to}`);
-    console.log("SendGrid response status:", result[0]?.statusCode);
-    return true;
-  } catch (error: any) {
-    console.error('❌ SendGrid email error:', error.message);
-    console.error('Error code:', error.code);
-    console.error('Error response:', error.response?.body);
-    
-    // Log more details if available
-    if (error.response) {
-      console.error('SendGrid response status:', error.response.statusCode);
-      console.error('SendGrid response headers:', error.response.headers);
-      if (error.response.body) {
-        console.error('SendGrid error details:', JSON.stringify(error.response.body, null, 2));
-      }
-    }
-    
-    return false;
-  }
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("✅ [EMAIL LOGGED] Email logged successfully (not actually sent)");
+  return true; // Return true so calling code doesn't break
 }
 
 // Function to notify about new bookstore submissions
@@ -123,7 +80,7 @@ ${JSON.stringify(bookstoreData, null, 2)}
 
   return sendEmail({
     to: adminEmail,
-    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com', // Use your verified sender
+    from: 'noreply@indiebookshop.com',
     subject,
     text,
     html
@@ -192,7 +149,7 @@ ${contactData.message || 'N/A'}
 
   return sendEmail({
     to: adminEmail,
-    from: process.env.SENDGRID_FROM_EMAIL || 'noreply@indiebookshop.com',
+    from: 'noreply@indiebookshop.com',
     replyTo: contactData.email, // Allow replying directly to the sender
     subject,
     text,
