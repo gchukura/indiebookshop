@@ -127,9 +127,22 @@ export async function handlePlacePhotoRequest(req, res) {
     });
 
     if (!response.ok) {
-      console.error(`Google Places Photo API returned status ${response.status}`);
+      // Get error details from Google
+      const errorText = await response.text().catch(() => 'Unable to read error response');
+      console.error(`Google Places Photo API returned status ${response.status}`, {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: errorText.substring(0, 500),
+        photoRefLength: photoRefString.length,
+        photoRefPreview: photoRefString.substring(0, 50),
+        urlPreview: photoUrl.substring(0, 200) + '...'
+      });
+      
+      // Return more detailed error
       return res.status(response.status).json({ 
-        error: 'Failed to fetch photo from Google Places API' 
+        error: 'Failed to fetch photo from Google Places API',
+        details: response.status === 400 ? 'Invalid photo reference or API key issue' : `Google API error: ${response.status}`,
+        photoRefLength: photoRefString.length
       });
     }
 
