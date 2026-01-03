@@ -75,6 +75,13 @@ interface BookshopDetails {
   googleTypes?: string[];
   formattedAddressGoogle?: string;
   businessStatus?: string;
+  // AI-generated description fields
+  aiGeneratedDescription?: string;
+  descriptionValidated?: boolean;
+  descriptionSource?: string;
+  // Computed description for UI display
+  displayDescription?: string;
+  descriptionSourceForUI?: 'google' | 'ai' | 'template' | 'fallback';
 }
 
 
@@ -118,6 +125,11 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
     googleTypes,
     formattedAddressGoogle,
     businessStatus,
+    aiGeneratedDescription,
+    descriptionValidated,
+    descriptionSource,
+    displayDescription,
+    descriptionSourceForUI,
   } = bookshop;
 
   // Debug: Log photos data (development only)
@@ -339,35 +351,17 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
           <div className="lg:col-span-8 space-y-6">
 
-            {/* About Section */}
-            <section className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
-              <div className="flex items-start justify-between mb-4">
-                <h2 className="font-serif text-2xl md:text-3xl text-[#5F4B32] font-bold">
+            {/* About Section - Priority-based description */}
+            {displayDescription && (
+              <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
+                <h2 className="font-serif text-xl md:text-2xl font-bold text-[#5F4B32] mb-4">
                   About {name}
                 </h2>
-                {googlePriceLevel !== null && googlePriceLevel !== undefined && (
-                  <span className="text-stone-600 text-lg font-medium">
-                    {'$'.repeat(googlePriceLevel)}
-                  </span>
-                )}
+                <p className="text-stone-700 leading-relaxed text-base md:text-lg">
+                  {displayDescription}
+                </p>
               </div>
-              
-              <p className="text-base md:text-lg text-stone-700 leading-relaxed mb-4">
-                {getPrimaryDescription()}
-              </p>
-              
-              {/* If there's a secondary description, show in disclosure */}
-              {hasSecondaryDescription() && (
-                <details className="mt-4">
-                  <summary className="text-sm text-[#2A6B7C] hover:text-[#E16D3D] cursor-pointer font-medium">
-                    Read more about this bookshop
-                  </summary>
-                  <p className="mt-3 text-base text-stone-600 leading-relaxed">
-                    {getSecondaryDescription()}
-                  </p>
-                </details>
-              )}
-            </section>
+            )}
 
             {/* Google Photos Gallery */}
             {googlePhotos && Array.isArray(googlePhotos) && googlePhotos.length > 0 && (
@@ -378,12 +372,17 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                 <div className="md:hidden relative mb-4">
                   <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-stone-200">
                     <img 
-                      src={getPhotoUrl(
-                        googlePhotos[currentPhotoIndex]?.photo_reference || 
-                        googlePhotos[currentPhotoIndex]?.photoReference ||
-                        googlePhotos[currentPhotoIndex],
-                        800
-                      )}
+                      src={(() => {
+                        const photo = googlePhotos[currentPhotoIndex];
+                        // Extract photo reference - handle both object and string formats
+                        let photoRef = null;
+                        if (typeof photo === 'string') {
+                          photoRef = photo;
+                        } else if (photo && typeof photo === 'object') {
+                          photoRef = photo.photo_reference || photo.photoReference || photo;
+                        }
+                        return photoRef ? getPhotoUrl(photoRef, 800) : '';
+                      })()}
                       alt={`${name} - Photo ${currentPhotoIndex + 1}`}
                       className="w-full h-full object-cover"
                       loading="lazy"
@@ -423,11 +422,20 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                 {/* Desktop Grid (>= 768px) */}
                 <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4">
                   {googlePhotos.map((photo, index) => {
-                    const photoRef = photo?.photo_reference || photo?.photoReference || photo;
-                    if (!photoRef || typeof photoRef !== 'string') {
+                    // Extract photo reference - handle both object and string formats
+                    let photoRef = null;
+                    if (typeof photo === 'string') {
+                      photoRef = photo;
+                    } else if (photo && typeof photo === 'object') {
+                      photoRef = photo.photo_reference || photo.photoReference || photo;
+                    }
+                    
+                    if (!photoRef || typeof photoRef !== 'string' || photoRef.length < 10) {
                       // Skip invalid photo entries
+                      console.warn('Invalid photo reference at index', index, photo);
                       return null;
                     }
+                    
                     return (
                       <div 
                         key={index}

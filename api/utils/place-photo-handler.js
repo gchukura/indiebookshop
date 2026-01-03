@@ -11,22 +11,42 @@
 export async function handlePlacePhotoRequest(req, res) {
   const { photo_reference, maxwidth = '400' } = req.query;
 
+  // Log the incoming request for debugging
+  console.log('place-photo: Request received', {
+    hasPhotoRef: !!photo_reference,
+    photoRefType: typeof photo_reference,
+    photoRefLength: photo_reference?.length,
+    photoRefPreview: photo_reference ? photo_reference.substring(0, 100) : null
+  });
+
   // Validate photo_reference
-  if (!photo_reference || typeof photo_reference !== 'string') {
-    console.error('place-photo: Missing or invalid photo_reference parameter');
+  if (!photo_reference) {
+    console.error('place-photo: Missing photo_reference parameter');
     return res.status(400).json({ error: 'photo_reference parameter is required' });
+  }
+
+  // Handle both string and object formats (in case it's passed as JSON)
+  let photoRefString = photo_reference;
+  if (typeof photo_reference === 'object') {
+    photoRefString = photo_reference.photo_reference || photo_reference.photoReference || String(photo_reference);
+    console.warn('place-photo: photo_reference was an object, extracted:', photoRefString?.substring(0, 50));
+  }
+  
+  if (typeof photoRefString !== 'string') {
+    console.error('place-photo: Invalid photo_reference type', { type: typeof photoRefString, value: photoRefString });
+    return res.status(400).json({ error: 'photo_reference must be a string' });
   }
 
   // Validate photo_reference format (Google uses base64-like strings, can be 100-2000+ chars)
   // Some photo references are very long, so we allow up to 2000 characters
-  if (photo_reference.length < 10 || photo_reference.length > 2000) {
+  if (photoRefString.length < 10 || photoRefString.length > 2000) {
     console.error('place-photo: Invalid photo_reference length', { 
-      length: photo_reference.length,
-      preview: photo_reference.substring(0, 50) + '...'
+      length: photoRefString.length,
+      preview: photoRefString.substring(0, 50) + '...'
     });
     return res.status(400).json({ 
       error: 'Invalid photo_reference format',
-      details: `Photo reference length must be between 10 and 2000 characters, got ${photo_reference.length}`
+      details: `Photo reference length must be between 10 and 2000 characters, got ${photoRefString.length}`
     });
   }
 
@@ -47,8 +67,13 @@ export async function handlePlacePhotoRequest(req, res) {
     // Construct Google Places Photo API URL
     const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?` +
       `maxwidth=${maxWidthNum}` +
-      `&photo_reference=${encodeURIComponent(photo_reference)}` +
+      `&photo_reference=${encodeURIComponent(photoRefString)}` +
       `&key=${GOOGLE_PLACES_API_KEY}`;
+    
+    console.log('place-photo: Fetching from Google', {
+      photoRefLength: photoRefString.length,
+      maxWidth: maxWidthNum
+    });
 
     // Fetch the photo from Google
     const response = await fetch(photoUrl, {
