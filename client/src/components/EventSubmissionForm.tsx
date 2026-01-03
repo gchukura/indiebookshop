@@ -36,6 +36,9 @@ const EventSubmissionForm = () => {
   const { data: bookshops = [], isLoading: isLoadingBookshops } = useQuery<Bookstore[]>({
     queryKey: ['bookshops-for-events'],
     queryFn: async () => {
+      if (!supabase) {
+        throw new Error('Supabase client not available');
+      }
       const { data, error } = await supabase
         .from('bookstores')
         .select('id, name, city, state')

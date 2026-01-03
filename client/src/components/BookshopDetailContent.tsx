@@ -380,7 +380,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                           photoRef = photo;
                         } else if (photo && typeof photo === 'object') {
                           // Try to extract photo_reference from object
-                          photoRef = photo.photo_reference || photo.photoReference;
+                          photoRef = photo.photo_reference;
                           if (!photoRef) {
                             console.warn('Invalid photo object in carousel, missing photo_reference', photo);
                             return '';
@@ -436,7 +436,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                       photoRef = photo;
                     } else if (photo && typeof photo === 'object') {
                       // Try to extract photo_reference from object
-                      photoRef = photo.photo_reference || photo.photoReference;
+                      photoRef = photo.photo_reference;
                       // If still not found and photo is an object, skip it
                       if (!photoRef) {
                         console.warn('Invalid photo object at index', index, 'missing photo_reference', photo);

@@ -229,7 +229,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
                         
                         if (googlePhotos && Array.isArray(googlePhotos) && googlePhotos.length > 0) {
                           const firstPhoto = googlePhotos[0];
-                          photoReference = firstPhoto?.photo_reference || firstPhoto?.photoReference;
+                          photoReference = firstPhoto?.photo_reference;
                         }
                         
                         const imageSrc = photoReference 
@@ -261,7 +261,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
                         
                         if (googlePhotos && Array.isArray(googlePhotos) && googlePhotos.length > 0) {
                           const firstPhoto = googlePhotos[0];
-                          photoReference = firstPhoto?.photo_reference || firstPhoto?.photoReference;
+                          photoReference = firstPhoto?.photo_reference;
                         }
                         
                         return !photoReference && !bookshop.imageUrl ? '' : 'hidden';

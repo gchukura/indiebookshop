@@ -51,10 +51,6 @@
       "destination": "/api/bookshop-slug.js"
     },
     {
-      "source": "/api/sitemap.js",
-      "destination": "/api/sitemap.js"
-    },
-    {
       "source": "/api/:path*",
       "destination": "/api/serverless.js"
     }

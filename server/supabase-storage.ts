@@ -276,6 +276,11 @@ export class SupabaseStorage implements IStorage {
         formattedAddressGoogle: data.formatted_address_google || null,
         businessStatus: data.business_status || null,
         contactDataFetchedAt: data.contact_data_fetched_at || null,
+        // Map AI-generated description fields from snake_case to camelCase
+        aiGeneratedDescription: data.ai_generated_description || null,
+        descriptionGeneratedAt: data.description_generated_at || null,
+        descriptionValidated: data.description_validated ?? null,
+        descriptionSource: data.description_source || null,
       } as Bookstore;
     } catch (error) {
       console.error('Error fetching bookstore by ID:', error);

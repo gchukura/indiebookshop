@@ -135,6 +135,9 @@ export const BookshopSubmissionForm = () => {
   const { data: bookshops = [], isLoading: isLoadingBookshops } = useQuery<Bookshop[]>({
     queryKey: ['bookshops-for-editing'],
     queryFn: async () => {
+      if (!supabase) {
+        throw new Error('Supabase client not available');
+      }
       const { data, error } = await supabase
         .from('bookstores')
         .select('id, name, city, state')

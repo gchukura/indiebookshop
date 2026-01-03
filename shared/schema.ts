@@ -65,6 +65,7 @@ export const bookstores = pgTable("bookstores", {
   aiGeneratedDescription: text("ai_generated_description"),
   descriptionGeneratedAt: timestamp("description_generated_at"),
   descriptionValidated: boolean("description_validated").default(false),
+  descriptionSource: text("description_source"), // 'ai' | 'template' | 'manual'
 });
 
 export const events = pgTable("events", {

@@ -174,20 +174,82 @@ const BookshopDetailPage = () => {
 
   
 
+  // SEO Meta Description: Priority-based with enhancements, max 320 chars
   const seoDescription = useMemo(() => {
-
     if (!bookshop) return "";
 
-    return generateDescription(DESCRIPTION_TEMPLATES.detail, {
+    // Priority 1: Google description (if >= 100 chars)
+    // Priority 2: AI-generated description (if validated)
+    // Priority 3: Fallback template
+    let baseDescription = "";
+    
+    if (bookshop.googleDescription && bookshop.googleDescription.length >= 100) {
+      baseDescription = bookshop.googleDescription;
+    } else if (bookshop.aiGeneratedDescription && bookshop.descriptionValidated === true) {
+      baseDescription = bookshop.aiGeneratedDescription;
+    } else {
+      baseDescription = `${bookshop.name} is an independent bookstore in ${bookshop.city}, ${bookshop.state}.`;
+    }
 
-      name: bookshop.name,
+    // Enhance with rating if available and not already included
+    const hasRating = bookshop.googleRating && bookshop.googleReviewCount !== null && bookshop.googleReviewCount !== undefined;
+    const ratingText = hasRating && bookshop.googleReviewCount !== null
+      ? `Rated ${bookshop.googleRating} stars by ${bookshop.googleReviewCount.toLocaleString()} customers.`
+      : "";
+    
+    // Check if rating is already in description
+    const ratingAlreadyIncluded = baseDescription.toLowerCase().includes('rating') || 
+                                   baseDescription.toLowerCase().includes('star') ||
+                                   baseDescription.toLowerCase().includes('review');
+    
+    let enhancedDescription = baseDescription;
+    if (hasRating && !ratingAlreadyIncluded && ratingText) {
+      enhancedDescription = `${baseDescription} ${ratingText}`;
+    }
 
-      city: bookshop.city,
+    // Truncate to 320 chars (Google meta description limit)
+    if (enhancedDescription.length > 320) {
+      const truncated = enhancedDescription.substring(0, 317);
+      // Try to truncate at word boundary
+      const lastSpace = truncated.lastIndexOf(' ');
+      if (lastSpace > 280) {
+        return truncated.substring(0, lastSpace) + "...";
+      }
+      return truncated + "...";
+    }
 
-      state: bookshop.state
+    return enhancedDescription;
+  }, [bookshop]);
 
-    });
+  // UI Display Description: Priority-based, no truncation
+  const displayDescription = useMemo(() => {
+    if (!bookshop) return undefined;
 
+    // Priority 1: Google description (if >= 100 chars)
+    if (bookshop.googleDescription && bookshop.googleDescription.length >= 100) {
+      return bookshop.googleDescription;
+    }
+    
+    // Priority 2: AI-generated description (if validated)
+    if (bookshop.aiGeneratedDescription && bookshop.descriptionValidated === true) {
+      return bookshop.aiGeneratedDescription;
+    }
+    
+    // Priority 3: Simple fallback
+    return `${bookshop.name} is an independent bookstore in ${bookshop.city}, ${bookshop.state}.`;
+  }, [bookshop]);
+
+  // Description source for UI component
+  const descriptionSource = useMemo(() => {
+    if (!bookshop) return undefined;
+    
+    if (bookshop.googleDescription && bookshop.googleDescription.length >= 100) {
+      return 'google' as const;
+    }
+    if (bookshop.aiGeneratedDescription && bookshop.descriptionValidated === true) {
+      return (bookshop.descriptionSource as 'ai' | 'template' | null) || 'ai';
+    }
+    return 'fallback' as const;
   }, [bookshop]);
 
   
@@ -485,6 +547,13 @@ const BookshopDetailPage = () => {
     googleTypes: bookshop.googleTypes || undefined,
     formattedAddressGoogle: bookshop.formattedAddressGoogle || undefined,
     businessStatus: bookshop.businessStatus || undefined,
+    // AI-generated description fields
+    aiGeneratedDescription: bookshop.aiGeneratedDescription || undefined,
+    descriptionValidated: bookshop.descriptionValidated ?? undefined,
+    descriptionSource: bookshop.descriptionSource || undefined,
+    // Pass computed description and source to component
+    displayDescription: displayDescription,
+    descriptionSourceForUI: descriptionSource,
   };
 
   return (

@@ -27,13 +27,17 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
   });
 
   // Import shared handler to avoid code duplication
+  // @ts-ignore - place-photo-handler.js is a JavaScript file without type definitions
   const { handlePlacePhotoRequest } = await import('../api/utils/place-photo-handler.js');
 
   app.get("/api/place-photo", photoProxyLimiter, async (req, res) => {
     // Log request in development only
     if (process.env.NODE_ENV === 'development') {
+      const photoRef = typeof req.query.photo_reference === 'string' 
+        ? req.query.photo_reference.substring(0, 50) + '...'
+        : 'N/A';
       console.log('[Place Photo] Request received:', { 
-        photo_reference: req.query.photo_reference?.substring(0, 50) + '...',
+        photo_reference: photoRef,
         maxwidth: req.query.maxwidth 
       });
     }

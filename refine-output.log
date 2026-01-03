@@ -1,0 +1,126 @@
+[dotenv@17.2.3] injecting env (13) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+🔧 Refining AI descriptions for quality (v2)...
+
+📥 Fetching all AI descriptions from database...
+
+   Fetched 1000 bookshops so far...
+   Fetched 1966 bookshops so far...
+
+✅ Found 1966 AI descriptions to refine
+
+📋 PREVIEW (first 20 examples):
+
+========================================================================================================================
+
+1. Novel. (Memphis, TN)
+   ✅ Original: 180 chars | Refined: 180 chars 📝
+   Novel. is an independent bookstore in Memphis, TN offering a curated selection of books. With a 4.7-star rating from 864 reviews, this bookstore serves the local reading community.
+
+2. Poppy Books & Gifts (Spanish Fork, UT)
+   ✅ Original: 270 chars | Refined: 198 chars 📝
+   Poppy Books & Gifts is an independent bookstore in Spanish Fork, UT offering a curated selection of books. With a 4.9-star rating from 313 reviews, this bookstore serves the local reading community.
+
+3. The Bennington Bookshop (Bennington, VT)
+   ✅ Original: 247 chars | Refined: 199 chars 📝
+   The Bennington Bookshop is an independent bookstore in Bennington, VT offering a curated selection of books. With a 4.7-star rating from 43 reviews, this bookstore serves the local reading community.
+
+4. Read With Moxie (Woody Creek, CO)
+   ✅ Original: 223 chars | Refined: 192 chars 🎯
+   Read With Moxie is an independent bookstore in Woody Creek, CO operating from a vintage VW bus traveling the western United States. This bookstore provides a welcoming environment for readers.
+
+5. Prologue Bookshop (Columbus, OH)
+   ✅ Original: 258 chars | Refined: 192 chars 📝
+   Prologue Bookshop is an independent bookstore in Columbus, OH offering a curated selection of books. With a 4.8-star rating from 280 reviews, this bookstore serves the local reading community.
+
+6. Lowry's Books (Sturgis) (Sturgis, MI)
+   ✅ Original: 290 chars | Refined: 197 chars 📝
+   Lowry's Books (Sturgis) is an independent bookstore in Sturgis, MI offering a curated selection of books. With a 4.7-star rating from 126 reviews, this bookstore serves the local reading community.
+
+7. ARTBOOK LLC (New York, NY)
+   ✅ Original: 295 chars | Refined: 189 chars 🎯
+   ARTBOOK LLC is an independent bookstore in New York, NY focused on the arts and cultural programming. With a 5-star rating from 1 reviews, this bookstore serves the local reading community.
+
+8. Byrd's Books (Bethel, CT)
+   ✅ Original: 300 chars | Refined: 185 chars 📝
+   Byrd's Books is an independent bookstore in Bethel, CT offering a curated selection of books. With a 4.8-star rating from 117 reviews, this bookstore serves the local reading community.
+
+9. Wing Luke Asian Museum (Seattle, WA)
+   ✅ Original: 346 chars | Refined: 196 chars 📝
+   Wing Luke Asian Museum is an independent bookstore in Seattle, WA offering a curated selection of books. With a 4.6-star rating from 759 reviews, this bookstore serves the local reading community.
+
+10. rainbow reva's (Denver, CO)
+   ✅ Original: 297 chars | Refined: 187 chars 📝
+   rainbow reva's is an independent bookstore in Denver, CO offering a curated selection of books. With a 4.8-star rating from 206 reviews, this bookstore serves the local reading community.
+
+11. River Lights Bookstore (Dubuque, IA)
+   ✅ Original: 261 chars | Refined: 196 chars 📝
+   River Lights Bookstore is an independent bookstore in Dubuque, IA offering a curated selection of books. With a 4.8-star rating from 287 reviews, this bookstore serves the local reading community.
+
+12. Black Tea Bookshop (Columbia, MO)
+   ✅ Original: 249 chars | Refined: 162 chars 📝
+   Black Tea Bookshop is an independent bookstore in Columbia, MO offering a curated selection of books. This bookstore provides a welcoming environment for readers.
+
+13. Busboys and Poets at 14th & V (Washington, DC)
+   ✅ Original: 238 chars | Refined: 208 chars 🎯
+   Busboys and Poets at 14th & V is an independent bookstore in Washington, DC combining a bookstore and coffee shop. With a 4.5-star rating from 5,235 reviews, this bookstore serves the local reading community.
+
+14. The Book and The Bean (Henderson, NV)
+   ✅ Original: 203 chars | Refined: 196 chars 📝
+   The Book and The Bean is an independent bookstore in Henderson, NV offering a curated selection of books. With a 3.6-star rating from 23 reviews, this bookstore serves the local reading community.
+
+15. Half Price Books North Olmsted (North Olmsted, OH)
+   ✅ Original: 295 chars | Refined: 207 chars 🎯
+   Half Price Books North Olmsted is an independent bookstore in North Olmsted, OH specializing in secondhand books. With a 4.5-star rating from 2,348 reviews, this bookstore serves the local reading community.
+
+16. Read It & Eat (NY) (Buffalo, NY)
+   ✅ Original: 271 chars | Refined: 189 chars 📝
+   Read It & Eat (NY) is an independent bookstore in Buffalo, NY offering a curated selection of books. With a 5-star rating from 29 reviews, this bookstore serves the local reading community.
+
+17. Bleak House Books (Honeoye Falls, NY)
+   ✅ Original: 262 chars | Refined: 196 chars 📝
+   Bleak House Books is an independent bookstore in Honeoye Falls, NY offering a curated selection of books. With a 4.9-star rating from 67 reviews, this bookstore serves the local reading community.
+
+18. The Book Nook of Saugatuck (Saugatuck, MI)
+   ✅ Original: 212 chars | Refined: 191 chars 🎯
+   The Book Nook of Saugatuck is an independent bookstore in Saugatuck, MI specializing in used books. With a 4.7-star rating from 178 reviews, this bookstore serves the local reading community.
+
+19. Reads & Company (Phoenixville, PA)
+   ✅ Original: 294 chars | Refined: 194 chars 📝
+   Reads & Company is an independent bookstore in Phoenixville, PA offering a curated selection of books. With a 4.8-star rating from 177 reviews, this bookstore serves the local reading community.
+
+20. ANT Bookstore (Clifton, NJ)
+   ✅ Original: 328 chars | Refined: 182 chars 🎯
+   ANT Bookstore is an independent bookstore in Clifton, NJ combining a bookstore and café. With a 4.8-star rating from 1,357 reviews, this bookstore serves the local reading community.
+
+========================================================================================================================
+
+📊 OVERALL STATISTICS:
+
+Total descriptions: 1966
+Average length: 247 → 196 chars (21% reduction)
+In target range (150-400 chars): 1965/1966 (99.9%)
+With unique details preserved: 560/1966 (28.5%)
+With ratings included: 1872/1966 (95.2%)
+
+📄 Preview saved to: refine-preview-v2-2026-01-03T21-02-14-619Z.json
+
+🚀 Applying refinements to database...
+
+✅ Progress: 200/1966 (10.2%)
+✅ Progress: 400/1966 (20.3%)
+✅ Progress: 600/1966 (30.5%)
+✅ Progress: 800/1966 (40.7%)
+✅ Progress: 1000/1966 (50.9%)
+✅ Progress: 1200/1966 (61.0%)
+✅ Progress: 1400/1966 (71.2%)
+✅ Progress: 1600/1966 (81.4%)
+✅ Progress: 1800/1966 (91.6%)
+
+========================================================================================================================
+✅ REFINEMENT COMPLETE
+
+Successfully refined: 1966/1966
+Errors: 0
+Final average length: 196 chars
+In target range: 99.9%
+========================================================================================================================
