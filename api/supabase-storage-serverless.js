@@ -370,8 +370,38 @@ export class SupabaseStorage {
           ...rest
         } = item;
         
+        // Explicitly remove any remaining snake_case fields from rest
+        const {
+          lat_numeric: _lat_numeric2,
+          lng_numeric: _lng_numeric2,
+          feature_ids: _feature_ids2,
+          image_url: _image_url2,
+          hours_json: _hours_json2,
+          google_place_id: _google_place_id2,
+          google_rating: _google_rating2,
+          google_review_count: _google_review_count2,
+          google_description: _google_description2,
+          google_photos: _google_photos2,
+          google_reviews: _google_reviews2,
+          google_price_level: _google_price_level2,
+          google_data_updated_at: _google_data_updated_at2,
+          formatted_phone: _formatted_phone2,
+          website_verified: _website_verified2,
+          opening_hours_json: _opening_hours_json2,
+          google_maps_url: _google_maps_url2,
+          google_types: _google_types2,
+          formatted_address_google: _formatted_address_google2,
+          business_status: _business_status2,
+          contact_data_fetched_at: _contact_data_fetched_at2,
+          ai_generated_description: _ai_generated_description2,
+          description_generated_at: _description_generated_at2,
+          description_validated: _description_validated2,
+          description_source: _description_source2,
+          ...cleanRest2
+        } = rest;
+        
         return {
-          ...rest,
+          ...cleanRest2,
           latitude: lat_numeric?.toString() || item.latitude || null,
           longitude: lng_numeric?.toString() || item.longitude || null,
           featureIds: feature_ids || item.featureIds || [],
@@ -491,8 +521,38 @@ export class SupabaseStorage {
         ...rest
       } = data;
       
+      // Explicitly remove any remaining snake_case fields from rest
+      const {
+        lat_numeric: _lat_numeric,
+        lng_numeric: _lng_numeric,
+        feature_ids: _feature_ids,
+        image_url: _image_url,
+        hours_json: _hours_json,
+        google_place_id: _google_place_id,
+        google_rating: _google_rating,
+        google_review_count: _google_review_count,
+        google_description: _google_description,
+        google_photos: _google_photos,
+        google_reviews: _google_reviews,
+        google_price_level: _google_price_level,
+        google_data_updated_at: _google_data_updated_at,
+        formatted_phone: _formatted_phone,
+        website_verified: _website_verified,
+        opening_hours_json: _opening_hours_json,
+        google_maps_url: _google_maps_url,
+        google_types: _google_types,
+        formatted_address_google: _formatted_address_google,
+        business_status: _business_status,
+        contact_data_fetched_at: _contact_data_fetched_at,
+        ai_generated_description: _ai_generated_description,
+        description_generated_at: _description_generated_at,
+        description_validated: _description_validated,
+        description_source: _description_source,
+        ...cleanRest
+      } = rest;
+      
       return {
-        ...rest,
+        ...cleanRest,
         latitude: lat_numeric?.toString() || data.latitude || null,
         longitude: lng_numeric?.toString() || data.longitude || null,
         featureIds: feature_ids || data.featureIds || [],
@@ -560,6 +620,41 @@ export class SupabaseStorage {
         descriptionValidated: description_validated ?? null,
         descriptionSource: description_source || null,
       };
+      
+      // Explicitly delete any snake_case fields that might have leaked through
+      const snakeCaseFields = [
+        'lat_numeric', 'lng_numeric', 'feature_ids', 'image_url', 'hours_json',
+        'google_place_id', 'google_rating', 'google_review_count', 'google_description',
+        'google_photos', 'google_reviews', 'google_price_level', 'google_data_updated_at',
+        'formatted_phone', 'website_verified', 'opening_hours_json', 'google_maps_url',
+        'google_types', 'formatted_address_google', 'business_status', 'contact_data_fetched_at',
+        'ai_generated_description', 'description_generated_at', 'description_validated', 'description_source'
+      ];
+      snakeCaseFields.forEach(field => {
+        delete result[field];
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('Serverless: Error fetching bookstore by ID:', error);
+      return undefined;
+    }
+  }
+
+  async getBookstoreBySlug(slug) {
+      const snakeCaseFields = [
+        'lat_numeric', 'lng_numeric', 'feature_ids', 'image_url', 'hours_json',
+        'google_place_id', 'google_rating', 'google_review_count', 'google_description',
+        'google_photos', 'google_reviews', 'google_price_level', 'google_data_updated_at',
+        'formatted_phone', 'website_verified', 'opening_hours_json', 'google_maps_url',
+        'google_types', 'formatted_address_google', 'business_status', 'contact_data_fetched_at',
+        'ai_generated_description', 'description_generated_at', 'description_validated', 'description_source'
+      ];
+      snakeCaseFields.forEach(field => {
+        delete result[field];
+      });
+      
+      return result;
     } catch (error) {
       console.error('Serverless: Error fetching bookstore by ID:', error);
       return undefined;
