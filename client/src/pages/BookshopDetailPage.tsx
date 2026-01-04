@@ -85,7 +85,21 @@ const BookshopDetailPage = () => {
 
   });
 
-  
+  // Debug: Log bookshop data in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && bookshop) {
+      console.log('[BookshopDetailPage] Bookshop data:', {
+        id: bookshop.id,
+        name: bookshop.name,
+        hasGoogleDesc: !!bookshop.googleDescription,
+        googleDescLength: bookshop.googleDescription?.length || 0,
+        hasAIDesc: !!bookshop.aiGeneratedDescription,
+        aiDescLength: bookshop.aiGeneratedDescription?.length || 0,
+        descriptionValidated: bookshop.descriptionValidated,
+        descriptionSource: bookshop.descriptionSource,
+      });
+    }
+  }, [bookshop]);
 
   useEffect(() => {
 
@@ -222,20 +236,60 @@ const BookshopDetailPage = () => {
   }, [bookshop]);
 
   // UI Display Description: Priority-based, no truncation
+  // Priority: Google description → AI description → Original description → Fallback
   const displayDescription = useMemo(() => {
     if (!bookshop) return undefined;
 
-    // Priority 1: Google description (if >= 100 chars)
+    // Debug logging in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[BookshopDetailPage] Description data check:', {
+        hasGoogleDesc: !!bookshop.googleDescription,
+        googleDescLength: bookshop.googleDescription?.length || 0,
+        hasAIDesc: !!bookshop.aiGeneratedDescription,
+        aiDescLength: bookshop.aiGeneratedDescription?.length || 0,
+        hasOriginalDesc: !!bookshop.description,
+        originalDescLength: bookshop.description?.length || 0,
+        descriptionValidated: bookshop.descriptionValidated,
+        descriptionSource: bookshop.descriptionSource,
+      });
+    }
+
+    // Priority 1: Google description (if >= 100 chars) - most detailed
     if (bookshop.googleDescription && bookshop.googleDescription.length >= 100) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[BookshopDetailPage] ✅ Using Google description');
+      }
       return bookshop.googleDescription;
     }
     
-    // Priority 2: AI-generated description (if validated)
-    if (bookshop.aiGeneratedDescription && bookshop.descriptionValidated === true) {
-      return bookshop.aiGeneratedDescription;
+    // Priority 2: AI-generated description (if validated OR if it exists and is reasonable length)
+    if (bookshop.aiGeneratedDescription) {
+      const isValidated = bookshop.descriptionValidated === true;
+      const hasReasonableLength = bookshop.aiGeneratedDescription.length >= 100;
+      
+      if (isValidated || hasReasonableLength) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[BookshopDetailPage] ✅ Using AI-generated description', {
+            validated: isValidated,
+            length: bookshop.aiGeneratedDescription.length,
+          });
+        }
+        return bookshop.aiGeneratedDescription;
+      }
     }
     
-    // Priority 3: Simple fallback
+    // Priority 3: Original description field (preserve existing content)
+    if (bookshop.description && bookshop.description.trim().length > 0) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[BookshopDetailPage] ✅ Using original description');
+      }
+      return bookshop.description;
+    }
+    
+    // Priority 4: Simple fallback
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[BookshopDetailPage] ⚠️ Using fallback description');
+    }
     return `${bookshop.name} is an independent bookstore in ${bookshop.city}, ${bookshop.state}.`;
   }, [bookshop]);
 

@@ -352,13 +352,23 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
           <div className="lg:col-span-8 space-y-6">
 
             {/* About Section - Priority-based description */}
-            {displayDescription && (
+            {displayDescription ? (
               <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
                 <h2 className="font-serif text-xl md:text-2xl font-bold text-[#5F4B32] mb-4">
                   About {name}
                 </h2>
                 <p className="text-stone-700 leading-relaxed text-base md:text-lg">
                   {displayDescription}
+                </p>
+              </div>
+            ) : (
+              // Fallback: Always show something, even if sparse
+              <div className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
+                <h2 className="font-serif text-xl md:text-2xl font-bold text-[#5F4B32] mb-4">
+                  About {name}
+                </h2>
+                <p className="text-stone-700 leading-relaxed text-base md:text-lg">
+                  {name} is an independent bookstore in {city}, {state}.
                 </p>
               </div>
             )}
