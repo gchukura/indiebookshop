@@ -642,26 +642,6 @@ export class SupabaseStorage {
   }
 
   async getBookstoreBySlug(slug) {
-      const snakeCaseFields = [
-        'lat_numeric', 'lng_numeric', 'feature_ids', 'image_url', 'hours_json',
-        'google_place_id', 'google_rating', 'google_review_count', 'google_description',
-        'google_photos', 'google_reviews', 'google_price_level', 'google_data_updated_at',
-        'formatted_phone', 'website_verified', 'opening_hours_json', 'google_maps_url',
-        'google_types', 'formatted_address_google', 'business_status', 'contact_data_fetched_at',
-        'ai_generated_description', 'description_generated_at', 'description_validated', 'description_source'
-      ];
-      snakeCaseFields.forEach(field => {
-        delete result[field];
-      });
-      
-      return result;
-    } catch (error) {
-      console.error('Serverless: Error fetching bookstore by ID:', error);
-      return undefined;
-    }
-  }
-
-  async getBookstoreBySlug(slug) {
     console.log('Serverless: [getBookstoreBySlug] Starting lookup for slug:', slug);
     console.log('Serverless: [getBookstoreBySlug] Supabase client available?', !!supabase);
     console.log('Serverless: [getBookstoreBySlug] Is initialized?', this.isInitialized);
