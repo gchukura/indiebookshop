@@ -375,9 +375,27 @@ const BookshopDetailPage = () => {
   
 
   const getImageUrl = useMemo(() => {
-
-    return bookshop?.imageUrl || undefined;
-
+    // Priority 1: First Google photo if available
+    if (bookshop?.googlePhotos && Array.isArray(bookshop.googlePhotos) && bookshop.googlePhotos.length > 0) {
+      const firstPhoto = bookshop.googlePhotos[0];
+      let photoRef = null;
+      if (typeof firstPhoto === 'string') {
+        photoRef = firstPhoto;
+      } else if (firstPhoto && typeof firstPhoto === 'object' && firstPhoto.photo_reference) {
+        photoRef = firstPhoto.photo_reference;
+      }
+      if (photoRef) {
+        return `/api/place-photo?photo_reference=${encodeURIComponent(photoRef)}&maxwidth=1200`;
+      }
+    }
+    
+    // Priority 2: Existing imageUrl
+    if (bookshop?.imageUrl) {
+      return bookshop.imageUrl;
+    }
+    
+    // Priority 3: Fallback to Unsplash stock photo
+    return 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=600';
   }, [bookshop]);
 
   // SEO metadata for 404 page - MUST be at top level (Rules of Hooks)

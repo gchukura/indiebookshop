@@ -96,6 +96,36 @@ const Home = () => {
     }
   };
 
+  // Helper to extract photo reference from photo object/string
+  const extractPhotoReference = (photo: any): string | null => {
+    if (!photo) return null;
+    if (typeof photo === 'string') return photo;
+    if (typeof photo === 'object' && photo.photo_reference) {
+      return photo.photo_reference;
+    }
+    return null;
+  };
+
+  // Helper to get hero image URL for a bookshop (first Google photo or Unsplash fallback)
+  const getHeroImageUrl = (bookshop: Bookshop): string => {
+    // Priority 1: First Google photo if available
+    if (bookshop.googlePhotos && Array.isArray(bookshop.googlePhotos) && bookshop.googlePhotos.length > 0) {
+      const firstPhoto = bookshop.googlePhotos[0];
+      const photoRef = extractPhotoReference(firstPhoto);
+      if (photoRef) {
+        return `/api/place-photo?photo_reference=${encodeURIComponent(photoRef)}&maxwidth=800`;
+      }
+    }
+    
+    // Priority 2: Existing imageUrl
+    if (bookshop.imageUrl) {
+      return bookshop.imageUrl;
+    }
+    
+    // Priority 3: Fallback to Unsplash stock photo
+    return 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600';
+  };
+
   return (
     <div>
       {/* SEO Component */}
@@ -257,20 +287,21 @@ const Home = () => {
                     
                     const bookshopSlug = generateSlugFromName(bookshop.name);
                     
+                    const heroImageUrl = getHeroImageUrl(bookshop);
+                    
                     return (
                       <div key={bookshop.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
                         <Link to={`/bookshop/${bookshopSlug}`}>
-                          {bookshop.imageUrl ? (
-                            <img 
-                              src={bookshop.imageUrl} 
-                              alt={bookshop.name}
-                              className="w-full h-36 sm:h-40 md:h-48 object-cover cursor-pointer" 
-                            />
-                          ) : (
-                            <div className="w-full h-36 sm:h-40 md:h-48 flex items-center justify-center bg-gray-100">
-                              <BookshopIcon size={120} className="cursor-pointer sm:w-[150px] sm:h-[150px]" />
-                            </div>
-                          )}
+                          <img 
+                            src={heroImageUrl} 
+                            alt={bookshop.name}
+                            className="w-full h-36 sm:h-40 md:h-48 object-cover cursor-pointer" 
+                            loading="lazy"
+                            onError={(e) => {
+                              // Fallback to Unsplash stock photo if image fails to load
+                              e.currentTarget.src = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600';
+                            }}
+                          />
                         </Link>
                         <div className="p-4 md:p-5">
                           <Link to={`/bookshop/${bookshopSlug}`}>

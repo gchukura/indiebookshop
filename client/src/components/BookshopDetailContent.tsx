@@ -174,6 +174,55 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
     return `/api/place-photo?photo_reference=${encodeURIComponent(photoReference)}&maxwidth=${maxWidth}`;
   };
 
+  // Helper to extract photo reference from photo object/string
+  const extractPhotoReference = (photo: GooglePhoto | string | null | undefined): string | null => {
+    if (!photo) return null;
+    if (typeof photo === 'string') return photo;
+    if (typeof photo === 'object' && photo.photo_reference) {
+      return photo.photo_reference;
+    }
+    return null;
+  };
+
+  // Helper to get hero photo reference (first photo)
+  const getHeroPhotoReference = useMemo((): string | null => {
+    if (!googlePhotos || !Array.isArray(googlePhotos) || googlePhotos.length === 0) {
+      return null;
+    }
+    return extractPhotoReference(googlePhotos[0]);
+  }, [googlePhotos]);
+
+  // Helper to get hero image URL
+  const getHeroImageUrl = useMemo((): string => {
+    const heroPhotoRef = getHeroPhotoReference;
+    if (heroPhotoRef) {
+      return getPhotoUrl(heroPhotoRef, 1200);
+    }
+    // Fallback to Unsplash stock photo for indie bookshops
+    return 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=600';
+  }, [getHeroPhotoReference]);
+
+  // Helper to get gallery photos (excluding the hero photo)
+  const getGalleryPhotos = useMemo((): GooglePhoto[] => {
+    if (!googlePhotos || !Array.isArray(googlePhotos) || googlePhotos.length === 0) {
+      return [];
+    }
+    const heroPhotoRef = getHeroPhotoReference;
+    if (!heroPhotoRef) {
+      return googlePhotos;
+    }
+    // Filter out the hero photo
+    return googlePhotos.filter((photo) => {
+      const photoRef = extractPhotoReference(photo);
+      return photoRef !== heroPhotoRef;
+    });
+  }, [googlePhotos, getHeroPhotoReference]);
+
+  // Reset carousel index when gallery photos change
+  React.useEffect(() => {
+    setCurrentPhotoIndex(0);
+  }, [getGalleryPhotos]);
+
   // Helper functions for About section
   const getPrimaryDescription = (): string => {
     const original = description || '';
@@ -274,9 +323,21 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
 
     <div className="bg-[#F7F3E8] min-h-screen">
 
-      {/* Clean Header Section */}
-      <div className="bg-white border-b-2 border-stone-200">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 py-8 md:py-12">
+      {/* Clean Header Section with Hero Image Background */}
+      <div className="relative border-b-2 border-stone-200 overflow-hidden">
+        {/* Hero Image Background */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${getHeroImageUrl})`,
+          }}
+        >
+          {/* Overlay for text readability - gradient stronger at top where text is */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/60 to-white/35 backdrop-blur-[2px]" />
+        </div>
+        
+        {/* Header Content */}
+        <div className="relative container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 py-8 md:py-12">
           {/* Breadcrumb Navigation */}
           <div className="mb-4">
             <Breadcrumbs items={breadcrumbItems} className="text-sm" />
@@ -286,16 +347,16 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
           <div className="px-6 md:px-8 -mx-6 md:-mx-8">
             {/* Title and Location */}
             <div className="mb-6">
-              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#5F4B32] mb-3">
+              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-[#2A1F15] mb-3 drop-shadow-[0_2px_8px_rgba(255,255,255,0.95)] drop-shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
                 {name}
               </h1>
-              <div className="flex flex-wrap items-center gap-4 text-stone-600">
+              <div className="flex flex-wrap items-center gap-4 text-stone-900 font-semibold text-base md:text-lg drop-shadow-[0_1px_4px_rgba(255,255,255,0.9)] drop-shadow-[0_1px_1px_rgba(0,0,0,0.1)]">
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-[#2A6B7C]" />
-                  <span className="text-base md:text-lg">{city}, {state}</span>
+                  <MapPin className="w-5 h-5 md:w-6 md:h-6 text-[#1A5A6B] drop-shadow-[0_1px_3px_rgba(255,255,255,0.9)]" />
+                  <span>{city}, {state}</span>
                 </div>
-                <span className="text-stone-400">•</span>
-                <span className="text-base md:text-lg">Independent Bookshop</span>
+                <span className="text-stone-600">•</span>
+                <span>Independent Bookshop</span>
               </div>
             </div>
 
@@ -374,7 +435,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
             )}
 
             {/* Google Photos Gallery */}
-            {googlePhotos && Array.isArray(googlePhotos) && googlePhotos.length > 0 && (
+            {getGalleryPhotos && getGalleryPhotos.length > 0 && (
               <section className="bg-white rounded-lg shadow-sm border border-stone-200 p-6 md:p-8">
                 <h3 className="font-serif text-xl md:text-2xl text-[#5F4B32] font-bold mb-4">Photos</h3>
                 
@@ -383,23 +444,14 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                   <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-stone-200">
                     <img 
                       src={(() => {
-                        const photo = googlePhotos[currentPhotoIndex];
+                        const photo = getGalleryPhotos[currentPhotoIndex];
                         // Extract photo reference - handle both object and string formats
-                        let photoRef = null;
-                        if (typeof photo === 'string') {
-                          photoRef = photo;
-                        } else if (photo && typeof photo === 'object') {
-                          // Try to extract photo_reference from object
-                          photoRef = photo.photo_reference;
-                          if (!photoRef) {
-                            console.warn('Invalid photo object in carousel, missing photo_reference', photo);
-                            return '';
-                          }
-                        } else {
-                          console.warn('Invalid photo type in carousel', typeof photo, photo);
+                        const photoRef = extractPhotoReference(photo);
+                        if (!photoRef) {
+                          console.warn('Invalid photo object in carousel, missing photo_reference', photo);
                           return '';
                         }
-                        return photoRef && typeof photoRef === 'string' ? getPhotoUrl(photoRef, 800) : '';
+                        return getPhotoUrl(photoRef, 800);
                       })()}
                       alt={`${name} - Photo ${currentPhotoIndex + 1}`}
                       className="w-full h-full object-cover"
@@ -411,17 +463,17 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                     />
                     
                     {/* Navigation Buttons */}
-                    {googlePhotos.length > 1 && (
+                    {getGalleryPhotos.length > 1 && (
                       <>
                         <button 
-                          onClick={() => setCurrentPhotoIndex(prev => prev === 0 ? googlePhotos.length - 1 : prev - 1)}
+                          onClick={() => setCurrentPhotoIndex(prev => prev === 0 ? getGalleryPhotos.length - 1 : prev - 1)}
                           className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg"
                           aria-label="Previous photo"
                         >
                           <ChevronLeft className="w-5 h-5 text-[#5F4B32]" />
                         </button>
                         <button 
-                          onClick={() => setCurrentPhotoIndex(prev => prev === googlePhotos.length - 1 ? 0 : prev + 1)}
+                          onClick={() => setCurrentPhotoIndex(prev => prev === getGalleryPhotos.length - 1 ? 0 : prev + 1)}
                           className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg"
                           aria-label="Next photo"
                         >
@@ -430,7 +482,7 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                         
                         {/* Counter */}
                         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
-                          {currentPhotoIndex + 1} / {googlePhotos.length}
+                          {currentPhotoIndex + 1} / {getGalleryPhotos.length}
                         </div>
                       </>
                     )}
@@ -439,25 +491,11 @@ export const BookshopDetailContent: React.FC<BookshopDetailContentProps> = ({ bo
                 
                 {/* Desktop Grid (>= 768px) */}
                 <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4">
-                  {googlePhotos.map((photo, index) => {
+                  {getGalleryPhotos.map((photo, index) => {
                     // Extract photo reference - handle both object and string formats
-                    let photoRef = null;
-                    if (typeof photo === 'string') {
-                      photoRef = photo;
-                    } else if (photo && typeof photo === 'object') {
-                      // Try to extract photo_reference from object
-                      photoRef = photo.photo_reference;
-                      // If still not found and photo is an object, skip it
-                      if (!photoRef) {
-                        console.warn('Invalid photo object at index', index, 'missing photo_reference', photo);
-                        return null;
-                      }
-                    } else {
-                      console.warn('Invalid photo type at index', index, typeof photo, photo);
-                      return null;
-                    }
+                    const photoRef = extractPhotoReference(photo);
                     
-                    if (!photoRef || typeof photoRef !== 'string' || photoRef.length < 10) {
+                    if (!photoRef || photoRef.length < 10) {
                       // Skip invalid photo entries
                       console.warn('Invalid photo reference at index', index, { photoRef, type: typeof photoRef, length: photoRef?.length });
                       return null;
