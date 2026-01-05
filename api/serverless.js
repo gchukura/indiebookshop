@@ -126,7 +126,7 @@ async function setupServer() {
               <html>
                 <head>
                   <title>IndiebookShop.com - Connecting Book Lovers with Local Bookshops</title>
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
                   <script>
                     window.ENV = {
                       MAPBOX_ACCESS_TOKEN: ${escapedToken},

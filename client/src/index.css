@@ -66,6 +66,10 @@
   }
 
 @layer base {
+  html {
+    font-size: 16px; /* Ensure consistent base font size across all environments */
+  }
+
   * {
     @apply border-border;
   }
