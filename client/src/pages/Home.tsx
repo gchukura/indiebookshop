@@ -1,17 +1,80 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Bookstore as Bookshop, Feature } from "@shared/schema";
 import { MapPin, Map, Sparkles } from "lucide-react";
 import BookshopIcon from "@/components/BookshopIcon";
 import { SEO } from "../components/SEO";
 import { 
   BASE_URL, 
-  PAGE_KEYWORDS,
-  DESCRIPTION_TEMPLATES 
+  PAGE_KEYWORDS
 } from "../lib/seo";
 import { generateSlugFromName } from "../lib/linkUtils";
 import { Button } from "@/components/ui/button";
+
+// Constants moved outside component to avoid recreation on every render
+const STATE_MAP: {[key: string]: string} = {
+  'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 
+  'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 
+  'DE': 'Delaware', 'DC': 'District of Columbia', 'FL': 'Florida', 
+  'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 
+  'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas', 'KY': 'Kentucky', 
+  'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland', 
+  'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 
+  'MS': 'Mississippi', 'MO': 'Missouri', 'MT': 'Montana', 
+  'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 
+  'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York', 
+  'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 
+  'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 
+  'RI': 'Rhode Island', 'SC': 'South Carolina', 'SD': 'South Dakota', 
+  'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 
+  'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 
+  'WI': 'Wisconsin', 'WY': 'Wyoming',
+  // Include Canadian provinces
+  'BC': 'British Columbia', 'ON': 'Ontario', 'QC': 'Quebec',
+  'AB': 'Alberta', 'MB': 'Manitoba', 'NS': 'Nova Scotia',
+  'NB': 'New Brunswick', 'SK': 'Saskatchewan',
+  // Include other territories
+  'HM': 'Heard and McDonald Islands',
+  'VI': 'Virgin Islands'
+};
+
+const US_STATE_ABBREVIATIONS = [
+  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 
+  'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 
+  'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 
+  'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 
+  'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+];
+
+// Helper functions moved outside component
+const extractPhotoReference = (photo: any): string | null => {
+  if (!photo) return null;
+  if (typeof photo === 'string') return photo;
+  if (typeof photo === 'object' && photo.photo_reference) {
+    return photo.photo_reference;
+  }
+  return null;
+};
+
+const getHeroImageUrl = (bookshop: Bookshop): string => {
+  // Priority 1: First Google photo if available
+  if (bookshop.googlePhotos && Array.isArray(bookshop.googlePhotos) && bookshop.googlePhotos.length > 0) {
+    const firstPhoto = bookshop.googlePhotos[0];
+    const photoRef = extractPhotoReference(firstPhoto);
+    if (photoRef) {
+      return `/api/place-photo?photo_reference=${encodeURIComponent(photoRef)}&maxwidth=800`;
+    }
+  }
+  
+  // Priority 2: Existing imageUrl
+  if (bookshop.imageUrl) {
+    return bookshop.imageUrl;
+  }
+  
+  // Priority 3: Fallback to Unsplash stock photo
+  return 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600';
+};
 
 const Home = () => {
   // Fetch all bookshops
@@ -23,9 +86,6 @@ const Home = () => {
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
   });
-  
-  // State to hold current featured bookshops
-  const [featuredBookshops, setFeaturedBookshops] = useState<Bookshop[]>([]);
   
   // SEO metadata for the homepage
   const seoTitle = useMemo(() => {
@@ -61,70 +121,78 @@ const Home = () => {
     return BASE_URL;
   }, []);
   
-  // Function to get featured bookshops - always show 6
+  // Memoized featured bookshops - optimized single-pass algorithm
   // Uses deterministic sorting to prevent SSR/client hydration mismatches
-  const getFeaturedBookshops = useCallback((): Bookshop[] => {
+  const featuredBookshops = useMemo((): Bookshop[] => {
     if (!bookshops || bookshops.length === 0) return [];
     
-    // Prioritize shops with images, but show 6 regardless
-    const withImages = bookshops.filter(shop => shop.imageUrl);
-    const withoutImages = bookshops.filter(shop => !shop.imageUrl);
+    // Single pass: separate and sort in one operation
+    const withImages: Bookshop[] = [];
+    const withoutImages: Bookshop[] = [];
     
-    // Sort deterministically by ID to ensure consistent results on server and client
-    // This prevents React hydration mismatches that would occur with random shuffling
-    const sortedWithImages = [...withImages].sort((a, b) => a.id - b.id);
-    const sortedWithoutImages = [...withoutImages].sort((a, b) => a.id - b.id);
+    for (const shop of bookshops) {
+      if (shop.imageUrl) {
+        withImages.push(shop);
+      } else {
+        withoutImages.push(shop);
+      }
+    }
+    
+    // Sort deterministically by ID
+    withImages.sort((a, b) => a.id - b.id);
+    withoutImages.sort((a, b) => a.id - b.id);
     
     // Combine: prioritize those with images, then add others to reach 6
-    const featured = [...sortedWithImages, ...sortedWithoutImages].slice(0, 6);
-    
-    return featured;
+    return [...withImages, ...withoutImages].slice(0, 6);
   }, [bookshops]);
   
-  // Set featured bookshops when data is loaded (once, not on interval)
-  useEffect(() => {
-    if (bookshops && bookshops.length > 0) {
-      setFeaturedBookshops(getFeaturedBookshops());
-    }
-  }, [bookshops, getFeaturedBookshops]);
+  // Pre-compute features map for O(1) lookup instead of O(n) filter
+  const featuresMap = useMemo(() => {
+    if (!features) return {} as Record<number, Feature>;
+    const map: Record<number, Feature> = {};
+    features.forEach(f => {
+      map[f.id] = f;
+    });
+    return map;
+  }, [features]);
   
   // Smooth scroll handler
-  const scrollToElement = (elementId: string) => {
+  const scrollToElement = useCallback((elementId: string) => {
     const element = document.getElementById(elementId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  };
-
-  // Helper to extract photo reference from photo object/string
-  const extractPhotoReference = (photo: any): string | null => {
-    if (!photo) return null;
-    if (typeof photo === 'string') return photo;
-    if (typeof photo === 'object' && photo.photo_reference) {
-      return photo.photo_reference;
-    }
-    return null;
-  };
-
-  // Helper to get hero image URL for a bookshop (first Google photo or Unsplash fallback)
-  const getHeroImageUrl = (bookshop: Bookshop): string => {
-    // Priority 1: First Google photo if available
-    if (bookshop.googlePhotos && Array.isArray(bookshop.googlePhotos) && bookshop.googlePhotos.length > 0) {
-      const firstPhoto = bookshop.googlePhotos[0];
-      const photoRef = extractPhotoReference(firstPhoto);
-      if (photoRef) {
-        return `/api/place-photo?photo_reference=${encodeURIComponent(photoRef)}&maxwidth=800`;
-      }
+  }, []);
+  
+  // Memoize browse by state computations
+  const stateData = useMemo(() => {
+    if (!bookshops || bookshops.length === 0) {
+      return { usStates: [], otherRegions: [] };
     }
     
-    // Priority 2: Existing imageUrl
-    if (bookshop.imageUrl) {
-      return bookshop.imageUrl;
-    }
+    // Get unique states from bookshops
+    const stateAbbreviations = Array.from(new Set(bookshops.map((b: Bookshop) => b.state)))
+      .filter(state => state) as string[];
     
-    // Priority 3: Fallback to Unsplash stock photo
-    return 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600';
-  };
+    // Separate US states from other regions
+    const usStates = stateAbbreviations
+      .filter((abbr: string) => US_STATE_ABBREVIATIONS.includes(abbr))
+      .map((abbr: string) => ({
+        abbreviation: abbr,
+        fullName: STATE_MAP[abbr] || abbr
+      }))
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+    
+    const otherRegions = stateAbbreviations
+      .filter((abbr: string) => !US_STATE_ABBREVIATIONS.includes(abbr))
+      .map((abbr: string) => ({
+        abbreviation: abbr,
+        fullName: STATE_MAP[abbr] || abbr
+      }))
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+    
+    return { usStates, otherRegions };
+  }, [bookshops]);
 
   return (
     <div>
@@ -280,13 +348,15 @@ const Home = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                   {featuredBookshops.map((bookshop) => {
-                    // Get feature names for this bookshop
-                    const bookshopFeatures = features?.filter(feature => 
-                      bookshop.featureIds && bookshop.featureIds.includes(feature.id)
-                    ).slice(0, 3) || [];
+                    // Get feature names for this bookshop using pre-computed map (O(1) lookup)
+                    const bookshopFeatures = bookshop.featureIds
+                      ? bookshop.featureIds
+                          .slice(0, 3)
+                          .map(id => featuresMap[id])
+                          .filter((f): f is Feature => f !== undefined)
+                      : [];
                     
                     const bookshopSlug = generateSlugFromName(bookshop.name);
-                    
                     const heroImageUrl = getHeroImageUrl(bookshop);
                     
                     return (
@@ -349,102 +419,39 @@ const Home = () => {
                 </div>
               ) : (
                 <div className="flex flex-col space-y-6">
-                  {bookshops && (() => {
-                    // State abbreviation to full name mapping
-                    const stateMap: {[key: string]: string} = {
-                      'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 
-                      'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 
-                      'DE': 'Delaware', 'DC': 'District of Columbia', 'FL': 'Florida', 
-                      'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 
-                      'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas', 'KY': 'Kentucky', 
-                      'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland', 
-                      'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 
-                      'MS': 'Mississippi', 'MO': 'Missouri', 'MT': 'Montana', 
-                      'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 
-                      'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York', 
-                      'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 
-                      'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 
-                      'RI': 'Rhode Island', 'SC': 'South Carolina', 'SD': 'South Dakota', 
-                      'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 
-                      'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 
-                      'WI': 'Wisconsin', 'WY': 'Wyoming',
-                      // Include Canadian provinces
-                      'BC': 'British Columbia', 'ON': 'Ontario', 'QC': 'Quebec',
-                      'AB': 'Alberta', 'MB': 'Manitoba', 'NS': 'Nova Scotia',
-                      'NB': 'New Brunswick', 'SK': 'Saskatchewan',
-                      // Include other territories
-                      'HM': 'Heard and McDonald Islands',
-                      'VI': 'Virgin Islands'
-                    };
-                    
-                    // List of US state abbreviations
-                    const usStateAbbreviations = [
-                      'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 
-                      'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 
-                      'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 
-                      'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 
-                      'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
-                    ];
-                    
-                    // Get unique states from bookshops
-                    const stateAbbreviations = Array.from(new Set(bookshops.map((b: Bookshop) => b.state)))
-                      .filter(state => state); // Filter out null/undefined
-                    
-                    // Separate US states from other regions
-                    const usStates = stateAbbreviations
-                      .filter((abbr: string) => usStateAbbreviations.includes(abbr))
-                      .map((abbr: string) => ({
-                        abbreviation: abbr,
-                        fullName: stateMap[abbr] || abbr
-                      }))
-                      .sort((a, b) => a.fullName.localeCompare(b.fullName));
-                    
-                    const otherRegions = stateAbbreviations
-                      .filter((abbr: string) => !usStateAbbreviations.includes(abbr))
-                      .map((abbr: string) => ({
-                        abbreviation: abbr,
-                        fullName: stateMap[abbr] || abbr
-                      }))
-                      .sort((a, b) => a.fullName.localeCompare(b.fullName));
-                    
-                    return (
-                      <>
-                        {/* United States section */}
-                        <div>
-                          <h3 className="text-lg md:text-xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">
-                            United States
-                          </h3>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-                            {usStates.map(state => (
-                              <Link key={state.abbreviation} href={`/directory/state/${state.abbreviation}`}>
-                                <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
-                                  {state.fullName}
-                                </span>
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        {/* Only show Other Regions section if there are any */}
-                        {otherRegions.length > 0 && (
-                          <div>
-                            <h3 className="text-lg md:text-xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">
-                              Other Regions
-                            </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
-                              {otherRegions.map(region => (
-                                <Link key={region.abbreviation} href={`/directory/state/${region.abbreviation}`}>
-                                  <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
-                                    {region.fullName}
-                                  </span>
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    );
-                  })()}
+                  {/* United States section */}
+                  <div>
+                    <h3 className="text-lg md:text-xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">
+                      United States
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+                      {stateData.usStates.map(state => (
+                        <Link key={state.abbreviation} href={`/directory/state/${state.abbreviation}`}>
+                          <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
+                            {state.fullName}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Only show Other Regions section if there are any */}
+                  {stateData.otherRegions.length > 0 && (
+                    <div>
+                      <h3 className="text-lg md:text-xl font-serif font-bold text-[#5F4B32] mb-3 md:mb-4">
+                        Other Regions
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+                        {stateData.otherRegions.map(region => (
+                          <Link key={region.abbreviation} href={`/directory/state/${region.abbreviation}`}>
+                            <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
+                              {region.fullName}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
