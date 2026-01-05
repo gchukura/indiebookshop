@@ -47,6 +47,45 @@ const US_STATE_ABBREVIATIONS = [
   'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
 ];
 
+// Helper function to get state flag/image URL
+// Using a combination of state flags from a reliable CDN and fallbacks
+const getStateImageUrl = (abbreviation: string): string => {
+  // Special case: District of Columbia (DC) - DC flag is 3 red stars over 2 red bars on white
+  if (abbreviation === 'DC') {
+    // DC flag SVG as data URL (3 red stars over 2 red bars on white background)
+    // Using proper star polygon shapes
+    const starPath = 'M5,2 L5.5,4 L7.5,4 L6,5.5 L6.5,7.5 L5,6.5 L3.5,7.5 L4,5.5 L2.5,4 L4.5,4 Z';
+    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='30' viewBox='0 0 40 30'%3E%3Crect width='40' height='30' fill='white'/%3E%3Crect y='10' width='40' height='3' fill='%23DC143C'/%3E%3Crect y='17' width='40' height='3' fill='%23DC143C'/%3E%3Cpath d='M10,5 L10.5,7 L12.5,7 L11,8.5 L11.5,10.5 L10,9.5 L8.5,10.5 L9,8.5 L7.5,7 L9.5,7 Z' fill='%23DC143C'/%3E%3Cpath d='M20,5 L20.5,7 L22.5,7 L21,8.5 L21.5,10.5 L20,9.5 L18.5,10.5 L19,8.5 L17.5,7 L19.5,7 Z' fill='%23DC143C'/%3E%3Cpath d='M30,5 L30.5,7 L32.5,7 L31,8.5 L31.5,10.5 L30,9.5 L28.5,10.5 L29,8.5 L27.5,7 L29.5,7 Z' fill='%23DC143C'/%3E%3C/svg%3E`;
+  }
+  
+  // Special case: Heard and McDonald Islands (HM) - uses Australia flag (territory of Australia)
+  if (abbreviation === 'HM') {
+    return 'https://flagcdn.com/w40/au.png';
+  }
+  
+  // For US states, try multiple sources for state flags
+  if (US_STATE_ABBREVIATIONS.includes(abbreviation)) {
+    // Try flagcdn.com first (supports US state flags)
+    const stateLower = abbreviation.toLowerCase();
+    // Format: us-{state} for state flags
+    return `https://flagcdn.com/w40/us-${stateLower}.png`;
+  }
+  
+  // For Canadian provinces, use Canada flag
+  const canadianProvinces = ['BC', 'ON', 'QC', 'AB', 'MB', 'NS', 'NB', 'SK'];
+  if (canadianProvinces.includes(abbreviation)) {
+    return 'https://flagcdn.com/w40/ca.png';
+  }
+  
+  // For other regions, try to use country flags
+  if (abbreviation === 'VI') {
+    return 'https://flagcdn.com/w40/vi.png';
+  }
+  
+  // Default placeholder - simple gray rectangle with border
+  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='30'%3E%3Crect width='40' height='30' fill='%23f3f4f6' stroke='%23d1d5db' stroke-width='1'/%3E%3C/svg%3E`;
+};
+
 // Helper functions moved outside component
 const extractPhotoReference = (photo: any): string | null => {
   if (!photo) return null;
@@ -164,6 +203,18 @@ const Home = () => {
     }
   }, []);
   
+  // Compute bookshop counts per state
+  const stateCounts = useMemo(() => {
+    if (!bookshops || bookshops.length === 0) return {} as Record<string, number>;
+    const counts: Record<string, number> = {};
+    bookshops.forEach((bookshop: Bookshop) => {
+      if (bookshop.state) {
+        counts[bookshop.state] = (counts[bookshop.state] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [bookshops]);
+
   // Memoize browse by state computations
   const stateData = useMemo(() => {
     if (!bookshops || bookshops.length === 0) {
@@ -179,7 +230,8 @@ const Home = () => {
       .filter((abbr: string) => US_STATE_ABBREVIATIONS.includes(abbr))
       .map((abbr: string) => ({
         abbreviation: abbr,
-        fullName: STATE_MAP[abbr] || abbr
+        fullName: STATE_MAP[abbr] || abbr,
+        count: stateCounts[abbr] || 0
       }))
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
     
@@ -187,12 +239,13 @@ const Home = () => {
       .filter((abbr: string) => !US_STATE_ABBREVIATIONS.includes(abbr))
       .map((abbr: string) => ({
         abbreviation: abbr,
-        fullName: STATE_MAP[abbr] || abbr
+        fullName: STATE_MAP[abbr] || abbr,
+        count: stateCounts[abbr] || 0
       }))
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
     
     return { usStates, otherRegions };
-  }, [bookshops]);
+  }, [bookshops, stateCounts]);
 
   return (
     <div>
@@ -426,9 +479,28 @@ const Home = () => {
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
                       {stateData.usStates.map(state => (
-                        <Link key={state.abbreviation} href={`/directory/state/${state.abbreviation}`}>
-                          <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
+                        <Link 
+                          key={state.abbreviation} 
+                          href={`/directory/state/${state.abbreviation}`}
+                          className="flex items-center gap-2 font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors"
+                        >
+                          <img 
+                            src={getStateImageUrl(state.abbreviation)}
+                            alt={`${state.fullName} flag`}
+                            className="w-6 h-4 object-cover rounded-sm flex-shrink-0"
+                            loading="lazy"
+                            onError={(e) => {
+                              // Fallback to a simple placeholder if image fails to load
+                              e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='16'%3E%3Crect width='24' height='16' fill='%23e5e7eb'/%3E%3C/svg%3E`;
+                            }}
+                          />
+                          <span className="flex-1">
                             {state.fullName}
+                            {state.count > 0 && (
+                              <span className="text-sm font-normal text-stone-600 ml-2">
+                                ({state.count})
+                              </span>
+                            )}
                           </span>
                         </Link>
                       ))}
@@ -443,9 +515,28 @@ const Home = () => {
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
                         {stateData.otherRegions.map(region => (
-                          <Link key={region.abbreviation} href={`/directory/state/${region.abbreviation}`}>
-                            <span className="inline-block w-full font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors">
+                          <Link 
+                            key={region.abbreviation} 
+                            href={`/directory/state/${region.abbreviation}`}
+                            className="flex items-center gap-2 font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors"
+                          >
+                            <img 
+                              src={getStateImageUrl(region.abbreviation)}
+                              alt={`${region.fullName} flag`}
+                              className="w-6 h-4 object-cover rounded-sm flex-shrink-0"
+                              loading="lazy"
+                              onError={(e) => {
+                                // Fallback to a simple placeholder if image fails to load
+                                e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='16'%3E%3Crect width='24' height='16' fill='%23e5e7eb'/%3E%3C/svg%3E`;
+                              }}
+                            />
+                            <span className="flex-1">
                               {region.fullName}
+                              {region.count > 0 && (
+                                <span className="text-sm font-normal text-stone-600 ml-2">
+                                  ({region.count})
+                                </span>
+                              )}
                             </span>
                           </Link>
                         ))}
