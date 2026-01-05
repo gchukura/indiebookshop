@@ -1,6 +1,6 @@
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
-import { useCallback, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useMemo, useEffect, useRef } from "react";
 import { Bookstore as Bookshop, Feature } from "@shared/schema";
 import { MapPin, Map, Sparkles } from "lucide-react";
 import BookshopIcon from "@/components/BookshopIcon";
@@ -116,15 +116,73 @@ const getHeroImageUrl = (bookshop: Bookshop): string => {
 };
 
 const Home = () => {
-  // Fetch all bookshops
+  const queryClient = useQueryClient();
+  const featuredSectionRef = useRef<HTMLElement>(null);
+  const browseByStateRef = useRef<HTMLElement>(null);
+  
+  // Prefetch data immediately on mount for better performance
+  useEffect(() => {
+    // Prefetch both endpoints in parallel - this starts fetching immediately
+    const prefetchBookshops = queryClient.prefetchQuery<Bookshop[]>({
+      queryKey: ["/api/bookstores"],
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+    const prefetchFeatures = queryClient.prefetchQuery<Feature[]>({
+      queryKey: ["/api/features"],
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+    
+    // Don't await - let them fetch in parallel
+    Promise.all([prefetchBookshops, prefetchFeatures]).catch(() => {
+      // Silently handle errors - the useQuery hooks will handle retries
+    });
+  }, [queryClient]);
+  
+  // Fetch all bookshops - will use prefetched data if available
   const { data: bookshops, isLoading } = useQuery<Bookshop[]>({
     queryKey: ["/api/bookstores"],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 
-  // Fetch features for the bookshop cards
+  // Fetch features for the bookshop cards - will use prefetched data if available
   const { data: features } = useQuery<Feature[]>({
     queryKey: ["/api/features"],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
+  
+  // Prefetch images for featured bookshops when section is about to be visible
+  useEffect(() => {
+    if (!featuredSectionRef.current || !bookshops || bookshops.length === 0) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Prefetch images for featured bookshops
+            const featured = bookshops.slice(0, 6);
+            featured.forEach((bookshop) => {
+              const imageUrl = getHeroImageUrl(bookshop);
+              if (imageUrl && !imageUrl.startsWith('data:')) {
+                const link = document.createElement('link');
+                link.rel = 'prefetch';
+                link.as = 'image';
+                link.href = imageUrl;
+                document.head.appendChild(link);
+              }
+            });
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: '200px' } // Start prefetching 200px before section is visible
+    );
+    
+    observer.observe(featuredSectionRef.current);
+    
+    return () => observer.disconnect();
+  }, [bookshops]);
   
   // SEO metadata for the homepage
   const seoTitle = useMemo(() => {
@@ -381,7 +439,7 @@ const Home = () => {
       </section>
       
       {/* Featured Bookshops Section - Updated */}
-      <section id="featured-bookshops" className="py-8 md:py-12">
+      <section id="featured-bookshops" ref={featuredSectionRef} className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg p-6 md:p-8">
             <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 pt-8 md:pt-6 shadow-sm bg-[#2A6B7C]/5">
@@ -395,8 +453,22 @@ const Home = () => {
               </p>
             
               {isLoading ? (
-                <div className="text-center py-10">
-                  <p className="text-base">Loading featured bookshops...</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                      <div className="w-full h-36 sm:h-40 md:h-48 bg-gray-200" />
+                      <div className="p-4 md:p-5">
+                        <div className="h-6 bg-gray-200 rounded mb-2" />
+                        <div className="h-4 bg-gray-200 rounded mb-3 w-2/3" />
+                        <div className="h-4 bg-gray-200 rounded mb-2" />
+                        <div className="h-4 bg-gray-200 rounded mb-2 w-5/6" />
+                        <div className="flex gap-2 mt-3">
+                          <div className="h-6 w-20 bg-gray-200 rounded-full" />
+                          <div className="h-6 w-24 bg-gray-200 rounded-full" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
@@ -420,6 +492,7 @@ const Home = () => {
                             alt={bookshop.name}
                             className="w-full h-36 sm:h-40 md:h-48 object-cover cursor-pointer" 
                             loading="lazy"
+                            fetchPriority="high"
                             onError={(e) => {
                               // Fallback to Unsplash stock photo if image fails to load
                               e.currentTarget.src = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600';
@@ -455,7 +528,7 @@ const Home = () => {
       </section>
       
       {/* Browse by State Section */}
-      <section id="browse-by-state" className="py-8 md:py-12">
+      <section id="browse-by-state" ref={browseByStateRef} className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
             <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 pt-8">
@@ -467,8 +540,13 @@ const Home = () => {
             
             <div className="mt-2 md:mt-0">
               {isLoading ? (
-                <div className="text-center py-10">
-                  <p className="text-base">Loading states...</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                    <div key={i} className="flex items-center gap-2 animate-pulse">
+                      <div className="w-6 h-4 bg-gray-200 rounded-sm flex-shrink-0" />
+                      <div className="h-5 bg-gray-200 rounded flex-1" />
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="flex flex-col space-y-6">
