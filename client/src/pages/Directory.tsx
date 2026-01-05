@@ -244,20 +244,24 @@ const Directory = () => {
     queryKey: ["/api/features"],
   });
 
-  // Parse URL query parameters and apply filters on mount
-  // Only run when location pathname changes (not on every filter change)
+  // Parse URL query parameters and apply filters on mount and when URL changes
+  // Read directly from window.location.search since wouter's location doesn't include query string
+  const lastProcessedSearchRef = useRef<string>('');
+  const [urlSearchKey, setUrlSearchKey] = useState(0); // Force re-render when URL changes
+  
   useEffect(() => {
     if (bookshops.length === 0 || features.length === 0) return; // Wait for data to load
     
-    const urlParams = new URLSearchParams(window.location.search);
+    const currentSearch = window.location.search;
+    const urlParams = new URLSearchParams(currentSearch);
     
     // Parse state parameter
     const stateParam = urlParams.get('state');
     if (stateParam) {
       const stateAbbr = normalizeStateToAbbreviation(stateParam) || stateParam.toUpperCase();
-      // Validate state exists in our data
-      const validStates = new Set(bookshops.map(b => b.state).filter(Boolean));
-      if (validStates.has(stateAbbr) && selectedState !== stateAbbr) {
+      // Always set the state if we have a valid abbreviation
+      // The filter will handle matching regardless of how states are stored in the data
+      if (stateAbbr && selectedState !== stateAbbr) {
         setSelectedState(stateAbbr);
       }
     } else if (selectedState !== "all") {
@@ -267,8 +271,9 @@ const Directory = () => {
     
     // Parse city parameter (requires state to be set first)
     const cityParam = urlParams.get('city');
-    if (cityParam && stateParam) {
-      const stateAbbr = normalizeStateToAbbreviation(stateParam) || stateParam.toUpperCase();
+    const stateParamForCity = urlParams.get('state');
+    if (cityParam && stateParamForCity) {
+      const stateAbbr = normalizeStateToAbbreviation(stateParamForCity) || stateParamForCity.toUpperCase();
       // Find matching city in the format "City|State"
       const cityKey = `${cityParam}${LOCATION_DELIMITER}${stateAbbr}`;
       const validCities = new Set(
@@ -293,8 +298,9 @@ const Directory = () => {
     
     // Parse county parameter (requires state to be set first)
     const countyParam = urlParams.get('county');
-    if (countyParam && stateParam) {
-      const stateAbbr = normalizeStateToAbbreviation(stateParam) || stateParam.toUpperCase();
+    const stateParamForCounty = urlParams.get('state');
+    if (countyParam && stateParamForCounty) {
+      const stateAbbr = normalizeStateToAbbreviation(stateParamForCounty) || stateParamForCounty.toUpperCase();
       // Find matching county in the format "County|State"
       const countyKey = `${countyParam}${LOCATION_DELIMITER}${stateAbbr}`;
       const validCounties = new Set(
@@ -340,7 +346,29 @@ const Directory = () => {
       // Clear features if not in URL
       setSelectedFeatures([]);
     }
-  }, [location]); // Only re-run when location changes (user navigation)
+    
+    // Update ref after processing
+    lastProcessedSearchRef.current = currentSearch;
+  }, [location, bookshops, features, urlSearchKey]); // Re-run when location, data, or URL search changes
+  
+  // Also check for URL changes periodically (for when Link components navigate with query params)
+  useEffect(() => {
+    const checkUrl = () => {
+      const currentSearch = window.location.search;
+      if (currentSearch !== lastProcessedSearchRef.current) {
+        // Force re-run of the main effect by updating the key
+        setUrlSearchKey(prev => prev + 1);
+      }
+    };
+    
+    const interval = setInterval(checkUrl, 100);
+    window.addEventListener('popstate', checkUrl);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('popstate', checkUrl);
+    };
+  }, []);
 
   // Update URL when filters change (for bookmarking/sharing)
   // Skip if we're currently parsing URL params to avoid loops
@@ -523,9 +551,20 @@ const Directory = () => {
       }
     }
 
-    // State filter
+    // State filter - handle both abbreviations and full names
     if (selectedState !== "all") {
-      filtered = filtered.filter(b => b.state === selectedState);
+      filtered = filtered.filter(b => {
+        if (!b.state) return false;
+        // Direct match (case-insensitive)
+        if (b.state.toUpperCase() === selectedState.toUpperCase()) return true;
+        // Check if selectedState is abbreviation and b.state is full name
+        const fullName = stateMap[selectedState.toUpperCase()];
+        if (fullName && b.state === fullName) return true;
+        // Check if b.state is abbreviation and selectedState is full name
+        const bookshopFullName = stateMap[b.state.toUpperCase()];
+        if (bookshopFullName && bookshopFullName === selectedState) return true;
+        return false;
+      });
     }
 
     // City filter - safe parsing with delimiter

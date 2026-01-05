@@ -559,7 +559,7 @@ const Home = () => {
                       {stateData.usStates.map(state => (
                         <Link 
                           key={state.abbreviation} 
-                          href={`/directory/state/${state.abbreviation}`}
+                          href={`/directory?state=${state.abbreviation}`}
                           className="flex items-center gap-2 font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors"
                         >
                           <img 
@@ -595,7 +595,7 @@ const Home = () => {
                         {stateData.otherRegions.map(region => (
                           <Link 
                             key={region.abbreviation} 
-                            href={`/directory/state/${region.abbreviation}`}
+                            href={`/directory?state=${region.abbreviation}`}
                             className="flex items-center gap-2 font-serif font-bold text-[#2A6B7C] hover:text-[#E16D3D] transition-colors"
                           >
                             <img 
