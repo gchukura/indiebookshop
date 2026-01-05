@@ -680,13 +680,13 @@ const Home = () => {
       <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
-            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 pt-8">
+            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 lg:p-8 pt-8 md:pt-10">
               <div className="absolute -top-4 md:-top-5 left-0 w-full flex justify-center px-2">
                 <h2 className="inline-block bg-[#F7F3E8] px-2 md:px-5 text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] text-center">
                   America's Most Comprehensive Independent Bookshop Directory
                 </h2>
               </div>
-              <div className="prose prose-lg prose-p:text-gray-700 mx-auto mt-2 md:mt-0">
+              <div className="prose prose-lg prose-p:text-gray-700 max-w-none mx-auto mt-4 md:mt-6">
                 <p>
                   IndiebookShop.com features over 3,000 independent bookshops across all 50 states - the most comprehensive 
                   directory of indie bookshops available. Our searchable database connects book lovers with local independent 
