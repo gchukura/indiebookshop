@@ -6,7 +6,7 @@
  * not on every page load.
  */
 
-import { useState, useEffect } from 'react';
+import * as React from 'react';
 
 let mapboxCssLoaded = false;
 let mapboxCssLoading = false;
@@ -73,10 +73,10 @@ export function loadMapboxCss(): Promise<void> {
  * Usage: useMapboxCss() in map components
  */
 export function useMapboxCss() {
-  const [loaded, setLoaded] = useState(mapboxCssLoaded);
-  const [error, setError] = useState<Error | null>(null);
+  const [loaded, setLoaded] = React.useState(mapboxCssLoaded);
+  const [error, setError] = React.useState<Error | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (mapboxCssLoaded) {
       setLoaded(true);
       return;
