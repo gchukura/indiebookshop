@@ -1,17 +1,16 @@
 /**
- * Shared utility functions used across server and client
- * These functions must be identical on both sides to ensure consistency
+ * Shared utility functions used across server and client code
+ * These functions are kept in sync to ensure consistency
  */
 
 /**
- * Generate a clean slug from a bookshop name
- * This function must match exactly between server and client implementations
+ * Generate a URL-friendly slug from a bookshop name
+ * This function must match the client-side implementation exactly
  * 
- * @param name The bookshop name
- * @returns A URL-friendly slug
+ * @param name - The bookshop name to convert to a slug
+ * @returns A URL-friendly slug (e.g., "Powell's Books" → "powells-books")
  */
 export function generateSlugFromName(name: string): string {
-  // Handle null/undefined/empty names defensively
   if (!name || typeof name !== 'string') {
     return '';
   }
@@ -28,8 +27,8 @@ export function generateSlugFromName(name: string): string {
 /**
  * Escape HTML entities to prevent XSS and ensure valid HTML
  * 
- * @param text The text to escape
- * @returns Escaped HTML string
+ * @param text - The text to escape
+ * @returns Escaped HTML-safe text
  */
 export function escapeHtml(text: string): string {
   if (!text || typeof text !== 'string') {
