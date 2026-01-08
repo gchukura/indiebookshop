@@ -32,43 +32,25 @@ export default defineConfig({
     minify: 'esbuild', // Use esbuild for faster builds (terser requires additional dependency)
     rollupOptions: {
       output: {
-        // Optimize chunk splitting for better caching and smaller initial bundles
+        // Simplified chunk splitting to prevent React undefined errors
+        // Keep React in main bundle to ensure it's always available
         manualChunks: (id) => {
-          // Split vendor libraries into separate chunks
+          // Only split very large vendor libraries
           if (id.includes('node_modules')) {
+            // Keep React in main bundle to prevent undefined errors
             if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor-react';
+              return undefined; // Keep in main bundle
             }
-            if (id.includes('wouter')) {
-              return 'vendor-router';
-            }
-            if (id.includes('@tanstack/react-query')) {
-              return 'vendor-query';
-            }
+            // Split only the largest libraries
             if (id.includes('mapbox') || id.includes('react-map-gl')) {
               return 'vendor-map';
             }
-            // Other vendor libraries
-            return 'vendor';
+            // Keep everything else in main bundle for now
+            // This ensures React is always available when needed
+            return undefined;
           }
-          // Ensure files using React.useState are in main bundle
-          // This prevents React from being undefined in vendor chunks
-          // Files using "import * as React" and "React.useState" need React available
-          if (id.includes('client/src')) {
-            // Keep all hooks in main bundle to ensure React is available
-            if (id.includes('/hooks/')) {
-              return undefined;
-            }
-            // Keep UI components that use React.useState in main bundle
-            if (id.includes('/components/ui/') && (
-              id.includes('use-toast') || 
-              id.includes('use-mobile') ||
-              id.includes('sidebar') ||
-              id.includes('carousel')
-            )) {
-              return undefined;
-            }
-          }
+          // Keep all source files in main bundle
+          return undefined;
         },
         // Optimize asset file names for better caching
         assetFileNames: (assetInfo) => {
