@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef, useEffect, Component, ReactNode, startTransition } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect, Component, ReactNode, startTransition, useDeferredValue } from "react";
 import { Search, MapPin, Filter, X, ChevronDown, ChevronLeft, ChevronRight, Crosshair, Loader2, AlertCircle } from "lucide-react";
 // react-map-gl v8 uses /mapbox subpath
 import Map from "react-map-gl/mapbox";
@@ -829,10 +829,14 @@ const Directory = () => {
     }, 100);
   }, [updateMapBounds]);
 
-  // Search current map area - optimized to prevent blocking
-  const searchThisArea = useCallback(() => {
+  // Search current map area - optimized for INP
+  const searchThisArea = useCallback((e?: React.MouseEvent) => {
+    // Prevent event bubbling to avoid any parent handlers
+    e?.stopPropagation();
+    e?.preventDefault();
+    
     // Use startTransition to mark this as non-urgent
-    // This prevents blocking the UI thread
+    // This allows React to yield to user interactions
     startTransition(() => {
       setShowSearchThisArea(false);
     });
@@ -1209,8 +1213,9 @@ const Directory = () => {
             <Button
               onClick={searchThisArea}
               className="bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white rounded-full shadow-lg px-6 py-3 font-sans font-semibold"
+              style={{ willChange: 'opacity' }}
             >
-              <Search className="w-4 h-4 mr-2" />
+              <Search className="w-4 h-4 mr-2" style={{ pointerEvents: 'none' }} />
               Search this area
             </Button>
           </div>
