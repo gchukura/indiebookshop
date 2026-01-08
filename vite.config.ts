@@ -51,6 +51,12 @@ export default defineConfig({
             // Other vendor libraries
             return 'vendor';
           }
+          // Ensure files using React.useState are in main bundle or vendor-react
+          // This prevents React from being undefined in vendor chunks
+          if (id.includes('client/src') && (id.includes('use-mobile') || id.includes('use-toast'))) {
+            // Keep React-dependent hooks in main bundle to ensure React is available
+            return undefined;
+          }
         },
         // Optimize asset file names for better caching
         assetFileNames: (assetInfo) => {
