@@ -2,7 +2,13 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
+  content: [
+    "./client/index.html", 
+    "./client/src/**/*.{js,jsx,ts,tsx}",
+    // Ensure all potential content sources are included for proper CSS purging
+    "./server/**/*.{ts,js}",
+    "./api/**/*.{js}",
+  ],
   theme: {
     extend: {
       fontFamily: {

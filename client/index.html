@@ -41,8 +41,7 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <!-- Mapbox CSS -->
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+    <!-- Mapbox CSS is now lazy-loaded when maps are rendered (see client/src/lib/mapboxCssLoader.ts) -->
     
     <!-- Prefetch API endpoints for homepage below-the-fold content -->
     <link rel="prefetch" href="/api/bookstores" as="fetch" crossorigin="anonymous" />

@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { COLORS } from '@/lib/constants';
 import { logger } from '@/lib/logger';
 import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import { useMapboxCss } from '@/lib/mapboxCssLoader';
 
 interface SingleLocationMapProps {
   latitude?: string | null;
@@ -14,9 +14,20 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  
+  // Lazy load Mapbox CSS
+  const { loaded: cssLoaded, error: cssError } = useMapboxCss();
 
-  // Initialize map
+  // Initialize map (only after CSS is loaded)
   useEffect(() => {
+    // Wait for CSS to load
+    if (!cssLoaded) {
+      if (cssError) {
+        setMapError('Failed to load map styles. Please refresh the page.');
+      }
+      return;
+    }
+    
     // Don't initialize if map already exists or container doesn't exist
     if (!mapContainerRef.current || mapRef.current) return;
     
@@ -141,7 +152,7 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
         mapRef.current = null;
       }
     };
-  }, [latitude, longitude]);
+  }, [latitude, longitude, cssLoaded, cssError]);
 
   // If no coordinates are available, show a message
   if (!latitude || !longitude) {

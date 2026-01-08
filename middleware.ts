@@ -189,6 +189,8 @@ const DESCRIPTION_TEMPLATE = '{name} is an independent bookshop in {city}, {stat
 
 /**
  * Generate a slug from a bookshop name (must match client-side logic)
+ * Note: This is kept local to middleware.ts because Edge Middleware has import limitations
+ * It must match the implementation in shared/utils.ts exactly
  */
 function generateSlugFromName(name: string): string {
   if (!name || typeof name !== 'string') {
@@ -202,6 +204,39 @@ function generateSlugFromName(name: string): string {
     .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
     .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
     .trim();                  // Trim leading/trailing spaces
+}
+
+/**
+ * Try to find a bookshop by trying different slug variations
+ * This handles location variants like "powells-books-portland" by trying:
+ * 1. Full slug
+ * 2. Remove last part (portland) → "powells-books"
+ * 3. Remove another part → "powells"
+ * etc.
+ */
+async function findBookshopBySlugVariations(slug: string): Promise<{ bookshop: any; matchedSlug: string } | null> {
+  // Try the full slug first
+  let bookshop = await fetchBookshopBySlug(slug);
+  if (bookshop) {
+    return { bookshop, matchedSlug: slug };
+  }
+
+  // If not found, try progressively removing parts from the end
+  // This handles location variants like "powells-books-portland"
+  const parts = slug.split('-');
+  
+  // Try removing parts from the end (city name, etc.)
+  for (let i = parts.length - 1; i >= 1; i--) {
+    const baseSlug = parts.slice(0, i).join('-');
+    if (baseSlug && baseSlug.length > 0) {
+      bookshop = await fetchBookshopBySlug(baseSlug);
+      if (bookshop) {
+        return { bookshop, matchedSlug: baseSlug };
+      }
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -392,28 +427,67 @@ export async function middleware(request: Request) {
   const url = new URL(request.url);
   const pathname = url.pathname;
   
-  // Handle meta tag injection for /bookshop/* routes
+  // Handle meta tag injection and location variant redirects for /bookshop/* routes
   if (pathname.startsWith('/bookshop/')) {
-    const slug = pathname.split('/').pop();
+    const requestedSlug = pathname.split('/').pop();
     
-    if (!slug) {
+    if (!requestedSlug) {
+      return new Response(null, { status: 200 });
+    }
+    
+    // Skip if it's numeric (handled by client-side redirect)
+    if (/^\d+$/.test(requestedSlug)) {
       return new Response(null, { status: 200 });
     }
     
     // OPTIMIZATION: Check cache first
-    let bookshop = getCachedBookshop(slug);
+    let bookshop = getCachedBookshop(requestedSlug);
+    let foundViaLocationVariant = false;
     
     if (!bookshop) {
-      // Fetch bookshop data from Supabase
-      bookshop = await fetchBookshopBySlug(slug);
-      
-      if (!bookshop) {
-        // Bookshop not found - pass through to 404
-        return new Response(null, { status: 200 });
+      // Check if this looks like a location variant (has multiple hyphens)
+      // Location variants typically have 2+ parts: "name-city" or "name-books-city"
+      const parts = requestedSlug.split('-');
+      if (parts.length >= 2) {
+        try {
+          // Try to find the bookshop by slug variations
+          const result = await findBookshopBySlugVariations(requestedSlug);
+          
+          if (result) {
+            const { bookshop: matchedBookshop, matchedSlug } = result;
+            const canonicalSlug = generateSlugFromName(matchedBookshop.name);
+            
+            // If the requested slug doesn't match the canonical slug, redirect
+            if (canonicalSlug && requestedSlug !== canonicalSlug) {
+              const canonicalUrl = `${url.origin}/bookshop/${canonicalSlug}`;
+              console.log(`[Edge Middleware] Location variant redirect: ${pathname} → ${canonicalUrl}`);
+              return Response.redirect(canonicalUrl, 301);
+            }
+            
+            // Use the matched bookshop for meta tags
+            bookshop = matchedBookshop;
+            foundViaLocationVariant = true;
+            // Cache it with the requested slug for future lookups
+            setCachedBookshop(requestedSlug, bookshop);
+          }
+        } catch (error) {
+          // If lookup fails, continue - try direct lookup
+          console.error('[Edge Middleware] Error looking up bookshop for location variant redirect:', error);
+        }
       }
       
-      // Cache the result
-      setCachedBookshop(slug, bookshop);
+      // If not found via location variant, try direct lookup
+      if (!bookshop) {
+        bookshop = await fetchBookshopBySlug(requestedSlug);
+        
+        if (!bookshop) {
+          // Bookshop not found - pass through to 404
+          return new Response(null, { status: 200 });
+        }
+        
+        // Cache the result
+        setCachedBookshop(requestedSlug, bookshop);
+      }
     }
     
     // Generate meta tags
