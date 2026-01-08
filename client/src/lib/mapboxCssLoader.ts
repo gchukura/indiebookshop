@@ -6,14 +6,13 @@
  * not on every page load.
  */
 
-import * as React from 'react';
-
 let mapboxCssLoaded = false;
-let mapboxCssLoading = false;
+let mapboxCssLoading: Promise<void> | null = null;
 
 /**
  * Dynamically load Mapbox CSS if not already loaded
  * This function is idempotent - safe to call multiple times
+ * Returns a promise that resolves when CSS is loaded
  */
 export function loadMapboxCss(): Promise<void> {
   // If already loaded, return immediately
@@ -21,27 +20,18 @@ export function loadMapboxCss(): Promise<void> {
     return Promise.resolve();
   }
 
-  // If currently loading, wait for the existing promise
+  // If currently loading, return the existing promise
   if (mapboxCssLoading) {
-    return new Promise((resolve) => {
-      const checkInterval = setInterval(() => {
-        if (mapboxCssLoaded) {
-          clearInterval(checkInterval);
-          resolve();
-        }
-      }, 50);
-    });
+    return mapboxCssLoading;
   }
 
   // Start loading
-  mapboxCssLoading = true;
-
-  return new Promise((resolve, reject) => {
+  mapboxCssLoading = new Promise((resolve, reject) => {
     // Check if link already exists (from index.html or previous load)
     const existingLink = document.querySelector('link[href*="mapbox-gl.css"]');
     if (existingLink) {
       mapboxCssLoaded = true;
-      mapboxCssLoading = false;
+      mapboxCssLoading = null;
       resolve();
       return;
     }
@@ -54,44 +44,18 @@ export function loadMapboxCss(): Promise<void> {
 
     link.onload = () => {
       mapboxCssLoaded = true;
-      mapboxCssLoading = false;
+      mapboxCssLoading = null;
       resolve();
     };
 
     link.onerror = () => {
-      mapboxCssLoading = false;
+      mapboxCssLoading = null;
       reject(new Error('Failed to load Mapbox CSS'));
     };
 
     // Append to head
     document.head.appendChild(link);
   });
-}
 
-/**
- * Hook to load Mapbox CSS in React components
- * Usage: useMapboxCss() in map components
- */
-export function useMapboxCss() {
-  const [loaded, setLoaded] = React.useState(mapboxCssLoaded);
-  const [error, setError] = React.useState<Error | null>(null);
-
-  React.useEffect(() => {
-    if (mapboxCssLoaded) {
-      setLoaded(true);
-      return;
-    }
-
-    loadMapboxCss()
-      .then(() => {
-        setLoaded(true);
-        setError(null);
-      })
-      .catch((err) => {
-        setError(err instanceof Error ? err : new Error('Failed to load Mapbox CSS'));
-        setLoaded(false);
-      });
-  }, []);
-
-  return { loaded, error };
+  return mapboxCssLoading;
 }

@@ -3,7 +3,7 @@ import { Bookstore as Bookshop } from '@shared/schema';
 import { COLORS, MAP } from '@/lib/constants';
 import { logger } from '@/lib/logger';
 import mapboxgl from 'mapbox-gl';
-import { useMapboxCss } from '@/lib/mapboxCssLoader';
+import { loadMapboxCss } from '@/lib/mapboxCssLoader';
 
 interface MapboxMapProps {
   bookstores: Bookshop[];
@@ -16,9 +16,8 @@ const MapboxMap = ({ bookstores, onSelectBookshop }: MapboxMapProps) => {
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
-  
-  // Lazy load Mapbox CSS
-  const { loaded: cssLoaded, error: cssError } = useMapboxCss();
+  const [cssLoaded, setCssLoaded] = useState(false);
+  const [cssError, setCssError] = useState<Error | null>(null);
 
   // Clear existing markers
   const clearMarkers = useCallback(() => {
@@ -32,6 +31,19 @@ const MapboxMap = ({ bookstores, onSelectBookshop }: MapboxMapProps) => {
       });
       markersRef.current = [];
     }
+  }, []);
+
+  // Load Mapbox CSS first
+  useEffect(() => {
+    loadMapboxCss()
+      .then(() => {
+        setCssLoaded(true);
+        setCssError(null);
+      })
+      .catch((err) => {
+        setCssError(err instanceof Error ? err : new Error('Failed to load Mapbox CSS'));
+        setCssLoaded(false);
+      });
   }, []);
 
   // Initialize map (only after CSS is loaded)

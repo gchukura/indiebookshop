@@ -16,7 +16,7 @@ import { DIRECTORY_MAP, CLUSTER_CONFIG, PANEL_CONFIG, LOCATION_DELIMITER } from 
 import { logger } from "@/lib/logger";
 import { stateMap, stateNameMap, normalizeStateToAbbreviation } from "@/lib/stateUtils";
 import { supabase } from "@/lib/supabase";
-import { useMapboxCss } from "@/lib/mapboxCssLoader";
+import { loadMapboxCss } from "@/lib/mapboxCssLoader";
 import {
   MobileViewToggle,
   MobileFilterBar,
@@ -113,7 +113,11 @@ const Directory = () => {
   const [location] = useLocation();
   
   // Lazy load Mapbox CSS (only loads when map is rendered)
-  useMapboxCss();
+  useEffect(() => {
+    loadMapboxCss().catch((err) => {
+      logger.error('Failed to load Mapbox CSS', err);
+    });
+  }, []);
   
   // State management
   const [searchQuery, setSearchQuery] = useState("");
