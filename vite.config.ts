@@ -34,6 +34,11 @@ export default defineConfig({
       output: {
         // Optimize chunk splitting for better caching and smaller initial bundles
         manualChunks: (id) => {
+          // Ensure our utility files stay in main bundle, not vendor
+          if (id.includes('client/src/lib/mapboxCssLoader')) {
+            return undefined; // Keep in main bundle
+          }
+          
           // Split vendor libraries into separate chunks
           if (id.includes('node_modules')) {
             if (id.includes('react') || id.includes('react-dom')) {

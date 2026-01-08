@@ -4,6 +4,9 @@
  * 
  * Mapbox CSS is only loaded when a map component is actually rendered,
  * not on every page load.
+ * 
+ * NOTE: This file must NOT import React to avoid bundling issues.
+ * Components handle React state themselves.
  */
 
 let mapboxCssLoaded = false;
