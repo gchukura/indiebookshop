@@ -51,11 +51,23 @@ export default defineConfig({
             // Other vendor libraries
             return 'vendor';
           }
-          // Ensure files using React.useState are in main bundle or vendor-react
+          // Ensure files using React.useState are in main bundle
           // This prevents React from being undefined in vendor chunks
-          if (id.includes('client/src') && (id.includes('use-mobile') || id.includes('use-toast'))) {
-            // Keep React-dependent hooks in main bundle to ensure React is available
-            return undefined;
+          // Files using "import * as React" and "React.useState" need React available
+          if (id.includes('client/src')) {
+            // Keep all hooks in main bundle to ensure React is available
+            if (id.includes('/hooks/')) {
+              return undefined;
+            }
+            // Keep UI components that use React.useState in main bundle
+            if (id.includes('/components/ui/') && (
+              id.includes('use-toast') || 
+              id.includes('use-mobile') ||
+              id.includes('sidebar') ||
+              id.includes('carousel')
+            )) {
+              return undefined;
+            }
           }
         },
         // Optimize asset file names for better caching
