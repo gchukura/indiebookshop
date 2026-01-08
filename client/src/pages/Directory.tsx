@@ -461,13 +461,20 @@ const Directory = () => {
     });
   }, [bookshops]);
 
-  // Filter bookshops
+  // Defer expensive filter computations to improve INP
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+  const deferredSelectedState = useDeferredValue(selectedState);
+  const deferredSelectedCity = useDeferredValue(selectedCity);
+  const deferredSelectedCounty = useDeferredValue(selectedCounty);
+  const deferredSelectedFeatures = useDeferredValue(selectedFeatures);
+  
+  // Filter bookshops (using deferred values for non-urgent filtering)
   const filteredBookshops = useMemo(() => {
     let filtered = sortedBookshops;
 
-    // Search filter - intelligent matching
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase().trim();
+    // Search filter - intelligent matching (using deferred value)
+    if (deferredSearchQuery) {
+      const query = deferredSearchQuery.toLowerCase().trim();
       
       // Check if query matches a state (handles both full names and abbreviations)
       let matchedState: string | null = null;
@@ -551,48 +558,48 @@ const Directory = () => {
       }
     }
 
-    // State filter - handle both abbreviations and full names
-    if (selectedState !== "all") {
+    // State filter - handle both abbreviations and full names (using deferred value)
+    if (deferredSelectedState !== "all") {
       filtered = filtered.filter(b => {
         if (!b.state) return false;
         // Direct match (case-insensitive)
-        if (b.state.toUpperCase() === selectedState.toUpperCase()) return true;
+        if (b.state.toUpperCase() === deferredSelectedState.toUpperCase()) return true;
         // Check if selectedState is abbreviation and b.state is full name
-        const fullName = stateMap[selectedState.toUpperCase()];
+        const fullName = stateMap[deferredSelectedState.toUpperCase()];
         if (fullName && b.state === fullName) return true;
         // Check if b.state is abbreviation and selectedState is full name
         const bookshopFullName = stateMap[b.state.toUpperCase()];
-        if (bookshopFullName && bookshopFullName === selectedState) return true;
+        if (bookshopFullName && bookshopFullName === deferredSelectedState) return true;
         return false;
       });
     }
 
-    // City filter - safe parsing with delimiter
-    if (selectedCity !== "all") {
-      const [city, state] = selectedCity.split(LOCATION_DELIMITER);
+    // City filter - safe parsing with delimiter (using deferred value)
+    if (deferredSelectedCity !== "all") {
+      const [city, state] = deferredSelectedCity.split(LOCATION_DELIMITER);
       if (city && state) {
         filtered = filtered.filter(b => b.city === city && b.state === state);
       }
     }
 
-    // County filter - safe parsing with delimiter
-    if (selectedCounty !== "all") {
-      const [county, state] = selectedCounty.split(LOCATION_DELIMITER);
+    // County filter - safe parsing with delimiter (using deferred value)
+    if (deferredSelectedCounty !== "all") {
+      const [county, state] = deferredSelectedCounty.split(LOCATION_DELIMITER);
       if (county && state) {
         filtered = filtered.filter(b => b.county === county && b.state === state);
       }
     }
 
-    // Feature filters (using featureIds)
-    if (selectedFeatures.length > 0) {
+    // Feature filters (using featureIds, using deferred value)
+    if (deferredSelectedFeatures.length > 0) {
       filtered = filtered.filter(b => {
         if (!b.featureIds || !Array.isArray(b.featureIds)) return false;
-        return selectedFeatures.some(featureId => b.featureIds!.includes(featureId));
+        return deferredSelectedFeatures.some(featureId => b.featureIds!.includes(featureId));
       });
     }
 
     return filtered;
-  }, [sortedBookshops, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures, states]);
+  }, [sortedBookshops, deferredSearchQuery, deferredSelectedState, deferredSelectedCity, deferredSelectedCounty, deferredSelectedFeatures, states]);
 
   // Create cluster index
   const { clusterInstance, points } = useMemo(() => {
