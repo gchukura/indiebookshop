@@ -16,6 +16,7 @@ import { DIRECTORY_MAP, CLUSTER_CONFIG, PANEL_CONFIG, LOCATION_DELIMITER } from 
 import { logger } from "@/lib/logger";
 import { stateMap, stateNameMap, normalizeStateToAbbreviation } from "@/lib/stateUtils";
 import { supabase } from "@/lib/supabase";
+import "mapbox-gl/dist/mapbox-gl.css";
 import {
   MobileViewToggle,
   MobileFilterBar,

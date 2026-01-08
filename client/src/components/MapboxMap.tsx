@@ -3,6 +3,7 @@ import { Bookstore as Bookshop } from '@shared/schema';
 import { COLORS, MAP } from '@/lib/constants';
 import { logger } from '@/lib/logger';
 import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface MapboxMapProps {
   bookstores: Bookshop[];

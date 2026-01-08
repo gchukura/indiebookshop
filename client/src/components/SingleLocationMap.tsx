@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { COLORS } from '@/lib/constants';
 import { logger } from '@/lib/logger';
 import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface SingleLocationMapProps {
   latitude?: string | null;
