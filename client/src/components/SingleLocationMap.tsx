@@ -2,7 +2,6 @@ import { useRef, useEffect, useState } from 'react';
 import { COLORS } from '@/lib/constants';
 import { logger } from '@/lib/logger';
 import mapboxgl from 'mapbox-gl';
-import { loadMapboxCss } from '@/lib/mapboxCssLoader';
 
 interface SingleLocationMapProps {
   latitude?: string | null;
@@ -14,32 +13,9 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
-  const [cssLoaded, setCssLoaded] = useState(false);
-  const [cssError, setCssError] = useState<Error | null>(null);
 
-  // Load Mapbox CSS first
+  // Initialize map
   useEffect(() => {
-    loadMapboxCss()
-      .then(() => {
-        setCssLoaded(true);
-        setCssError(null);
-      })
-      .catch((err) => {
-        setCssError(err instanceof Error ? err : new Error('Failed to load Mapbox CSS'));
-        setCssLoaded(false);
-      });
-  }, []);
-
-  // Initialize map (only after CSS is loaded)
-  useEffect(() => {
-    // Wait for CSS to load
-    if (!cssLoaded) {
-      if (cssError) {
-        setMapError('Failed to load map styles. Please refresh the page.');
-      }
-      return;
-    }
-    
     // Don't initialize if map already exists or container doesn't exist
     if (!mapContainerRef.current || mapRef.current) return;
     
@@ -164,7 +140,7 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
         mapRef.current = null;
       }
     };
-  }, [latitude, longitude, cssLoaded, cssError]);
+  }, [latitude, longitude]);
 
   // If no coordinates are available, show a message
   if (!latitude || !longitude) {
