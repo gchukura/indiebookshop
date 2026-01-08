@@ -32,26 +32,9 @@ export default defineConfig({
     minify: 'esbuild', // Use esbuild for faster builds (terser requires additional dependency)
     rollupOptions: {
       output: {
-        // Simplified chunk splitting to prevent React undefined errors
-        // Keep React in main bundle to ensure it's always available
-        manualChunks: (id) => {
-          // Only split very large vendor libraries
-          if (id.includes('node_modules')) {
-            // Keep React in main bundle to prevent undefined errors
-            if (id.includes('react') || id.includes('react-dom')) {
-              return undefined; // Keep in main bundle
-            }
-            // Split only the largest libraries
-            if (id.includes('mapbox') || id.includes('react-map-gl')) {
-              return 'vendor-map';
-            }
-            // Keep everything else in main bundle for now
-            // This ensures React is always available when needed
-            return undefined;
-          }
-          // Keep all source files in main bundle
-          return undefined;
-        },
+        // Disable manual chunking - let Vite handle it automatically
+        // This ensures proper dependency resolution and prevents React undefined errors
+        // manualChunks: undefined, // Let Vite auto-chunk based on dependencies
         // Optimize asset file names for better caching
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.');
