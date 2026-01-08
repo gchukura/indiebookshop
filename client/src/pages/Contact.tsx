@@ -283,6 +283,10 @@ const Contact = () => {
         keywords={seoKeywords}
 
         canonicalUrl={canonicalUrl}
+        ogImage={`${BASE_URL}/og-image.jpg`}
+        ogImageAlt="Contact IndiebookShop.com"
+        ogImageWidth={1200}
+        ogImageHeight={630}
 
       />
 
@@ -812,6 +816,35 @@ const Contact = () => {
 
         </div>
 
+      </section>
+
+      {/* Internal Links Section for SEO */}
+      <section className="py-8 md:py-12 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+              Explore Our Directory
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <a href="/" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
+                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Home</h3>
+                <p className="text-sm text-gray-600">Discover featured bookshops</p>
+              </a>
+              <a href="/directory" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
+                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Directory</h3>
+                <p className="text-sm text-gray-600">Browse all bookshops</p>
+              </a>
+              <a href="/submit-bookshop" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
+                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Submit Bookshop</h3>
+                <p className="text-sm text-gray-600">Add your bookshop</p>
+              </a>
+              <a href="/about" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
+                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">About</h3>
+                <p className="text-sm text-gray-600">Learn about us</p>
+              </a>
+            </div>
+          </div>
+        </div>
       </section>
 
     </>

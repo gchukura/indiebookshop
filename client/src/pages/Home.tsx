@@ -218,29 +218,95 @@ const Home = () => {
     return BASE_URL;
   }, []);
   
-  // Memoized featured bookshops - optimized single-pass algorithm
-  // Uses deterministic sorting to prevent SSR/client hydration mismatches
+  // Memoized featured bookshops - curated selection algorithm
+  // Selects diverse, high-quality bookshops for better user experience
   const featuredBookshops = useMemo((): Bookshop[] => {
     if (!bookshops || bookshops.length === 0) return [];
     
-    // Single pass: separate and sort in one operation
-    const withImages: Bookshop[] = [];
-    const withoutImages: Bookshop[] = [];
+    // Strategy: Create a curated mix of:
+    // 1. Highly-rated bookshops (4.5+ stars with 50+ reviews)
+    // 2. Bookshops with images (better visual appeal)
+    // 3. Geographic diversity (different states)
+    // 4. Bookshops with descriptions (more informative)
+    
+    // Separate into quality tiers
+    const highQuality: Bookshop[] = []; // Has image + (high rating OR description)
+    const goodQuality: Bookshop[] = []; // Has image OR (high rating + description)
+    const standard: Bookshop[] = []; // Everything else
+    
+    const seenSlugs = new Set<string>();
+    const seenStates = new Set<string>();
     
     for (const shop of bookshops) {
-      if (shop.imageUrl) {
-        withImages.push(shop);
+      // Skip duplicates (same slug)
+      const slug = generateSlugFromName(shop.name);
+      if (seenSlugs.has(slug)) continue;
+      seenSlugs.add(slug);
+      
+      const hasImage = !!shop.imageUrl;
+      const hasDescription = !!(shop.description && shop.description.trim().length > 50);
+      const rating = parseFloat(shop.googleRating || '0');
+      const reviewCount = shop.googleReviewCount || 0;
+      const isHighlyRated = rating >= 4.5 && reviewCount >= 50;
+      
+      // Categorize by quality
+      if (hasImage && (isHighlyRated || hasDescription)) {
+        highQuality.push(shop);
+      } else if (hasImage || (isHighlyRated && hasDescription)) {
+        goodQuality.push(shop);
       } else {
-        withoutImages.push(shop);
+        standard.push(shop);
       }
     }
     
-    // Sort deterministically by ID
-    withImages.sort((a, b) => a.id - b.id);
-    withoutImages.sort((a, b) => a.id - b.id);
+    // Sort each tier by quality metrics
+    const sortByQuality = (a: Bookshop, b: Bookshop) => {
+      const aRating = parseFloat(a.googleRating || '0');
+      const bRating = parseFloat(b.googleRating || '0');
+      const aReviews = a.googleReviewCount || 0;
+      const bReviews = b.googleReviewCount || 0;
+      
+      // Prioritize by rating, then review count
+      if (bRating !== aRating) return bRating - aRating;
+      return bReviews - aReviews;
+    };
     
-    // Combine: prioritize those with images, then add others to reach 6
-    return [...withImages, ...withoutImages].slice(0, 6);
+    highQuality.sort(sortByQuality);
+    goodQuality.sort(sortByQuality);
+    standard.sort(sortByQuality);
+    
+    // Build curated selection with geographic diversity
+    const selected: Bookshop[] = [];
+    const selectedStates = new Set<string>();
+    
+    // First pass: Select high-quality bookshops with geographic diversity
+    for (const shop of highQuality) {
+      if (selected.length >= 20) break;
+      const state = shop.state || '';
+      // Prefer shops from states we haven't shown yet
+      if (!selectedStates.has(state) || selected.length < 12) {
+        selected.push(shop);
+        if (state) selectedStates.add(state);
+      }
+    }
+    
+    // Second pass: Fill remaining slots with good quality
+    for (const shop of goodQuality) {
+      if (selected.length >= 20) break;
+      if (!selected.find(s => generateSlugFromName(s.name) === generateSlugFromName(shop.name))) {
+        selected.push(shop);
+      }
+    }
+    
+    // Third pass: Fill any remaining slots with standard quality
+    for (const shop of standard) {
+      if (selected.length >= 20) break;
+      if (!selected.find(s => generateSlugFromName(s.name) === generateSlugFromName(shop.name))) {
+        selected.push(shop);
+      }
+    }
+    
+    return selected.slice(0, 20);
   }, [bookshops]);
   
   // Pre-compute features map for O(1) lookup instead of O(n) filter
@@ -313,6 +379,10 @@ const Home = () => {
         description={seoDescription}
         keywords={seoKeywords}
         canonicalUrl={canonicalUrl}
+        ogImage={`${BASE_URL}/og-image.jpg`}
+        ogImageAlt="IndiebookShop - Discover Independent Bookshops Across America"
+        ogImageWidth={1200}
+        ogImageHeight={630}
       />
       
       {/* Hero Section - Updated */}
@@ -320,7 +390,7 @@ const Home = () => {
         <div className="container mx-auto">
           <div className="max-w-5xl mx-auto text-center">
             <h1 className="font-serif text-3xl md:text-4xl lg:text-display font-bold text-white mb-4 md:mb-6">
-              Find Independent Bookshops Across North America
+              Discover Independent Bookshops Across America
             </h1>
             <p className="font-sans text-base md:text-body-lg text-gray-100 mb-8 md:mb-10 max-w-4xl mx-auto px-4 md:px-2">
               Explore over 3,000 independent bookshops in all 50 U.S. states and Canada. Search by location, browse by specialty, or discover shops near you on our interactive map.
@@ -443,10 +513,12 @@ const Home = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-lg p-6 md:p-8">
             <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 pt-8 md:pt-6 shadow-sm bg-[#2A6B7C]/5">
-              <div className="absolute -top-4 md:-top-5 left-0 w-full flex justify-center px-2">
-                <h2 className="inline-block bg-white px-2 md:px-5 text-lg md:text-2xl lg:text-3xl font-serif font-bold text-[#5F4B32] text-center">
+              <div className="absolute -top-4 md:-top-5 left-0 w-full flex items-center justify-center px-2">
+                <div className="flex-1 h-0.5 bg-[#2A6B7C]"></div>
+                <h2 className="inline-block bg-white px-2 md:px-5 text-lg md:text-2xl lg:text-3xl font-serif font-bold text-[#5F4B32] text-center mx-2">
                   Featured Bookshops
                 </h2>
+                <div className="flex-1 h-0.5 bg-[#2A6B7C]"></div>
               </div>
               <p className="text-center text-sm md:text-base lg:text-lg text-gray-700 mb-4 md:mb-6 lg:mb-8 mt-2 md:mt-0 px-2">
                 Discover standout indie bookshops from across our directory. Each offers unique character and community connection.
@@ -527,16 +599,139 @@ const Home = () => {
         </div>
       </section>
       
+      {/* Popular Bookshops Section - NEW */}
+      <section className="py-8 md:py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-lg p-6 md:p-8">
+            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 pt-8 md:pt-6 shadow-sm bg-[#2A6B7C]/5">
+              <div className="absolute -top-4 md:-top-5 left-0 w-full flex items-center justify-center px-2">
+                <div className="flex-1 h-0.5 bg-[#2A6B7C]"></div>
+                <h2 className="inline-block bg-white px-2 md:px-5 text-lg md:text-2xl lg:text-3xl font-serif font-bold text-[#5F4B32] text-center mx-2">
+                  Popular Bookshops
+                </h2>
+                <div className="flex-1 h-0.5 bg-[#2A6B7C]"></div>
+              </div>
+              <p className="text-center text-sm md:text-base lg:text-lg text-gray-700 mb-4 md:mb-6 lg:mb-8 mt-2 md:mt-0 px-2">
+                Highly-rated independent bookshops loved by readers across America.
+              </p>
+            
+              {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+                      <div className="w-full h-36 sm:h-40 md:h-48 bg-gray-200" />
+                      <div className="p-4 md:p-5">
+                        <div className="h-6 bg-gray-200 rounded mb-2" />
+                        <div className="h-4 bg-gray-200 rounded mb-3 w-2/3" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+                  {(() => {
+                    // Get popular bookshops (sorted by review count, then rating)
+                    // Deduplicate to avoid showing the same bookshop multiple times
+                    // Strategy: Same city/state + same review count + same rating = likely duplicate
+                    // Also deduplicate by generated slug as a fallback
+                    const seenKeys = new Set<string>();
+                    const popularBookshops = [...(bookshops || [])]
+                      .filter(shop => shop.googleReviewCount && shop.googleReviewCount > 0)
+                      .sort((a, b) => {
+                        const aCount = a.googleReviewCount || 0;
+                        const bCount = b.googleReviewCount || 0;
+                        if (bCount !== aCount) return bCount - aCount;
+                        const aRating = parseFloat(a.googleRating || '0');
+                        const bRating = parseFloat(b.googleRating || '0');
+                        return bRating - aRating;
+                      })
+                      .filter(shop => {
+                        // Create a unique key: city-state-reviewCount-rating
+                        // This catches duplicates like "Powell's Books" and "Powell's City of Books"
+                        const locationKey = `${shop.city || ''}-${shop.state || ''}-${shop.googleReviewCount || 0}-${shop.googleRating || '0'}`;
+                        const slug = generateSlugFromName(shop.name);
+                        
+                        // Check both location-based key and slug
+                        if (seenKeys.has(locationKey) || seenKeys.has(slug)) {
+                          return false; // Skip duplicate
+                        }
+                        seenKeys.add(locationKey);
+                        seenKeys.add(slug);
+                        return true;
+                      })
+                      .slice(0, 15); // Show top 15 popular bookshops
+                    
+                    return popularBookshops.map((bookshop) => {
+                      const bookshopFeatures = bookshop.featureIds
+                        ? bookshop.featureIds
+                            .slice(0, 2)
+                            .map(id => featuresMap[id])
+                            .filter((f): f is Feature => f !== undefined)
+                        : [];
+                      
+                      const bookshopSlug = generateSlugFromName(bookshop.name);
+                      const heroImageUrl = getHeroImageUrl(bookshop);
+                      
+                      return (
+                        <div key={bookshop.id} className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+                          <Link to={`/bookshop/${bookshopSlug}`}>
+                            <img 
+                              src={heroImageUrl} 
+                              alt={bookshop.name}
+                              className="w-full h-36 sm:h-40 md:h-48 object-cover cursor-pointer" 
+                              loading="lazy"
+                              onError={(e) => {
+                                e.currentTarget.src = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600';
+                              }}
+                            />
+                          </Link>
+                          <div className="p-4 md:p-5">
+                            <Link to={`/bookshop/${bookshopSlug}`}>
+                              <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-2 cursor-pointer hover:text-[#E16D3D] leading-tight line-clamp-2">{bookshop.name}</h3>
+                            </Link>
+                            <p className="text-xs md:text-sm text-gray-600 mb-2">{bookshop.city || ''}{bookshop.city && bookshop.state ? ', ' : ''}{bookshop.state || ''}</p>
+                            {bookshop.googleRating && bookshop.googleReviewCount && (
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-yellow-500 font-semibold">{bookshop.googleRating}</span>
+                                <span className="text-xs text-gray-600">({bookshop.googleReviewCount.toLocaleString()} reviews)</span>
+                              </div>
+                            )}
+                            {bookshopFeatures.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 md:gap-2">
+                                {bookshopFeatures.map(feature => (
+                                  <span key={feature.id} className="bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-2 md:px-3 py-0.5 md:py-1 text-xs font-semibold">
+                                    {feature.name}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+      
       {/* Browse by State Section */}
       <section id="browse-by-state" ref={browseByStateRef} className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
-            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 pt-8">
-              <div className="absolute -top-4 md:-top-5 left-0 w-full flex justify-center px-2">
-                <h2 className="inline-block bg-[#F7F3E8] px-2 md:px-5 text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] text-center">
+          <div className="bg-white rounded-lg p-6 md:p-8">
+            <div className="relative border-4 border-[#2A6B7C] rounded-lg p-4 md:p-6 pt-8 md:pt-6 shadow-sm bg-[#2A6B7C]/5">
+              <div className="absolute -top-4 md:-top-5 left-0 w-full flex items-center justify-center px-2">
+                <div className="flex-1 h-0.5 bg-[#2A6B7C]"></div>
+                <h2 className="inline-block bg-white px-2 md:px-5 text-lg md:text-2xl lg:text-3xl font-serif font-bold text-[#5F4B32] text-center mx-2">
                   Browse by State
                 </h2>
+                <div className="flex-1 h-0.5 bg-[#2A6B7C]"></div>
               </div>
+              <p className="text-center text-sm md:text-base lg:text-lg text-gray-700 mb-4 md:mb-6 lg:mb-8 mt-2 md:mt-0 px-2">
+                Explore independent bookshops across all 50 states and find your next literary destination.
+              </p>
             
             <div className="mt-2 md:mt-0">
               {isLoading ? (

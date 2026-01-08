@@ -40,3 +40,5 @@ ALTER TABLE public.bookstores
 DROP COLUMN IF EXISTS google_place_id;
 
 
+
+

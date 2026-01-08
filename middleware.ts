@@ -1,19 +1,78 @@
 // Vercel Edge Middleware for rate limiting and meta tag injection
 // Uses Web API types compatible with Vercel Edge Functions
 
+// Simple in-memory cache for bookshop data (Edge Middleware compatible)
+// Cache expires after 5 minutes
+const bookshopCache = new Map<string, { data: any; expires: number }>();
+const BOOKSHOP_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function getCachedBookshop(slug: string): any | null {
+  const cached = bookshopCache.get(slug);
+  if (cached && cached.expires > Date.now()) {
+    return cached.data;
+  }
+  bookshopCache.delete(slug);
+  return null;
+}
+
+function setCachedBookshop(slug: string, data: any): void {
+  bookshopCache.set(slug, {
+    data,
+    expires: Date.now() + BOOKSHOP_CACHE_TTL
+  });
+}
+
+// Cache for base HTML (index.html) - reduces origin fetches
+let cachedBaseHtml: string | null = null;
+let cachedBaseHtmlExpires = 0;
+const BASE_HTML_CACHE_TTL = 60 * 1000; // 1 minute
+
+function getCachedBaseHtml(): string | null {
+  if (cachedBaseHtml && Date.now() < cachedBaseHtmlExpires) {
+    return cachedBaseHtml;
+  }
+  cachedBaseHtml = null;
+  return null;
+}
+
+function setCachedBaseHtml(html: string): void {
+  cachedBaseHtml = html;
+  cachedBaseHtmlExpires = Date.now() + BASE_HTML_CACHE_TTL;
+}
+
 // Rate limiting storage (in-memory for Edge Middleware)
 // In production, consider using Upstash Redis for distributed rate limiting
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 // Clean up old entries every 5 minutes
+// This prevents memory leaks in high-traffic scenarios
+const CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
 setInterval(() => {
   const now = Date.now();
+  
+  // Clean up expired bookshop cache entries
+  let bookshopCacheCleaned = 0;
+  for (const [key, value] of bookshopCache.entries()) {
+    if (value.expires <= now) {
+      bookshopCache.delete(key);
+      bookshopCacheCleaned++;
+    }
+  }
+  
+  // Clean up expired rate limit entries
+  let rateLimitCleaned = 0;
   for (const [key, value] of rateLimitStore.entries()) {
     if (value.resetTime < now) {
       rateLimitStore.delete(key);
+      rateLimitCleaned++;
     }
   }
-}, 5 * 60 * 1000);
+  
+  // Log cleanup activity (only in development or if significant cleanup occurred)
+  if (bookshopCacheCleaned > 0 || rateLimitCleaned > 0) {
+    console.log(`[Cache Cleanup] Removed ${bookshopCacheCleaned} bookshop cache entries and ${rateLimitCleaned} rate limit entries`);
+  }
+}, CLEANUP_INTERVAL);
 
 interface RateLimitConfig {
   windowMs: number; // Time window in milliseconds
@@ -125,7 +184,8 @@ function getRateLimitConfig(path: string): RateLimitConfig | null {
 
 // Constants for meta tag generation
 const BASE_URL = 'https://www.indiebookshop.com';
-const DESCRIPTION_TEMPLATE = '{name} is an independent bookshop in {city}, {state}. Discover events, specialty offerings, and more information about this local bookshop at IndiebookShop.com.';
+// Enhanced template to meet 120+ character minimum for SEO
+const DESCRIPTION_TEMPLATE = '{name} is an independent bookshop in {city}, {state}. Discover this local indie bookstore, browse their curated selection of books, and support independent bookselling in your community. Visit IndiebookShop.com to learn more about this bookshop and find similar indie bookstores near you.';
 
 /**
  * Generate a slug from a bookshop name (must match client-side logic)
@@ -229,6 +289,8 @@ function generateBookshopMetaTags(bookshop: any): string {
     <meta property="og:url" content="${canonicalUrl}" />
     <meta property="og:image" content="${ogImage}" />
     <meta property="og:image:alt" content="${ogImageAlt}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="IndiebookShop.com" />
     <meta property="og:locale" content="en_US" />
     
@@ -238,6 +300,8 @@ function generateBookshopMetaTags(bookshop: any): string {
     <meta name="twitter:description" content="${escapedDescription}" />
     <meta name="twitter:image" content="${ogImage}" />
     <meta name="twitter:image:alt" content="${ogImageAlt}" />
+    <meta name="twitter:image:width" content="1200" />
+    <meta name="twitter:image:height" content="630" />
     <meta name="twitter:site" content="@indiebookshop" />
   `;
   
@@ -336,39 +400,60 @@ export async function middleware(request: Request) {
       return new Response(null, { status: 200 });
     }
     
-    // Fetch bookshop data from Supabase
-    const bookshop = await fetchBookshopBySlug(slug);
+    // OPTIMIZATION: Check cache first
+    let bookshop = getCachedBookshop(slug);
     
     if (!bookshop) {
-      // Bookshop not found - pass through to 404
-      return new Response(null, { status: 200 });
+      // Fetch bookshop data from Supabase
+      bookshop = await fetchBookshopBySlug(slug);
+      
+      if (!bookshop) {
+        // Bookshop not found - pass through to 404
+        return new Response(null, { status: 200 });
+      }
+      
+      // Cache the result
+      setCachedBookshop(slug, bookshop);
     }
     
     // Generate meta tags
     const metaTags = generateBookshopMetaTags(bookshop);
     
-    // For Vercel Edge Middleware, we need to fetch the HTML from the origin
-    // and inject meta tags before returning it
-    try {
-      // Construct URL to fetch the index.html
-      // In Vercel, static files are served from the root
-      const originUrl = new URL(request.url);
-      originUrl.pathname = '/';
-      
-      // Fetch the index.html from the origin
-      const htmlResponse = await fetch(originUrl.toString(), {
-        headers: {
-          'User-Agent': request.headers.get('User-Agent') || '',
-          'Accept': 'text/html',
-        },
-      });
-      
-      if (!htmlResponse.ok) {
-        // If we can't fetch the HTML, pass through
-    return new Response(null, { status: 200 });
-  }
+    // OPTIMIZATION: Use cached base HTML if available
+    let html = getCachedBaseHtml();
+    
+    if (!html) {
+      // For Vercel Edge Middleware, we need to fetch the HTML from the origin
+      // and inject meta tags before returning it
+      try {
+        // Construct URL to fetch the index.html
+        // In Vercel, static files are served from the root
+        const originUrl = new URL(request.url);
+        originUrl.pathname = '/';
+        
+        // Fetch the index.html from the origin
+        const htmlResponse = await fetch(originUrl.toString(), {
+          headers: {
+            'User-Agent': request.headers.get('User-Agent') || '',
+            'Accept': 'text/html',
+          },
+        });
+        
+        if (!htmlResponse.ok) {
+          // If we can't fetch the HTML, pass through
+          return new Response(null, { status: 200 });
+        }
 
-      const html = await htmlResponse.text();
+        html = await htmlResponse.text();
+        
+        // Cache the base HTML
+        setCachedBaseHtml(html);
+      } catch (error) {
+        console.error('Error fetching HTML for meta tag injection:', error);
+        // Pass through on error
+        return new Response(null, { status: 200 });
+      }
+    }
       
       // Inject meta tags
       const modifiedHtml = injectMetaTags(html, metaTags);

@@ -1077,7 +1077,14 @@ const Directory = () => {
         description="Search our comprehensive directory of independent bookshops across America. Find indie bookstores by location, features, and more."
         keywords={["independent bookshop directory", "find indie bookstores", "local bookshop finder", "indie bookstore map"]}
         canonicalUrl={`${BASE_URL}/directory`}
+        ogImage={`${BASE_URL}/og-image.jpg`}
+        ogImageAlt="IndiebookShop Directory - Find Independent Bookshops"
+        ogImageWidth={1200}
+        ogImageHeight={630}
       />
+
+      {/* H1 Tag - Visually Hidden but Accessible for SEO */}
+      <h1 className="sr-only">Browse Our Directory of Independent Bookshops</h1>
 
       {/* Full-Screen Map Container */}
       <div className="relative h-[calc(100vh-64px)]">

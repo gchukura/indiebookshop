@@ -276,3 +276,5 @@ WHERE ai_generated_description IS NOT NULL
   AND city IS NOT NULL
   AND state IS NOT NULL;
 
+
+

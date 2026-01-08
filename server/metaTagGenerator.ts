@@ -1,10 +1,12 @@
 import { Bookstore } from '@shared/schema';
+import { generateSlugFromName, escapeHtml } from '@shared/utils';
 
 // Constants - must match client/src/lib/seo.ts
 const BASE_URL = 'https://www.indiebookshop.com';
 
+// Enhanced templates to meet 120+ character minimum for SEO
 const DESCRIPTION_TEMPLATES = {
-  detail: '{name} is an independent bookshop in {city}, {state}. Discover events, specialty offerings, and more information about this local bookshop at IndiebookShop.com.',
+  detail: '{name} is an independent bookshop in {city}, {state}. Discover this local indie bookstore, browse their curated selection of books, and support independent bookselling in your community. Visit IndiebookShop.com to learn more about this bookshop and find similar indie bookstores near you.',
 };
 
 // Helper to generate meta descriptions with keywords
@@ -20,38 +22,9 @@ function generateDescription(template: string, replacements: Record<string, stri
 }
 
 /**
- * Generate a slug from a bookshop name (server-side version)
- * Must match client-side generateSlugFromName logic
+ * Note: generateSlugFromName and escapeHtml are now imported from @shared/utils
+ * to ensure consistency between server and client implementations
  */
-function generateSlugFromName(name: string): string {
-  if (!name || typeof name !== 'string') {
-    return '';
-  }
-  
-  return name
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '-')     // Replace spaces with hyphens
-    .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
-    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
-    .trim();                  // Trim leading/trailing spaces
-}
-
-/**
- * Escape HTML entities to prevent XSS and ensure valid HTML
- */
-function escapeHtml(text: string): string {
-  if (!text || typeof text !== 'string') {
-    return '';
-  }
-  
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
 
 /**
  * Truncate text to a maximum length, adding ellipsis if needed
@@ -124,6 +97,8 @@ export function generateBookshopMetaTags(bookshop: Bookstore): string {
     <meta property="og:url" content="${canonicalUrl}" />
     <meta property="og:image" content="${ogImage}" />
     <meta property="og:image:alt" content="${ogImageAlt}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="IndiebookShop.com" />
     <meta property="og:locale" content="en_US" />
     
@@ -133,6 +108,8 @@ export function generateBookshopMetaTags(bookshop: Bookstore): string {
     <meta name="twitter:description" content="${escapedDescription}" />
     <meta name="twitter:image" content="${ogImage}" />
     <meta name="twitter:image:alt" content="${ogImageAlt}" />
+    <meta name="twitter:image:width" content="1200" />
+    <meta name="twitter:image:height" content="630" />
     <meta name="twitter:site" content="@indiebookshop" />
   `;
   

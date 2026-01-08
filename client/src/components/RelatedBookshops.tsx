@@ -28,7 +28,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
 
   currentBookshop, 
 
-  maxResults = 3 
+  maxResults = 12 
 
 }) => {
 

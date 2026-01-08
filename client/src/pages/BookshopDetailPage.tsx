@@ -103,19 +103,9 @@ const BookshopDetailPage = () => {
 
   useEffect(() => {
 
-    if (isSuccessBookshop && bookshop && isNumericId && !isLoadingBookshop && !isErrorBookshop) {
-
-      logger.debug('[BookshopDetailPage] Numeric ID detected, redirecting to slug', {
-
-        numericId: bookshopSlug,
-
-        bookshopName: bookshop.name,
-
-        bookshopId: bookshop.id
-
-      });
-
-      
+    // Redirect to canonical URL if current slug doesn't match canonical slug
+    // This handles both numeric IDs and location variants (e.g., /bookshop/name-city → /bookshop/name)
+    if (isSuccessBookshop && bookshop && !isLoadingBookshop && !isErrorBookshop) {
 
       const canonicalSlug = generateSlugFromName(bookshop.name);
 
@@ -125,13 +115,19 @@ const BookshopDetailPage = () => {
 
       
 
+      // Redirect if current slug doesn't match canonical slug
+      // This covers:
+      // 1. Numeric IDs → canonical slug
+      // 2. Location variants (e.g., powells-books-portland) → canonical slug (powells-books)
       if (bookshopSlug !== finalSlug) {
 
-        logger.debug('[BookshopDetailPage] Redirecting numeric ID to slug', {
+        logger.debug('[BookshopDetailPage] Redirecting to canonical URL', {
 
           from: `/bookshop/${bookshopSlug}`,
 
-          to: canonicalUrl
+          to: canonicalUrl,
+
+          reason: isNumericId ? 'numeric-id' : 'location-variant'
 
         });
 
@@ -139,6 +135,18 @@ const BookshopDetailPage = () => {
 
         return;
 
+      } else if (bookshopSlug !== canonicalSlug && canonicalSlug) {
+        // Edge case: Current slug matches finalSlug (which may be ID fallback),
+        // but doesn't match the canonical slug from name
+        // This can happen if slug generation produces different results or if there's a mismatch
+        logger.warn('[BookshopDetailPage] Slug mismatch detected but no redirect', {
+          bookshopSlug,
+          canonicalSlug,
+          finalSlug,
+          bookshopName: bookshop.name,
+          bookshopId: bookshop.id,
+          reason: 'slug-mismatch-no-redirect'
+        });
       }
 
     }
@@ -202,7 +210,11 @@ const BookshopDetailPage = () => {
     } else if (bookshop.aiGeneratedDescription && bookshop.descriptionValidated === true) {
       baseDescription = bookshop.aiGeneratedDescription;
     } else {
-      baseDescription = `${bookshop.name} is an independent bookstore in ${bookshop.city}, ${bookshop.state}.`;
+      // Enhanced fallback description to meet 120+ character minimum for SEO
+      const location = bookshop.city && bookshop.state 
+        ? `${bookshop.city}, ${bookshop.state}`
+        : bookshop.city || bookshop.state || 'America';
+      baseDescription = `${bookshop.name} is an independent bookstore in ${location}. Discover this local indie bookshop, browse their curated selection, and support independent bookselling in your community. Visit IndiebookShop.com to learn more.`;
     }
 
     // Enhance with rating if available and not already included
@@ -645,6 +657,9 @@ const BookshopDetailPage = () => {
         canonicalUrl={canonicalUrl}
 
         ogImage={getImageUrl}
+        ogImageAlt={`${bookshop.name} - Independent Bookshop in ${bookshop.city}, ${bookshop.state}`}
+        ogImageWidth={1200}
+        ogImageHeight={630}
 
       />
 
@@ -869,6 +884,40 @@ const BookshopDetailPage = () => {
         </div>
 
       </div>
+
+      
+      {/* Explore More Links Section - Full Width */}
+      {bookshop && (bookshop.city || bookshop.state) && (
+        <div className="bg-white border-t border-gray-200">
+          <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-12 xl:px-16 py-6 md:py-8">
+            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-sm md:text-base">
+              <span className="text-gray-700 font-medium">Explore more bookshops:</span>
+              {bookshop.city && bookshop.state && (
+                <Link 
+                  to={`/directory?city=${encodeURIComponent(bookshop.city)}&state=${encodeURIComponent(bookshop.state)}`}
+                  className="text-[#2A6B7C] hover:text-[#E16D3D] hover:underline font-medium"
+                >
+                  More in {bookshop.city}, {bookshop.state}
+                </Link>
+              )}
+              {bookshop.state && (
+                <Link 
+                  to={`/directory?state=${encodeURIComponent(bookshop.state)}`}
+                  className="text-[#2A6B7C] hover:text-[#E16D3D] hover:underline font-medium"
+                >
+                  All bookshops in {bookshop.state}
+                </Link>
+              )}
+              <Link 
+                to="/directory"
+                className="text-[#2A6B7C] hover:text-[#E16D3D] hover:underline font-medium"
+              >
+                Browse all bookshops
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
 
       

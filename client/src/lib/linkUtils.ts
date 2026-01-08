@@ -3,6 +3,7 @@
  */
 
 import { Bookstore as Bookshop, Feature } from "@shared/schema";
+import { generateSlugFromName } from "@shared/utils";
 
 /**
  * Generate a clean SEO-friendly URL slug for a bookshop
@@ -18,25 +19,12 @@ export function generateBookshopSlug(id: number, name: string): string {
 }
 
 /**
- * Extracts a clean slug from a bookshop name
+ * Note: generateSlugFromName is now imported from @shared/utils
+ * to ensure consistency between server and client implementations
  * 
- * @param name The bookshop name
- * @returns A URL-friendly slug
+ * Re-export for backward compatibility
  */
-export function generateSlugFromName(name: string): string {
-  // Handle null/undefined/empty names defensively
-  if (!name || typeof name !== 'string') {
-    return '';
-  }
-  
-  return name
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '-')     // Replace spaces with hyphens
-    .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
-    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
-    .trim();                  // Trim leading/trailing spaces
-}
+export { generateSlugFromName };
 
 /**
  * Generates a list of related links for a bookshop based on its features, city, and state

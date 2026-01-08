@@ -67,6 +67,19 @@
       "destination": "/index.html"
     }
   ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "indiebookshop.com"
+        }
+      ],
+      "destination": "https://www.indiebookshop.com/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/api/bookshop-slug",

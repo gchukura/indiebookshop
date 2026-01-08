@@ -43,6 +43,10 @@ const SubmitEvent = () => {
         description={seoDescription}
         keywords={seoKeywords}
         canonicalUrl={canonicalUrl}
+        ogImage={`${BASE_URL}/og-image.jpg`}
+        ogImageAlt="Submit a Bookshop Event - Independent Bookshop Event Calendar"
+        ogImageWidth={1200}
+        ogImageHeight={630}
       />
       
       <div className="mb-8">
@@ -122,6 +126,35 @@ const SubmitEvent = () => {
           <Body>
             Book events at indie bookshops contribute significantly to local literary culture and community building. They provide spaces for readers to connect with authors, discover new books, and engage with fellow book lovers. Your events help strengthen the vital ecosystem of independent bookshops that form the backbone of America's literary landscape.
           </Body>
+        </div>
+      </section>
+
+      {/* Internal Links Section for SEO */}
+      <section className="py-8 md:py-12 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+              Explore More
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Link href="/events" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
+                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Events</h3>
+                <p className="text-sm text-gray-600">View all events</p>
+              </Link>
+              <Link href="/directory" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
+                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Directory</h3>
+                <p className="text-sm text-gray-600">Browse all bookshops</p>
+              </Link>
+              <Link href="/submit-bookshop" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
+                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Submit Bookshop</h3>
+                <p className="text-sm text-gray-600">Add your bookshop</p>
+              </Link>
+              <Link href="/about" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
+                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">About</h3>
+                <p className="text-sm text-gray-600">Learn about us</p>
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </div>

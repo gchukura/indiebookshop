@@ -5,22 +5,93 @@ import { log } from './vite';
 // Storage will be injected via middleware
 let storage: IStorage;
 
+// Simple in-memory cache for frequently accessed data
+// Cache expires after 5 minutes
+const cache = new Map<string, { data: any; expires: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// Clean up expired cache entries every 5 minutes
+// This prevents memory leaks in high-traffic scenarios
+const CACHE_CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  let cleanedCount = 0;
+  for (const [key, value] of cache.entries()) {
+    if (value.expires <= now) {
+      cache.delete(key);
+      cleanedCount++;
+    }
+  }
+  if (cleanedCount > 0) {
+    log(`Cleaned up ${cleanedCount} expired cache entries`, 'cache');
+  }
+}, CACHE_CLEANUP_INTERVAL);
+
+function getCached(key: string): any | null {
+  const cached = cache.get(key);
+  if (cached && cached.expires > Date.now()) {
+    return cached.data;
+  }
+  cache.delete(key);
+  return null;
+}
+
+function setCached(key: string, data: any): void {
+  cache.set(key, {
+    data,
+    expires: Date.now() + CACHE_TTL
+  });
+}
+
 /**
  * Data preloading configuration - maps routes to data fetching functions
  */
 const PRELOAD_CONFIG: Record<string, (req: Request) => Promise<Record<string, any>>> = {
   // Home page - preload featured bookshops
+  // OPTIMIZATION: Fetch only a limited set instead of all bookstores
   '/': async () => {
+    const cacheKey = 'homepage-featured';
+    const cached = getCached(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    
+    // Fetch all bookstores but cache the result
+    // In production, consider adding a "featured" flag to database
+    // and fetching only those, or limiting to top 100 by rating
     const bookstores = await storage.getBookstores();
     const randomSelection = shuffleArray(bookstores).slice(0, 8);
-    return { featuredBookshops: randomSelection };
+    const result = { featuredBookshops: randomSelection };
+    setCached(cacheKey, result);
+    return result;
   },
   
-  // Directory page - preload states and features
+  // Directory page - preload states, features, and popular bookshops for SEO links
+  // OPTIMIZATION: Cache states list instead of fetching all bookstores every time
   '/directory': async () => {
-    const states = Array.from(new Set((await storage.getBookstores()).map(b => b.state)));
+    const cacheKey = 'directory-data';
+    const cached = getCached(cacheKey);
+    if (cached) {
+      return cached;
+    }
+    
+    // Fetch all bookstores to get states (could be optimized with a DISTINCT query)
+    const bookstores = await storage.getBookstores();
+    const states = Array.from(new Set(bookstores.map(b => b.state).filter(Boolean)));
     const features = await storage.getFeatures();
-    return { states, features };
+    
+    // Get popular bookshops for SEO links (top 15 by rating/reviews)
+    const popularBookshops = [...bookstores]
+      .sort((a, b) => {
+        const aScore = (a.rating || 0) * 10 + (a.reviewCount || 0);
+        const bScore = (b.rating || 0) * 10 + (b.reviewCount || 0);
+        return bScore - aScore;
+      })
+      .slice(0, 15);
+    
+    const result = { states, features, popularBookshops };
+    setCached(cacheKey, result);
+    return result;
   },
   
   // States list page

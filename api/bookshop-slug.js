@@ -39,7 +39,8 @@ async function loadScriptPaths() {
 
 // Constants for meta tag generation
 const BASE_URL = 'https://www.indiebookshop.com';
-const DESCRIPTION_TEMPLATE = '{name} is an independent bookshop in {city}, {state}. Discover events, specialty offerings, and more information about this local bookshop at IndiebookShop.com.';
+// Enhanced template to meet 120+ character minimum for SEO
+const DESCRIPTION_TEMPLATE = '{name} is an independent bookshop in {city}, {state}. Discover this local indie bookstore, browse their curated selection of books, and support independent bookselling in your community. Visit IndiebookShop.com to learn more about this bookshop and find similar indie bookstores near you.';
 
 /**
  * Generate a slug from a bookshop name (must match client-side logic)
@@ -218,6 +219,8 @@ function generateBookshopMetaTags(bookshop) {
     <meta property="og:url" content="${canonicalUrl}" />
     <meta property="og:image" content="${ogImage}" />
     <meta property="og:image:alt" content="${ogImageAlt}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="IndiebookShop.com" />
     <meta property="og:locale" content="en_US" />
     
@@ -227,6 +230,8 @@ function generateBookshopMetaTags(bookshop) {
     <meta name="twitter:description" content="${escapedDescription}" />
     <meta name="twitter:image" content="${ogImage}" />
     <meta name="twitter:image:alt" content="${ogImageAlt}" />
+    <meta name="twitter:image:width" content="1200" />
+    <meta name="twitter:image:height" content="630" />
     <meta name="twitter:site" content="@indiebookshop" />
   `;
   

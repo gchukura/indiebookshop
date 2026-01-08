@@ -4,14 +4,20 @@ import { SupabaseStorage } from './supabase-storage-serverless.js';
 
 /**
  * Helper function to generate a clean slug from a bookstore name
+ * MUST match generateSlugFromName() in bookshop-slug.js for consistency with canonical URLs
  */
-function generateSlug(name) {
+function generateSlugFromName(name) {
+  if (!name || typeof name !== 'string') {
+    return '';
+  }
+  
   return name
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/--+/g, '-')
-    .trim();
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-')     // Replace spaces with hyphens
+    .replace(/--+/g, '-')       // Replace multiple hyphens with single hyphen
+    .replace(/^-+|-+$/g, '')   // Remove leading/trailing hyphens
+    .trim();                    // Trim leading/trailing spaces
 }
 
 export default async function handler(req, res) {
@@ -69,29 +75,50 @@ export default async function handler(req, res) {
     addUrl('/submit-bookshop', 0.6, 'monthly');
     addUrl('/submit-event', 0.6, 'monthly');
     
-    // Add bookshop pages using the slug column from the database
-    // This ensures consistency with the bookshop-slug.js function which queries by slug
-    // The slug column handles duplicates by appending city/state/ID when needed
+    // Add bookshop pages using generateSlugFromName() to match canonical URLs exactly
+    // IMPORTANT: Always generate slug from name (not database slug column) to ensure
+    // sitemap URLs match canonical URLs exactly. This prevents "non-canonical pages in sitemap" errors.
+    // The database slug column may contain location-specific variants (e.g., "name-city") that don't match canonical URLs.
+    // Canonical URLs use: generateSlugFromName(bookshop.name) - we must match this exactly.
+    //
+    // For duplicate bookshop names: Only include ONE bookshop per unique base slug in sitemap.
+    // IMPORTANT: Match routing system behavior - routing uses "last one wins" strategy, so we process
+    // bookshops in reverse ID order (highest ID last) to match which bookshop is actually accessible.
+    // This ensures sitemap URLs match the bookshop that's actually accessible via that URL.
+    
+    // Sort bookshops by ID DESCENDING to match routing system's "last one wins" behavior
+    // This ensures the sitemap includes the same bookshop that's accessible via the URL
+    const sortedBookshops = [...bookstores].sort((a, b) => (b.id || 0) - (a.id || 0));
+    
     let bookshopCount = 0;
     let skippedCount = 0;
-    for (const bookshop of bookstores) {
+    const seenBaseSlugs = new Set(); // Track which base slugs we've already included
+    
+    for (const bookshop of sortedBookshops) {
       if (bookshop.id && bookshop.name) {
         try {
-          // Prefer the slug column from database (handles duplicates correctly)
-          // Fallback to generating slug from name if slug column is missing
-          let bookshopSlug = bookshop.slug;
-          if (!bookshopSlug || bookshopSlug.trim() === '') {
-            bookshopSlug = generateSlug(bookshop.name);
-            console.warn(`Serverless: Bookshop "${bookshop.name}" (ID: ${bookshop.id}) missing slug column, using generated slug: "${bookshopSlug}"`);
-          }
+          // Always generate base slug from name to match canonical URL generation exactly
+          // This ensures sitemap URLs are exactly the same as canonical URLs
+          const baseSlug = generateSlugFromName(bookshop.name);
           
-          if (bookshopSlug && bookshopSlug.trim() !== '') {
-            addUrl(`/bookshop/${bookshopSlug}`, 0.7, 'weekly');
-            bookshopCount++;
-          } else {
+          if (!baseSlug || baseSlug.trim() === '') {
             skippedCount++;
             console.warn(`Serverless: Skipped bookshop with empty slug: "${bookshop.name}" (ID: ${bookshop.id})`);
+            continue;
           }
+          
+          // Handle duplicates: Only include the LAST bookshop (highest ID) for each unique base slug
+          // This matches routing system's "last one wins" behavior - ensures sitemap URL matches accessible bookshop
+          if (seenBaseSlugs.has(baseSlug)) {
+            skippedCount++;
+            console.log(`Serverless: Skipped duplicate base slug "${baseSlug}" for bookshop "${bookshop.name}" (ID: ${bookshop.id}) - already included (last one wins)`);
+            continue;
+          }
+          
+          // First time seeing this base slug, include it (will be the last/highest ID due to sort order)
+          seenBaseSlugs.add(baseSlug);
+          addUrl(`/bookshop/${baseSlug}`, 0.7, 'weekly');
+          bookshopCount++;
         } catch (err) {
           skippedCount++;
           console.error(`Serverless: Error processing bookshop "${bookshop.name}" (ID: ${bookshop.id}):`, err);

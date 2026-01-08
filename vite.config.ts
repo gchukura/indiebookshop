@@ -27,5 +27,44 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    cssCodeSplit: true, // Enable CSS code splitting to reduce initial bundle size
+    cssMinify: true, // Minify CSS in production (reduces file size significantly)
+    minify: 'esbuild', // Use esbuild for faster builds (terser requires additional dependency)
+    rollupOptions: {
+      output: {
+        // Optimize chunk splitting for better caching and smaller initial bundles
+        manualChunks: (id) => {
+          // Split vendor libraries into separate chunks
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('wouter')) {
+              return 'vendor-router';
+            }
+            if (id.includes('@tanstack/react-query')) {
+              return 'vendor-query';
+            }
+            if (id.includes('mapbox') || id.includes('react-map-gl')) {
+              return 'vendor-map';
+            }
+            // Other vendor libraries
+            return 'vendor';
+          }
+        },
+        // Optimize asset file names for better caching
+        assetFileNames: (assetInfo) => {
+          const info = assetInfo.name.split('.');
+          const ext = info[info.length - 1];
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+            return `assets/images/[name]-[hash][extname]`;
+          }
+          if (/css/i.test(ext)) {
+            return `assets/css/[name]-[hash][extname]`;
+          }
+          return `assets/[name]-[hash][extname]`;
+        },
+      },
+    },
   },
 });
