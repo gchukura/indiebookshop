@@ -280,10 +280,12 @@ function injectMetaTags(html, metaTags) {
   // Extract just the title from metaTags (metaTags includes title + all meta tags)
   const titleMatch = metaTags.match(/<title>(.*?)<\/title>/i);
   const titleOnly = titleMatch ? titleMatch[0] : '';
+  // Remove title but keep the comment marker
   const metaTagsWithoutTitle = metaTags.replace(/<title>.*?<\/title>/i, '').trim();
   
   console.log('[Serverless] Title to inject:', titleOnly.substring(0, 100));
   console.log('[Serverless] Meta tags (without title) length:', metaTagsWithoutTitle.length);
+  console.log('[Serverless] Meta tags without title includes comment:', metaTagsWithoutTitle.includes('<!-- Server-side injected meta tags for SEO -->'));
   
   // Step 1: Replace the default title if it exists
   if (titleOnly) {
@@ -300,12 +302,16 @@ function injectMetaTags(html, metaTags) {
   if (html.includes('</head>')) {
     // Check if title was already in metaTags and we need to add it
     if (titleOnly && !html.includes(titleOnly)) {
-      // Title wasn't replaced, inject it with meta tags
+      // Title wasn't replaced, inject it with meta tags (includes comment)
       html = html.replace('</head>', `${metaTags}</head>`);
       console.log('[Serverless] Injected title + meta tags before </head> tag');
     } else {
-      // Title was already replaced, just inject meta tags
-      html = html.replace('</head>', `${metaTagsWithoutTitle}</head>`);
+      // Title was already replaced, just inject meta tags (ensure comment is included)
+      // If metaTagsWithoutTitle doesn't have the comment, add it
+      const tagsToInject = metaTagsWithoutTitle.includes('<!-- Server-side injected meta tags for SEO -->') 
+        ? metaTagsWithoutTitle 
+        : `<!-- Server-side injected meta tags for SEO -->\n${metaTagsWithoutTitle}`;
+      html = html.replace('</head>', `${tagsToInject}</head>`);
       console.log('[Serverless] Injected meta tags (without title) before </head> tag');
     }
   } else if (html.includes('<head>')) {
@@ -329,6 +335,9 @@ function injectMetaTags(html, metaTags) {
     }
   } else {
     console.error('[Serverless] WARNING: Meta tags may not have been injected correctly');
+    console.error('[Serverless] HTML length:', html.length);
+    console.error('[Serverless] HTML contains </head>:', html.includes('</head>'));
+    console.error('[Serverless] HTML contains <head>:', html.includes('<head>'));
   }
   
   return html;
