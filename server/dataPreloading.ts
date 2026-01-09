@@ -16,7 +16,7 @@ const CACHE_CLEANUP_INTERVAL = 5 * 60 * 1000; // 5 minutes
 setInterval(() => {
   const now = Date.now();
   let cleanedCount = 0;
-  for (const [key, value] of cache.entries()) {
+  for (const [key, value] of Array.from(cache.entries())) {
     if (value.expires <= now) {
       cache.delete(key);
       cleanedCount++;
@@ -83,8 +83,10 @@ const PRELOAD_CONFIG: Record<string, (req: Request) => Promise<Record<string, an
     // Get popular bookshops for SEO links (top 15 by rating/reviews)
     const popularBookshops = [...bookstores]
       .sort((a, b) => {
-        const aScore = (a.rating || 0) * 10 + (a.reviewCount || 0);
-        const bScore = (b.rating || 0) * 10 + (b.reviewCount || 0);
+        const aRating = a.googleRating ? parseFloat(a.googleRating) : 0;
+        const bRating = b.googleRating ? parseFloat(b.googleRating) : 0;
+        const aScore = aRating * 10 + (a.googleReviewCount || 0);
+        const bScore = bRating * 10 + (b.googleReviewCount || 0);
         return bScore - aScore;
       })
       .slice(0, 15);

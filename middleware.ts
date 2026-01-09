@@ -36,7 +36,7 @@ setInterval(() => {
   
   // Clean up expired bookshop cache entries
   let bookshopCacheCleaned = 0;
-  for (const [key, value] of bookshopCache.entries()) {
+  for (const [key, value] of Array.from(bookshopCache.entries())) {
     if (value.expires <= now) {
       bookshopCache.delete(key);
       bookshopCacheCleaned++;
@@ -45,7 +45,7 @@ setInterval(() => {
   
   // Clean up expired rate limit entries
   let rateLimitCleaned = 0;
-  for (const [key, value] of rateLimitStore.entries()) {
+  for (const [key, value] of Array.from(rateLimitStore.entries())) {
     if (value.resetTime < now) {
       rateLimitStore.delete(key);
       rateLimitCleaned++;

@@ -564,7 +564,7 @@ const Home = () => {
                             alt={bookshop.name}
                             className="w-full h-36 sm:h-40 md:h-48 object-cover cursor-pointer" 
                             loading="lazy"
-                            fetchpriority="high"
+                            fetchPriority="high"
                             onError={(e) => {
                               // Fallback to Unsplash stock photo if image fails to load
                               e.currentTarget.src = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600';
