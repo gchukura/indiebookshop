@@ -13,7 +13,7 @@ import { createDataPreloadMiddleware } from './dataPreloading';
 import { htmlInjectionMiddleware } from './htmlInjectionMiddleware';
 import { DataRefreshManager } from './dataRefresh';
 import { registerRefreshRoutes } from './refreshRoutes';
-import { redirectMiddleware } from './redirectMiddleware';
+import { createRedirectMiddleware } from './redirectMiddleware';
 import { validateAndLogEnvironment } from './env-validation';
 
 // Validate environment variables on startup
@@ -167,7 +167,8 @@ if (process.env.DISABLE_AUTO_REFRESH === 'true') {
 
   // Add redirectMiddleware before other middlewares
   // This ensures redirects happen before rendering the page
-  app.use(redirectMiddleware);
+  // Use createRedirectMiddleware to inject storage for location variant redirects
+  app.use(createRedirectMiddleware(storageImplementation));
 
   // Add SSR middlewares before Vite setup
   // They only run for page requests, not API requests
