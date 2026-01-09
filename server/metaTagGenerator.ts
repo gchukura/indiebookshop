@@ -60,6 +60,26 @@ export function generateBookshopMetaTags(bookshop: Bookstore): string {
       state: bookshop.state || ''
     });
   }
+  
+  // Ensure description meets 120+ character minimum for SEO
+  // If description is too short, enhance it with location and call-to-action
+  if (description.length < 120) {
+    const location = bookshop.city && bookshop.state 
+      ? `${bookshop.city}, ${bookshop.state}`
+      : bookshop.city || bookshop.state || 'your area';
+    const enhancement = ` Visit this independent bookstore in ${location} to discover their curated selection and support local bookselling.`;
+    description = description.trim() + enhancement;
+    
+    // If still too short, use the full template
+    if (description.length < 120) {
+      description = generateDescription(DESCRIPTION_TEMPLATES.detail, {
+        name: bookshop.name,
+        city: bookshop.city || '',
+        state: bookshop.state || ''
+      });
+    }
+  }
+  
   // Truncate to 160 characters (recommended max for meta descriptions)
   description = truncate(description, 160);
   const escapedDescription = escapeHtml(description);
