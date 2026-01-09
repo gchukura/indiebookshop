@@ -244,18 +244,16 @@ const Events = () => {
       />
       
       {/* Hero Section - Style Guide Compliant */}
-      <section className="py-10 md:py-16">
+      <section className="w-full py-6 md:py-8 lg:py-10 bg-[#F7F3E8]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
-            <div className="max-w-4xl mx-auto">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
-                Literary Events at Independent Bookshops
-              </h1>
-              <p className="font-sans text-base md:text-body-lg text-gray-700 text-center">
-                Find author readings, book clubs, and special events at indie bookshops near you. 
-                Discover the literary experiences that make local bookstores vital community spaces.
-              </p>
-            </div>
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-4 md:mb-6">
+              Literary Events at Independent Bookshops
+            </h1>
+            <p className="font-sans text-sm md:text-base text-gray-700 leading-relaxed">
+              Find author readings, book clubs, and special events at indie bookshops near you. 
+              Discover the literary experiences that make local bookstores vital community spaces.
+            </p>
           </div>
         </div>
       </section>

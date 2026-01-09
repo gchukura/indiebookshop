@@ -1,43 +1,36 @@
 import { Link, useLocation } from "wouter";
-import { useState, useMemo, useDeferredValue, startTransition, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { Menu, X } from "lucide-react";
 import Logo from "@/components/Logo";
 
-// Optimized NavLink component that uses startTransition for non-blocking navigation
-const NavLink = ({ href, children, className, style }: { href: string; children: React.ReactNode; className?: string; style?: React.CSSProperties }) => {
-  const [, navigate] = useLocation();
-  
-  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    startTransition(() => {
-      navigate(href);
-    });
-  }, [href, navigate]);
-
+// Optimized NavLink component - uses wouter's Link for efficient navigation
+const NavLink = ({ href, children, className, isActive }: { href: string; children: React.ReactNode; className?: string; isActive: boolean }) => {
   return (
-    <a
+    <Link
       href={href}
-      onClick={handleClick}
       className={className}
-      style={style}
+      aria-current={isActive ? 'page' : undefined}
     >
       {children}
-    </a>
+    </Link>
   );
 };
 
 const Header = () => {
   const [location] = useLocation();
-  const deferredLocation = useDeferredValue(location);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const isActiveRoute = useMemo(() => {
-    return (route: string) => {
-      return deferredLocation === route || deferredLocation.startsWith(route + '/');
-    };
-  }, [deferredLocation]);
+  // Pre-compute all active states in a single useMemo to avoid function calls during render
+  const activeRoutes = useMemo(() => {
+    const routes = ['/directory', '/about', '/events', '/blog', '/contact'];
+    const active: Record<string, boolean> = {};
+    routes.forEach(route => {
+      active[route] = location === route || location.startsWith(route + '/');
+    });
+    return active;
+  }, [location]);
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -50,37 +43,37 @@ const Header = () => {
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
               <NavLink 
                 href="/directory" 
-                className={`${isActiveRoute('/directory') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
-                style={{ willChange: 'transform, opacity' }}
+                isActive={activeRoutes['/directory']}
+                className={activeRoutes['/directory'] ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors'}
               >
                 <span className="pointer-events-none">Directory</span>
               </NavLink>
 
               <NavLink 
                 href="/about" 
-                className={`${isActiveRoute('/about') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
-                style={{ willChange: 'transform, opacity' }}
+                isActive={activeRoutes['/about']}
+                className={activeRoutes['/about'] ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors'}
               >
                 <span className="pointer-events-none">About</span>
               </NavLink>
               <NavLink 
                 href="/events" 
-                className={`${isActiveRoute('/events') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
-                style={{ willChange: 'transform, opacity' }}
+                isActive={activeRoutes['/events']}
+                className={activeRoutes['/events'] ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors'}
               >
                 <span className="pointer-events-none">Events</span>
               </NavLink>
               <NavLink 
                 href="/blog" 
-                className={`${isActiveRoute('/blog') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
-                style={{ willChange: 'transform, opacity' }}
+                isActive={activeRoutes['/blog']}
+                className={activeRoutes['/blog'] ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors'}
               >
                 <span className="pointer-events-none">Blog</span>
               </NavLink>
               <NavLink 
                 href="/contact" 
-                className={`${isActiveRoute('/contact') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
-                style={{ willChange: 'transform, opacity' }}
+                isActive={activeRoutes['/contact']}
+                className={activeRoutes['/contact'] ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors'}
               >
                 <span className="pointer-events-none">Contact</span>
               </NavLink>

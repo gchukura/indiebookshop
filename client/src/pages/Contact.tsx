@@ -300,7 +300,7 @@ const Contact = () => {
 
           <div className="max-w-3xl mx-auto text-center">
 
-            <h1 className="font-serif text-2xl md:text-3xl lg:text-4xl font-bold text-[#5F4B32] mb-4 md:mb-6">
+            <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#5F4B32] mb-4 md:mb-6">
 
               Get in Touch
 

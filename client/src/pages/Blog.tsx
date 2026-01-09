@@ -125,35 +125,33 @@ const Blog = () => {
       />
       
       {/* Combined Hero + Placeholder Section */}
-      <section className="py-8 md:py-12">
+      <section className="w-full py-6 md:py-8 lg:py-10 bg-[#F7F3E8]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
-            <div className="max-w-4xl mx-auto">
-              {/* Hero Title */}
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-4 text-center">
-                Independent Bookshop Blog
-              </h1>
-              <p className="font-sans text-base md:text-body-lg text-gray-700 text-center mb-8 md:mb-12">
-                Stories, interviews, and insights from the world of independent bookshops across America.
-              </p>
-              
-              {/* Placeholder Content with Mascot */}
-              <div className="flex flex-col md:flex-row items-center justify-center text-center md:text-left gap-6 md:gap-10">
-                <div className="mb-4 md:mb-0 md:w-1/4 flex justify-center">
-                  <BookWormMascot />
-                </div>
-                <div className="md:w-3/4 max-w-xl">
-                  <blockquote className="italic text-xl md:text-2xl mb-3 text-[#5F4B32] font-serif leading-relaxed">
-                    "Better to remain silent and be thought a fool than to speak and remove all doubt."
-                  </blockquote>
-                  <p className="font-sans text-[#2A6B7C] font-medium text-base md:text-lg mb-4">
-                    — Abraham Lincoln
-                  </p>
-                  <p className="font-sans text-sm md:text-base text-gray-700">
-                    We're working on some amazing articles about independent bookshops. 
-                    Check back soon!
-                  </p>
-                </div>
+          <div className="max-w-4xl mx-auto">
+            {/* Hero Title */}
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-4 text-center">
+              Independent Bookshop Blog
+            </h1>
+            <p className="font-sans text-sm md:text-base text-gray-700 text-center mb-8 md:mb-12 leading-relaxed">
+              Stories, interviews, and insights from the world of independent bookshops across America.
+            </p>
+            
+            {/* Placeholder Content with Mascot */}
+            <div className="flex flex-col md:flex-row items-center justify-center text-center md:text-left gap-6 md:gap-10">
+              <div className="mb-4 md:mb-0 md:w-1/4 flex justify-center">
+                <BookWormMascot />
+              </div>
+              <div className="md:w-3/4 max-w-xl">
+                <blockquote className="italic text-xl md:text-2xl mb-3 text-[#5F4B32] font-serif leading-relaxed">
+                  "Better to remain silent and be thought a fool than to speak and remove all doubt."
+                </blockquote>
+                <p className="font-sans text-[#2A6B7C] font-medium text-base md:text-lg mb-4">
+                  — Abraham Lincoln
+                </p>
+                <p className="font-sans text-sm md:text-base text-gray-700">
+                  We're working on some amazing articles about independent bookshops. 
+                  Check back soon!
+                </p>
               </div>
             </div>
           </div>

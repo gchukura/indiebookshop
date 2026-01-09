@@ -56,24 +56,22 @@ const AboutPage = () => {
       />
       
       {/* Hero/Intro Section */}
-      <section className="py-8 md:py-12">
+      <section className="w-full py-6 md:py-8 lg:py-10 bg-[#F7F3E8]">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
-            <div className="max-w-4xl mx-auto">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
-                About IndiebookShop.com
-              </h1>
-              <div className="prose prose-lg prose-p:text-gray-700 mx-auto">
-                <p className="text-xl text-gray-600 text-center mb-8">
-                  We're building the most comprehensive directory of independent bookshops in America—making it easy to discover and support the local bookshops that make reading personal.
-                </p>
-                <p>
-                  IndiebookShop.com features over 2,000 independent bookshops across all 50 states—the most comprehensive directory of indie bookshops available. Our searchable database connects book lovers with local independent booksellers, helping you discover unique literary spaces in your neighborhood or while traveling.
-                </p>
-                <p>
-                  We believe that independent bookshops are vital cultural hubs that foster community, support local economies, and celebrate the diversity of literature. In a world where convenience often trumps community, we're here to help readers find the local bookshops that offer something algorithms never can: expert curation, personal connection, and community belonging.
-                </p>
-              </div>
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+              About IndiebookShop.com
+            </h1>
+            <div className="prose prose-lg prose-p:text-gray-700 mx-auto">
+              <p className="text-xl text-gray-600 text-center mb-8">
+                We're building the most comprehensive directory of independent bookshops in America—making it easy to discover and support the local bookshops that make reading personal.
+              </p>
+              <p>
+                IndiebookShop.com features over 2,000 independent bookshops across all 50 states—the most comprehensive directory of indie bookshops available. Our searchable database connects book lovers with local independent booksellers, helping you discover unique literary spaces in your neighborhood or while traveling.
+              </p>
+              <p>
+                We believe that independent bookshops are vital cultural hubs that foster community, support local economies, and celebrate the diversity of literature. In a world where convenience often trumps community, we're here to help readers find the local bookshops that offer something algorithms never can: expert curation, personal connection, and community belonging.
+              </p>
             </div>
           </div>
         </div>
