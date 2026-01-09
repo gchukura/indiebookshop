@@ -1,9 +1,32 @@
 import { Link, useLocation } from "wouter";
-import { useState, useMemo, useDeferredValue, startTransition } from "react";
+import { useState, useMemo, useDeferredValue, startTransition, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { Menu, X } from "lucide-react";
 import Logo from "@/components/Logo";
+
+// Optimized NavLink component that uses startTransition for non-blocking navigation
+const NavLink = ({ href, children, className, style }: { href: string; children: React.ReactNode; className?: string; style?: React.CSSProperties }) => {
+  const [, navigate] = useLocation();
+  
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    startTransition(() => {
+      navigate(href);
+    });
+  }, [href, navigate]);
+
+  return (
+    <a
+      href={href}
+      onClick={handleClick}
+      className={className}
+      style={style}
+    >
+      {children}
+    </a>
+  );
+};
 
 const Header = () => {
   const [location] = useLocation();
@@ -25,42 +48,42 @@ const Header = () => {
               <Logo height={90} width={90} className="md:h-[80px] md:w-auto" showDotCom={true} />
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
-              <Link 
+              <NavLink 
                 href="/directory" 
                 className={`${isActiveRoute('/directory') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
                 style={{ willChange: 'transform, opacity' }}
               >
                 <span className="pointer-events-none">Directory</span>
-              </Link>
+              </NavLink>
 
-              <Link 
+              <NavLink 
                 href="/about" 
                 className={`${isActiveRoute('/about') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
                 style={{ willChange: 'transform, opacity' }}
               >
                 <span className="pointer-events-none">About</span>
-              </Link>
-              <Link 
+              </NavLink>
+              <NavLink 
                 href="/events" 
                 className={`${isActiveRoute('/events') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
                 style={{ willChange: 'transform, opacity' }}
               >
                 <span className="pointer-events-none">Events</span>
-              </Link>
-              <Link 
+              </NavLink>
+              <NavLink 
                 href="/blog" 
                 className={`${isActiveRoute('/blog') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
                 style={{ willChange: 'transform, opacity' }}
               >
                 <span className="pointer-events-none">Blog</span>
-              </Link>
-              <Link 
+              </NavLink>
+              <NavLink 
                 href="/contact" 
                 className={`${isActiveRoute('/contact') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
                 style={{ willChange: 'transform, opacity' }}
               >
                 <span className="pointer-events-none">Contact</span>
-              </Link>
+              </NavLink>
             </nav>
           </div>
           <div className="flex items-center space-x-3">
