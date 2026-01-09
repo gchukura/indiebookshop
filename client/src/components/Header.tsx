@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useMemo, useDeferredValue, startTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { Menu, X } from "lucide-react";
@@ -7,11 +7,14 @@ import Logo from "@/components/Logo";
 
 const Header = () => {
   const [location] = useLocation();
+  const deferredLocation = useDeferredValue(location);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const isActiveRoute = (route: string) => {
-    return location === route || location.startsWith(route + '/');
-  };
+  const isActiveRoute = useMemo(() => {
+    return (route: string) => {
+      return deferredLocation === route || deferredLocation.startsWith(route + '/');
+    };
+  }, [deferredLocation]);
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -24,34 +27,39 @@ const Header = () => {
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
               <Link 
                 href="/directory" 
-                className={`${isActiveRoute('/directory') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors`}
+                className={`${isActiveRoute('/directory') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
+                style={{ willChange: 'transform, opacity' }}
               >
-                Directory
+                <span className="pointer-events-none">Directory</span>
               </Link>
 
               <Link 
                 href="/about" 
-                className={`${isActiveRoute('/about') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors`}
+                className={`${isActiveRoute('/about') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
+                style={{ willChange: 'transform, opacity' }}
               >
-                About
+                <span className="pointer-events-none">About</span>
               </Link>
               <Link 
                 href="/events" 
-                className={`${isActiveRoute('/events') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors`}
+                className={`${isActiveRoute('/events') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
+                style={{ willChange: 'transform, opacity' }}
               >
-                Events
+                <span className="pointer-events-none">Events</span>
               </Link>
               <Link 
                 href="/blog" 
-                className={`${isActiveRoute('/blog') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors`}
+                className={`${isActiveRoute('/blog') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
+                style={{ willChange: 'transform, opacity' }}
               >
-                Blog
+                <span className="pointer-events-none">Blog</span>
               </Link>
               <Link 
                 href="/contact" 
-                className={`${isActiveRoute('/contact') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors`}
+                className={`${isActiveRoute('/contact') ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D]' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D]'} font-sans text-body font-semibold px-1 py-2 transition-colors will-change-[transform,opacity]`}
+                style={{ willChange: 'transform, opacity' }}
               >
-                Contact
+                <span className="pointer-events-none">Contact</span>
               </Link>
             </nav>
           </div>
