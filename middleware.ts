@@ -782,66 +782,72 @@ export async function middleware(request: Request) {
   
   // Handle meta tag injection for /bookshop/* routes
   if (pathname.startsWith('/bookshop/')) {
-    const requestedSlug = pathname.split('/').pop();
-    
-    if (!requestedSlug) {
-      return new Response(null, { status: 200 });
-    }
-    
-    // Skip if it's numeric (handled by client-side redirect)
-    if (/^\d+$/.test(requestedSlug)) {
-      return new Response(null, { status: 200 });
-    }
-    
-    // Check if this looks like a location variant (has multiple hyphens)
-    // Location variants typically have 2+ parts: "name-city" or "name-books-city"
-    const parts = requestedSlug.split('-');
-    if (parts.length >= 2) {
-      try {
-        const result = await findBookshopBySlugVariations(requestedSlug);
-        if (result) {
-          const { bookshop, matchedSlug } = result;
-          const canonicalSlug = generateSlugFromName(bookshop.name);
-          
-          // If the requested slug doesn't match the canonical slug, redirect
-          if (canonicalSlug && requestedSlug !== canonicalSlug) {
-            const canonicalUrl = `${url.origin}/bookshop/${canonicalSlug}`;
-            console.log(`[Edge Middleware] Location variant redirect: ${pathname} → ${canonicalUrl}`);
-            return Response.redirect(canonicalUrl, 301);
-          }
-        }
-      } catch (error) {
-        console.error('[Edge Middleware] Error looking up bookshop for location variant redirect:', error);
-        // Continue to meta tag injection on error
-      }
-    }
-    
-    // OPTIMIZATION: Check cache first
-    let bookshop = getCachedBookshop(requestedSlug);
-    
-    if (!bookshop) {
-      // Fetch bookshop data from Supabase
-      bookshop = await fetchBookshopBySlug(requestedSlug);
+    try {
+      const requestedSlug = pathname.split('/').pop();
       
-      if (!bookshop) {
-        // Bookshop not found - pass through to 404
+      if (!requestedSlug) {
         return new Response(null, { status: 200 });
       }
       
-      // Cache the result
-      setCachedBookshop(requestedSlug, bookshop);
-    }
-    
-    // Generate meta tags
-    const metaTags = generateBookshopMetaTags(bookshop);
-    
-    // OPTIMIZATION: Use cached base HTML if available
-    let html = getCachedBaseHtml();
-    
-    if (!html) {
-      // For Vercel Edge Middleware, we need to fetch the HTML from the origin
-      // and inject meta tags before returning it
-      try {
+      // Skip if it's numeric (handled by client-side redirect)
+      if (/^\d+$/.test(requestedSlug)) {
+        return new Response(null, { status: 200 });
+      }
+      
+      // Check if this looks like a location variant (has multiple hyphens)
+      // Location variants typically have 2+ parts: "name-city" or "name-books-city"
+      const parts = requestedSlug.split('-');
+      if (parts.length >= 2) {
+        try {
+          const result = await findBookshopBySlugVariations(requestedSlug);
+          if (result) {
+            const { bookshop, matchedSlug } = result;
+            const canonicalSlug = generateSlugFromName(bookshop.name);
+            
+            // If the requested slug doesn't match the canonical slug, redirect
+            if (canonicalSlug && requestedSlug !== canonicalSlug) {
+              const canonicalUrl = `${url.origin}/bookshop/${canonicalSlug}`;
+              console.log(`[Edge Middleware] Location variant redirect: ${pathname} → ${canonicalUrl}`);
+              return Response.redirect(canonicalUrl, 301);
+            }
+          }
+        } catch (error) {
+          console.error('[Edge Middleware] Error looking up bookshop for location variant redirect:', error);
+          // Continue to meta tag injection on error
+        }
+      }
+      
+      // OPTIMIZATION: Check cache first
+      let bookshop = getCachedBookshop(requestedSlug);
+      
+      if (!bookshop) {
+        // Fetch bookshop data from Supabase
+        console.log(`[Edge Middleware] Fetching bookshop for slug: ${requestedSlug}`);
+        bookshop = await fetchBookshopBySlug(requestedSlug);
+        
+        if (!bookshop) {
+          console.log(`[Edge Middleware] Bookshop not found for slug: ${requestedSlug}`);
+          // Bookshop not found - pass through to 404
+          return new Response(null, { status: 200 });
+        }
+        
+        console.log(`[Edge Middleware] Found bookshop: ${bookshop.name}`);
+        // Cache the result
+        setCachedBookshop(requestedSlug, bookshop);
+      }
+      
+      // Generate meta tags
+      console.log(`[Edge Middleware] Generating meta tags for: ${bookshop.name}`);
+      const metaTags = generateBookshopMetaTags(bookshop);
+      console.log(`[Edge Middleware] Meta tags generated, length: ${metaTags.length}`);
+      
+      // OPTIMIZATION: Use cached base HTML if available
+      let html = getCachedBaseHtml();
+      
+      if (!html) {
+        // For Vercel Edge Middleware, we need to fetch the HTML from the origin
+        // and inject meta tags before returning it
+        console.log(`[Edge Middleware] Fetching base HTML from origin`);
         // Construct URL to fetch the index.html
         // In Vercel, static files are served from the root
         const originUrl = new URL(request.url);
@@ -856,23 +862,24 @@ export async function middleware(request: Request) {
         });
         
         if (!htmlResponse.ok) {
+          console.error(`[Edge Middleware] Failed to fetch HTML, status: ${htmlResponse.status}`);
           // If we can't fetch the HTML, pass through
           return new Response(null, { status: 200 });
         }
 
         html = await htmlResponse.text();
+        console.log(`[Edge Middleware] Fetched HTML, length: ${html.length}`);
         
         // Cache the base HTML
         setCachedBaseHtml(html);
-      } catch (error) {
-        console.error('Error fetching HTML for meta tag injection:', error);
-        // Pass through on error
-        return new Response(null, { status: 200 });
+      } else {
+        console.log(`[Edge Middleware] Using cached HTML, length: ${html.length}`);
       }
-    }
       
       // Inject meta tags
+      console.log(`[Edge Middleware] Injecting meta tags into HTML`);
       const modifiedHtml = injectMetaTags(html, metaTags);
+      console.log(`[Edge Middleware] Modified HTML length: ${modifiedHtml.length}`);
       
       // Return modified HTML
       return new Response(modifiedHtml, {
@@ -883,7 +890,8 @@ export async function middleware(request: Request) {
         },
       });
     } catch (error) {
-      console.error('Error fetching HTML for meta tag injection:', error);
+      console.error('[Edge Middleware] Error in bookshop meta tag injection:', error);
+      console.error('[Edge Middleware] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       // Pass through on error
       return new Response(null, { status: 200 });
     }
