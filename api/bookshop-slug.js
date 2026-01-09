@@ -269,10 +269,13 @@ function injectMetaTags(html, metaTags) {
   console.log('[Serverless] Injecting meta tags, HTML length:', html.length);
   console.log('[Serverless] Meta tags to inject (first 200 chars):', metaTags.substring(0, 200));
   
-  // Check if meta tags are already injected (avoid duplicates)
+  // Remove existing server-side injected meta tags (from homepage build-time injection)
+  // We need to replace them with bookshop-specific meta tags
   if (html.includes('<!-- Server-side injected meta tags for SEO -->')) {
-    console.log('[Serverless] Meta tags already injected, skipping');
-    return html;
+    console.log('[Serverless] Found existing server-side injected meta tags, removing them');
+    // Remove the entire block of server-side injected meta tags
+    // Pattern: from comment to next comment or closing head tag
+    html = html.replace(/<!-- Server-side injected meta tags for SEO -->[\s\S]*?(?=<!-- Server-side injected SEO body content -->|<\/head>)/i, '');
   }
   
   // Remove existing canonical tags to avoid duplicates
