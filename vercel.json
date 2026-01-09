@@ -91,7 +91,7 @@
       "destination": "/api/static-pages.js"
     },
     {
-      "source": "/(.*)",
+      "source": "/:path+",
       "destination": "/index.html"
     }
   ],
