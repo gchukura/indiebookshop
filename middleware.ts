@@ -611,6 +611,9 @@ export async function middleware(request: Request) {
   const url = new URL(request.url);
   const pathname = url.pathname;
   
+  // Log middleware execution for debugging
+  console.log(`[Edge Middleware] Executing for pathname: ${pathname}`);
+  
   // Handle SEO content injection for static pages
   const staticPages: Record<string, () => string> = {
     '/': generateHomepageSeoContent,
