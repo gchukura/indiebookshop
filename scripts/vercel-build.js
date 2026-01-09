@@ -85,9 +85,109 @@ export const CSS_PATH = ${cssPath ? `'${cssPath}'` : 'null'};
     console.log(`Extracted CSS path: ${cssPath}`);
   }
   
-  // NOTE: SEO injection is now handled by serverless functions (api/static-pages.js)
-  // The base HTML should be clean with no meta tags or SEO content
-  // This ensures serverless functions can inject without conflicts
+  // Inject homepage SEO content at build time
+  // This is necessary because Vercel serves static files before rewrites/middleware
+  // The homepage is served directly as index.html, bypassing serverless functions
+  // Other static pages (/directory, /about, etc.) can still use serverless functions
+  console.log('Injecting homepage SEO content into index.html at build time...');
+  
+  // Helper function to escape HTML
+  function escapeHtml(text) {
+    if (!text || typeof text !== 'string') {
+      return '';
+    }
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+  }
+  
+  // Generate homepage SEO content (same as api/static-pages.js)
+  const homepageSeoContent = `
+    <noscript>
+      <style>
+        .seo-content { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: system-ui, -apple-system, sans-serif; }
+        .seo-content h1 { font-size: 2em; margin-bottom: 20px; color: #1a1a1a; }
+        .seo-content p { margin-bottom: 15px; line-height: 1.6; color: #333; }
+        .seo-content nav { margin: 20px 0; padding: 15px 0; border-top: 1px solid #e0e0e0; }
+        .seo-content nav a { margin-right: 20px; color: #2A6B7C; text-decoration: none; font-weight: 500; }
+        .seo-content nav a:hover { text-decoration: underline; }
+      </style>
+      <div class="seo-content">
+        <h1>Discover Independent Bookshops Across America</h1>
+        <p>Welcome to IndiebookShop.com, the most comprehensive directory of independent bookshops in the United States and Canada. We feature over 3,000 carefully curated independent bookstores across all 50 states, helping book lovers discover unique literary spaces in their communities and while traveling.</p>
+        <p>Independent bookshops are more than just stores—they are cultural hubs that foster community, support local economies, and celebrate the diversity of literature. Unlike chain stores, indie bookshops offer personalized recommendations, expert curation, and a sense of belonging that algorithms can never replicate.</p>
+        <p>Our directory makes it easy to find independent bookshops by location, specialty, and features. Whether you're looking for a bookshop with a coffee shop, rare books, children's sections, or reading spaces, you can search our interactive map or browse by state, city, or category.</p>
+        <p>Each bookshop listing includes detailed information about location, hours, contact information, and special features. Many listings also feature photos, descriptions, and links to bookshop websites and social media profiles.</p>
+        <p>Supporting independent bookshops helps preserve literary culture and keeps money in local communities. When you shop at an indie bookstore, you're supporting local jobs, local authors, and the unique character of your neighborhood.</p>
+        <nav>
+          <a href="/directory">Browse All Bookshops</a>
+          <a href="/about">About Us</a>
+          <a href="/contact">Contact</a>
+          <a href="/submit-bookshop">Add Your Bookshop</a>
+        </nav>
+      </div>
+    </noscript>
+  `;
+  
+  // Generate homepage meta tags (canonical, title, description, OG, Twitter)
+  const canonicalUrl = 'https://www.indiebookshop.com';
+  const homepageMetaTags = `
+    <!-- Server-side injected meta tags for SEO -->
+    <title>IndiebookShop.com - Discover Independent Bookshops Across America</title>
+    <meta name="description" content="Find over 3,000 independent bookshops across the United States and Canada. Browse our comprehensive directory, search by location, and discover unique literary spaces in your community." />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="${canonicalUrl}" />
+    <meta property="og:title" content="IndiebookShop.com - Discover Independent Bookshops Across America" />
+    <meta property="og:description" content="Find over 3,000 independent bookshops across the United States and Canada. Browse our comprehensive directory, search by location, and discover unique literary spaces in your community." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="${canonicalUrl}" />
+    <meta property="og:site_name" content="IndiebookShop.com" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="IndiebookShop.com - Discover Independent Bookshops Across America" />
+    <meta name="twitter:description" content="Find over 3,000 independent bookshops across the United States and Canada. Browse our comprehensive directory, search by location, and discover unique literary spaces in your community." />
+  `;
+  
+  // Remove existing canonical tag if present (to avoid duplicates)
+  indexHtml = indexHtml.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '');
+  
+  // Remove existing meta description if present
+  indexHtml = indexHtml.replace(/<meta\s+name=["']description["'][^>]*>/gi, '');
+  
+  // Remove existing title tag if present (we'll replace it)
+  indexHtml = indexHtml.replace(/<title>.*?<\/title>/gi, '');
+  
+  // Inject meta tags before closing </head> tag
+  if (indexHtml.includes('</head>')) {
+    indexHtml = indexHtml.replace('</head>', `${homepageMetaTags}</head>`);
+    console.log('Homepage meta tags injected into index.html');
+  }
+  
+  // Check if SEO body content is already injected
+  if (!indexHtml.includes('<!-- Server-side injected SEO body content -->')) {
+    // Find <div id="root"> and inject before it
+    const rootDivPattern = /<div\s+id=["']root["'][^>]*>/i;
+    const rootDivMatch = indexHtml.match(rootDivPattern);
+    
+    if (rootDivMatch) {
+      const rootDivTag = rootDivMatch[0];
+      const seoContentWithMarker = `<!-- Server-side injected SEO body content -->\n${homepageSeoContent}`;
+      indexHtml = indexHtml.replace(rootDivTag, seoContentWithMarker + '\n' + rootDivTag);
+      console.log('Homepage SEO body content injected into index.html');
+    } else {
+      console.warn('Warning: Could not find <div id="root"> in index.html, skipping SEO body content injection');
+    }
+  } else {
+    console.log('Homepage SEO body content already present in index.html');
+  }
+  
+  // Write the modified HTML back to file
+  fs.writeFileSync(indexPath, indexHtml, 'utf-8');
 } else {
   console.warn('Warning: Could not find built index.html to extract script paths');
 }
