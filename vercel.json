@@ -18,6 +18,10 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/static-pages.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "api/cron/refresh-google-photos.js",
       "use": "@vercel/node"
     },
@@ -61,6 +65,30 @@
     {
       "source": "/api/:path*",
       "destination": "/api/serverless.js"
+    },
+    {
+      "source": "/",
+      "destination": "/api/static-pages.js"
+    },
+    {
+      "source": "/directory",
+      "destination": "/api/static-pages.js"
+    },
+    {
+      "source": "/about",
+      "destination": "/api/static-pages.js"
+    },
+    {
+      "source": "/contact",
+      "destination": "/api/static-pages.js"
+    },
+    {
+      "source": "/events",
+      "destination": "/api/static-pages.js"
+    },
+    {
+      "source": "/blog",
+      "destination": "/api/static-pages.js"
     },
     {
       "source": "/(.*)",
