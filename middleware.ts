@@ -289,22 +289,37 @@ export async function middleware(request: Request) {
   const staticPages = ['/', '/directory', '/about', '/contact', '/events', '/blog'];
   if (staticPages.includes(pathname)) {
     console.log(`[Edge Middleware] Rewriting static page ${pathname} to /api/static-pages.js`);
-    // Rewrite the request to the serverless function
-    const rewriteUrl = new URL(request.url);
-    rewriteUrl.pathname = '/api/static-pages.js';
-    // Preserve query string
-    const rewrittenRequest = new Request(rewriteUrl.toString(), {
-      method: request.method,
-      headers: request.headers,
-      body: request.body,
-    });
-    // Fetch from the rewritten URL and return the response
+    // Construct the full URL to the serverless function
+    // Use the origin from the request to ensure we're fetching from the same deployment
+    const origin = url.origin;
+    const functionUrl = `${origin}/api/static-pages.js`;
+    
+    // Create a new request with the original pathname in a header so the function knows which page to serve
+    const headers = new Headers(request.headers);
+    headers.set('x-vercel-original-path', pathname);
+    headers.set('x-middleware-rewrite', functionUrl);
+    
+    // Fetch from the serverless function
     try {
-      const response = await fetch(rewrittenRequest);
+      const functionRequest = new Request(functionUrl, {
+        method: request.method,
+        headers: headers,
+        body: request.body,
+      });
+      
+      console.log(`[Edge Middleware] Fetching from ${functionUrl} for pathname ${pathname}`);
+      const response = await fetch(functionRequest);
+      console.log(`[Edge Middleware] Got response status ${response.status} for ${pathname}`);
+      
+      // Clone the response so we can read it
+      const responseClone = response.clone();
+      const text = await responseClone.text();
+      console.log(`[Edge Middleware] Response length: ${text.length}, contains 'Static Pages': ${text.includes('[Static Pages]') || text.includes('Static Pages')}`);
+      
       return response;
     } catch (error) {
-      console.error(`[Edge Middleware] Error rewriting ${pathname}:`, error);
-      // Pass through on error
+      console.error(`[Edge Middleware] Error fetching from serverless function for ${pathname}:`, error);
+      // Pass through on error - let Vercel serve the static file
       return new Response(null, { status: 200 });
     }
   }
