@@ -53,7 +53,7 @@ fs.writeFileSync('api/env-config.js', envConfigContent);
 console.log('Extracting script paths from built index.html...');
 const indexPath = path.join(cwd, 'dist', 'public', 'index.html');
 if (fs.existsSync(indexPath)) {
-  const indexHtml = fs.readFileSync(indexPath, 'utf-8');
+  let indexHtml = fs.readFileSync(indexPath, 'utf-8');
   
   // Match the Vite-generated script (type="module", crossorigin, and in /assets/)
   // More specific regex to match: <script type="module" crossorigin src="/assets/index-XXXXX.js"></script>
