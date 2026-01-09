@@ -175,6 +175,26 @@ export const CSS_PATH = ${cssPath ? `'${cssPath}'` : 'null'};
     </noscript>
   `;
   
+  // Generate canonical tag for homepage
+  const canonicalUrl = 'https://www.indiebookshop.com';
+  const canonicalTag = `
+    <!-- Server-side injected meta tags for SEO -->
+    <link rel="canonical" href="${canonicalUrl}" />
+    <meta property="og:url" content="${canonicalUrl}" />
+  `;
+  
+  // Inject canonical tag if not already present
+  if (!indexHtml.includes('<!-- Server-side injected meta tags for SEO -->')) {
+    // Remove existing canonical tag if present (to avoid duplicates)
+    indexHtml = indexHtml.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '');
+    
+    // Inject before closing </head> tag
+    if (indexHtml.includes('</head>')) {
+      indexHtml = indexHtml.replace('</head>', `${canonicalTag}</head>`);
+      console.log('Homepage canonical tag injected into index.html');
+    }
+  }
+  
   // Check if SEO content is already injected
   if (!indexHtml.includes('<!-- Server-side injected SEO body content -->')) {
     // Find <div id="root"> and inject before it
@@ -184,8 +204,7 @@ export const CSS_PATH = ${cssPath ? `'${cssPath}'` : 'null'};
     if (rootDivMatch) {
       const rootDivTag = rootDivMatch[0];
       const seoContentWithMarker = `<!-- Server-side injected SEO body content -->\n${homepageSeoContent}`;
-      const modifiedHtml = indexHtml.replace(rootDivTag, seoContentWithMarker + '\n' + rootDivTag);
-      fs.writeFileSync(indexPath, modifiedHtml, 'utf-8');
+      indexHtml = indexHtml.replace(rootDivTag, seoContentWithMarker + '\n' + rootDivTag);
       console.log('Homepage SEO content injected into index.html');
     } else {
       console.warn('Warning: Could not find <div id="root"> in index.html, skipping SEO content injection');
@@ -193,6 +212,9 @@ export const CSS_PATH = ${cssPath ? `'${cssPath}'` : 'null'};
   } else {
     console.log('Homepage SEO content already present in index.html');
   }
+  
+  // Write the modified HTML back to file
+  fs.writeFileSync(indexPath, indexHtml, 'utf-8');
 } else {
   console.warn('Warning: Could not find built index.html to extract script paths');
 }

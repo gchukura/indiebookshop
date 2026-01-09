@@ -228,6 +228,79 @@ function generateBlogSeoContent() {
 }
 
 /**
+ * Generate meta tags (including canonical) for static pages
+ */
+function generateStaticPageMetaTags(pathname) {
+  const BASE_URL = 'https://www.indiebookshop.com';
+  const canonicalUrl = `${BASE_URL}${pathname === '/' ? '' : pathname}`;
+  
+  // Page-specific titles and descriptions
+  const pageMeta = {
+    '/': {
+      title: 'IndiebookShop.com - Discover Independent Bookshops Across America',
+      description: 'Find over 3,000 independent bookshops across the United States and Canada. Browse our comprehensive directory, search by location, and discover unique literary spaces in your community.',
+    },
+    '/directory': {
+      title: 'Browse Our Directory of Independent Bookshops | IndiebookShop.com',
+      description: 'Explore our comprehensive directory of over 3,000 independent bookshops. Search by state, city, or specialty features like coffee shops, rare books, and children\'s sections.',
+    },
+    '/about': {
+      title: 'About IndiebookShop.com - Supporting Independent Bookshops',
+      description: 'IndiebookShop.com is dedicated to supporting and promoting independent bookshops across America. Learn about our mission to connect readers with local independent booksellers.',
+    },
+    '/contact': {
+      title: 'Contact IndiebookShop.com - Get in Touch',
+      description: 'Contact IndiebookShop.com with questions, suggestions, or to report issues. We\'re here to help connect book lovers with independent bookshops.',
+    },
+    '/events': {
+      title: 'Independent Bookshop Events | IndiebookShop.com',
+      description: 'Discover author readings, book signings, and special events at independent bookshops across America. Find literary events in your community.',
+    },
+    '/blog': {
+      title: 'Independent Bookshop Blog | IndiebookShop.com',
+      description: 'Read stories, interviews, and insights about independent bookshops across America. Celebrate the unique character and community value of indie bookstores.',
+    },
+  };
+  
+  const meta = pageMeta[pathname] || pageMeta['/'];
+  
+  return `
+    <!-- Server-side injected meta tags for SEO -->
+    <link rel="canonical" href="${canonicalUrl}" />
+    <meta property="og:url" content="${canonicalUrl}" />
+  `;
+}
+
+/**
+ * Inject meta tags into HTML head
+ */
+function injectMetaTags(html, metaTags) {
+  if (!html || typeof html !== 'string' || !metaTags || typeof metaTags !== 'string') {
+    return html;
+  }
+  
+  // Check if meta tags are already injected
+  if (html.includes('<!-- Server-side injected meta tags for SEO -->')) {
+    return html;
+  }
+  
+  // Remove existing canonical tag if present (to avoid duplicates)
+  html = html.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '');
+  
+  // Inject before closing </head> tag
+  if (html.includes('</head>')) {
+    return html.replace('</head>', `${metaTags}</head>`);
+  }
+  
+  // Fallback: inject after <head> tag
+  if (html.includes('<head>')) {
+    return html.replace('<head>', `<head>${metaTags}`);
+  }
+  
+  return html;
+}
+
+/**
  * Inject SEO body content into HTML before the root div
  */
 function injectSeoBodyContent(html, seoContent) {
@@ -363,11 +436,15 @@ export default async function handler(req, res) {
       return res.status(200).send(fallbackHtml);
     }
     
-    // Generate and inject SEO content
-    const seoContent = seoContentGenerator();
-    const modifiedHtml = injectSeoBodyContent(baseHtml, seoContent);
+    // Generate and inject meta tags (including canonical)
+    const metaTags = generateStaticPageMetaTags(pathname);
+    let modifiedHtml = injectMetaTags(baseHtml, metaTags);
     
-    console.log(`[Static Pages] SEO content injected for ${pathname}, HTML length: ${modifiedHtml.length}`);
+    // Generate and inject SEO body content
+    const seoContent = seoContentGenerator();
+    modifiedHtml = injectSeoBodyContent(modifiedHtml, seoContent);
+    
+    console.log(`[Static Pages] Meta tags and SEO content injected for ${pathname}, HTML length: ${modifiedHtml.length}`);
     
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
