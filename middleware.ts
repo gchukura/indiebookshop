@@ -649,22 +649,26 @@ export async function middleware(request: Request) {
           console.error(`[Edge Middleware] Error fetching /index.html:`, error);
         }
         
-        // If /index.html fails, try root path
+        // If /index.html fails, try using x-middleware-rewrite to bypass middleware
+        // This prevents circular requests when fetching from root
         if (!htmlResponse || !htmlResponse.ok) {
           try {
-            const rootUrl = new URL(request.url);
-            rootUrl.pathname = '/';
-            rootUrl.search = ''; // Clear query params
+            // Use x-middleware-rewrite header to fetch static file directly
+            // This bypasses the middleware matcher
+            const rewriteUrl = new URL(request.url);
+            rewriteUrl.pathname = '/index.html';
             
-            htmlResponse = await fetch(rootUrl.toString(), {
+            // Create a new request with rewrite header to bypass middleware
+            htmlResponse = await fetch(rewriteUrl.toString(), {
               headers: {
                 'User-Agent': request.headers.get('User-Agent') || '',
                 'Accept': 'text/html',
+                'x-middleware-rewrite': '/index.html',
               },
               cache: 'no-store',
             });
           } catch (error) {
-            console.error(`[Edge Middleware] Error fetching root:`, error);
+            console.error(`[Edge Middleware] Error fetching with rewrite header:`, error);
           }
         }
         
