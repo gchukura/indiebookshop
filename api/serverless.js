@@ -115,8 +115,19 @@ async function setupServer() {
         // Instead, we rely on Vercel's file routing
         
         // Handle client-side routing for non-API routes
-        app.get('*', (req, res) => {
+        app.get('*', async (req, res) => {
           if (!req.path.startsWith('/api/')) {
+            // If this is the homepage, try to use static-pages function
+            if (req.path === '/' || req.path === '') {
+              try {
+                const staticPagesHandler = (await import('./static-pages.js')).default;
+                return staticPagesHandler(req, res);
+              } catch (error) {
+                console.error('[Serverless] Error importing static-pages for homepage:', error);
+                // Fall through to default HTML
+              }
+            }
+            
             // Properly escape the Mapbox token to prevent XSS/injection attacks
             const mapboxToken = process.env.MAPBOX_ACCESS_TOKEN || '';
             const escapedToken = JSON.stringify(mapboxToken);
