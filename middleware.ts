@@ -366,6 +366,41 @@ async function fetchBookshopBySlug(slug: string): Promise<any | null> {
 }
 
 /**
+ * Try to find a bookshop by trying different slug variations
+ * This handles location variants like "powells-books-portland" by trying:
+ * 1. Full slug
+ * 2. Remove last part (portland) → "powells-books"
+ * 3. Remove another part → "powells"
+ * etc.
+ */
+async function findBookshopBySlugVariations(
+  slug: string
+): Promise<{ bookshop: any; matchedSlug: string } | null> {
+  // Try the full slug first
+  let bookshop = await fetchBookshopBySlug(slug);
+  if (bookshop) {
+    return { bookshop, matchedSlug: slug };
+  }
+
+  // If not found, try progressively removing parts from the end
+  // This handles location variants like "powells-books-portland"
+  const parts = slug.split('-');
+  
+  // Try removing parts from the end (city name, etc.)
+  for (let i = parts.length - 1; i >= 1; i--) {
+    const baseSlug = parts.slice(0, i).join('-');
+    if (baseSlug && baseSlug.length > 0) {
+      bookshop = await fetchBookshopBySlug(baseSlug);
+      if (bookshop) {
+        return { bookshop, matchedSlug: baseSlug };
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
  * Inject meta tags into HTML
  */
 function injectMetaTags(html: string, metaTags: string): string {
@@ -708,18 +743,46 @@ export async function middleware(request: Request) {
   
   // Handle meta tag injection for /bookshop/* routes
   if (pathname.startsWith('/bookshop/')) {
-    const slug = pathname.split('/').pop();
+    const requestedSlug = pathname.split('/').pop();
     
-    if (!slug) {
+    if (!requestedSlug) {
       return new Response(null, { status: 200 });
     }
     
+    // Skip if it's numeric (handled by client-side redirect)
+    if (/^\d+$/.test(requestedSlug)) {
+      return new Response(null, { status: 200 });
+    }
+    
+    // Check if this looks like a location variant (has multiple hyphens)
+    // Location variants typically have 2+ parts: "name-city" or "name-books-city"
+    const parts = requestedSlug.split('-');
+    if (parts.length >= 2) {
+      try {
+        const result = await findBookshopBySlugVariations(requestedSlug);
+        if (result) {
+          const { bookshop, matchedSlug } = result;
+          const canonicalSlug = generateSlugFromName(bookshop.name);
+          
+          // If the requested slug doesn't match the canonical slug, redirect
+          if (canonicalSlug && requestedSlug !== canonicalSlug) {
+            const canonicalUrl = `${url.origin}/bookshop/${canonicalSlug}`;
+            console.log(`[Edge Middleware] Location variant redirect: ${pathname} → ${canonicalUrl}`);
+            return Response.redirect(canonicalUrl, 301);
+          }
+        }
+      } catch (error) {
+        console.error('[Edge Middleware] Error looking up bookshop for location variant redirect:', error);
+        // Continue to meta tag injection on error
+      }
+    }
+    
     // OPTIMIZATION: Check cache first
-    let bookshop = getCachedBookshop(slug);
+    let bookshop = getCachedBookshop(requestedSlug);
     
     if (!bookshop) {
       // Fetch bookshop data from Supabase
-      bookshop = await fetchBookshopBySlug(slug);
+      bookshop = await fetchBookshopBySlug(requestedSlug);
       
       if (!bookshop) {
         // Bookshop not found - pass through to 404
@@ -727,7 +790,7 @@ export async function middleware(request: Request) {
       }
       
       // Cache the result
-      setCachedBookshop(slug, bookshop);
+      setCachedBookshop(requestedSlug, bookshop);
     }
     
     // Generate meta tags
