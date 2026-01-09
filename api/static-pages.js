@@ -261,7 +261,17 @@ function injectSeoBodyContent(html, seoContent) {
  */
 export default async function handler(req, res) {
   // Extract pathname from URL (remove query params and normalize)
+  // For Vercel serverless functions, req.url might be the full URL or just the path
   let pathname = req.url || req.path || '/';
+  
+  // Handle full URLs (extract pathname)
+  try {
+    const url = new URL(pathname, 'http://localhost');
+    pathname = url.pathname;
+  } catch (e) {
+    // Not a full URL, use as-is
+  }
+  
   // Remove query parameters
   if (pathname.includes('?')) {
     pathname = pathname.split('?')[0];
@@ -271,7 +281,12 @@ export default async function handler(req, res) {
     pathname = pathname.slice(0, -1);
   }
   
-  console.log(`[Static Pages] Requested pathname: ${pathname}`);
+  // Ensure pathname starts with /
+  if (!pathname.startsWith('/')) {
+    pathname = '/' + pathname;
+  }
+  
+  console.log(`[Static Pages] Requested pathname: ${pathname}, req.url: ${req.url}, req.path: ${req.path}`);
   
   // Map of static pages to their SEO content generators
   const staticPages = {
