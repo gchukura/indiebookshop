@@ -228,7 +228,23 @@ function generateBlogSeoContent() {
 }
 
 /**
- * Generate meta tags (including canonical) for static pages
+ * Escape HTML entities to prevent XSS and ensure valid HTML
+ */
+function escapeHtml(text) {
+  if (!text || typeof text !== 'string') {
+    return '';
+  }
+  
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Generate meta tags (including canonical, title, description) for static pages
  */
 function generateStaticPageMetaTags(pathname) {
   const BASE_URL = 'https://www.indiebookshop.com';
@@ -263,40 +279,108 @@ function generateStaticPageMetaTags(pathname) {
   };
   
   const meta = pageMeta[pathname] || pageMeta['/'];
+  const escapedTitle = escapeHtml(meta.title);
+  const escapedDescription = escapeHtml(meta.description);
   
   return `
     <!-- Server-side injected meta tags for SEO -->
+    <title>${escapedTitle}</title>
+    <meta name="description" content="${escapedDescription}" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="${canonicalUrl}" />
+    <meta property="og:title" content="${escapedTitle}" />
+    <meta property="og:description" content="${escapedDescription}" />
+    <meta property="og:type" content="website" />
     <meta property="og:url" content="${canonicalUrl}" />
+    <meta property="og:site_name" content="IndiebookShop.com" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="${escapedTitle}" />
+    <meta name="twitter:description" content="${escapedDescription}" />
   `;
 }
 
 /**
  * Inject meta tags into HTML head
+ * Removes existing meta tags before injection to avoid conflicts
  */
 function injectMetaTags(html, metaTags) {
   if (!html || typeof html !== 'string' || !metaTags || typeof metaTags !== 'string') {
     return html;
   }
   
-  // Check if meta tags are already injected
+  console.log('[Static Pages] Injecting meta tags, HTML length:', html.length);
+  
+  // Remove existing server-side injected meta tags (from build-time injection or previous runtime injection)
   if (html.includes('<!-- Server-side injected meta tags for SEO -->')) {
-    return html;
+    console.log('[Static Pages] Found existing server-side injected meta tags, removing them');
+    // Remove the entire block of server-side injected meta tags
+    // Pattern: from comment to next comment or closing head tag
+    html = html.replace(/<!-- Server-side injected meta tags for SEO -->[\s\S]*?(?=<!-- Server-side injected SEO body content -->|<\/head>)/i, '');
   }
   
-  // Remove existing canonical tag if present (to avoid duplicates)
+  // Remove existing canonical tag to avoid duplicates
+  const beforeCanonicalRemoval = html;
   html = html.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '');
+  if (beforeCanonicalRemoval !== html) {
+    console.log('[Static Pages] Removed existing canonical tag(s)');
+  }
+  
+  // Remove existing og:url tags to avoid duplicates (canonical URL should be in og:url)
+  const beforeOgUrlRemoval = html;
+  html = html.replace(/<meta\s+property=["']og:url["'][^>]*>/gi, '');
+  if (beforeOgUrlRemoval !== html) {
+    console.log('[Static Pages] Removed existing og:url tag(s)');
+  }
+  
+  // Remove existing title tag to avoid duplicates
+  const beforeTitleRemoval = html;
+  html = html.replace(/<title>.*?<\/title>/gi, '');
+  if (beforeTitleRemoval !== html) {
+    console.log('[Static Pages] Removed existing title tag(s)');
+  }
+  
+  // Remove existing meta description tags to avoid duplicates
+  const beforeDescriptionRemoval = html;
+  html = html.replace(/<meta\s+name=["']description["'][^>]*>/gi, '');
+  if (beforeDescriptionRemoval !== html) {
+    console.log('[Static Pages] Removed existing meta description tag(s)');
+  }
+  
+  // Remove existing og:title and og:description tags to avoid duplicates
+  html = html.replace(/<meta\s+property=["']og:title["'][^>]*>/gi, '');
+  html = html.replace(/<meta\s+property=["']og:description["'][^>]*>/gi, '');
+  html = html.replace(/<meta\s+name=["']twitter:title["'][^>]*>/gi, '');
+  html = html.replace(/<meta\s+name=["']twitter:description["'][^>]*>/gi, '');
   
   // Inject before closing </head> tag
   if (html.includes('</head>')) {
-    return html.replace('</head>', `${metaTags}</head>`);
+    html = html.replace('</head>', `${metaTags}</head>`);
+    console.log('[Static Pages] Meta tags injected before </head> tag');
+    
+    // Verify injection worked
+    if (html.includes('<!-- Server-side injected meta tags for SEO -->')) {
+      console.log('[Static Pages] Meta tags successfully injected');
+      // Verify canonical tag is present
+      if (html.includes('<link rel="canonical"')) {
+        console.log('[Static Pages] Canonical tag verified in HTML');
+      } else {
+        console.error('[Static Pages] WARNING: Canonical tag not found in HTML!');
+      }
+    } else {
+      console.error('[Static Pages] WARNING: Meta tags may not have been injected correctly');
+    }
+    return html;
   }
   
   // Fallback: inject after <head> tag
   if (html.includes('<head>')) {
-    return html.replace('<head>', `<head>${metaTags}`);
+    html = html.replace('<head>', `<head>${metaTags}`);
+    console.log('[Static Pages] Meta tags injected after <head> tag');
+    return html;
   }
   
+  console.error('[Static Pages] No <head> tag found in HTML!');
   return html;
 }
 

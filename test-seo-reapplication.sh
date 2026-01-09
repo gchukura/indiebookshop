@@ -98,6 +98,64 @@ check_meta_tag() {
   fi
 }
 
+# Check if canonical tag exists and extract URL
+check_canonical_tag() {
+  local url=$1
+  local content=$(curl $CURL_OPTS -s "$url" 2>/dev/null || echo "")
+  
+  # Check for canonical link tag (case insensitive)
+  if echo "$content" | grep -qi 'rel.*canonical'; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Check if meta description is 120+ characters
+check_meta_description_length() {
+  local url=$1
+  local content=$(curl $CURL_OPTS -s "$url" 2>/dev/null || echo "")
+  
+  # Extract meta description content using sed (works on macOS)
+  local desc=""
+  
+  # Pattern: Extract content from <meta name="description" content="...">
+  desc=$(echo "$content" | grep -i 'meta.*name.*description' | sed -n 's/.*content=["'\'']\([^"'\'']*\)["'\''].*/\1/p' | head -1)
+  
+  # If that didn't work, try with double quotes
+  if [ -z "$desc" ]; then
+    desc=$(echo "$content" | grep -i 'meta.*name.*description' | sed -n 's/.*content="\([^"]*\)".*/\1/p' | head -1)
+  fi
+  
+  # If still empty, try single quotes
+  if [ -z "$desc" ]; then
+    desc=$(echo "$content" | grep -i 'meta.*name.*description' | sed -n "s/.*content='\([^']*\)'.*/\1/p" | head -1)
+  fi
+  
+  # Check length
+  if [ -n "$desc" ] && [ ${#desc} -ge 120 ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Check redirect chain (verifies final URL is correct)
+check_redirect_chain() {
+  local url=$1
+  local expected_final="https://www.indiebookshop.com"
+  
+  # Get final URL after following redirects (don't follow more than 5 redirects)
+  local final_url=$(curl $CURL_OPTS -s -o /dev/null -w "%{url_effective}" -L --max-redirs 5 "$url" 2>/dev/null || echo "")
+  
+  # Check if final URL matches expected
+  if echo "$final_url" | grep -q "$expected_final"; then
+    return 0
+  fi
+  
+  return 1
+}
+
 echo "=========================================="
 echo "SEO Re-application Test Suite"
 echo "=========================================="
@@ -239,6 +297,57 @@ if check_content "$BASE_URL/" 'href="/bookshop/[^"]*"'; then
   test_pass "Bookshop links use proper format"
 else
   test_fail "Bookshop links may have formatting issues"
+fi
+
+# Test 16: Canonical tags on homepage
+test_info "Testing canonical tags on homepage..."
+if check_canonical_tag "$BASE_URL/"; then
+  test_pass "Homepage has canonical tag"
+else
+  test_fail "Homepage missing canonical tag"
+fi
+
+# Test 17: Canonical tags on bookshop pages
+test_info "Testing canonical tags on bookshop pages..."
+if check_canonical_tag "$BASE_URL/bookshop/powells-books"; then
+  test_pass "Bookshop page has canonical tag"
+else
+  test_fail "Bookshop page missing canonical tag"
+fi
+
+# Test 18: Canonical tags on static pages
+test_info "Testing canonical tags on static pages..."
+for page in "directory" "about" "contact" "events" "blog"; do
+  if check_canonical_tag "$BASE_URL/$page"; then
+    test_pass "$page page has canonical tag"
+  else
+    test_fail "$page page missing canonical tag"
+  fi
+done
+
+# Test 19: Meta description length on bookshop pages
+test_info "Testing meta description length on bookshop pages..."
+if check_meta_description_length "$BASE_URL/bookshop/powells-books"; then
+  test_pass "Bookshop page meta description is 120+ characters"
+else
+  test_fail "Bookshop page meta description is too short (< 120 characters)"
+fi
+
+# Test 20: Redirect chains (http → https → www)
+test_info "Testing redirect chains..."
+# Test http://indiebookshop.com → should redirect to https://www.indiebookshop.com
+if check_redirect_chain "http://indiebookshop.com/"; then
+  test_pass "HTTP to HTTPS redirect chain works"
+else
+  test_info "Redirect chain test: May require manual verification (Vercel/DNS config)"
+fi
+
+# Test 21: Redirect chains (https non-www → www)
+test_info "Testing non-www to www redirect..."
+if check_redirect_chain "https://indiebookshop.com/"; then
+  test_pass "Non-www to www redirect works"
+else
+  test_info "Non-www redirect test: May require manual verification (Vercel/DNS config)"
 fi
 
 echo ""
