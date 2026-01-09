@@ -88,6 +88,65 @@ export const CSS_PATH = ${cssPath ? `'${cssPath}'` : 'null'};
   // Inject homepage SEO content into index.html at build time
   // This ensures the homepage has SEO content even when Vercel serves it directly
   console.log('Injecting homepage SEO content into index.html...');
+  
+  // Helper function to generate slug from name (matches shared/utils.ts logic)
+  function generateSlugFromName(name) {
+    if (!name || typeof name !== 'string') {
+      return '';
+    }
+    return name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')     // Replace spaces with hyphens
+      .replace(/--+/g, '-')     // Replace multiple hyphens with single hyphen
+      .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+      .trim();                  // Trim leading/trailing spaces
+  }
+  
+  // Helper function to escape HTML
+  function escapeHtml(text) {
+    if (!text || typeof text !== 'string') {
+      return '';
+    }
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+  }
+  
+  // Add static bookshop links for SEO (using well-known bookshops that are likely in the database)
+  // These provide internal linking even without database access at build time
+  const featuredBookshops = [
+    { name: 'Powell\'s Books', city: 'Portland', state: 'Oregon' },
+    { name: 'The Strand', city: 'New York', state: 'New York' },
+    { name: 'City Lights Booksellers', city: 'San Francisco', state: 'California' },
+    { name: 'Tattered Cover', city: 'Denver', state: 'Colorado' },
+    { name: 'Politics and Prose', city: 'Washington', state: 'DC' },
+    { name: 'BookPeople', city: 'Austin', state: 'Texas' },
+    { name: 'Elliott Bay Book Company', city: 'Seattle', state: 'Washington' },
+    { name: 'Prairie Lights', city: 'Iowa City', state: 'Iowa' },
+    { name: 'Square Books', city: 'Oxford', state: 'Mississippi' },
+    { name: 'Harvard Book Store', city: 'Cambridge', state: 'Massachusetts' }
+  ];
+  
+  let bookshopLinks = '<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;"><h2 style="font-size: 1.5em; margin-bottom: 15px; color: #1a1a1a;">Featured Independent Bookshops</h2><ul style="list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px;">';
+  
+  featuredBookshops.forEach((bookshop) => {
+    const slug = generateSlugFromName(bookshop.name);
+    if (slug) {
+      const location = [bookshop.city, bookshop.state].filter(Boolean).join(', ');
+      const escapedName = escapeHtml(bookshop.name);
+      const escapedLocation = location ? ` - ${escapeHtml(location)}` : '';
+      bookshopLinks += `<li style="margin: 0;"><a href="/bookshop/${slug}" style="color: #2A6B7C; text-decoration: none; font-weight: 500;">${escapedName}${escapedLocation}</a></li>`;
+    }
+  });
+  
+  bookshopLinks += '</ul></div>';
+  
   const homepageSeoContent = `
     <noscript>
       <style>
@@ -105,6 +164,7 @@ export const CSS_PATH = ${cssPath ? `'${cssPath}'` : 'null'};
         <p>Our directory makes it easy to find independent bookshops by location, specialty, and features. Whether you're looking for a bookshop with a coffee shop, rare books, children's sections, or reading spaces, you can search our interactive map or browse by state, city, or category.</p>
         <p>Each bookshop listing includes detailed information about location, hours, contact information, and special features. Many listings also feature photos, descriptions, and links to bookshop websites and social media profiles.</p>
         <p>Supporting independent bookshops helps preserve literary culture and keeps money in local communities. When you shop at an indie bookstore, you're supporting local jobs, local authors, and the unique character of your neighborhood.</p>
+        ${bookshopLinks}
         <nav>
           <a href="/directory">Browse All Bookshops</a>
           <a href="/about">About Us</a>
