@@ -628,21 +628,66 @@ export async function middleware(request: Request) {
       let html = getCachedBaseHtml();
       
       if (!html) {
-        const originUrl = new URL(request.url);
-        originUrl.pathname = '/';
+        // In Vercel Edge Middleware, we need to fetch from the origin
+        // Use the internal origin URL to avoid middleware loops
+        // Try /index.html first (shouldn't match middleware matcher)
+        let htmlResponse: Response | null = null;
         
-        const htmlResponse = await fetch(originUrl.toString(), {
-          headers: {
-            'User-Agent': request.headers.get('User-Agent') || '',
-            'Accept': 'text/html',
-          },
-        });
+        try {
+          const indexUrl = new URL(request.url);
+          indexUrl.pathname = '/index.html';
+          
+          htmlResponse = await fetch(indexUrl.toString(), {
+            headers: {
+              'User-Agent': request.headers.get('User-Agent') || '',
+              'Accept': 'text/html',
+            },
+            // Add cache control to prevent loops
+            cache: 'no-store',
+          });
+        } catch (error) {
+          console.error(`[Edge Middleware] Error fetching /index.html:`, error);
+        }
         
-        if (!htmlResponse.ok) {
+        // If /index.html fails, try root path
+        if (!htmlResponse || !htmlResponse.ok) {
+          try {
+            const rootUrl = new URL(request.url);
+            rootUrl.pathname = '/';
+            rootUrl.search = ''; // Clear query params
+            
+            htmlResponse = await fetch(rootUrl.toString(), {
+              headers: {
+                'User-Agent': request.headers.get('User-Agent') || '',
+                'Accept': 'text/html',
+              },
+              cache: 'no-store',
+            });
+          } catch (error) {
+            console.error(`[Edge Middleware] Error fetching root:`, error);
+          }
+        }
+        
+        if (!htmlResponse || !htmlResponse.ok) {
+          console.error(`[Edge Middleware] Failed to fetch HTML for ${pathname}, status: ${htmlResponse?.status || 'unknown'}`);
+          // Pass through - let Vercel serve the static file
           return new Response(null, { status: 200 });
         }
         
         html = await htmlResponse.text();
+        
+        // Verify we got valid HTML
+        if (!html || !html.includes('<!DOCTYPE html>')) {
+          console.error(`[Edge Middleware] Invalid HTML fetched for ${pathname}, length: ${html?.length || 0}, contains DOCTYPE: ${html?.includes('<!DOCTYPE html>')}`);
+          // Pass through - let Vercel serve the static file
+          return new Response(null, { status: 200 });
+        }
+        
+        // Verify it has the root div (needed for injection)
+        if (!html.includes('<div id="root">') && !html.includes('<div id=\'root\'>')) {
+          console.warn(`[Edge Middleware] HTML missing root div, but continuing with injection`);
+        }
+        
         setCachedBaseHtml(html);
       }
       
