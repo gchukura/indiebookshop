@@ -354,8 +354,9 @@ function injectMetaTags(html, metaTags) {
     html = `${metaTags}${html}`;
   }
   
-  // Verify injection worked
-  if (html.includes('<!-- Server-side injected meta tags for SEO -->')) {
+  // Verify injection worked (check for both regular and 404 page meta tags)
+  if (html.includes('<!-- Server-side injected meta tags for SEO -->') || 
+      html.includes('<!-- Server-side injected meta tags for SEO (404 Page) -->')) {
     console.log('[Serverless] Meta tags successfully injected');
     // Verify canonical tag is present
     if (html.includes('<link rel="canonical"')) {
