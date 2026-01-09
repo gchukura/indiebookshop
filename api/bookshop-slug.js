@@ -275,6 +275,13 @@ function injectMetaTags(html, metaTags) {
     return html;
   }
   
+  // Remove existing canonical tags to avoid duplicates
+  const beforeCanonicalRemoval = html;
+  html = html.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '');
+  if (beforeCanonicalRemoval !== html) {
+    console.log('[Serverless] Removed existing canonical tag(s)');
+  }
+  
   // Remove existing meta description tags to avoid duplicates
   const beforeDescriptionRemoval = html;
   html = html.replace(/<meta\s+name=["']description["'][^>]*>/gi, '');
@@ -294,6 +301,13 @@ function injectMetaTags(html, metaTags) {
   html = html.replace(/<meta\s+name=["']twitter:description["'][^>]*>/gi, '');
   if (beforeTwitterDescriptionRemoval !== html) {
     console.log('[Serverless] Removed existing twitter:description tag(s)');
+  }
+  
+  // Remove existing og:url tags to avoid duplicates (canonical URL should be in og:url)
+  const beforeOgUrlRemoval = html;
+  html = html.replace(/<meta\s+property=["']og:url["'][^>]*>/gi, '');
+  if (beforeOgUrlRemoval !== html) {
+    console.log('[Serverless] Removed existing og:url tag(s)');
   }
   
   // Extract just the title from metaTags (metaTags includes title + all meta tags)
