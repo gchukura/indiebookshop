@@ -6,6 +6,10 @@
 set -e
 
 BASE_URL="${BASE_URL:-https://www.indiebookshop.com}"
+
+# Handle SSL certificate issues in sandbox environments
+# Use -k flag to skip SSL verification if needed (for testing only)
+CURL_OPTS="${CURL_OPTS:--k}"
 TEST_COUNT=0
 PASS_COUNT=0
 FAIL_COUNT=0
@@ -40,7 +44,7 @@ test_info() {
 check_status() {
   local url=$1
   local expected_status=${2:-200}
-  local status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+  local status=$(curl $CURL_OPTS -s -o /dev/null -w "%{http_code}" "$url" 2>/dev/null || echo "000")
   
   if [ "$status" = "$expected_status" ]; then
     return 0
@@ -55,7 +59,7 @@ check_redirect() {
   local expected_location=$2
   local expected_status=${3:-301}
   
-  local response=$(curl -s -o /dev/null -w "%{http_code}|%{redirect_url}" -L "$url" 2>&1)
+  local response=$(curl $CURL_OPTS -s -o /dev/null -w "%{http_code}|%{redirect_url}" -L "$url" 2>/dev/null || echo "000|")
   local status=$(echo "$response" | cut -d'|' -f1)
   local location=$(echo "$response" | cut -d'|' -f2)
   
@@ -72,7 +76,7 @@ check_redirect() {
 check_content() {
   local url=$1
   local search_string=$2
-  local content=$(curl -s "$url")
+  local content=$(curl $CURL_OPTS -s "$url" 2>/dev/null || echo "")
   
   if echo "$content" | grep -q "$search_string"; then
     return 0
@@ -85,7 +89,7 @@ check_content() {
 check_meta_tag() {
   local url=$1
   local meta_name=$2
-  local content=$(curl -s "$url")
+  local content=$(curl $CURL_OPTS -s "$url" 2>/dev/null || echo "")
   
   if echo "$content" | grep -qi "<meta.*$meta_name"; then
     return 0
@@ -199,7 +203,7 @@ fi
 
 # Test 12: Cache headers
 test_info "Testing cache headers..."
-cache_header=$(curl -s -I "$BASE_URL/" | grep -i "cache-control" || echo "")
+cache_header=$(curl $CURL_OPTS -s -I "$BASE_URL/" 2>/dev/null | grep -i "cache-control" || echo "")
 if [ -n "$cache_header" ]; then
   test_pass "Cache headers are set"
 else
