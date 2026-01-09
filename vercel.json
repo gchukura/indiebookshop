@@ -67,6 +67,14 @@
       "destination": "/api/serverless.js"
     },
     {
+      "source": "/",
+      "destination": "/api/static-pages.js"
+    },
+    {
+      "source": "/index.html",
+      "destination": "/api/static-pages.js"
+    },
+    {
       "source": "/directory",
       "destination": "/api/static-pages.js"
     },
@@ -84,10 +92,6 @@
     },
     {
       "source": "/blog",
-      "destination": "/api/static-pages.js"
-    },
-    {
-      "source": "/",
       "destination": "/api/static-pages.js"
     },
     {
