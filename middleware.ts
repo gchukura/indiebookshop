@@ -423,6 +423,26 @@ async function findBookshopBySlugVariations(
  * Inject meta tags into HTML
  */
 function injectMetaTags(html: string, metaTags: string): string {
+  // Check if meta tags are already injected (avoid duplicates)
+  if (html.includes('<!-- Server-side injected meta tags for SEO -->')) {
+    // Remove existing server-side injected meta tags to replace them
+    // This handles cases where we're re-injecting (e.g., after fetching HTML)
+    const existingMetaTagsPattern = /<!-- Server-side injected meta tags for SEO -->[\s\S]*?(?=<\/head>|$)/;
+    html = html.replace(existingMetaTagsPattern, '');
+  }
+  
+  // Remove existing canonical tag to avoid duplicates
+  html = html.replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '');
+  
+  // Remove existing meta description tags to avoid duplicates
+  html = html.replace(/<meta\s+name=["']description["'][^>]*>/gi, '');
+  
+  // Remove existing og:description tags to avoid duplicates
+  html = html.replace(/<meta\s+property=["']og:description["'][^>]*>/gi, '');
+  
+  // Remove existing twitter:description tags to avoid duplicates
+  html = html.replace(/<meta\s+name=["']twitter:description["'][^>]*>/gi, '');
+  
   // Find the closing </head> tag and inject meta tags before it
   if (html.includes('</head>')) {
     return html.replace('</head>', `${metaTags}</head>`);
