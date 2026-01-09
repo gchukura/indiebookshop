@@ -628,53 +628,44 @@ export async function middleware(request: Request) {
       let html = getCachedBaseHtml();
       
       if (!html) {
-        // In Vercel Edge Middleware, we need to fetch from the origin
-        // Use the internal origin URL to avoid middleware loops
-        // Try /index.html first (shouldn't match middleware matcher)
+        // In Vercel Edge Middleware, fetching from origin can create loops
+        // Instead, we'll use NextResponse.rewrite() pattern or fetch with special handling
+        // Try fetching from a path that doesn't match our matcher
         let htmlResponse: Response | null = null;
         
+        // Strategy: Fetch from /index.html which is NOT in our matcher
+        // This should bypass the middleware and get the static file directly
         try {
-          const indexUrl = new URL(request.url);
-          indexUrl.pathname = '/index.html';
+          const fetchUrl = new URL(request.url);
+          fetchUrl.pathname = '/index.html';
+          // Remove search params to avoid issues
+          fetchUrl.search = '';
           
-          htmlResponse = await fetch(indexUrl.toString(), {
+          // Use a fresh request to avoid middleware loops
+          htmlResponse = await fetch(fetchUrl.toString(), {
+            method: 'GET',
             headers: {
-              'User-Agent': request.headers.get('User-Agent') || '',
               'Accept': 'text/html',
+              // Don't include User-Agent to avoid triggering middleware
             },
-            // Add cache control to prevent loops
-            cache: 'no-store',
+            // Use cache: 'default' to allow caching but prevent loops
+            cache: 'default',
           });
-        } catch (error) {
-          console.error(`[Edge Middleware] Error fetching /index.html:`, error);
-        }
-        
-        // If /index.html fails, try using x-middleware-rewrite to bypass middleware
-        // This prevents circular requests when fetching from root
-        if (!htmlResponse || !htmlResponse.ok) {
-          try {
-            // Use x-middleware-rewrite header to fetch static file directly
-            // This bypasses the middleware matcher
-            const rewriteUrl = new URL(request.url);
-            rewriteUrl.pathname = '/index.html';
-            
-            // Create a new request with rewrite header to bypass middleware
-            htmlResponse = await fetch(rewriteUrl.toString(), {
-              headers: {
-                'User-Agent': request.headers.get('User-Agent') || '',
-                'Accept': 'text/html',
-                'x-middleware-rewrite': '/index.html',
-              },
-              cache: 'no-store',
-            });
-          } catch (error) {
-            console.error(`[Edge Middleware] Error fetching with rewrite header:`, error);
+          
+          // Log for debugging
+          if (htmlResponse.ok) {
+            console.log(`[Edge Middleware] Successfully fetched /index.html for ${pathname}`);
+          } else {
+            console.warn(`[Edge Middleware] Failed to fetch /index.html, status: ${htmlResponse.status}`);
           }
+        } catch (error) {
+          console.error(`[Edge Middleware] Error fetching /index.html for ${pathname}:`, error);
         }
         
         if (!htmlResponse || !htmlResponse.ok) {
-          console.error(`[Edge Middleware] Failed to fetch HTML for ${pathname}, status: ${htmlResponse?.status || 'unknown'}`);
+          console.error(`[Edge Middleware] Cannot fetch HTML for ${pathname}, passing through`);
           // Pass through - let Vercel serve the static file
+          // The SEO content won't be injected, but the page will still work
           return new Response(null, { status: 200 });
         }
         
@@ -682,17 +673,17 @@ export async function middleware(request: Request) {
         
         // Verify we got valid HTML
         if (!html || !html.includes('<!DOCTYPE html>')) {
-          console.error(`[Edge Middleware] Invalid HTML fetched for ${pathname}, length: ${html?.length || 0}, contains DOCTYPE: ${html?.includes('<!DOCTYPE html>')}`);
-          // Pass through - let Vercel serve the static file
+          console.error(`[Edge Middleware] Invalid HTML for ${pathname}, length: ${html?.length || 0}`);
           return new Response(null, { status: 200 });
         }
         
         // Verify it has the root div (needed for injection)
         if (!html.includes('<div id="root">') && !html.includes('<div id=\'root\'>')) {
-          console.warn(`[Edge Middleware] HTML missing root div, but continuing with injection`);
+          console.warn(`[Edge Middleware] HTML missing root div for ${pathname}`);
         }
         
         setCachedBaseHtml(html);
+        console.log(`[Edge Middleware] Cached HTML for ${pathname}, length: ${html.length}`);
       }
       
       // Generate and inject SEO content
