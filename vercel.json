@@ -59,6 +59,10 @@
       "destination": "/api/bookshop-slug.js"
     },
     {
+      "source": "/api/static-pages",
+      "destination": "/api/static-pages.js"
+    },
+    {
       "source": "/api/cron/:path*",
       "destination": "/api/cron/$path.js"
     },
