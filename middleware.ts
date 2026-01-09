@@ -284,6 +284,31 @@ export async function middleware(request: Request) {
   // Log middleware execution for debugging
   console.log(`[Edge Middleware] Executing for pathname: ${pathname}`);
   
+  // Rewrite static pages to serverless function BEFORE static file serving
+  // This ensures SEO injection works even when Vercel would serve static files
+  const staticPages = ['/', '/directory', '/about', '/contact', '/events', '/blog'];
+  if (staticPages.includes(pathname)) {
+    console.log(`[Edge Middleware] Rewriting static page ${pathname} to /api/static-pages.js`);
+    // Rewrite the request to the serverless function
+    const rewriteUrl = new URL(request.url);
+    rewriteUrl.pathname = '/api/static-pages.js';
+    // Preserve query string
+    const rewrittenRequest = new Request(rewriteUrl.toString(), {
+      method: request.method,
+      headers: request.headers,
+      body: request.body,
+    });
+    // Fetch from the rewritten URL and return the response
+    try {
+      const response = await fetch(rewrittenRequest);
+      return response;
+    } catch (error) {
+      console.error(`[Edge Middleware] Error rewriting ${pathname}:`, error);
+      // Pass through on error
+      return new Response(null, { status: 200 });
+    }
+  }
+  
   // Handle location variant redirects for /bookshop/* routes
   // SEO injection is now handled by serverless functions (api/bookshop-slug.js)
   if (pathname.startsWith('/bookshop/')) {
@@ -391,11 +416,18 @@ export async function middleware(request: Request) {
 
 // Configure which routes this middleware runs on
 // NOTE: SEO injection is now handled by serverless functions
-// This middleware only handles:
-// 1. Location variant redirects for /bookshop/* routes
-// 2. Rate limiting for /api/* routes
+// This middleware handles:
+// 1. Rewriting static pages to serverless function (before static file serving)
+// 2. Location variant redirects for /bookshop/* routes
+// 3. Rate limiting for /api/* routes
 export const config = {
   matcher: [
+    '/',                 // Homepage - rewrite to static-pages.js
+    '/directory',        // Static pages - rewrite to static-pages.js
+    '/about',
+    '/contact',
+    '/events',
+    '/blog',
     '/bookshop/:slug*',  // For location variant redirects only
     '/api/:path*',       // For rate limiting
   ],
