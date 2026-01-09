@@ -117,13 +117,16 @@ async function setupServer() {
         // Handle client-side routing for non-API routes
         app.get('*', async (req, res) => {
           if (!req.path.startsWith('/api/')) {
-            // If this is the homepage, try to use static-pages function
-            if (req.path === '/' || req.path === '') {
+            // Check if this is a static page that should go through static-pages.js
+            const staticPages = ['/', '/directory', '/about', '/contact', '/events', '/blog'];
+            const isStaticPage = staticPages.includes(req.path) || req.path === '';
+            
+            if (isStaticPage) {
               try {
                 const staticPagesHandler = (await import('./static-pages.js')).default;
                 return staticPagesHandler(req, res);
               } catch (error) {
-                console.error('[Serverless] Error importing static-pages for homepage:', error);
+                console.error('[Serverless] Error importing static-pages:', error);
                 // Fall through to default HTML
               }
             }
