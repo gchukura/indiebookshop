@@ -4,6 +4,18 @@ import { supabase } from './supabase';
 import { populateCountyData } from './countyLookup';
 
 /**
+ * Column selections optimized for egress costs
+ * CRITICAL: These constants dramatically reduce Supabase egress by fetching only needed columns
+ */
+const LIST_COLUMNS = 'id,name,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,image_url,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids';
+
+const DETAIL_COLUMNS = 'id,name,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,image_url,website,phone,live,description,google_place_id,google_rating,google_review_count,google_description,formatted_phone,website_verified,google_maps_url,google_types,formatted_address_google,business_status,google_price_level,google_data_updated_at,contact_data_fetched_at,opening_hours_json,ai_generated_description,description_source,description_generated_at,description_validated,feature_ids,hours_json';
+
+const PHOTO_COLUMNS = 'google_photos';
+const REVIEW_COLUMNS = 'google_reviews';
+const FULL_DETAIL = `${DETAIL_COLUMNS},${PHOTO_COLUMNS},${REVIEW_COLUMNS}`;
+
+/**
  * SupabaseStorage - Implements IStorage interface using Supabase as the data source
  * This replaces Google Sheets storage for reading bookstores, features, and events
  */
@@ -161,7 +173,7 @@ export class SupabaseStorage implements IStorage {
       while (hasMore) {
         const { data, error } = await supabase
           .from('bookstores')
-          .select('*')
+          .select(LIST_COLUMNS)
           .eq('live', true)
           .order('name')
           .range(from, from + pageSize - 1);
@@ -234,7 +246,7 @@ export class SupabaseStorage implements IStorage {
     try {
       const { data, error } = await supabase
         .from('bookstores')
-        .select('*')
+        .select(FULL_DETAIL)
         .eq('id', id)
         .single();
 
@@ -336,7 +348,7 @@ export class SupabaseStorage implements IStorage {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('bookstores')
-      .select('*')
+      .select(LIST_COLUMNS)
       .eq('state', state)
       .eq('live', true)
       .order('name');
@@ -374,7 +386,7 @@ export class SupabaseStorage implements IStorage {
     if (!supabase) return [];
     const { data, error } = await supabase
       .from('bookstores')
-      .select('*')
+      .select(LIST_COLUMNS)
       .ilike('city', city)
       .eq('live', true)
       .order('name');
@@ -410,12 +422,12 @@ export class SupabaseStorage implements IStorage {
 
   async getBookstoresByFeatures(featureIds: number[]): Promise<Bookstore[]> {
     if (!supabase || !featureIds.length) return [];
-    
+
     // Supabase doesn't have a direct array contains operator, so we need to query differently
     // This is a simplified version - you may need to adjust based on your schema
     const { data, error } = await supabase
       .from('bookstores')
-      .select('*')
+      .select(LIST_COLUMNS)
       .eq('live', true);
     
     if (error || !data) return [];
@@ -456,7 +468,7 @@ export class SupabaseStorage implements IStorage {
   async getFilteredBookstores(filters: { state?: string, city?: string, county?: string, featureIds?: number[] }): Promise<Bookstore[]> {
     if (!supabase) return [];
 
-    let query = supabase.from('bookstores').select('*').eq('live', true);
+    let query = supabase.from('bookstores').select(LIST_COLUMNS).eq('live', true);
 
     if (filters.state) {
       query = query.eq('state', filters.state);
