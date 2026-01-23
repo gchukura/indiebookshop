@@ -6,6 +6,11 @@ vite.config.ts.*
 *.tar.gz
 attached_assets/
 
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+
 # Environment variables and credentials
 .env
 .env.local
@@ -14,9 +19,11 @@ attached_assets/
 !package.json
 !package-lock.json
 !tsconfig.json
+!tsconfig.next.json
 !components.json
 !drizzle.config.ts
 !postcss.config.js
 !tailwind.config.ts
 !vercel.json
 !api/*.vercel.json
+!next.config.mjs
