@@ -443,7 +443,7 @@ export default function DirectoryClient({
                       onClick={() => handlePinClick(bookshop.id)}
                       className={`bg-white border-2 rounded-lg p-4 cursor-pointer transition-all ${selectedBookshopId === bookshop.id ? 'border-[#E16D3D] shadow-md' : hoveredBookshopId === bookshop.id ? 'border-[#2A6B7C] shadow-sm' : 'border-gray-200'}`}
                     >
-                      <Link href={`/bookshop/${generateSlugFromName(bookshop.name)}`} onClick={(e) => e.stopPropagation()} className="block">
+                      <Link href={`/bookshop/${generateSlugFromName(bookshop.name)}`} onClick={(e: React.MouseEvent) => e.stopPropagation()} className="block">
                         <h3 className="font-serif font-bold text-base text-[#5F4B32] mb-1 hover:text-[#2A6B7C]">{bookshop.name}</h3>
                       </Link>
                       {(bookshop.city || bookshop.state) && (

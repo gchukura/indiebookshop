@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Use Next.js-specific tsconfig to avoid conflicts with Vite app
+  typescript: {
+    tsconfigPath: './tsconfig.next.json',
+  },
+
   // Enable React strict mode for better development experience
   reactStrictMode: true,
 
