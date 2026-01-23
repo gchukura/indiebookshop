@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { MapPin, Phone, Globe, Star } from 'lucide-react';
 import Link from 'next/link';
 import { Bookstore } from '@/shared/schema';
+import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/StructuredData';
 
 type BookshopDetailClientProps = {
   bookstore: Bookstore;
@@ -33,8 +34,30 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug }: Books
     bookstore.description ||
     undefined;
 
+  // Breadcrumb schema items
+  const breadcrumbItems = [
+    { name: 'Home', url: 'https://www.indiebookshop.com' },
+    { name: 'Directory', url: 'https://www.indiebookshop.com/directory' },
+  ];
+
+  if (bookstore.state) {
+    breadcrumbItems.push({
+      name: bookstore.state,
+      url: `https://www.indiebookshop.com/directory?state=${bookstore.state}`,
+    });
+  }
+
+  breadcrumbItems.push({
+    name: bookstore.name,
+    url: `https://www.indiebookshop.com/bookshop/${canonicalSlug}`,
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Structured Data */}
+      <LocalBusinessSchema bookstore={bookstore} />
+      <BreadcrumbSchema items={breadcrumbItems} />
+
       {/* Breadcrumbs */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-3">
