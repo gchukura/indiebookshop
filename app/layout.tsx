@@ -1,8 +1,15 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
+
+// Configure viewport with proper accessibility settings
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5, // Allow users to zoom up to 5x for accessibility
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.indiebookshop.com'),

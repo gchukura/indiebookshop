@@ -59,7 +59,7 @@ export default async function HomePage() {
                 </p>
                 {bookshop.googleRating && (
                   <div className="flex items-center gap-1 text-sm">
-                    <span className="text-yellow-500">★</span>
+                    <span className="text-yellow-600">★</span>
                     <span className="text-gray-700">{bookshop.googleRating}</span>
                     {bookshop.googleReviewCount && (
                       <span className="text-gray-500">({bookshop.googleReviewCount})</span>
@@ -133,7 +133,7 @@ export default async function HomePage() {
                     <span className="text-2xl font-bold text-gray-900">
                       {bookshop.googleRating}
                     </span>
-                    <span className="text-yellow-500 text-sm">★★★★★</span>
+                    <span className="text-yellow-600 text-sm">★★★★★</span>
                     <span className="text-gray-500 text-xs mt-1">
                       {bookshop.googleReviewCount} reviews
                     </span>

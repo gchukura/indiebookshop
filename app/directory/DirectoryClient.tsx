@@ -377,13 +377,13 @@ export default function DirectoryClient({
       <div className={`absolute top-0 left-0 h-full bg-white shadow-2xl transition-all duration-300 z-20 ${isPanelCollapsed ? 'w-16' : 'w-96'}`}>
         {isPanelCollapsed ? (
           <div className="relative h-full w-16 bg-white border-r-2 border-gray-200">
-            <button onClick={() => setIsPanelCollapsed(false)} className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white rounded-full border-2 shadow-lg">
+            <button onClick={() => setIsPanelCollapsed(false)} aria-label="Expand bookshop list panel" className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white rounded-full border-2 shadow-lg hover:bg-gray-50 min-h-[44px] min-w-[44px]">
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
         ) : (
           <div className="h-full flex flex-col relative">
-            <button onClick={() => setIsPanelCollapsed(true)} className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white rounded-full border-2 shadow-lg z-30">
+            <button onClick={() => setIsPanelCollapsed(true)} aria-label="Collapse bookshop list panel" className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white rounded-full border-2 shadow-lg z-30 hover:bg-gray-50 min-h-[44px] min-w-[44px]">
               <ChevronLeft className="w-5 h-5" />
             </button>
 
