@@ -1,6 +1,4 @@
 {
-  "version": 2,
-  "buildCommand": "npm run build:next",
   "redirects": [
     {
       "source": "/:path*",
@@ -12,17 +10,6 @@
       ],
       "destination": "https://www.indiebookshop.com/:path*",
       "permanent": true
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/:path*",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
     }
   ]
 }
