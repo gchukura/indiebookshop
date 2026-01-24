@@ -27,3 +27,5 @@ next-env.d.ts
 !vercel.json
 !api/*.vercel.json
 !next.config.mjs
+.vercel
+.env*.local
