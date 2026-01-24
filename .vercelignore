@@ -1,10 +1,18 @@
-# Ignore development files
-node_modules
-.git
-.replit
-.local
-.cache
-.upm
+# Exclude old Vite/Express app files from Vercel build
+server/
+client/src/
+api/
+scripts/
+dist/
+vite.config.ts
+vercel.json.old-vite
 
-# Keep output build files
-!dist
+# Exclude development files
+.git/
+node_modules/
+*.log
+.env.local
+.env.*.local
+
+# Exclude old build artifacts
+.vite/
