@@ -106,7 +106,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug }: Books
               {/* Rating */}
               {bookstore.googleRating && (
                 <div className="flex items-center mb-4">
-                  <Star className="w-5 h-5 text-yellow-500 fill-current mr-1" />
+                  <Star className="w-5 h-5 text-yellow-600 fill-current mr-1" />
                   <span className="font-semibold text-gray-900">{bookstore.googleRating}</span>
                   {bookstore.googleReviewCount && <span className="text-gray-600 ml-1">({bookstore.googleReviewCount.toLocaleString()} reviews)</span>}
                 </div>
