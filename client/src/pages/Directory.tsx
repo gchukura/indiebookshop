@@ -1240,8 +1240,9 @@ const Directory = () => {
               {/* Expand button centered vertically */}
               <button
                 onClick={() => setIsPanelCollapsed(false)}
-                className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white hover:bg-gray-50 rounded-full border-2 border-gray-300 shadow-lg transition-all hover:scale-110 z-30"
+                className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white hover:bg-gray-50 rounded-full border-2 border-gray-300 shadow-lg transition-all hover:scale-110 z-30 min-h-[44px] min-w-[44px]"
                 title="Expand panel"
+                aria-label="Expand bookshop list panel"
               >
                 <ChevronRight className="w-5 h-5 text-gray-700" />
               </button>
@@ -1283,8 +1284,9 @@ const Directory = () => {
               {/* Collapse button on right edge, centered vertically */}
               <button
                 onClick={() => setIsPanelCollapsed(true)}
-                className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white hover:bg-gray-50 rounded-full border-2 border-gray-300 shadow-lg transition-all hover:scale-110 z-30"
+                className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white hover:bg-gray-50 rounded-full border-2 border-gray-300 shadow-lg transition-all hover:scale-110 z-30 min-h-[44px] min-w-[44px]"
                 title="Collapse panel"
+                aria-label="Collapse bookshop list panel"
               >
                 <ChevronLeft className="w-5 h-5 text-gray-700" />
               </button>

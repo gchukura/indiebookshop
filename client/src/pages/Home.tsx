@@ -692,7 +692,7 @@ const Home = () => {
                             <p className="text-xs md:text-sm text-gray-600 mb-2">{bookshop.city || ''}{bookshop.city && bookshop.state ? ', ' : ''}{bookshop.state || ''}</p>
                             {bookshop.googleRating && bookshop.googleReviewCount && (
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="text-yellow-500 font-semibold">{bookshop.googleRating}</span>
+                                <span className="text-yellow-600 font-semibold">{bookshop.googleRating}</span>
                                 <span className="text-xs text-gray-600">({bookshop.googleReviewCount.toLocaleString()} reviews)</span>
                               </div>
                             )}
