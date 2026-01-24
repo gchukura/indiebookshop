@@ -6,9 +6,10 @@ import { Bookstore } from '@/shared/schema';
  * Column selections optimized for egress costs
  * CRITICAL: These match the Phase 1 optimizations in server/supabase-storage.ts
  */
-const LIST_COLUMNS = 'id,name,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,image_url,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids';
+// Note: Using snake_case column names to match Supabase schema
+const LIST_COLUMNS = 'id,name,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids';
 
-const DETAIL_COLUMNS = 'id,name,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,image_url,website,phone,live,description,google_place_id,google_rating,google_review_count,google_description,formatted_phone,website_verified,google_maps_url,google_types,formatted_address_google,business_status,google_price_level,google_data_updated_at,contact_data_fetched_at,opening_hours_json,ai_generated_description,description_source,description_generated_at,description_validated,feature_ids,hours_json';
+const DETAIL_COLUMNS = 'id,name,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,description,google_place_id,google_rating,google_review_count,google_description,formatted_phone,website_verified,google_maps_url,google_types,formatted_address_google,business_status,google_price_level,google_data_updated_at,contact_data_fetched_at,opening_hours_json,ai_generated_description,description_source,description_generated_at,description_validated,feature_ids,hours_json';
 
 const PHOTO_COLUMNS = 'google_photos';
 const REVIEW_COLUMNS = 'google_reviews';
@@ -76,19 +77,24 @@ function generateSlugFromName(name: string): string {
 export const getRandomBookstores = cache(async (count: number = 8): Promise<Bookstore[]> => {
   const supabase = createServerClient();
 
+  // PostgREST doesn't support ORDER BY random(), so we fetch a larger set and randomize in-memory
+  // Fetch 5x the requested count to ensure good randomization
+  const fetchCount = Math.min(count * 5, 100); // Cap at 100 to control egress
+
   const { data, error } = await supabase
     .from('bookstores')
     .select(LIST_COLUMNS)
     .eq('live', true)
-    .order('random()')
-    .limit(count);
+    .limit(fetchCount);
 
   if (error) {
     console.error('Error fetching random bookstores:', error);
     throw error;
   }
 
-  return (data || []).map(mapBookstoreData);
+  // Shuffle and take requested count
+  const shuffled = (data || []).sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count).map(mapBookstoreData);
 });
 
 /**
