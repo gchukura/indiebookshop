@@ -2,7 +2,6 @@
 server/
 client/src/
 dist/
-vite.config.ts
 vercel.json.old-vite
 
 # Exclude development files
