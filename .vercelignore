@@ -1,8 +1,6 @@
 # Exclude old Vite/Express app files from Vercel build
 server/
 client/src/
-api/
-scripts/
 dist/
 vite.config.ts
 vercel.json.old-vite
