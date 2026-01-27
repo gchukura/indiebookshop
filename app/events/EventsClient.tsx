@@ -98,7 +98,7 @@ export function EventsClient() {
 
   const EventCard = ({ event }: { event: Event }) => {
     const bookshop = getBookshop(event.bookshopId);
-    const bookshopSlug = bookshop ? `${bookshop.id}` : '';
+    const bookshopSlug = bookshop ? (bookshop.slug || generateSlugFromName(bookshop.name)) : '';
     
     let eventDate: Date;
     try {

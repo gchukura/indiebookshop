@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getRandomBookstores, getPopularBookstores, getStates } from '@/lib/queries/bookstores';
+import { generateSlugFromName } from '@/shared/utils';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
 
@@ -180,10 +181,12 @@ export default async function HomePage() {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                {featuredBookshops.map((bookshop) => (
+                {featuredBookshops.map((bookshop) => {
+                  const bookshopSlug = bookshop.slug || generateSlugFromName(bookshop.name);
+                  return (
                   <Link
                     key={bookshop.id}
-                    href={`/bookshop/${bookshop.id}`}
+                    href={`/bookshop/${bookshopSlug}`}
                     className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block"
                   >
                     <div className="p-4 md:p-5">
@@ -204,7 +207,8 @@ export default async function HomePage() {
                       )}
                     </div>
                   </Link>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -228,10 +232,12 @@ export default async function HomePage() {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                {popularBookshops.map((bookshop) => (
+                {popularBookshops.map((bookshop) => {
+                  const bookshopSlug = bookshop.slug || generateSlugFromName(bookshop.name);
+                  return (
                   <Link
                     key={bookshop.id}
-                    href={`/bookshop/${bookshop.id}`}
+                    href={`/bookshop/${bookshopSlug}`}
                     className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block"
                   >
                     <div className="p-4 md:p-5">
@@ -252,7 +258,8 @@ export default async function HomePage() {
                       )}
                     </div>
                   </Link>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
