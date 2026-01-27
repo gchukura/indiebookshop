@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Bookstore, Feature, Event } from '@/shared/schema';
 import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/StructuredData';
 import SingleLocationMap from '@/components/SingleLocationMap';
+import RelatedBookshops from '@/components/RelatedBookshops';
 import { Button } from '@/components/ui/button';
 
 type BookshopDetailClientProps = {
@@ -480,12 +481,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug }: Books
         {/* Related Bookshops */}
         {bookstore.state && (
           <div className="mt-12">
-            <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-6">More Bookshops in {bookstore.state}</h2>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <Link href={`/directory?state=${bookstore.state}`} className="text-[#2A6B7C] hover:underline font-semibold">
-                Browse all bookshops in {bookstore.state} →
-              </Link>
-            </div>
+            <RelatedBookshops currentBookshop={bookstore} />
           </div>
         )}
       </div>

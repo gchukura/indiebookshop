@@ -4,6 +4,7 @@ import { generateSlugFromName } from '@/shared/utils';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
 import StateFlag from '@/components/StateFlag';
+import BookshopImage from '@/components/BookshopImage';
 
 export const metadata: Metadata = {
   title: 'IndiebookShop.com - Discover Independent Bookshops Across America',
@@ -127,6 +128,36 @@ const US_STATE_ABBREVIATIONS = [
   'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
   'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
 ];
+
+// Helper to extract photo reference from photo object/string
+const extractPhotoReference = (photo: any): string | null => {
+  if (!photo) return null;
+  if (typeof photo === 'string') return photo;
+  if (typeof photo === 'object' && photo.photo_reference) {
+    return photo.photo_reference;
+  }
+  return null;
+};
+
+// Helper to get bookshop hero image URL (prioritizes Google Photos, then imageUrl, then fallback)
+const getBookshopImageUrl = (bookshop: { googlePhotos?: any; imageUrl?: string | null }): string => {
+  // Priority 1: First Google photo if available
+  if (bookshop.googlePhotos && Array.isArray(bookshop.googlePhotos) && bookshop.googlePhotos.length > 0) {
+    const firstPhoto = bookshop.googlePhotos[0];
+    const photoRef = extractPhotoReference(firstPhoto);
+    if (photoRef) {
+      return `/api/place-photo?photo_reference=${encodeURIComponent(photoRef)}&maxwidth=400`;
+    }
+  }
+  
+  // Priority 2: Existing imageUrl
+  if (bookshop.imageUrl) {
+    return bookshop.imageUrl;
+  }
+  
+  // Priority 3: Fallback to Unsplash stock photo
+  return 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300';
+};
 
 // Helper to get state flag URL
 const getStateImageUrl = (abbreviation: string): string => {
@@ -290,12 +321,20 @@ export default async function HomePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                 {featuredBookshops.map((bookshop) => {
                   const bookshopSlug = bookshop.slug || generateSlugFromName(bookshop.name);
+                  const imageUrl = getBookshopImageUrl(bookshop);
                   return (
                   <Link
                     key={bookshop.id}
                     href={`/bookshop/${bookshopSlug}`}
                     className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block"
                   >
+                    <div className="relative w-full h-36 sm:h-40 md:h-48 overflow-hidden bg-gray-100">
+                      <BookshopImage
+                        src={imageUrl}
+                        alt={`${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div className="p-4 md:p-5">
                       <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-2 hover:text-[#E16D3D] leading-tight line-clamp-2">
                         {bookshop.name}
@@ -341,12 +380,20 @@ export default async function HomePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                 {popularBookshops.map((bookshop) => {
                   const bookshopSlug = bookshop.slug || generateSlugFromName(bookshop.name);
+                  const imageUrl = getBookshopImageUrl(bookshop);
                   return (
                   <Link
                     key={bookshop.id}
                     href={`/bookshop/${bookshopSlug}`}
                     className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block"
                   >
+                    <div className="relative w-full h-36 sm:h-40 md:h-48 overflow-hidden bg-gray-100">
+                      <BookshopImage
+                        src={imageUrl}
+                        alt={`${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div className="p-4 md:p-5">
                       <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-2 hover:text-[#E16D3D] leading-tight line-clamp-2">
                         {bookshop.name}
