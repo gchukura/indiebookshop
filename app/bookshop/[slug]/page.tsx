@@ -39,7 +39,9 @@ export const dynamicParams = true;
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    const bookstore = await getBookstoreBySlug(params.slug);
+    // Decode the slug in case it's URL-encoded
+    const decodedSlug = decodeURIComponent(params.slug);
+    const bookstore = await getBookstoreBySlug(decodedSlug);
 
     if (!bookstore) {
       return {
@@ -89,10 +91,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: description.slice(0, 160),
         images: bookstore.imageUrl ? [{ url: bookstore.imageUrl }] : [],
         type: 'website',
-        url: `https://www.indiebookshop.com/bookshop/${params.slug}`,
+        url: `https://www.indiebookshop.com/bookshop/${decodedSlug}`,
       },
       alternates: {
-        canonical: `https://www.indiebookshop.com/bookshop/${params.slug}`,
+        canonical: `https://www.indiebookshop.com/bookshop/${decodedSlug}`,
       },
     };
   } catch (error) {
@@ -108,14 +110,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function BookshopPage({ params }: Props) {
   try {
+    // Decode the slug in case it's URL-encoded
+    const decodedSlug = decodeURIComponent(params.slug);
+    
     // Check if slug is numeric ID
-    const isNumericId = /^\d+$/.test(params.slug);
+    const isNumericId = /^\d+$/.test(decodedSlug);
     let bookstore = isNumericId 
-      ? await getBookstoreById(parseInt(params.slug)) 
-      : await getBookstoreBySlug(params.slug);
+      ? await getBookstoreById(parseInt(decodedSlug)) 
+      : await getBookstoreBySlug(decodedSlug);
 
     if (!bookstore) {
-      // If not found, it might be a new bookshop or slug mismatch
+      // Log for debugging (only in development)
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Bookshop not found for slug: ${decodedSlug}`);
+      }
       // Return 404 - dynamicParams will allow on-demand generation if needed
       notFound();
     }
