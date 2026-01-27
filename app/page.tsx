@@ -142,8 +142,18 @@ const extractPhotoReference = (photo: any): string | null => {
 // Helper to get bookshop hero image URL (prioritizes Google Photos, then imageUrl, then fallback)
 const getBookshopImageUrl = (bookshop: { googlePhotos?: any; imageUrl?: string | null }): string => {
   // Priority 1: First Google photo if available
-  if (bookshop.googlePhotos && Array.isArray(bookshop.googlePhotos) && bookshop.googlePhotos.length > 0) {
-    const firstPhoto = bookshop.googlePhotos[0];
+  let photos = bookshop.googlePhotos;
+  // Handle case where photos might be a JSON string
+  if (photos && typeof photos === 'string') {
+    try {
+      photos = JSON.parse(photos);
+    } catch (e) {
+      // If parsing fails, treat as null
+      photos = null;
+    }
+  }
+  if (photos && Array.isArray(photos) && photos.length > 0) {
+    const firstPhoto = photos[0];
     const photoRef = extractPhotoReference(firstPhoto);
     if (photoRef) {
       return `/api/place-photo?photo_reference=${encodeURIComponent(photoRef)}&maxwidth=400`;

@@ -59,10 +59,20 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug }: Books
 
   // Get gallery photos (all Google photos)
   const galleryPhotos = useMemo(() => {
-    if (!bookstore.googlePhotos || !Array.isArray(bookstore.googlePhotos) || bookstore.googlePhotos.length === 0) {
+    let photos = bookstore.googlePhotos;
+    // Handle case where photos might be a JSON string
+    if (photos && typeof photos === 'string') {
+      try {
+        photos = JSON.parse(photos);
+      } catch (e) {
+        // If parsing fails, treat as null
+        photos = null;
+      }
+    }
+    if (!photos || !Array.isArray(photos) || photos.length === 0) {
       return [];
     }
-    return bookstore.googlePhotos;
+    return photos;
   }, [bookstore.googlePhotos]);
 
   // Reset carousel index when gallery photos change

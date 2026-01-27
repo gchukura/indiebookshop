@@ -29,8 +29,38 @@ function mapBookstoreData(item: any): Bookstore {
     googleRating: item.google_rating || null,
     googleReviewCount: item.google_review_count || null,
     googleDescription: item.google_description || null,
-    googlePhotos: item.google_photos || null,
-    googleReviews: item.google_reviews || null,
+    googlePhotos: (() => {
+      const photos = item.google_photos;
+      if (!photos) return null;
+      // If it's already an array, return it
+      if (Array.isArray(photos)) return photos;
+      // If it's a string, try to parse it
+      if (typeof photos === 'string') {
+        try {
+          return JSON.parse(photos);
+        } catch (e) {
+          console.error('Error parsing google_photos JSON:', e);
+          return null;
+        }
+      }
+      return null;
+    })(),
+    googleReviews: (() => {
+      const reviews = item.google_reviews;
+      if (!reviews) return null;
+      // If it's already an array, return it
+      if (Array.isArray(reviews)) return reviews;
+      // If it's a string, try to parse it
+      if (typeof reviews === 'string') {
+        try {
+          return JSON.parse(reviews);
+        } catch (e) {
+          console.error('Error parsing google_reviews JSON:', e);
+          return null;
+        }
+      }
+      return null;
+    })(),
     googlePriceLevel: item.google_price_level || null,
     googleDataUpdatedAt: item.google_data_updated_at || null,
     formattedPhone: item.formatted_phone || null,
