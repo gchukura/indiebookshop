@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getBookstoreBySlug, getBookstoreById, getTopBookstores, getRelatedBookstores } from '@/lib/queries/bookstores';
+import { getBookstoreBySlug, getBookstoreById, getAllBookstores, getRelatedBookstores } from '@/lib/queries/bookstores';
 import { generateSlugFromName } from '@/shared/utils';
 import BookshopDetailClient from './BookshopDetailClient';
 
@@ -9,19 +9,15 @@ type Props = {
 };
 
 /**
- * Pre-generate top bookshops at build time for fast builds
- * Others will be generated on-demand with ISR (Incremental Static Regeneration)
- * This optimizes build performance while maintaining SEO and user experience
+ * Pre-generate ALL bookshops at build time (optimized for cost reduction)
+ * This eliminates runtime queries and reduces Supabase egress dramatically
  */
 export async function generateStaticParams() {
   try {
-    // Only pre-build top 100 bookstores for fast builds
-    // Others will be generated on-demand with ISR
-    const topBookstores = await getTopBookstores(100);
+    const bookstores = await getAllBookstores();
 
-    console.log(`Pre-building ${topBookstores.length} top bookstores at build time`);
-
-    return topBookstores.map((bookstore) => ({
+    return bookstores.map((bookstore) => ({
+      // Use slug from database (more efficient than generating)
       slug: bookstore.slug || generateSlugFromName(bookstore.name),
     }));
   } catch (error) {
@@ -30,8 +26,8 @@ export async function generateStaticParams() {
   }
 }
 
-// Enable on-demand generation for non-pre-built pages
-export const dynamicParams = true;
+// Disable on-demand generation - all pages pre-built (404 for missing slugs)
+export const dynamicParams = false;
 
 /**
  * Generate dynamic metadata for each bookshop
