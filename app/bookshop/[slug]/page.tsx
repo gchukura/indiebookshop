@@ -9,14 +9,16 @@ type Props = {
 };
 
 /**
- * Pre-generate top 100 bookshops at build time for ISR
+ * Pre-generate ALL bookshops at build time (optimized for cost reduction)
+ * This eliminates runtime queries and reduces Supabase egress dramatically
  */
 export async function generateStaticParams() {
   try {
-    const bookstores = await getPopularBookstores(100);
+    const bookstores = await getAllBookstores();
 
     return bookstores.map((bookstore) => ({
-      slug: generateSlugFromName(bookstore.name),
+      // Use slug from database (more efficient than generating)
+      slug: bookstore.slug || generateSlugFromName(bookstore.name),
     }));
   } catch (error) {
     console.error('Error generating static params:', error);
@@ -24,8 +26,8 @@ export async function generateStaticParams() {
   }
 }
 
-// Allow on-demand generation for other bookshops
-export const dynamicParams = true;
+// Disable on-demand generation - all pages pre-built (404 for missing slugs)
+export const dynamicParams = false;
 
 /**
  * Generate dynamic metadata for each bookshop
@@ -110,7 +112,8 @@ export default async function BookshopPage({ params }: Props) {
     }
 
     // If numeric ID was used, redirect to canonical slug-based URL
-    const canonicalSlug = generateSlugFromName(bookstore.name);
+    // Use slug from database if available, otherwise generate
+    const canonicalSlug = bookstore.slug || generateSlugFromName(bookstore.name);
     if (isNumericId && canonicalSlug) {
       // Next.js will handle the redirect via middleware or we can use next/navigation redirect
       // For now, we'll pass the canonical slug to the client for potential redirect
@@ -123,5 +126,6 @@ export default async function BookshopPage({ params }: Props) {
   }
 }
 
-// Revalidate every 30 minutes (matches Phase 1 cache TTL)
-export const revalidate = 1800;
+// Revalidate every 24 hours (bookstore data rarely changes)
+// This reduces query frequency from 48x per day to 1x per day
+export const revalidate = 86400;

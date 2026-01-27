@@ -7,9 +7,9 @@ import { Bookstore } from '@/shared/schema';
  * CRITICAL: These match the Phase 1 optimizations in server/supabase-storage.ts
  */
 // Note: Using snake_case column names to match Supabase schema
-const LIST_COLUMNS = 'id,name,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids';
+const LIST_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids';
 
-const DETAIL_COLUMNS = 'id,name,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,description,google_place_id,google_rating,google_review_count,google_description,formatted_phone,website_verified,google_maps_url,google_types,formatted_address_google,business_status,google_price_level,google_data_updated_at,contact_data_fetched_at,opening_hours_json,ai_generated_description,description_source,description_generated_at,description_validated,feature_ids,hours_json';
+const DETAIL_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,description,google_place_id,google_rating,google_review_count,google_description,formatted_phone,website_verified,google_maps_url,google_types,formatted_address_google,business_status,google_price_level,google_data_updated_at,contact_data_fetched_at,opening_hours_json,ai_generated_description,description_source,description_generated_at,description_validated,feature_ids,hours_json';
 
 const PHOTO_COLUMNS = 'google_photos';
 const REVIEW_COLUMNS = 'google_reviews';
@@ -99,26 +99,29 @@ export const getRandomBookstores = cache(async (count: number = 8): Promise<Book
 
 /**
  * Fetch a single bookstore by slug
+ * Optimized to query by slug column instead of fetching all bookstores
  */
 export const getBookstoreBySlug = cache(async (slug: string): Promise<Bookstore | null> => {
   const supabase = createServerClient();
 
-  // Fetch all live bookstores and find matching slug
-  // This is necessary because slug is generated from name, not stored in database
+  // Query directly by slug column (optimized - fetches only 1 record)
   const { data, error } = await supabase
     .from('bookstores')
     .select(FULL_DETAIL)
-    .eq('live', true);
+    .eq('slug', slug)
+    .eq('live', true)
+    .single();
 
   if (error) {
-    console.error('Error fetching bookstores for slug lookup:', error);
+    // Return null for not found (404 case)
+    if (error.code === 'PGRST116') {
+      return null;
+    }
+    console.error('Error fetching bookstore by slug:', error);
     throw error;
   }
 
-  // Find bookstore with matching slug
-  const bookstore = data?.find(b => generateSlugFromName(b.name) === slug);
-
-  return bookstore ? mapBookstoreData(bookstore) : null;
+  return data ? mapBookstoreData(data) : null;
 });
 
 /**
