@@ -3,6 +3,7 @@ import { getRandomBookstores, getPopularBookstores, getStates } from '@/lib/quer
 import { generateSlugFromName } from '@/shared/utils';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
+import StateFlag from '@/components/StateFlag';
 
 export const metadata: Metadata = {
   title: 'IndiebookShop.com - Discover Independent Bookshops Across America',
@@ -330,14 +331,9 @@ export default async function HomePage() {
                                 href={`/directory?state=${encodeURIComponent(stateName)}`}
                                 className="bg-white border-2 border-gray-200 hover:border-[#2A6B7C] rounded-lg p-3 transition-all hover:shadow-md flex items-center gap-2"
                               >
-                                <img
+                                <StateFlag
                                   src={flagUrl}
                                   alt={`${stateName} flag`}
-                                  className="w-6 h-4 object-cover rounded-sm flex-shrink-0"
-                                  loading="lazy"
-                                  onError={(e) => {
-                                    e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='16'%3E%3Crect width='24' height='16' fill='%23e5e7eb'/%3E%3C/svg%3E`;
-                                  }}
                                 />
                                 <div className="flex-1 min-w-0">
                                   <div className="font-semibold text-[#5F4B32] text-sm truncate">{stateName}</div>
@@ -363,14 +359,9 @@ export default async function HomePage() {
                                 href={`/directory?state=${encodeURIComponent(regionName)}`}
                                 className="bg-white border-2 border-gray-200 hover:border-[#2A6B7C] rounded-lg p-3 transition-all hover:shadow-md flex items-center gap-2"
                               >
-                                <img
+                                <StateFlag
                                   src={flagUrl}
                                   alt={`${regionName} flag`}
-                                  className="w-6 h-4 object-cover rounded-sm flex-shrink-0"
-                                  loading="lazy"
-                                  onError={(e) => {
-                                    e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='16'%3E%3Crect width='24' height='16' fill='%23e5e7eb'/%3E%3C/svg%3E`;
-                                  }}
                                 />
                                 <div className="flex-1 min-w-0">
                                   <div className="font-semibold text-[#5F4B32] text-sm truncate">{regionName}</div>
