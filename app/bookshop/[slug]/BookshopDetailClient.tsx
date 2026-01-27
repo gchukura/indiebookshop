@@ -1,11 +1,14 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, Phone, Globe, Star } from 'lucide-react';
+import { MapPin, Phone, Globe, Star, Navigation } from 'lucide-react';
 import Link from 'next/link';
-import { Bookstore } from '@/shared/schema';
+import { useQuery } from '@tanstack/react-query';
+import { Bookstore, Feature, Event } from '@/shared/schema';
 import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/StructuredData';
+import SingleLocationMap from '@/components/SingleLocationMap';
+import { Button } from '@/components/ui/button';
 
 type BookshopDetailClientProps = {
   bookstore: Bookstore;
@@ -14,6 +17,25 @@ type BookshopDetailClientProps = {
 
 export default function BookshopDetailClient({ bookstore, canonicalSlug }: BookshopDetailClientProps) {
   const router = useRouter();
+
+  // Fetch features
+  const { data: features } = useQuery<Feature[]>({
+    queryKey: ['/api/features'],
+  });
+
+  // Fetch events for this bookshop
+  const { data: events } = useQuery<Event[]>({
+    queryKey: [`/api/bookstores/${bookstore.id}/events`],
+    enabled: !!bookstore.id,
+  });
+
+  // Get feature names for the bookshop
+  const bookshopFeatures = useMemo(() => {
+    if (!features || !bookstore.featureIds) return [];
+    return features.filter(feature => 
+      bookstore.featureIds?.includes(feature.id) || false
+    );
+  }, [features, bookstore.featureIds]);
 
   // Redirect to canonical URL if needed
   useEffect(() => {
@@ -118,7 +140,60 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug }: Books
                   <p className="text-gray-700 leading-relaxed">{displayDescription}</p>
                 </div>
               )}
+
+              {/* Features & Specialties */}
+              {bookshopFeatures.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="font-serif text-xl font-bold text-[#5F4B32] mb-4">Features & Specialties</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {bookshopFeatures.map(feature => (
+                      <span 
+                        key={feature.id} 
+                        className="bg-[rgba(42,107,124,0.1)] text-[#2A6B7C] rounded-full px-3 py-1 text-xs font-semibold"
+                      >
+                        {feature.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Photo Gallery */}
+            {bookstore.imageUrl && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">Photo Gallery</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
+                    <img 
+                      src={bookstore.imageUrl} 
+                      alt={`${bookstore.name} bookstore`}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                  {/* Additional placeholder images could be added here if we have more photos */}
+                </div>
+              </div>
+            )}
+
+            {/* Events */}
+            {events && events.length > 0 && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">Upcoming Events</h2>
+                <div className="space-y-4">
+                  {events.map(event => (
+                    <div key={event.id} className="border-l-4 border-[#E16D3D] pl-4 py-2">
+                      <p className="font-bold text-[#5F4B32]">{event.title}</p>
+                      <p className="text-sm text-gray-600 mt-1">{event.date} • {event.time}</p>
+                      <p className="text-sm mt-2 text-gray-700">{event.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Contact Info */}
             <div className="bg-white rounded-lg shadow-md p-6">
@@ -160,40 +235,65 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug }: Books
             </div>
 
             {/* Hours */}
-            {bookstore.openingHoursJson?.weekday_text && (
+            {(bookstore.openingHoursJson?.weekday_text || bookstore.hours) && (
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">Hours</h2>
-                <div className="space-y-2">
-                  {bookstore.openingHoursJson.weekday_text.map((hours, index) => (
-                    <div key={index} className="text-gray-700">
-                      {hours}
+                {bookstore.openingHoursJson?.weekday_text ? (
+                  <>
+                    <div className="space-y-2">
+                      {bookstore.openingHoursJson.weekday_text.map((hours, index) => (
+                        <div key={index} className="text-gray-700">
+                          {hours}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                {bookstore.openingHoursJson.open_now !== undefined && (
-                  <div className="mt-4 inline-block">
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${bookstore.openingHoursJson.open_now ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {bookstore.openingHoursJson.open_now ? 'Open Now' : 'Closed'}
-                    </span>
+                    {bookstore.openingHoursJson.open_now !== undefined && (
+                      <div className="mt-4 inline-block">
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${bookstore.openingHoursJson.open_now ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                          {bookstore.openingHoursJson.open_now ? 'Open Now' : 'Closed'}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                ) : bookstore.hours ? (
+                  <div className="grid grid-cols-2 gap-1 text-sm">
+                    {Object.entries(bookstore.hours).map(([day, hours]) => (
+                      <React.Fragment key={day}>
+                        <p className="font-medium">{day}:</p>
+                        <p>{hours}</p>
+                      </React.Fragment>
+                    ))}
                   </div>
-                )}
+                ) : null}
               </div>
             )}
           </div>
 
           {/* Right Column - Map & CTA */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Map Placeholder */}
+            {/* Map */}
             {bookstore.latitude && bookstore.longitude && (
               <div className="bg-white rounded-lg shadow-md p-4">
                 <h3 className="font-serif text-xl font-bold text-[#5F4B32] mb-4">Location</h3>
-                <div className="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                  <MapPin className="w-12 h-12 text-gray-400" />
-                  <span className="ml-2 text-gray-500">[Map placeholder]</span>
+                <div className="bg-gray-200 rounded-lg overflow-hidden" style={{ height: '300px' }}>
+                  <SingleLocationMap 
+                    latitude={bookstore.latitude} 
+                    longitude={bookstore.longitude} 
+                  />
                 </div>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-gray-600 mt-2 mb-3">
                   {bookstore.city}, {bookstore.state}
                 </p>
+                <a 
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${bookstore.latitude},${bookstore.longitude}`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block w-full"
+                >
+                  <Button className="w-full bg-[#2A6B7C] hover:bg-[#2A6B7C]/90 text-white">
+                    <Navigation className="h-4 w-4 mr-2" /> Get Directions
+                  </Button>
+                </a>
               </div>
             )}
 
