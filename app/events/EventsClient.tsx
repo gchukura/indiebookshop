@@ -8,6 +8,7 @@ import { Event, Bookstore as Bookshop } from '@/shared/schema';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { generateSlugFromName } from '@/shared/utils';
 
 // This will need to be implemented or imported from the old client
 // For now, creating a placeholder

@@ -157,7 +157,27 @@ export const getBookstoreBySlug = cache(async (slug: string): Promise<Bookstore 
     // Replace hyphens with spaces for better name matching
     const nameWords = slug.split('-').filter(w => w.length > 0);
     if (nameWords.length > 0) {
-      // Search for names containing the first word of the slug
+      // Try exact name match first (slug might be generated from exact name)
+      const exactName = nameWords.join(' ');
+      const { data: exactNameData, error: exactNameError } = await supabase
+        .from('bookstores')
+        .select(FULL_DETAIL)
+        .eq('live', true)
+        .ilike('name', exactName)
+        .limit(10);
+
+      if (!exactNameError && exactNameData) {
+        const matched = exactNameData.find((item: any) => {
+          const dbSlug = item.slug || generateSlugFromName(item.name);
+          return dbSlug.toLowerCase() === slug.toLowerCase();
+        });
+
+        if (matched) {
+          return mapBookstoreData(matched);
+        }
+      }
+
+      // Then try partial name match with first word
       const { data: nameSearchData, error: nameError } = await supabase
         .from('bookstores')
         .select(FULL_DETAIL)
