@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getBookstoreBySlug, getBookstoreById, getPopularBookstores } from '@/lib/queries/bookstores';
+import { getBookstoreBySlug, getBookstoreById, getAllBookstores } from '@/lib/queries/bookstores';
 import { generateSlugFromName } from '@/shared/utils';
 import BookshopDetailClient from './BookshopDetailClient';
 
