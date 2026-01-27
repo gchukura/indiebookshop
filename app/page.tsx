@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getRandomBookstores, getPopularBookstores, getStates } from '@/lib/queries/bookstores';
+import { generateSlugFromName } from '@/shared/utils';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
 import { OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
@@ -188,7 +189,7 @@ export default async function HomePage() {
                 {featuredBookshops.map((bookshop) => (
                   <Link
                     key={bookshop.id}
-                    href={`/bookshop/${bookshop.id}`}
+                    href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`}
                     className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block"
                   >
                     <div className="p-4 md:p-5">
@@ -236,7 +237,7 @@ export default async function HomePage() {
                 {popularBookshops.map((bookshop) => (
                   <Link
                     key={bookshop.id}
-                    href={`/bookshop/${bookshop.id}`}
+                    href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`}
                     className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block"
                   >
                     <div className="p-4 md:p-5">
