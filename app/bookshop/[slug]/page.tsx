@@ -5,7 +5,7 @@ import { generateSlugFromName } from '@/shared/utils';
 import BookshopDetailClient from './BookshopDetailClient';
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }> | { slug: string };
 };
 
 /**
@@ -39,8 +39,18 @@ export const dynamicParams = true;
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
+    // Handle params - in Next.js 15+, params might be a Promise
+    const resolvedParams = params instanceof Promise ? await params : params;
+    
+    // Validate slug exists
+    if (!resolvedParams?.slug) {
+      return {
+        title: 'Bookshop Not Found | IndiebookShop.com',
+      };
+    }
+    
     // Decode the slug in case it's URL-encoded
-    const decodedSlug = decodeURIComponent(params.slug);
+    const decodedSlug = decodeURIComponent(resolvedParams.slug);
     const bookstore = await getBookstoreBySlug(decodedSlug);
 
     if (!bookstore) {
@@ -110,8 +120,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function BookshopPage({ params }: Props) {
   try {
+    // Handle params - in Next.js 15+, params might be a Promise
+    const resolvedParams = params instanceof Promise ? await params : params;
+    
+    // Validate slug exists
+    if (!resolvedParams?.slug) {
+      console.error('[BookshopPage] No slug provided in params:', resolvedParams);
+      notFound();
+    }
+    
     // Decode the slug in case it's URL-encoded
-    const decodedSlug = decodeURIComponent(params.slug);
+    const decodedSlug = decodeURIComponent(resolvedParams.slug);
+    
+    // Validate decoded slug
+    if (!decodedSlug || decodedSlug === 'undefined') {
+      console.error('[BookshopPage] Invalid slug after decoding:', resolvedParams.slug);
+      notFound();
+    }
     
     // Check if slug is numeric ID
     const isNumericId = /^\d+$/.test(decodedSlug);
