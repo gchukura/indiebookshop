@@ -6,8 +6,7 @@ import Map from 'react-map-gl/mapbox';
 import { Marker, NavigationControl } from 'react-map-gl/mapbox';
 import Supercluster from 'supercluster';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
-import { Bookstore, Feature } from '@/shared/schema';
+import { Bookstore } from '@/shared/schema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { generateSlugFromName } from '@/shared/utils';
@@ -63,24 +62,8 @@ export default function DirectoryClient({
   // State management
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedState, setSelectedState] = useState<string>(initialFilters.state || 'all');
-  const [selectedCity, setSelectedCity] = useState<string>(() => {
-    if (initialFilters.city && initialFilters.state) {
-      return `${initialFilters.city}${LOCATION_DELIMITER}${initialFilters.state}`;
-    }
-    return 'all';
-  });
-  const [selectedCounty, setSelectedCounty] = useState<string>(() => {
-    if (initialFilters.county && initialFilters.state) {
-      return `${initialFilters.county}${LOCATION_DELIMITER}${initialFilters.state}`;
-    }
-    return 'all';
-  });
-  const [selectedFeatures, setSelectedFeatures] = useState<number[]>(() => {
-    if (initialFilters.features && typeof initialFilters.features === 'string') {
-      return initialFilters.features.split(',').map(Number).filter(n => !isNaN(n));
-    }
-    return [];
-  });
+  const [selectedCity, setSelectedCity] = useState<string>('all');
+  const [selectedCounty, setSelectedCounty] = useState<string>('all');
   const [hoveredBookshopId, setHoveredBookshopId] = useState<number | null>(null);
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
@@ -93,13 +76,26 @@ export default function DirectoryClient({
 
   // Fetch Mapbox token
   useEffect(() => {
+    // Try to get token from environment first (more efficient)
+    const envToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    if (envToken) {
+      setMapboxToken(envToken);
+      return;
+    }
+
+    // Fallback to API route if env var not available
     const fetchToken = async () => {
       try {
         const response = await fetch('/api/config');
-        if (!response.ok) throw new Error('Failed to load map configuration');
+        if (!response.ok) {
+          console.error('Failed to load map configuration');
+          return;
+        }
         const config = await response.json();
         if (config.mapboxAccessToken) {
           setMapboxToken(config.mapboxAccessToken);
+        } else {
+          console.error('Mapbox token not available in response');
         }
       } catch (error) {
         console.error('Error fetching Mapbox token:', error);
@@ -107,11 +103,6 @@ export default function DirectoryClient({
     };
     fetchToken();
   }, []);
-
-  // Fetch features for filtering
-  const { data: features } = useQuery<Feature[]>({
-    queryKey: ['/api/features'],
-  });
 
   // Filter bookstores
   const filteredBookstores = useMemo(() => {
@@ -145,23 +136,8 @@ export default function DirectoryClient({
       filtered = filtered.filter((b) => b.county === county && b.state === state);
     }
 
-    // Features filter
-    // if (selectedFeatures.length > 0) {
-    //   filtered = filtered.filter((b) => {
-    //     if (!b.featureIds) return false;
-    //     let featureIdArray: number[] = [];
-    //     const featureIds = b.featureIds as any; // Handle both array and string formats
-    //     if (Array.isArray(featureIds)) {
-    //       featureIdArray = featureIds;
-    //     } else if (typeof featureIds === 'string') {
-    //       featureIdArray = featureIds.split(',').map((id: string) => parseInt(id.trim())).filter((n: number) => !isNaN(n));
-    //     }
-    //     return selectedFeatures.some(fid => featureIdArray.includes(fid));
-    //   });
-    // }
-
     return filtered;
-  }, [initialBookstores, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures]);
+  }, [initialBookstores, searchQuery, selectedState, selectedCity, selectedCounty]);
 
   // Get unique cities and counties
   const cities = useMemo(() => {
@@ -300,7 +276,6 @@ export default function DirectoryClient({
     setSelectedState('all');
     setSelectedCity('all');
     setSelectedCounty('all');
-    // setSelectedFeatures([]);
   }, []);
 
   // Visible bookstores in current map bounds
@@ -322,7 +297,6 @@ export default function DirectoryClient({
     if (selectedState !== 'all') count++;
     if (selectedCity !== 'all') count++;
     if (selectedCounty !== 'all') count++;
-    // if (selectedFeatures.length > 0) count++;
     return count;
   }, [selectedState, selectedCity, selectedCounty]);
 
@@ -399,8 +373,10 @@ export default function DirectoryClient({
           })}
         </Map>
       ) : (
-        <div className="flex items-center justify-center h-full bg-white/80">
-          <Loader2 className="w-8 h-8 text-[#2A6B7C] animate-spin" />
+        <div className="flex flex-col items-center justify-center h-full bg-gray-50 p-6 text-center">
+          <Loader2 className="w-12 h-12 text-[#2A6B7C] animate-spin mb-4" />
+          <p className="text-gray-600 font-sans text-sm">Loading map...</p>
+          <p className="text-gray-400 font-sans text-xs mt-2">If the map doesn't load, the Mapbox token may need to be configured.</p>
         </div>
       )}
 
@@ -460,32 +436,6 @@ export default function DirectoryClient({
                   ))}
                 </select>
 
-                {/* Features Filter */}
-                {/* {features && Array.isArray(features) && features.length > 0 && (
-                  <div>
-                    <h3 className="font-sans text-sm font-semibold text-gray-700 mb-2">Features</h3>
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {features.map((feature: Feature) => (
-                        <label key={feature.id} className="flex items-center gap-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={selectedFeatures.includes(feature.id)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setSelectedFeatures([...selectedFeatures, feature.id]);
-                              } else {
-                                setSelectedFeatures(selectedFeatures.filter(id => id !== feature.id));
-                              }
-                            }}
-                            className="w-4 h-4 text-[#2A6B7C] border-gray-300 rounded focus:ring-[#2A6B7C]"
-                          />
-                          <span className="font-sans text-sm text-gray-700">{feature.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )} */}
-
                 {activeFilterCount > 0 && (
                   <button onClick={clearFilters} className="w-full font-sans text-sm text-[#2A6B7C] hover:underline flex items-center justify-center gap-1 py-1">
                     <X className="w-4 h-4" />
@@ -508,29 +458,22 @@ export default function DirectoryClient({
                       onClick={() => handlePinClick(bookshop.id)}
                       className={`bg-white border-2 rounded-lg p-4 cursor-pointer transition-all ${selectedBookshopId === bookshop.id ? 'border-[#E16D3D] shadow-md' : hoveredBookshopId === bookshop.id ? 'border-[#2A6B7C] shadow-sm' : 'border-gray-200'}`}
                     >
-                      {(() => {
-                        const bookshopSlug = bookshop.slug || generateSlugFromName(bookshop.name);
-                        return (
-                          <>
-                            <Link href={`/bookshop/${bookshopSlug}`} onClick={(e: React.MouseEvent) => e.stopPropagation()} className="block">
-                              <h3 className="font-serif font-bold text-base text-[#5F4B32] mb-1 hover:text-[#2A6B7C]">{bookshop.name}</h3>
-                            </Link>
-                            {(bookshop.city || bookshop.state) && (
-                              <div className="flex items-start text-xs text-gray-600 mb-2">
-                                <MapPin className="w-3 h-3 mr-1 mt-0.5" />
-                                <span>
-                                  {bookshop.city && `${bookshop.city}, `}
-                                  {bookshop.state}
-                                </span>
-                              </div>
-                            )}
-                            {bookshop.description && <p className="font-sans text-xs text-gray-700 line-clamp-2 mb-2">{bookshop.description}</p>}
-                            <Link href={`/bookshop/${bookshopSlug}`} className="font-sans text-xs text-[#2A6B7C] hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
-                              View details →
-                            </Link>
-                          </>
-                        );
-                      })()}
+                      <Link href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`} onClick={(e: React.MouseEvent) => e.stopPropagation()} className="block">
+                        <h3 className="font-serif font-bold text-base text-[#5F4B32] mb-1 hover:text-[#2A6B7C]">{bookshop.name}</h3>
+                      </Link>
+                      {(bookshop.city || bookshop.state) && (
+                        <div className="flex items-start text-xs text-gray-600 mb-2">
+                          <MapPin className="w-3 h-3 mr-1 mt-0.5" />
+                          <span>
+                            {bookshop.city && `${bookshop.city}, `}
+                            {bookshop.state}
+                          </span>
+                        </div>
+                      )}
+                      {bookshop.description && <p className="font-sans text-xs text-gray-700 line-clamp-2 mb-2">{bookshop.description}</p>}
+                      <Link href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`} className="font-sans text-xs text-[#2A6B7C] hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
+                        View details →
+                      </Link>
                     </div>
                   ))}
                 </div>
