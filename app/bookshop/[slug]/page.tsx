@@ -16,18 +16,23 @@ export async function generateStaticParams() {
   try {
     const bookstores = await getAllBookstores();
 
-    return bookstores.map((bookstore) => ({
-      // Use slug from database (more efficient than generating)
-      slug: bookstore.slug || generateSlugFromName(bookstore.name),
-    }));
+    return bookstores
+      .filter((bookstore) => bookstore && bookstore.name) // Filter out invalid entries
+      .map((bookstore) => ({
+        // Use slug from database (more efficient than generating)
+        slug: bookstore.slug || generateSlugFromName(bookstore.name),
+      }))
+      .filter((param) => param.slug); // Filter out empty slugs
   } catch (error) {
     console.error('Error generating static params:', error);
+    // Return empty array to allow dynamic generation
     return [];
   }
 }
 
-// Disable on-demand generation - all pages pre-built (404 for missing slugs)
-export const dynamicParams = false;
+// Enable on-demand generation for new bookshops
+// This allows pages to be generated at request time if not in static params
+export const dynamicParams = true;
 
 /**
  * Generate dynamic metadata for each bookshop
@@ -105,9 +110,13 @@ export default async function BookshopPage({ params }: Props) {
   try {
     // Check if slug is numeric ID
     const isNumericId = /^\d+$/.test(params.slug);
-    const bookstore = isNumericId ? await getBookstoreById(parseInt(params.slug)) : await getBookstoreBySlug(params.slug);
+    let bookstore = isNumericId 
+      ? await getBookstoreById(parseInt(params.slug)) 
+      : await getBookstoreBySlug(params.slug);
 
     if (!bookstore) {
+      // If not found, it might be a new bookshop or slug mismatch
+      // Return 404 - dynamicParams will allow on-demand generation if needed
       notFound();
     }
 

@@ -100,11 +100,12 @@ export const getRandomBookstores = cache(async (count: number = 8): Promise<Book
 /**
  * Fetch a single bookstore by slug
  * Optimized to query by slug column instead of fetching all bookstores
+ * Also tries to match by generated slug from name if direct slug match fails
  */
 export const getBookstoreBySlug = cache(async (slug: string): Promise<Bookstore | null> => {
   const supabase = createServerClient();
 
-  // Query directly by slug column (optimized - fetches only 1 record)
+  // First, try querying directly by slug column (optimized - fetches only 1 record)
   const { data, error } = await supabase
     .from('bookstores')
     .select(FULL_DETAIL)
@@ -113,8 +114,27 @@ export const getBookstoreBySlug = cache(async (slug: string): Promise<Bookstore 
     .single();
 
   if (error) {
-    // Return null for not found (404 case)
+    // If not found by slug column, try searching by name (slug might be generated)
     if (error.code === 'PGRST116') {
+      // Fetch a small set and check if any name generates to this slug
+      // This handles cases where slug in DB doesn't match the URL slug
+      const { data: allData, error: searchError } = await supabase
+        .from('bookstores')
+        .select(FULL_DETAIL)
+        .eq('live', true)
+        .limit(100); // Limit to avoid expensive queries
+
+      if (!searchError && allData) {
+        const matched = allData.find((item: any) => {
+          const dbSlug = item.slug || generateSlugFromName(item.name);
+          return dbSlug === slug;
+        });
+
+        if (matched) {
+          return mapBookstoreData(matched);
+        }
+      }
+
       return null;
     }
     console.error('Error fetching bookstore by slug:', error);
