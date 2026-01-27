@@ -31,6 +31,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/submit-bookshop',
+        destination: '/submit',
+        permanent: true,
+      },
+      {
         source: '/directory/state/:state',
         destination: '/directory?state=:state',
         permanent: true,
