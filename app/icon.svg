@@ -1,0 +1,8 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Book stack from IndiebookShop logo - theme colors: teal #2A6B7C, orange #E16D3D, brown #5F4B32 -->
+  <g transform="translate(1, 4) scale(0.28)">
+    <rect x="0" y="70" width="90" height="30" rx="2" ry="2" fill="#2A6B7C" />
+    <rect x="5" y="40" width="90" height="30" rx="2" ry="2" fill="#E16D3D" />
+    <rect x="10" y="10" width="90" height="30" rx="2" ry="2" fill="#5F4B32" />
+  </g>
+</svg>
