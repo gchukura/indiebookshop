@@ -238,6 +238,31 @@ export const getPopularBookstores = cache(async (limit: number = 15): Promise<Bo
 });
 
 /**
+ * Get top bookstores for static generation
+ * Returns high-priority bookshops that should be pre-built at build time
+ * Others will be generated on-demand with ISR
+ */
+export const getTopBookstores = cache(async (limit: number = 100): Promise<Bookstore[]> => {
+  const supabase = createServerClient();
+
+  const { data, error } = await supabase
+    .from('bookstores')
+    .select(LIST_COLUMNS)
+    .eq('live', true)
+    .not('google_rating', 'is', null)
+    .order('google_rating', { ascending: false })
+    .order('google_review_count', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching top bookstores:', error);
+    return [];
+  }
+
+  return (data || []).map(mapBookstoreData);
+});
+
+/**
  * Fetch all bookstores (for sitemap generation)
  * Note: This should only be used for build-time operations like sitemap generation
  */
