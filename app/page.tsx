@@ -13,16 +13,36 @@ export const metadata: Metadata = {
 // Revalidate every 30 minutes
 export const revalidate = 1800;
 
+// State name to abbreviation mapping
+const STATE_NAME_TO_CODE: { [key: string]: string } = {
+  'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR',
+  'California': 'CA', 'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE',
+  'District of Columbia': 'DC', 'Florida': 'FL', 'Georgia': 'GA', 'Hawaii': 'HI',
+  'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA',
+  'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME',
+  'Maryland': 'MD', 'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN',
+  'Mississippi': 'MS', 'Missouri': 'MO', 'Montana': 'MT', 'Nebraska': 'NE',
+  'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ', 'New Mexico': 'NM',
+  'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH',
+  'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI',
+  'South Carolina': 'SC', 'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX',
+  'Utah': 'UT', 'Vermont': 'VT', 'Virginia': 'VA', 'Washington': 'WA',
+  'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY',
+  // Canadian provinces
+  'British Columbia': 'BC', 'Ontario': 'ON', 'Quebec': 'QC', 'Alberta': 'AB',
+  'Manitoba': 'MB', 'Nova Scotia': 'NS', 'New Brunswick': 'NB', 'Saskatchewan': 'SK'
+};
+
+const US_STATE_ABBREVIATIONS = [
+  'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
+  'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
+  'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
+  'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
+  'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
+];
+
 // Helper to get state flag URL
 const getStateImageUrl = (abbreviation: string): string => {
-  const US_STATE_ABBREVIATIONS = [
-    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL',
-    'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
-    'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH',
-    'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI',
-    'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
-  ];
-
   if (abbreviation === 'DC') {
     return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='30' viewBox='0 0 40 30'%3E%3Crect width='40' height='30' fill='white'/%3E%3Crect y='10' width='40' height='3' fill='%23DC143C'/%3E%3Crect y='17' width='40' height='3' fill='%23DC143C'/%3E%3C/svg%3E`;
   }
@@ -282,43 +302,88 @@ export default async function HomePage() {
                 Explore independent bookshops across all 50 states and find your next literary destination.
               </p>
 
-              <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">United States</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-                {states.slice(0, 51).map((state) => {
-                  const stateCode = state.split(' - ')[0] || state.substring(0, 2).toUpperCase();
-                  const stateName = state.split(' - ')[1] || state;
-                  const flagUrl = getStateImageUrl(stateCode);
+              {/* Separate US states and other regions */}
+              {(() => {
+                const usStates = states
+                  .filter(state => STATE_NAME_TO_CODE[state] && US_STATE_ABBREVIATIONS.includes(STATE_NAME_TO_CODE[state]))
+                  .sort((a, b) => {
+                    const codeA = STATE_NAME_TO_CODE[a] || '';
+                    const codeB = STATE_NAME_TO_CODE[b] || '';
+                    return codeA.localeCompare(codeB);
+                  });
+                
+                const otherRegions = states.filter(state => !usStates.includes(state));
 
-                  return (
-                    <Link
-                      key={state}
-                      href={`/directory?state=${encodeURIComponent(stateName)}`}
-                      className="bg-white border-2 border-gray-200 hover:border-[#2A6B7C] rounded-lg p-3 transition-all hover:shadow-md flex items-center gap-2"
-                    >
-                      <img
-                        src={flagUrl}
-                        alt={`${stateName} flag`}
-                        className="w-6 h-4 object-cover rounded-sm flex-shrink-0"
-                        loading="lazy"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-[#5F4B32] text-sm truncate">{stateName}</div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
+                return (
+                  <>
+                    {usStates.length > 0 && (
+                      <>
+                        <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">United States</h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+                          {usStates.map((stateName) => {
+                            const stateCode = STATE_NAME_TO_CODE[stateName] || stateName.substring(0, 2).toUpperCase();
+                            const flagUrl = getStateImageUrl(stateCode);
 
-              {states.length > 51 && (
-                <div className="text-center mt-6">
-                  <Link
-                    href="/directory"
-                    className="text-[#2A6B7C] hover:text-[#1d5a6a] font-semibold underline"
-                  >
-                    View all {states.length} regions →
-                  </Link>
-                </div>
-              )}
+                            return (
+                              <Link
+                                key={stateName}
+                                href={`/directory?state=${encodeURIComponent(stateName)}`}
+                                className="bg-white border-2 border-gray-200 hover:border-[#2A6B7C] rounded-lg p-3 transition-all hover:shadow-md flex items-center gap-2"
+                              >
+                                <img
+                                  src={flagUrl}
+                                  alt={`${stateName} flag`}
+                                  className="w-6 h-4 object-cover rounded-sm flex-shrink-0"
+                                  loading="lazy"
+                                  onError={(e) => {
+                                    e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='16'%3E%3Crect width='24' height='16' fill='%23e5e7eb'/%3E%3C/svg%3E`;
+                                  }}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-semibold text-[#5F4B32] text-sm truncate">{stateName}</div>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+
+                    {otherRegions.length > 0 && (
+                      <>
+                        <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4 mt-8">Other Regions</h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+                          {otherRegions.map((regionName) => {
+                            const regionCode = STATE_NAME_TO_CODE[regionName] || regionName.substring(0, 2).toUpperCase();
+                            const flagUrl = getStateImageUrl(regionCode);
+
+                            return (
+                              <Link
+                                key={regionName}
+                                href={`/directory?state=${encodeURIComponent(regionName)}`}
+                                className="bg-white border-2 border-gray-200 hover:border-[#2A6B7C] rounded-lg p-3 transition-all hover:shadow-md flex items-center gap-2"
+                              >
+                                <img
+                                  src={flagUrl}
+                                  alt={`${regionName} flag`}
+                                  className="w-6 h-4 object-cover rounded-sm flex-shrink-0"
+                                  loading="lazy"
+                                  onError={(e) => {
+                                    e.currentTarget.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='16'%3E%3Crect width='24' height='16' fill='%23e5e7eb'/%3E%3C/svg%3E`;
+                                  }}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-semibold text-[#5F4B32] text-sm truncate">{regionName}</div>
+                                </div>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
