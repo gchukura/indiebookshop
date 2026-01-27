@@ -76,13 +76,26 @@ export default function DirectoryClient({
 
   // Fetch Mapbox token
   useEffect(() => {
+    // Try to get token from environment first (more efficient)
+    const envToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    if (envToken) {
+      setMapboxToken(envToken);
+      return;
+    }
+
+    // Fallback to API route if env var not available
     const fetchToken = async () => {
       try {
         const response = await fetch('/api/config');
-        if (!response.ok) throw new Error('Failed to load map configuration');
+        if (!response.ok) {
+          console.error('Failed to load map configuration');
+          return;
+        }
         const config = await response.json();
         if (config.mapboxAccessToken) {
           setMapboxToken(config.mapboxAccessToken);
+        } else {
+          console.error('Mapbox token not available in response');
         }
       } catch (error) {
         console.error('Error fetching Mapbox token:', error);
@@ -360,8 +373,10 @@ export default function DirectoryClient({
           })}
         </Map>
       ) : (
-        <div className="flex items-center justify-center h-full bg-white/80">
-          <Loader2 className="w-8 h-8 text-[#2A6B7C] animate-spin" />
+        <div className="flex flex-col items-center justify-center h-full bg-gray-50 p-6 text-center">
+          <Loader2 className="w-12 h-12 text-[#2A6B7C] animate-spin mb-4" />
+          <p className="text-gray-600 font-sans text-sm">Loading map...</p>
+          <p className="text-gray-400 font-sans text-xs mt-2">If the map doesn't load, the Mapbox token may need to be configured.</p>
         </div>
       )}
 
