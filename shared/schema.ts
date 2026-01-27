@@ -17,6 +17,7 @@ export const features = pgTable("features", {
 export const bookstores = pgTable("bookstores", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  slug: text("slug"),  // Added for efficient lookups - generated from name
   street: text("street").notNull(),
   city: text("city").notNull(),
   state: text("state").notNull(),

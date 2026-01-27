@@ -65,7 +65,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const seenSlugs = new Set<string>();
     const bookshopPages: MetadataRoute.Sitemap = bookstores
       .map((b) => ({
-        slug: generateSlugFromName(b.name),
+        // Use slug from database if available, fallback to generated
+        slug: b.slug || generateSlugFromName(b.name),
         id: b.id,
       }))
       .filter(({ slug }) => {
@@ -102,5 +103,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 }
 
-// Revalidate sitemap every hour
-export const revalidate = 3600;
+// Revalidate sitemap every 24 hours (bookstore list rarely changes)
+// This reduces query frequency from 24x per day to 1x per day
+export const revalidate = 86400;
