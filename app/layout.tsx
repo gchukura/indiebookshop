@@ -32,11 +32,20 @@ export const metadata: Metadata = {
     title: 'IndiebookShop.com - Discover Independent Bookshops',
     description: 'Find and support over 3,000 independent bookstores across America.',
     siteName: 'IndiebookShop.com',
+    images: [
+      {
+        url: 'https://www.indiebookshop.com/og-default.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'IndiebookShop.com - Discover Independent Bookstores Across America',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'IndiebookShop.com - Discover Independent Bookshops',
     description: 'Find and support over 3,000 independent bookstores across America.',
+    images: ['https://www.indiebookshop.com/og-default.jpg'],
   },
   robots: {
     index: true,

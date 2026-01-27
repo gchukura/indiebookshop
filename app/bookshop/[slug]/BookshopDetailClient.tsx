@@ -10,9 +10,10 @@ import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/StructuredDa
 type BookshopDetailClientProps = {
   bookstore: Bookstore;
   canonicalSlug: string;
+  relatedBookshops?: Bookstore[];
 };
 
-export default function BookshopDetailClient({ bookstore, canonicalSlug }: BookshopDetailClientProps) {
+export default function BookshopDetailClient({ bookstore, canonicalSlug, relatedBookshops = [] }: BookshopDetailClientProps) {
   const router = useRouter();
 
   // Redirect to canonical URL if needed
@@ -211,14 +212,44 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug }: Books
         </div>
 
         {/* Related Bookshops */}
-        {bookstore.state && (
+        {relatedBookshops.length > 0 && (
           <div className="mt-12">
-            <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-6">More Bookshops in {bookstore.state}</h2>
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <Link href={`/directory?state=${bookstore.state}`} className="text-[#2A6B7C] hover:underline font-semibold">
-                Browse all bookshops in {bookstore.state} →
-              </Link>
+            <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-6">
+              {bookstore.city ? `More Bookshops in ${bookstore.city}, ${bookstore.state}` : `More Bookshops in ${bookstore.state}`}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              {relatedBookshops.map((shop) => (
+                <Link
+                  key={shop.id}
+                  href={`/bookshop/${shop.slug || shop.id}`}
+                  className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+                >
+                  <h3 className="font-serif text-lg font-bold text-[#5F4B32] mb-2">{shop.name}</h3>
+                  <div className="flex items-start text-sm text-gray-600 mb-2">
+                    <MapPin className="w-4 h-4 mr-1 mt-0.5 flex-shrink-0 text-[#2A6B7C]" />
+                    <span>
+                      {shop.city}, {shop.state}
+                    </span>
+                  </div>
+                  {shop.googleRating && (
+                    <div className="flex items-center text-sm">
+                      <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
+                      <span className="font-semibold">{shop.googleRating}</span>
+                      {shop.googleReviewCount && (
+                        <span className="text-gray-500 ml-1">({shop.googleReviewCount.toLocaleString()})</span>
+                      )}
+                    </div>
+                  )}
+                </Link>
+              ))}
             </div>
+            {bookstore.state && (
+              <div className="bg-white rounded-lg shadow-md p-6 text-center">
+                <Link href={`/directory?state=${bookstore.state}`} className="text-[#2A6B7C] hover:underline font-semibold text-lg">
+                  Browse all bookshops in {bookstore.state} →
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>

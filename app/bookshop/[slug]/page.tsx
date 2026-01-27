@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getBookstoreBySlug, getBookstoreById, getAllBookstores } from '@/lib/queries/bookstores';
+import { getBookstoreBySlug, getBookstoreById, getAllBookstores, getRelatedBookstores } from '@/lib/queries/bookstores';
 import { generateSlugFromName } from '@/shared/utils';
 import BookshopDetailClient from './BookshopDetailClient';
 
@@ -76,15 +76,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description = lastSpace > 280 ? truncated.substring(0, lastSpace) + '...' : truncated + '...';
     }
 
+    // Fallback OG image if bookstore doesn't have one
+    const ogImage = bookstore.imageUrl
+      ? [{ url: bookstore.imageUrl, width: 1200, height: 630, alt: `${bookstore.name} storefront` }]
+      : [{ url: 'https://www.indiebookshop.com/og-default.jpg', width: 1200, height: 630, alt: 'IndiebookShop.com - Discover Independent Bookstores' }];
+
     return {
       title: `${bookstore.name} | Independent Bookshop in ${bookstore.city}, ${bookstore.state}`,
       description,
       openGraph: {
         title: `${bookstore.name} - Indie Bookshop`,
         description: description.slice(0, 160),
-        images: bookstore.imageUrl ? [{ url: bookstore.imageUrl }] : [],
+        images: ogImage,
         type: 'website',
         url: `https://www.indiebookshop.com/bookshop/${params.slug}`,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${bookstore.name} - Indie Bookshop`,
+        description: description.slice(0, 160),
+        images: ogImage,
       },
       alternates: {
         canonical: `https://www.indiebookshop.com/bookshop/${params.slug}`,
@@ -119,7 +130,10 @@ export default async function BookshopPage({ params }: Props) {
       // For now, we'll pass the canonical slug to the client for potential redirect
     }
 
-    return <BookshopDetailClient bookstore={bookstore} canonicalSlug={canonicalSlug} />;
+    // Fetch related bookshops for internal linking
+    const relatedBookshops = await getRelatedBookstores(bookstore, 6);
+
+    return <BookshopDetailClient bookstore={bookstore} canonicalSlug={canonicalSlug} relatedBookshops={relatedBookshops} />;
   } catch (error) {
     console.error('Error loading bookshop:', error);
     notFound();

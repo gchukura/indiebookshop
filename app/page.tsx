@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getRandomBookstores, getPopularBookstores, getStates } from '@/lib/queries/bookstores';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
+import { OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
 
 export const metadata: Metadata = {
   title: 'IndiebookShop.com - Discover Independent Bookshops Across America',
@@ -48,6 +49,10 @@ export default async function HomePage() {
 
   return (
     <div>
+      {/* Structured Data for SEO */}
+      <OrganizationSchema />
+      <WebSiteSchema />
+
       {/* Hero Section */}
       <section className="bg-[#5F4B32] py-10 md:py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">

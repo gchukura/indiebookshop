@@ -276,6 +276,53 @@ export const getAllBookstores = cache(async (): Promise<Bookstore[]> => {
 });
 
 /**
+ * Fetch related bookstores (same state, nearby, or similar features)
+ * Used for internal linking on bookshop detail pages
+ */
+export const getRelatedBookstores = cache(async (bookstore: Bookstore, limit: number = 6): Promise<Bookstore[]> => {
+  const supabase = createServerClient();
+
+  // Prioritize: same city > same state > random
+  let query = supabase
+    .from('bookstores')
+    .select(LIST_COLUMNS)
+    .eq('live', true)
+    .neq('id', bookstore.id); // Exclude current bookstore
+
+  // Try same city first
+  if (bookstore.city && bookstore.state) {
+    query = query
+      .eq('city', bookstore.city)
+      .eq('state', bookstore.state)
+      .limit(limit);
+
+    const { data } = await query;
+    if (data && data.length >= 3) {
+      return data.map(mapBookstoreData);
+    }
+  }
+
+  // Fall back to same state
+  if (bookstore.state) {
+    query = supabase
+      .from('bookstores')
+      .select(LIST_COLUMNS)
+      .eq('live', true)
+      .eq('state', bookstore.state)
+      .neq('id', bookstore.id)
+      .limit(limit);
+
+    const { data } = await query;
+    if (data && data.length > 0) {
+      return data.map(mapBookstoreData);
+    }
+  }
+
+  // Last resort: random bookstores
+  return getRandomBookstores(limit);
+});
+
+/**
  * Export slug generator for use in other modules
  */
 export { generateSlugFromName };
