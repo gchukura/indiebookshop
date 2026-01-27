@@ -323,24 +323,44 @@ export const getFilteredBookstores = cache(async (filters: {
 
 /**
  * Fetch all distinct states
+ * Uses pagination to handle Supabase's 1000 row limit
  */
 export const getStates = cache(async (): Promise<string[]> => {
   const supabase = createServerClient();
 
-  const { data, error } = await supabase
-    .from('bookstores')
-    .select('state')
-    .eq('live', true)
-    .order('state');
+  // Fetch with pagination to get all states (not just first 1000 bookstores)
+  const allStates: string[] = [];
+  const pageSize = 1000;
+  let from = 0;
+  let hasMore = true;
 
-  if (error) {
-    console.error('Error fetching states:', error);
-    throw error;
+  while (hasMore) {
+    const { data, error } = await supabase
+      .from('bookstores')
+      .select('state')
+      .eq('live', true)
+      .order('state')
+      .range(from, from + pageSize - 1);
+
+    if (error) {
+      console.error('Error fetching states:', error);
+      throw error;
+    }
+
+    if (data && data.length > 0) {
+      // Extract states and add to set
+      const states = (data || []).map((b: any) => b.state).filter(Boolean);
+      allStates.push(...states);
+      from += pageSize;
+      // If we got fewer than pageSize, we've reached the end
+      hasMore = data.length === pageSize;
+    } else {
+      hasMore = false;
+    }
   }
 
-  return Array.from(new Set(
-    (data || []).map((b: any) => b.state).filter(Boolean)
-  ));
+  // Return unique states, sorted
+  return Array.from(new Set(allStates)).sort();
 });
 
 /**
