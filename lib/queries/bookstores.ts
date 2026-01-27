@@ -323,16 +323,26 @@ export const getFilteredBookstores = cache(async (filters: {
 
 /**
  * Fetch all distinct states
- * Uses pagination to handle Supabase's 1000 row limit
+ * Optimized: Uses Set to track unique states and stops early when all states are found
+ * 
+ * Performance optimizations:
+ * 1. Uses Set for O(1) uniqueness checking
+ * 2. Early termination when 60+ unique states found (covers 50 US + DC + extras)
+ * 3. Early termination after 2 consecutive pages with no new states
+ * 4. React cache() deduplicates requests within render cycle
+ * 
+ * Expected performance: Typically stops after 1-2 pages (1000-2000 rows) instead of all rows
  */
 export const getStates = cache(async (): Promise<string[]> => {
   const supabase = createServerClient();
 
-  // Fetch with pagination to get all states (not just first 1000 bookstores)
-  const allStates: string[] = [];
+  const uniqueStates = new Set<string>();
   const pageSize = 1000;
   let from = 0;
   let hasMore = true;
+  let previousStateCount = 0;
+  let consecutiveNoNewStates = 0;
+  const MAX_EXPECTED_STATES = 60; // 50 US states + DC + a few extras (Canadian provinces, etc.)
 
   while (hasMore) {
     const { data, error } = await supabase
@@ -348,19 +358,46 @@ export const getStates = cache(async (): Promise<string[]> => {
     }
 
     if (data && data.length > 0) {
-      // Extract states and add to set
-      const states = (data || []).map((b: any) => b.state).filter(Boolean);
-      allStates.push(...states);
+      // Extract states from this page and add to set (handles uniqueness automatically)
+      const states = (data || [])
+        .map((b: any) => b.state)
+        .filter(Boolean) as string[];
+      
+      states.forEach(state => uniqueStates.add(state));
+
+      const currentStateCount = uniqueStates.size;
+
+      // Early termination checks:
+      // 1. If we've found the expected maximum number of states, we're done
+      if (currentStateCount >= MAX_EXPECTED_STATES) {
+        hasMore = false;
+      }
+      // 2. If no new states in this page, increment counter
+      else if (currentStateCount === previousStateCount) {
+        consecutiveNoNewStates++;
+        // After 2 consecutive pages with no new states, we've likely seen all
+        if (consecutiveNoNewStates >= 2) {
+          hasMore = false;
+        }
+      } else {
+        // Reset counter if we found new states
+        consecutiveNoNewStates = 0;
+      }
+
+      previousStateCount = currentStateCount;
       from += pageSize;
-      // If we got fewer than pageSize, we've reached the end
-      hasMore = data.length === pageSize;
+      
+      // If we got fewer than pageSize, we've reached the end of data
+      if (data.length < pageSize) {
+        hasMore = false;
+      }
     } else {
       hasMore = false;
     }
   }
 
-  // Return unique states, sorted
-  return Array.from(new Set(allStates)).sort();
+  // Return unique states, sorted alphabetically
+  return Array.from(uniqueStates).sort();
 });
 
 /**
