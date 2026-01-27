@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { MapPin, Phone, Globe, Star, Navigation } from 'lucide-react';
+import { MapPin, Phone, Globe, Star, Navigation, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { Bookstore, Feature, Event } from '@/shared/schema';
@@ -36,6 +36,60 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug }: Books
       bookstore.featureIds?.includes(feature.id) || false
     );
   }, [features, bookstore.featureIds]);
+
+  // State for photo carousel
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
+  // Helper to extract photo reference from photo object/string
+  const extractPhotoReference = (photo: any): string | null => {
+    if (!photo) return null;
+    if (typeof photo === 'string') return photo;
+    if (typeof photo === 'object' && photo.photo_reference) {
+      return photo.photo_reference;
+    }
+    return null;
+  };
+
+  // Helper to get photo URL
+  const getPhotoUrl = (photoReference: string, maxWidth: number = 400): string => {
+    if (!photoReference) return '';
+    return `/api/place-photo?photo_reference=${encodeURIComponent(photoReference)}&maxwidth=${maxWidth}`;
+  };
+
+  // Get gallery photos (all Google photos)
+  const galleryPhotos = useMemo(() => {
+    if (!bookstore.googlePhotos || !Array.isArray(bookstore.googlePhotos) || bookstore.googlePhotos.length === 0) {
+      return [];
+    }
+    return bookstore.googlePhotos;
+  }, [bookstore.googlePhotos]);
+
+  // Reset carousel index when gallery photos change
+  useEffect(() => {
+    setCurrentPhotoIndex(0);
+  }, [galleryPhotos]);
+
+  // Helper to format rating
+  const formatRating = (rating: string | null | undefined): number | null => {
+    if (!rating) return null;
+    const num = parseFloat(rating);
+    return isNaN(num) ? null : num;
+  };
+
+  // Helper to format review time
+  const formatReviewTime = (unixTimestamp: number): string => {
+    const date = new Date(unixTimestamp * 1000);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+    return `${Math.floor(diffDays / 365)} years ago`;
+  };
 
   // Redirect to canonical URL if needed
   useEffect(() => {
@@ -159,23 +213,136 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug }: Books
               )}
             </div>
 
-            {/* Photo Gallery */}
-            {bookstore.imageUrl && (
+            {/* Google Photos Gallery */}
+            {galleryPhotos.length > 0 && (
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">Photo Gallery</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  <div className="rounded-md h-28 w-full overflow-hidden bg-gray-100">
+                <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">Photos</h2>
+                
+                {/* Mobile Carousel (< 768px) */}
+                <div className="md:hidden relative mb-4">
+                  <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-200">
                     <img 
-                      src={bookstore.imageUrl} 
-                      alt={`${bookstore.name} bookstore`}
-                      className="h-full w-full object-cover"
+                      src={(() => {
+                        const photo = galleryPhotos[currentPhotoIndex];
+                        const photoRef = extractPhotoReference(photo);
+                        if (!photoRef) return '';
+                        return getPhotoUrl(photoRef, 800);
+                      })()}
+                      alt={`${bookstore.name} - Photo ${currentPhotoIndex + 1}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
                       onError={(e) => {
-                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600";
                       }}
                     />
+                    
+                    {/* Navigation Buttons */}
+                    {galleryPhotos.length > 1 && (
+                      <>
+                        <button 
+                          onClick={() => setCurrentPhotoIndex(prev => prev === 0 ? galleryPhotos.length - 1 : prev - 1)}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg"
+                          aria-label="Previous photo"
+                        >
+                          <ChevronLeft className="w-5 h-5 text-[#5F4B32]" />
+                        </button>
+                        <button 
+                          onClick={() => setCurrentPhotoIndex(prev => prev === galleryPhotos.length - 1 ? 0 : prev + 1)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg"
+                          aria-label="Next photo"
+                        >
+                          <ChevronRight className="w-5 h-5 text-[#5F4B32]" />
+                        </button>
+                        
+                        {/* Counter */}
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+                          {currentPhotoIndex + 1} / {galleryPhotos.length}
+                        </div>
+                      </>
+                    )}
                   </div>
-                  {/* Additional placeholder images could be added here if we have more photos */}
                 </div>
+                
+                {/* Desktop Grid (>= 768px) */}
+                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-4">
+                  {galleryPhotos.map((photo, index) => {
+                    const photoRef = extractPhotoReference(photo);
+                    
+                    if (!photoRef || photoRef.length < 10) {
+                      return null;
+                    }
+                    
+                    return (
+                      <div 
+                        key={index}
+                        className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-200 group cursor-pointer"
+                      >
+                        <img 
+                          src={getPhotoUrl(photoRef, 400)}
+                          alt={`${bookstore.name} - Photo ${index + 1}`}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.src = "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300";
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Customer Reviews Section */}
+            {bookstore.googleReviews && Array.isArray(bookstore.googleReviews) && bookstore.googleReviews.length > 0 && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-serif text-2xl font-bold text-[#5F4B32]">Customer Reviews</h2>
+                  {bookstore.googleRating && bookstore.googleReviewCount && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Star className="w-4 h-4 text-[#E16D3D] fill-current" />
+                      <span className="font-semibold text-[#5F4B32]">{formatRating(bookstore.googleRating)?.toFixed(1)}</span>
+                      <span className="text-gray-500">({bookstore.googleReviewCount.toLocaleString()})</span>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="space-y-6">
+                  {bookstore.googleReviews.slice(0, 3).map((review, index) => (
+                    <div key={index} className={index < Math.min(bookstore.googleReviews!.length, 3) - 1 ? "border-b border-gray-200 pb-6" : ""}>
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <p className="font-semibold text-[#5F4B32]">{review.author_name}</p>
+                          <p className="text-xs text-gray-500">{formatReviewTime(review.time)}</p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star 
+                              key={i}
+                              className={`w-4 h-4 ${i < review.rating ? 'text-[#E16D3D] fill-current' : 'text-gray-300'}`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-gray-700 leading-relaxed">{review.text}</p>
+                    </div>
+                  ))}
+                </div>
+                
+                {bookstore.googlePlaceId && (
+                  <div className="mt-6 pt-6 border-t border-gray-200 text-center">
+                    <a 
+                      href={`https://www.google.com/maps/place/?q=place_id:${bookstore.googlePlaceId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-[#2A6B7C] hover:text-[#E16D3D] transition-colors"
+                    >
+                      Read all reviews on Google
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  </div>
+                )}
               </div>
             )}
 
