@@ -103,15 +103,16 @@ export const getRandomBookstores = cache(async (count: number = 8): Promise<Book
  * Also tries case-insensitive match and name-based search if direct slug match fails
  */
 export const getBookstoreBySlug = cache(async (slug: string): Promise<Bookstore | null> => {
-  const supabase = createServerClient();
+  try {
+    const supabase = createServerClient();
 
-  // First, try querying directly by slug column (case-sensitive, exact match)
-  let { data, error } = await supabase
-    .from('bookstores')
-    .select(FULL_DETAIL)
-    .eq('slug', slug)
-    .eq('live', true)
-    .single();
+    // First, try querying directly by slug column (case-sensitive, exact match)
+    let { data, error } = await supabase
+      .from('bookstores')
+      .select(FULL_DETAIL)
+      .eq('slug', slug)
+      .eq('live', true)
+      .single();
 
   // If not found, try case-insensitive slug match
   if (error && error.code === 'PGRST116') {
@@ -132,40 +133,67 @@ export const getBookstoreBySlug = cache(async (slug: string): Promise<Bookstore 
   // If still not found, try searching by name pattern that could generate this slug
   // This handles cases where slug in DB doesn't exist or doesn't match
   if (error && error.code === 'PGRST116') {
-    // Convert slug back to a search pattern (replace hyphens with spaces)
-    const namePattern = slug.replace(/-/g, '%');
-    
-    // Search for names that could generate this slug
-    const { data: nameSearchData, error: nameError } = await supabase
+    // Strategy 1: Search for bookshops with null slugs and check if name generates to this slug
+    // This is more efficient than searching all bookshops
+    const { data: nullSlugData, error: nullSlugError } = await supabase
       .from('bookstores')
       .select(FULL_DETAIL)
       .eq('live', true)
-      .ilike('name', `%${namePattern}%`)
-      .limit(50); // Limit to reasonable number
+      .is('slug', null)
+      .limit(200); // Check up to 200 bookshops with null slugs
 
-    if (!nameError && nameSearchData) {
-      // Find the one that generates to this exact slug
-      const matched = nameSearchData.find((item: any) => {
-        const dbSlug = item.slug || generateSlugFromName(item.name);
-        return dbSlug.toLowerCase() === slug.toLowerCase();
+    if (!nullSlugError && nullSlugData) {
+      const matched = nullSlugData.find((item: any) => {
+        const generatedSlug = generateSlugFromName(item.name);
+        return generatedSlug.toLowerCase() === slug.toLowerCase();
       });
 
       if (matched) {
         return mapBookstoreData(matched);
       }
     }
-  }
 
-  if (error) {
-    // Return null for not found (404 case)
-    if (error.code === 'PGRST116') {
-      return null;
+    // Strategy 2: Convert slug back to a search pattern and search by name
+    // Replace hyphens with spaces for better name matching
+    const nameWords = slug.split('-').filter(w => w.length > 0);
+    if (nameWords.length > 0) {
+      // Search for names containing the first word of the slug
+      const { data: nameSearchData, error: nameError } = await supabase
+        .from('bookstores')
+        .select(FULL_DETAIL)
+        .eq('live', true)
+        .ilike('name', `%${nameWords[0]}%`)
+        .limit(200); // Increased limit for better coverage
+
+      if (!nameError && nameSearchData) {
+        // Find the one that generates to this exact slug
+        const matched = nameSearchData.find((item: any) => {
+          const dbSlug = item.slug || generateSlugFromName(item.name);
+          return dbSlug.toLowerCase() === slug.toLowerCase();
+        });
+
+        if (matched) {
+          return mapBookstoreData(matched);
+        }
+      }
     }
-    console.error('Error fetching bookstore by slug:', error);
-    throw error;
   }
 
-  return data ? mapBookstoreData(data) : null;
+    if (error) {
+      // Return null for not found (404 case)
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      console.error('Error fetching bookstore by slug:', error);
+      throw error;
+    }
+
+    return data ? mapBookstoreData(data) : null;
+  } catch (err) {
+    // Log error but don't throw - return null to trigger 404
+    console.error('Error in getBookstoreBySlug:', err);
+    return null;
+  }
 });
 
 /**

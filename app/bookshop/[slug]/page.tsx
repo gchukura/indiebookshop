@@ -119,11 +119,22 @@ export default async function BookshopPage({ params }: Props) {
       ? await getBookstoreById(parseInt(decodedSlug)) 
       : await getBookstoreBySlug(decodedSlug);
 
-    if (!bookstore) {
-      // Log for debugging (only in development)
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`Bookshop not found for slug: ${decodedSlug}`);
+    // If not found by slug and it's not numeric, try as ID anyway (some old links might use IDs)
+    if (!bookstore && !isNumericId && /^\d+/.test(decodedSlug)) {
+      const numericPart = decodedSlug.match(/^\d+/)?.[0];
+      if (numericPart) {
+        bookstore = await getBookstoreById(parseInt(numericPart));
       }
+    }
+
+    if (!bookstore) {
+      // Log for debugging
+      console.error(`[BookshopPage] Bookshop not found for slug: ${decodedSlug}`, {
+        isNumericId,
+        slug: decodedSlug,
+        env: process.env.NODE_ENV,
+      });
+      
       // Return 404 - dynamicParams will allow on-demand generation if needed
       notFound();
     }
