@@ -7,7 +7,8 @@ import { Bookstore } from '@/shared/schema';
  * CRITICAL: These match the Phase 1 optimizations in server/supabase-storage.ts
  */
 // Note: Using snake_case column names to match Supabase schema
-const LIST_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids';
+// IMPORTANT: imageUrl column is camelCase in database, not snake_case
+const LIST_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids,imageUrl,google_photos';
 
 const DETAIL_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,description,google_place_id,google_rating,google_review_count,google_description,formatted_phone,website_verified,google_maps_url,google_types,formatted_address_google,business_status,google_price_level,google_data_updated_at,contact_data_fetched_at,opening_hours_json,ai_generated_description,description_source,description_generated_at,description_validated,feature_ids,hours_json';
 
@@ -29,8 +30,38 @@ function mapBookstoreData(item: any): Bookstore {
     googleRating: item.google_rating || null,
     googleReviewCount: item.google_review_count || null,
     googleDescription: item.google_description || null,
-    googlePhotos: item.google_photos || null,
-    googleReviews: item.google_reviews || null,
+    googlePhotos: (() => {
+      const photos = item.google_photos;
+      if (!photos) return null;
+      // If it's already an array, return it
+      if (Array.isArray(photos)) return photos;
+      // If it's a string, try to parse it
+      if (typeof photos === 'string') {
+        try {
+          return JSON.parse(photos);
+        } catch (e) {
+          console.error('Error parsing google_photos JSON:', e);
+          return null;
+        }
+      }
+      return null;
+    })(),
+    googleReviews: (() => {
+      const reviews = item.google_reviews;
+      if (!reviews) return null;
+      // If it's already an array, return it
+      if (Array.isArray(reviews)) return reviews;
+      // If it's a string, try to parse it
+      if (typeof reviews === 'string') {
+        try {
+          return JSON.parse(reviews);
+        } catch (e) {
+          console.error('Error parsing google_reviews JSON:', e);
+          return null;
+        }
+      }
+      return null;
+    })(),
     googlePriceLevel: item.google_price_level || null,
     googleDataUpdatedAt: item.google_data_updated_at || null,
     formattedPhone: item.formatted_phone || null,
@@ -88,7 +119,13 @@ export const getRandomBookstores = cache(async (count: number = 8): Promise<Book
     .limit(fetchCount);
 
   if (error) {
-    console.error('Error fetching random bookstores:', error);
+    console.error('Error fetching random bookstores:', {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+      fullError: error
+    });
     throw error;
   }
 
@@ -100,28 +137,120 @@ export const getRandomBookstores = cache(async (count: number = 8): Promise<Book
 /**
  * Fetch a single bookstore by slug
  * Optimized to query by slug column instead of fetching all bookstores
+ * Also tries case-insensitive match and name-based search if direct slug match fails
  */
 export const getBookstoreBySlug = cache(async (slug: string): Promise<Bookstore | null> => {
-  const supabase = createServerClient();
+  try {
+    const supabase = createServerClient();
 
-  // Query directly by slug column (optimized - fetches only 1 record)
-  const { data, error } = await supabase
-    .from('bookstores')
-    .select(FULL_DETAIL)
-    .eq('slug', slug)
-    .eq('live', true)
-    .single();
+    // First, try querying directly by slug column (case-sensitive, exact match)
+    let { data, error } = await supabase
+      .from('bookstores')
+      .select(FULL_DETAIL)
+      .eq('slug', slug)
+      .eq('live', true)
+      .single();
 
-  if (error) {
-    // Return null for not found (404 case)
-    if (error.code === 'PGRST116') {
-      return null;
+  // If not found, try case-insensitive slug match
+  if (error && error.code === 'PGRST116') {
+    const { data: caseInsensitiveData, error: caseError } = await supabase
+      .from('bookstores')
+      .select(FULL_DETAIL)
+      .eq('live', true)
+      .ilike('slug', slug)
+      .limit(1)
+      .maybeSingle();
+
+    if (!caseError && caseInsensitiveData) {
+      data = caseInsensitiveData;
+      error = null;
     }
-    console.error('Error fetching bookstore by slug:', error);
-    throw error;
   }
 
-  return data ? mapBookstoreData(data) : null;
+  // If still not found, try searching by name pattern that could generate this slug
+  // This handles cases where slug in DB doesn't exist or doesn't match
+  if (error && error.code === 'PGRST116') {
+    // Strategy 1: Search for bookshops with null slugs and check if name generates to this slug
+    // This is more efficient than searching all bookshops
+    const { data: nullSlugData, error: nullSlugError } = await supabase
+      .from('bookstores')
+      .select(FULL_DETAIL)
+      .eq('live', true)
+      .is('slug', null)
+      .limit(200); // Check up to 200 bookshops with null slugs
+
+    if (!nullSlugError && nullSlugData) {
+      const matched = nullSlugData.find((item: any) => {
+        const generatedSlug = generateSlugFromName(item.name);
+        return generatedSlug.toLowerCase() === slug.toLowerCase();
+      });
+
+      if (matched) {
+        return mapBookstoreData(matched);
+      }
+    }
+
+    // Strategy 2: Convert slug back to a search pattern and search by name
+    // Replace hyphens with spaces for better name matching
+    const nameWords = slug.split('-').filter(w => w.length > 0);
+    if (nameWords.length > 0) {
+      // Try exact name match first (slug might be generated from exact name)
+      const exactName = nameWords.join(' ');
+      const { data: exactNameData, error: exactNameError } = await supabase
+        .from('bookstores')
+        .select(FULL_DETAIL)
+        .eq('live', true)
+        .ilike('name', exactName)
+        .limit(10);
+
+      if (!exactNameError && exactNameData) {
+        const matched = exactNameData.find((item: any) => {
+          const dbSlug = item.slug || generateSlugFromName(item.name);
+          return dbSlug.toLowerCase() === slug.toLowerCase();
+        });
+
+        if (matched) {
+          return mapBookstoreData(matched);
+        }
+      }
+
+      // Then try partial name match with first word
+      const { data: nameSearchData, error: nameError } = await supabase
+        .from('bookstores')
+        .select(FULL_DETAIL)
+        .eq('live', true)
+        .ilike('name', `%${nameWords[0]}%`)
+        .limit(200); // Increased limit for better coverage
+
+      if (!nameError && nameSearchData) {
+        // Find the one that generates to this exact slug
+        const matched = nameSearchData.find((item: any) => {
+          const dbSlug = item.slug || generateSlugFromName(item.name);
+          return dbSlug.toLowerCase() === slug.toLowerCase();
+        });
+
+        if (matched) {
+          return mapBookstoreData(matched);
+        }
+      }
+    }
+  }
+
+    if (error) {
+      // Return null for not found (404 case)
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      console.error('Error fetching bookstore by slug:', error);
+      throw error;
+    }
+
+    return data ? mapBookstoreData(data) : null;
+  } catch (err) {
+    // Log error but don't throw - return null to trigger 404
+    console.error('Error in getBookstoreBySlug:', err);
+    return null;
+  }
 });
 
 /**
@@ -194,24 +323,81 @@ export const getFilteredBookstores = cache(async (filters: {
 
 /**
  * Fetch all distinct states
+ * Optimized: Uses Set to track unique states and stops early when all states are found
+ * 
+ * Performance optimizations:
+ * 1. Uses Set for O(1) uniqueness checking
+ * 2. Early termination when 60+ unique states found (covers 50 US + DC + extras)
+ * 3. Early termination after 2 consecutive pages with no new states
+ * 4. React cache() deduplicates requests within render cycle
+ * 
+ * Expected performance: Typically stops after 1-2 pages (1000-2000 rows) instead of all rows
  */
 export const getStates = cache(async (): Promise<string[]> => {
   const supabase = createServerClient();
 
-  const { data, error } = await supabase
-    .from('bookstores')
-    .select('state')
-    .eq('live', true)
-    .order('state');
+  const uniqueStates = new Set<string>();
+  const pageSize = 1000;
+  let from = 0;
+  let hasMore = true;
+  let previousStateCount = 0;
+  let consecutiveNoNewStates = 0;
+  const MAX_EXPECTED_STATES = 60; // 50 US states + DC + a few extras (Canadian provinces, etc.)
 
-  if (error) {
-    console.error('Error fetching states:', error);
-    throw error;
+  while (hasMore) {
+    const { data, error } = await supabase
+      .from('bookstores')
+      .select('state')
+      .eq('live', true)
+      .order('state')
+      .range(from, from + pageSize - 1);
+
+    if (error) {
+      console.error('Error fetching states:', error);
+      throw error;
+    }
+
+    if (data && data.length > 0) {
+      // Extract states from this page and add to set (handles uniqueness automatically)
+      const states = (data || [])
+        .map((b: any) => b.state)
+        .filter(Boolean) as string[];
+      
+      states.forEach(state => uniqueStates.add(state));
+
+      const currentStateCount = uniqueStates.size;
+
+      // Early termination checks:
+      // 1. If we've found the expected maximum number of states, we're done
+      if (currentStateCount >= MAX_EXPECTED_STATES) {
+        hasMore = false;
+      }
+      // 2. If no new states in this page, increment counter
+      else if (currentStateCount === previousStateCount) {
+        consecutiveNoNewStates++;
+        // After 2 consecutive pages with no new states, we've likely seen all
+        if (consecutiveNoNewStates >= 2) {
+          hasMore = false;
+        }
+      } else {
+        // Reset counter if we found new states
+        consecutiveNoNewStates = 0;
+      }
+
+      previousStateCount = currentStateCount;
+      from += pageSize;
+      
+      // If we got fewer than pageSize, we've reached the end of data
+      if (data.length < pageSize) {
+        hasMore = false;
+      }
+    } else {
+      hasMore = false;
+    }
   }
 
-  return Array.from(new Set(
-    (data || []).map((b: any) => b.state).filter(Boolean)
-  ));
+  // Return unique states, sorted alphabetically
+  return Array.from(uniqueStates).sort();
 });
 
 /**
