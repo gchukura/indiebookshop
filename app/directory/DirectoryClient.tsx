@@ -146,19 +146,19 @@ export default function DirectoryClient({
     }
 
     // Features filter
-    if (selectedFeatures.length > 0) {
-      filtered = filtered.filter((b) => {
-        if (!b.featureIds) return false;
-        let featureIdArray: number[] = [];
-        const featureIds = b.featureIds as any; // Handle both array and string formats
-        if (Array.isArray(featureIds)) {
-          featureIdArray = featureIds;
-        } else if (typeof featureIds === 'string') {
-          featureIdArray = featureIds.split(',').map((id: string) => parseInt(id.trim())).filter((n: number) => !isNaN(n));
-        }
-        return selectedFeatures.some(fid => featureIdArray.includes(fid));
-      });
-    }
+    // if (selectedFeatures.length > 0) {
+    //   filtered = filtered.filter((b) => {
+    //     if (!b.featureIds) return false;
+    //     let featureIdArray: number[] = [];
+    //     const featureIds = b.featureIds as any; // Handle both array and string formats
+    //     if (Array.isArray(featureIds)) {
+    //       featureIdArray = featureIds;
+    //     } else if (typeof featureIds === 'string') {
+    //       featureIdArray = featureIds.split(',').map((id: string) => parseInt(id.trim())).filter((n: number) => !isNaN(n));
+    //     }
+    //     return selectedFeatures.some(fid => featureIdArray.includes(fid));
+    //   });
+    // }
 
     return filtered;
   }, [initialBookstores, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures]);
@@ -300,7 +300,7 @@ export default function DirectoryClient({
     setSelectedState('all');
     setSelectedCity('all');
     setSelectedCounty('all');
-    setSelectedFeatures([]);
+    // setSelectedFeatures([]);
   }, []);
 
   // Visible bookstores in current map bounds
@@ -322,9 +322,9 @@ export default function DirectoryClient({
     if (selectedState !== 'all') count++;
     if (selectedCity !== 'all') count++;
     if (selectedCounty !== 'all') count++;
-    if (selectedFeatures.length > 0) count++;
+    // if (selectedFeatures.length > 0) count++;
     return count;
-  }, [selectedState, selectedCity, selectedCounty, selectedFeatures]);
+  }, [selectedState, selectedCity, selectedCounty]);
 
   return (
     <div className="relative h-[calc(100vh-64px)]">
@@ -461,7 +461,7 @@ export default function DirectoryClient({
                 </select>
 
                 {/* Features Filter */}
-                {features && Array.isArray(features) && features.length > 0 && (
+                {/* {features && Array.isArray(features) && features.length > 0 && (
                   <div>
                     <h3 className="font-sans text-sm font-semibold text-gray-700 mb-2">Features</h3>
                     <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -484,7 +484,7 @@ export default function DirectoryClient({
                       ))}
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {activeFilterCount > 0 && (
                   <button onClick={clearFilters} className="w-full font-sans text-sm text-[#2A6B7C] hover:underline flex items-center justify-center gap-1 py-1">
