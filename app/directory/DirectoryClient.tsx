@@ -6,7 +6,8 @@ import Map from 'react-map-gl/mapbox';
 import { Marker, NavigationControl } from 'react-map-gl/mapbox';
 import Supercluster from 'supercluster';
 import Link from 'next/link';
-import { Bookstore } from '@/shared/schema';
+import { useQuery } from '@tanstack/react-query';
+import { Bookstore, Feature } from '@/shared/schema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { generateSlugFromName } from '@/shared/utils';
@@ -62,8 +63,24 @@ export default function DirectoryClient({
   // State management
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedState, setSelectedState] = useState<string>(initialFilters.state || 'all');
-  const [selectedCity, setSelectedCity] = useState<string>('all');
-  const [selectedCounty, setSelectedCounty] = useState<string>('all');
+  const [selectedCity, setSelectedCity] = useState<string>(() => {
+    if (initialFilters.city && initialFilters.state) {
+      return `${initialFilters.city}${LOCATION_DELIMITER}${initialFilters.state}`;
+    }
+    return 'all';
+  });
+  const [selectedCounty, setSelectedCounty] = useState<string>(() => {
+    if (initialFilters.county && initialFilters.state) {
+      return `${initialFilters.county}${LOCATION_DELIMITER}${initialFilters.state}`;
+    }
+    return 'all';
+  });
+  const [selectedFeatures, setSelectedFeatures] = useState<number[]>(() => {
+    if (initialFilters.features && typeof initialFilters.features === 'string') {
+      return initialFilters.features.split(',').map(Number).filter(n => !isNaN(n));
+    }
+    return [];
+  });
   const [hoveredBookshopId, setHoveredBookshopId] = useState<number | null>(null);
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
@@ -90,6 +107,11 @@ export default function DirectoryClient({
     };
     fetchToken();
   }, []);
+
+  // Fetch features for filtering
+  const { data: features } = useQuery<Feature[]>({
+    queryKey: ['/api/features'],
+  });
 
   // Filter bookstores
   const filteredBookstores = useMemo(() => {
@@ -123,8 +145,23 @@ export default function DirectoryClient({
       filtered = filtered.filter((b) => b.county === county && b.state === state);
     }
 
+    // Features filter
+    if (selectedFeatures.length > 0) {
+      filtered = filtered.filter((b) => {
+        if (!b.featureIds) return false;
+        let featureIdArray: number[] = [];
+        const featureIds = b.featureIds as any; // Handle both array and string formats
+        if (Array.isArray(featureIds)) {
+          featureIdArray = featureIds;
+        } else if (typeof featureIds === 'string') {
+          featureIdArray = featureIds.split(',').map((id: string) => parseInt(id.trim())).filter((n: number) => !isNaN(n));
+        }
+        return selectedFeatures.some(fid => featureIdArray.includes(fid));
+      });
+    }
+
     return filtered;
-  }, [initialBookstores, searchQuery, selectedState, selectedCity, selectedCounty]);
+  }, [initialBookstores, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures]);
 
   // Get unique cities and counties
   const cities = useMemo(() => {
@@ -263,6 +300,7 @@ export default function DirectoryClient({
     setSelectedState('all');
     setSelectedCity('all');
     setSelectedCounty('all');
+    setSelectedFeatures([]);
   }, []);
 
   // Visible bookstores in current map bounds
@@ -284,8 +322,9 @@ export default function DirectoryClient({
     if (selectedState !== 'all') count++;
     if (selectedCity !== 'all') count++;
     if (selectedCounty !== 'all') count++;
+    if (selectedFeatures.length > 0) count++;
     return count;
-  }, [selectedState, selectedCity, selectedCounty]);
+  }, [selectedState, selectedCity, selectedCounty, selectedFeatures]);
 
   return (
     <div className="relative h-[calc(100vh-64px)]">
@@ -420,6 +459,32 @@ export default function DirectoryClient({
                     </option>
                   ))}
                 </select>
+
+                {/* Features Filter */}
+                {features && Array.isArray(features) && features.length > 0 && (
+                  <div>
+                    <h3 className="font-sans text-sm font-semibold text-gray-700 mb-2">Features</h3>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {features.map((feature: Feature) => (
+                        <label key={feature.id} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={selectedFeatures.includes(feature.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedFeatures([...selectedFeatures, feature.id]);
+                              } else {
+                                setSelectedFeatures(selectedFeatures.filter(id => id !== feature.id));
+                              }
+                            }}
+                            className="w-4 h-4 text-[#2A6B7C] border-gray-300 rounded focus:ring-[#2A6B7C]"
+                          />
+                          <span className="font-sans text-sm text-gray-700">{feature.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {activeFilterCount > 0 && (
                   <button onClick={clearFilters} className="w-full font-sans text-sm text-[#2A6B7C] hover:underline flex items-center justify-center gap-1 py-1">
