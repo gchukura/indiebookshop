@@ -30,9 +30,9 @@ export async function generateStaticParams() {
   }
 }
 
-// Enable on-demand generation for new bookshops
-// This allows pages to be generated at request time if not in static params
-export const dynamicParams = true;
+// Disable on-demand generation - all pages pre-built (404 for missing slugs)
+// This is CRITICAL for egress optimization - prevents runtime Supabase queries
+export const dynamicParams = false;
 
 /**
  * Generate dynamic metadata for each bookshop
