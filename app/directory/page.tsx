@@ -105,5 +105,5 @@ export default async function DirectoryPage({ searchParams }: Props) {
   );
 }
 
-// Revalidate every 30 minutes (matches Phase 1 cache TTL)
-export const revalidate = 1800;
+// Revalidate every 7 days (bookshop data changes weekly at most)
+export const revalidate = 604800;

@@ -193,6 +193,6 @@ export default async function BookshopPage({ params }: Props) {
   }
 }
 
-// Revalidate every 24 hours (bookstore data rarely changes)
-// This reduces query frequency from 48x per day to 1x per day
-export const revalidate = 86400;
+// Revalidate every 7 days (bookstore data rarely changes)
+// This reduces egress to once per week per page
+export const revalidate = 604800;

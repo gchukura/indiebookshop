@@ -103,6 +103,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 }
 
-// Revalidate sitemap every 24 hours (bookstore list rarely changes)
-// This reduces query frequency from 24x per day to 1x per day
-export const revalidate = 86400;
+// Revalidate sitemap every 7 days (bookstore list changes weekly at most)
+export const revalidate = 604800;

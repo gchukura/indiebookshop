@@ -11,8 +11,8 @@ export const metadata: Metadata = {
   keywords: ['independent bookstores', 'bookshops', 'local bookstores', 'indie bookstores', 'book shops near me'],
 };
 
-// Revalidate every 30 minutes
-export const revalidate = 1800;
+// Revalidate every 7 days (bookshop data changes weekly at most)
+export const revalidate = 604800;
 
 // Helper to get state flag URL
 const getStateImageUrl = (abbreviation: string): string => {
