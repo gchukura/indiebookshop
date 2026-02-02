@@ -10,6 +10,10 @@ import { Bookstore } from '@/shared/schema';
 // IMPORTANT: imageUrl column is camelCase in database, not snake_case
 const LIST_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids,imageUrl,google_photos';
 
+// Minimal columns for build-time operations (static params, sitemap)
+// Excludes large fields like google_photos to reduce build egress
+const BUILD_COLUMNS = 'id,name,slug,city,state,live';
+
 const DETAIL_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,description,google_place_id,google_rating,google_review_count,google_description,formatted_phone,website_verified,google_maps_url,google_types,formatted_address_google,business_status,google_price_level,google_data_updated_at,contact_data_fetched_at,opening_hours_json,ai_generated_description,description_source,description_generated_at,description_validated,feature_ids,hours_json';
 
 const PHOTO_COLUMNS = 'google_photos';
@@ -449,13 +453,14 @@ export const getTopBookstores = cache(async (limit: number = 100): Promise<Books
 });
 
 /**
- * Fetch all bookstores (for sitemap generation)
- * Note: This should only be used for build-time operations like sitemap generation
+ * Fetch all bookstores (for sitemap generation and static params)
+ * Note: This should only be used for build-time operations
+ * Uses BUILD_COLUMNS to minimize egress during builds
  */
 export const getAllBookstores = cache(async (): Promise<Bookstore[]> => {
   const supabase = createServerClient();
 
-  // Fetch with pagination
+  // Fetch with pagination using minimal columns
   const allBookstores: any[] = [];
   const pageSize = 1000;
   let from = 0;
@@ -464,7 +469,7 @@ export const getAllBookstores = cache(async (): Promise<Bookstore[]> => {
   while (hasMore) {
     const { data, error } = await supabase
       .from('bookstores')
-      .select(LIST_COLUMNS)
+      .select(BUILD_COLUMNS)
       .eq('live', true)
       .order('name')
       .range(from, from + pageSize - 1);
