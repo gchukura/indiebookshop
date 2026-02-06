@@ -4,7 +4,7 @@
 
 Rebuild indiebookshop.com from scratch using optimized architecture patterns, addressing critical weaknesses identified in performance diagnostics, SEO audits, and cost analysis. The new architecture should prioritize server-side rendering, efficient data fetching, modern UX patterns, and strong SEO fundamentals.
 
-## Architecture Comparison: Current vs. Maryland Brewery (Reference)
+## Architecture Comparison: Current vs. Target Architecture
 
 ### Data Fetching & Caching Strategy
 
@@ -16,15 +16,15 @@ Rebuild indiebookshop.com from scratch using optimized architecture patterns, ad
 - Multiple separate queries per page (featured, popular, states, etc.)
 - Client-side React Query for some data fetching (adds latency)
 
-**Maryland Brewery (Optimized):**
+**Target architecture (optimized):**
 
 - Uses `unstable_cache()` with strategic revalidation (3600s = 1 hour)
-- Single `getProcessedBreweryData()` function that processes ALL data once per build
+- Single `getProcessedBookstoreData()` function that processes ALL data once per build
 - Build-time data processing creates efficient lookup Maps (byCity, byCounty, byType, byAmenity)
 - All pages share the same cached processed data structure
 - Client-side hooks (`useBreweries`) only for interactive filtering, not initial data load
 
-**Key Difference:** Maryland Brewery processes all data once and reuses it across 500+ pages, while IndiebookShop processes data separately for each page.
+**Key Difference:** The target architecture processes all data once and reuses it across 500+ pages, while IndiebookShop processes data separately for each page.
 
 ### Data Processing Architecture
 
@@ -39,32 +39,32 @@ export const getRandomBookstores = cache(async (count) => {
 });
 ```
 
-**Maryland Brewery (Optimized):**
+**Target architecture (optimized):**
 
 ```typescript
 // Single processing function for all pages
-export const getProcessedBreweryData = unstable_cache(
-  async (): Promise<ProcessedBreweryData> => {
-    const breweries = await getAllBreweryData(); // Cached
-    const processed = await processBreweryData(breweries); // Creates Maps
+export const getProcessedBookstoreData = unstable_cache(
+  async (): Promise<ProcessedBookstoreData> => {
+    const bookstores = await getAllBookstoreData(); // Cached
+    const processed = await processBookstoreData(bookstores); // Creates Maps
     return ensureMapsAreMaps(processed); // Handles serialization
   },
-  ['processed-brewery-data'],
-  { tags: ['brewery-data'], revalidate: 3600 }
+  ['processed-bookstore-data'],
+  { tags: ['bookstore-data'], revalidate: 3600 }
 );
 
 // All pages use the same processed data
-export const getBreweriesByCity = unstable_cache(
+export const getBookstoresByCity = unstable_cache(
   async (city: string) => {
-    const processedData = await getProcessedBreweryData(); // Shared cache
+    const processedData = await getProcessedBookstoreData(); // Shared cache
     return safeMapGet(processedData.byCity, city.toLowerCase()) || [];
   },
-  ['breweries-by-city'],
-  { tags: ['brewery-data'], revalidate: 3600 }
+  ['bookstores-by-city'],
+  { tags: ['bookstore-data'], revalidate: 3600 }
 );
 ```
 
-**Key Difference:** Maryland Brewery creates efficient lookup structures (Maps) once, while IndiebookShop queries the database repeatedly.
+**Key Difference:** The target architecture creates efficient lookup structures (Maps) once, while IndiebookShop queries the database repeatedly.
 
 ### Page Generation Strategy
 
@@ -75,14 +75,14 @@ export const getBreweriesByCity = unstable_cache(
 - Limited ISR revalidation strategy
 - Each dynamic route fetches data independently
 
-**Maryland Brewery (Optimized):**
+**Target architecture (optimized):**
 
 - `generateStaticParams` uses shared processed data
-- Comprehensive SEO utilities (`generateBreweryTitle`, `generateEnhancedBreweryDescription`)
+- Comprehensive SEO utilities (`generateBookstoreTitle`, `generateEnhancedBookstoreDescription`)
 - Consistent revalidation strategy (3600s across all pages)
 - Dynamic routes leverage pre-processed lookup Maps
 
-**Key Difference:** Maryland Brewery has a unified SEO/content generation system, while IndiebookShop generates metadata per-page without shared utilities.
+**Key Difference:** The target architecture has a unified SEO/content generation system, while IndiebookShop generates metadata per-page without shared utilities.
 
 ### Sitemap Generation
 
@@ -91,14 +91,14 @@ export const getBreweriesByCity = unstable_cache(
 - Basic sitemap generation
 - May fetch data multiple times during sitemap generation
 
-**Maryland Brewery (Optimized):**
+**Target architecture (optimized):**
 
-- Comprehensive sitemap (`sitemap.ts`) that uses shared `getProcessedBreweryData()`
+- Comprehensive sitemap (`sitemap.ts`) that uses shared `getProcessedBookstoreData()`
 - Generates URLs for all entity types (breweries, cities, counties, amenities, types, regions)
 - Filters out empty pages (only includes cities/counties with breweries)
 - Uses same cached data as pages, ensuring consistency
 
-**Key Difference:** Maryland Brewery's sitemap is comprehensive and uses shared cached data, ensuring all pages are discoverable.
+**Key Difference:** The target architecture's sitemap is comprehensive and uses shared cached data, ensuring all pages are discoverable.
 
 ### Component Architecture
 
@@ -108,14 +108,14 @@ export const getBreweriesByCity = unstable_cache(
 - Some components fetch data client-side unnecessarily
 - Limited separation of concerns
 
-**Maryland Brewery (Optimized):**
+**Target architecture (optimized):**
 
 - Clear separation: Server Components fetch data, Client Components handle interactivity
 - Client components receive pre-fetched data as props
 - Minimal client-side data fetching (only for interactive features like filtering)
-- Template components (`SimpleBreweryPageTemplate`) for consistent page structure
+- Template components (`SimpleBookstorePageTemplate`) for consistent page structure
 
-**Key Difference:** Maryland Brewery has a clear server/client boundary with data fetching on the server, while IndiebookShop mixes concerns.
+**Key Difference:** The target architecture has a clear server/client boundary with data fetching on the server, while IndiebookShop mixes concerns.
 
 ### Error Handling & Resilience
 
@@ -124,14 +124,14 @@ export const getBreweriesByCity = unstable_cache(
 - Basic error handling
 - Some functions may throw without graceful fallbacks
 
-**Maryland Brewery (Optimized):**
+**Target architecture (optimized):**
 
 - Comprehensive error handling with fallbacks
 - `safeMapGet()` handles Map serialization issues
 - `ensureMapsAreMaps()` handles cache serialization edge cases
 - Graceful degradation when data is missing
 
-**Key Difference:** Maryland Brewery handles edge cases (cache serialization, missing data) gracefully, while IndiebookShop may fail unexpectedly.
+**Key Difference:** The target architecture handles edge cases (cache serialization, missing data) gracefully, while IndiebookShop may fail unexpectedly.
 
 ## Current Architecture Weaknesses (Documented)
 
@@ -157,7 +157,7 @@ export const getBreweriesByCity = unstable_cache(
 2. **Legacy client code** - Old React + Vite + Wouter code still exists alongside Next.js
 3. **Inefficient data fetching** - Multiple queries, N+1 problems, no proper batching
 4. **No proper caching layer** - React cache() used but no strategic caching strategy
-5. **No data processing layer** - Missing the `getProcessedBreweryData()` pattern that powers 500+ pages efficiently
+5. **No data processing layer** - Missing the `getProcessedBookstoreData()` pattern that powers 500+ pages efficiently
 
 ## Target Architecture (Based on Best Practices)
 
@@ -347,9 +347,9 @@ const FULL_DETAIL = `${DETAIL_COLUMNS},google_photos,google_reviews`;
 - Select only needed columns (LIST_COLUMNS vs DETAIL_COLUMNS vs FULL_DETAIL)
 - Use `lat_numeric`/`lng_numeric` for distance calculations, not text columns
 
-**1.2 Data Fetching Architecture (Maryland Brewery Pattern + Schema-Aware)**
+**1.2 Data Fetching Architecture (Recommended pattern + schema-aware)**
 
-- Create `lib/bookstore-data.ts` following Maryland Brewery pattern:
+- Create `lib/bookstore-data.ts` following the recommended pattern:
   - `getAllBookstoreData()` - Fetches all bookstores with optimized column selection
     - Use `LIST_COLUMNS` for list views (minimal columns)
     - Use `DETAIL_COLUMNS` for detail pages
@@ -398,7 +398,7 @@ function mapBookstoreData(item: any): Bookstore {
 }
 ```
 
-**1.3 Caching Strategy (Maryland Brewery Pattern)**
+**1.3 Caching Strategy (Recommended pattern)**
 
 - Use `unstable_cache()` instead of `React cache()` for build-time caching
 - Single cache key (`['processed-bookstore-data']`) shared across all pages
@@ -445,7 +445,7 @@ function mapBookstoreData(item: any): Bookstore {
 - Parse `google_rating` from TEXT: `parseFloat(bookstore.google_rating)`
 - Use `lat_numeric`/`lng_numeric` for distance calculations
 - Use PostGIS `location` column for nearby bookstores query
-- **Templated About Section (Maryland Brewery Pattern):**
+- **Templated About Section (Recommended pattern):**
   - Create `lib/bookstore-content-utils.ts` with `generateAboutBookstoreContent()` function
   - Generate templated content in multiple parts: Location, Type & Specialization, Ratings, Review Themes
   - Return single string for template component
@@ -453,7 +453,7 @@ function mapBookstoreData(item: any): Bookstore {
 - Comprehensive structured data (LocalBusiness schema)
 - Optimize image loading (priority for hero, lazy for gallery)
 - Related bookshops via server-side query using processed data Maps
-- Pass `aboutContent` to template component (similar to Maryland Brewery)
+- Pass `aboutContent` to template component (as in the recommended pattern)
 - **Ad Integration:**
   - Top leaderboard (728x90) below breadcrumbs
   - Right rail sticky ad (300x600 or 300x250) desktop only
@@ -509,7 +509,7 @@ components/
 
 **3.4 About Section Content Generation**
 
-- Create `lib/bookstore-content-utils.ts` following Maryland Brewery pattern
+- Create `lib/bookstore-content-utils.ts` following the recommended pattern
 - Generate content server-side during page rendering
 - Use stored `review_themes` from database (if available)
 - Fallback to existing description if themes unavailable
@@ -533,7 +533,7 @@ components/
 - Organization schema
 - Review/Rating schemas
 
-**4.3 Sitemap & Robots (Maryland Brewery Pattern)**
+**4.3 Sitemap & Robots (Recommended pattern)**
 
 - Comprehensive `sitemap.ts` using `getProcessedBookstoreData()` (shared cache)
 - Generate URLs for all entity types (bookshops, states, cities, counties, features)
@@ -590,7 +590,7 @@ components/
 - Use PostGIS `location` column for spatial queries if needed
 - Use GIST index on `location` for spatial queries
 
-## Key Patterns to Adopt from Maryland Brewery
+## Key Patterns to Adopt
 
 ### 1. Data Processing Layer (`lib/bookstore-data.ts`)
 
