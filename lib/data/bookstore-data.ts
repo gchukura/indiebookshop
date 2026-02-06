@@ -613,3 +613,27 @@ export const getCountByState = unstable_cache(
   ['count-by-state'],
   { tags: ['bookstore-data'], revalidate: 3600 }
 );
+
+/**
+ * Get bookstore by ID (with full details)
+ * Fetches directly from DB for complete data including photos/reviews
+ */
+export async function getBookstoreById(id: number): Promise<Bookstore | null> {
+  const supabase = createServerClient();
+
+  const { data, error } = await supabase
+    .from('bookstores')
+    .select(FULL_DETAIL)
+    .eq('id', id)
+    .eq('live', true)
+    .single();
+
+  if (error) {
+    if (error.code !== 'PGRST116') {
+      console.error('Error fetching bookstore by id:', error);
+    }
+    return null;
+  }
+
+  return data ? mapBookstoreData(data) : null;
+}

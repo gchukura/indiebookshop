@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { getRandomBookstores, getPopularBookstores, getStates } from '@/lib/queries/bookstores';
-import { generateSlugFromName } from '@/shared/utils';
+import { getFeaturedBookstores, getPopularBookstores, getStates, generateSlugFromName } from '@/lib/data/bookstore-data';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
 import { OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
@@ -11,8 +10,8 @@ export const metadata: Metadata = {
   keywords: ['independent bookstores', 'bookshops', 'local bookstores', 'indie bookstores', 'book shops near me'],
 };
 
-// Revalidate every 30 minutes
-export const revalidate = 1800;
+// Revalidate every hour (aligned with data layer cache)
+export const revalidate = 3600;
 
 // Helper to get state flag URL
 const getStateImageUrl = (abbreviation: string): string => {
@@ -43,7 +42,7 @@ const getStateImageUrl = (abbreviation: string): string => {
 
 export default async function HomePage() {
   const [featuredBookshops, popularBookshops, states] = await Promise.all([
-    getRandomBookstores(6),
+    getFeaturedBookstores(6),
     getPopularBookstores(6),
     getStates(),
   ]);

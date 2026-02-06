@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getFilteredBookstores, getStates } from '@/lib/queries/bookstores';
+import { getFilteredBookstores, getStates } from '@/lib/data/bookstore-data';
 import DirectoryClient from './DirectoryClient';
 
 type Props = {
@@ -105,5 +105,5 @@ export default async function DirectoryPage({ searchParams }: Props) {
   );
 }
 
-// Revalidate every 30 minutes (matches Phase 1 cache TTL)
-export const revalidate = 1800;
+// Revalidate every hour (aligned with data layer cache)
+export const revalidate = 3600;

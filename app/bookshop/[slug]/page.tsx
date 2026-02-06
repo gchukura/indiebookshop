@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getBookstoreBySlug, getBookstoreById, getAllBookstores, getRelatedBookstores } from '@/lib/queries/bookstores';
-import { generateSlugFromName } from '@/shared/utils';
+import { getBookstoreBySlugFullFull, getBookstoreById, getAllBookstores, getRelatedBookstores, generateSlugFromName } from '@/lib/data/bookstore-data';
 import BookshopDetailClient from './BookshopDetailClient';
 
 type Props = {
@@ -51,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     
     // Decode the slug in case it's URL-encoded
     const decodedSlug = decodeURIComponent(resolvedParams.slug);
-    const bookstore = await getBookstoreBySlug(decodedSlug);
+    const bookstore = await getBookstoreBySlugFull(decodedSlug);
 
     if (!bookstore) {
       return {
@@ -153,7 +152,7 @@ export default async function BookshopPage({ params }: Props) {
     const isNumericId = /^\d+$/.test(decodedSlug);
     let bookstore = isNumericId 
       ? await getBookstoreById(parseInt(decodedSlug)) 
-      : await getBookstoreBySlug(decodedSlug);
+      : await getBookstoreBySlugFull(decodedSlug);
 
     // If not found by slug and it's not numeric, try as ID anyway (some old links might use IDs)
     if (!bookstore && !isNumericId && /^\d+/.test(decodedSlug)) {
