@@ -6,6 +6,7 @@ import { MapPin, Phone, Globe, Star } from 'lucide-react';
 import Link from 'next/link';
 import { Bookstore } from '@/shared/schema';
 import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/StructuredData';
+import { LazyAdSenseSlot, StickyAdSidebar } from '@/components/ads';
 
 type BookshopDetailClientProps = {
   bookstore: Bookstore;
@@ -81,6 +82,26 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             )}
             <span className="text-gray-700">{bookstore.name}</span>
           </nav>
+        </div>
+      </div>
+
+      {/* Top Leaderboard Ad (Desktop: 728x90, Mobile: 320x50) */}
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="hidden md:flex justify-center">
+          <LazyAdSenseSlot
+            adSlot="top-leaderboard"
+            adFormat="horizontal"
+            minHeight={90}
+            minWidth={728}
+          />
+        </div>
+        <div className="flex md:hidden justify-center">
+          <LazyAdSenseSlot
+            adSlot="top-mobile-banner"
+            adFormat="horizontal"
+            minHeight={50}
+            minWidth={320}
+          />
         </div>
       </div>
 
@@ -160,6 +181,16 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
               </div>
             </div>
 
+            {/* Mid-Content Ad (300x250) */}
+            <div className="flex justify-center">
+              <LazyAdSenseSlot
+                adSlot="mid-content"
+                adFormat="rectangle"
+                minHeight={250}
+                minWidth={300}
+              />
+            </div>
+
             {/* Hours */}
             {bookstore.openingHoursJson?.weekday_text && (
               <div className="bg-white rounded-lg shadow-md p-6">
@@ -208,6 +239,16 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                 </a>
               )}
             </div>
+
+            {/* Sticky Sidebar Ad (Desktop only) */}
+            <div className="hidden lg:block">
+              <StickyAdSidebar
+                adSlot="sidebar-sticky"
+                width={300}
+                height={600}
+                topOffset={100}
+              />
+            </div>
           </div>
         </div>
 
@@ -252,6 +293,26 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             )}
           </div>
         )}
+
+        {/* Bottom Banner Ad (Desktop: 728x90, Mobile: 320x50) */}
+        <div className="mt-8">
+          <div className="hidden md:flex justify-center">
+            <LazyAdSenseSlot
+              adSlot="bottom-leaderboard"
+              adFormat="horizontal"
+              minHeight={90}
+              minWidth={728}
+            />
+          </div>
+          <div className="flex md:hidden justify-center">
+            <LazyAdSenseSlot
+              adSlot="bottom-mobile-banner"
+              adFormat="horizontal"
+              minHeight={50}
+              minWidth={320}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
