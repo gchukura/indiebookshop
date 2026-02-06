@@ -3,6 +3,7 @@ import { getFeaturedBookstores, getPopularBookstores, getStates, generateSlugFro
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
 import { OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
+import { LazyAdSenseSlot } from '@/components/ads';
 
 export const metadata: Metadata = {
   title: 'IndiebookShop.com - Discover Independent Bookshops Across America',
@@ -148,6 +149,28 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Top Banner Ad (after hero) */}
+      <div className="py-4 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="hidden md:flex justify-center">
+            <LazyAdSenseSlot
+              adSlot="home-top-banner"
+              adFormat="horizontal"
+              minHeight={90}
+              minWidth={728}
+            />
+          </div>
+          <div className="flex md:hidden justify-center">
+            <LazyAdSenseSlot
+              adSlot="home-top-mobile"
+              adFormat="horizontal"
+              minHeight={50}
+              minWidth={320}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Trust/Stats Bar */}
       <section className="py-8 bg-white border-y border-gray-200">
         <div className="container mx-auto px-4">
@@ -215,6 +238,18 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Mid-Content Ad */}
+      <div className="py-4 bg-white">
+        <div className="container mx-auto px-4 flex justify-center">
+          <LazyAdSenseSlot
+            adSlot="home-mid-content"
+            adFormat="rectangle"
+            minHeight={250}
+            minWidth={300}
+          />
+        </div>
+      </div>
 
       {/* Popular Bookshops Section */}
       <section className="py-8 md:py-12 bg-gray-50">
@@ -321,6 +356,28 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Bottom Banner Ad */}
+      <div className="py-6 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="hidden md:flex justify-center">
+            <LazyAdSenseSlot
+              adSlot="home-bottom-banner"
+              adFormat="horizontal"
+              minHeight={90}
+              minWidth={728}
+            />
+          </div>
+          <div className="flex md:hidden justify-center">
+            <LazyAdSenseSlot
+              adSlot="home-bottom-mobile"
+              adFormat="horizontal"
+              minHeight={50}
+              minWidth={320}
+            />
+          </div>
+        </div>
+      </div>
 
     </div>
   );
