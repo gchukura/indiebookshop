@@ -2,10 +2,15 @@
 // Centralized data processing layer with strategic caching
 // Single processing function that powers all pages efficiently
 
-import { unstable_cache } from 'next/cache';
+import { cache } from 'react';
 import { createServerClient } from '@/lib/supabase/server';
 import { Bookstore } from '@/shared/schema';
 import { safeMapGet, safeMapKeys } from './cache-utils';
+
+// In-memory cache for processed data (survives across requests in dev)
+let processedDataCache: ProcessedBookstoreData | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour in milliseconds
 
 // ===========================================
 // COLUMN SELECTIONS (optimized for egress)
@@ -268,22 +273,30 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
 // ===========================================
 
 /**
- * Main cached function that powers all pages
- * Processes ALL bookstore data once and caches for 1 hour
- * All helper functions reference this shared cache
+ * Main function that powers all pages
+ * Uses in-memory cache to avoid unstable_cache 2MB limit
+ * React cache() provides request deduplication
  */
-export const getProcessedBookstoreData = unstable_cache(
+export const getProcessedBookstoreData = cache(
   async (): Promise<ProcessedBookstoreData> => {
+    const now = Date.now();
+
+    // Return cached data if still valid
+    if (processedDataCache && (now - cacheTimestamp) < CACHE_TTL_MS) {
+      console.log('[BookstoreData] Returning cached data');
+      return processedDataCache;
+    }
+
     console.log('[BookstoreData] Fetching and processing all bookstore data...');
     const bookstores = await fetchAllBookstoreData();
     const processed = processBookstoreData(bookstores);
     console.log(`[BookstoreData] Processed ${processed.totalCount} bookstores`);
+
+    // Update in-memory cache
+    processedDataCache = processed;
+    cacheTimestamp = now;
+
     return processed;
-  },
-  ['processed-bookstore-data'],
-  {
-    tags: ['bookstore-data'],
-    revalidate: 3600 // 1 hour
   }
 );
 
@@ -294,88 +307,64 @@ export const getProcessedBookstoreData = unstable_cache(
 /**
  * Get all bookstores (for sitemap, etc.)
  */
-export const getAllBookstores = unstable_cache(
-  async (): Promise<Bookstore[]> => {
-    const data = await getProcessedBookstoreData();
-    return data.all;
-  },
-  ['all-bookstores'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+export async function getAllBookstores(): Promise<Bookstore[]> {
+  const data = await getProcessedBookstoreData();
+  return data.all;
+}
 
 /**
  * Get bookstores by city
  */
-export const getBookstoresByCity = unstable_cache(
-  async (city: string, state: string): Promise<Bookstore[]> => {
-    const data = await getProcessedBookstoreData();
-    const key = `${city.toLowerCase()}-${state.toLowerCase()}`;
-    return safeMapGet(data.byCity, key) || [];
-  },
-  ['bookstores-by-city'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+export async function getBookstoresByCity(city: string, state: string): Promise<Bookstore[]> {
+  const data = await getProcessedBookstoreData();
+  const key = `${city.toLowerCase()}-${state.toLowerCase()}`;
+  return safeMapGet(data.byCity, key) || [];
+}
 
 /**
  * Get bookstores by state
  */
-export const getBookstoresByState = unstable_cache(
-  async (state: string): Promise<Bookstore[]> => {
-    const data = await getProcessedBookstoreData();
-    return safeMapGet(data.byState, state.toLowerCase()) || [];
-  },
-  ['bookstores-by-state'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+export async function getBookstoresByState(state: string): Promise<Bookstore[]> {
+  const data = await getProcessedBookstoreData();
+  return safeMapGet(data.byState, state.toLowerCase()) || [];
+}
 
 /**
  * Get bookstores by county
  */
-export const getBookstoresByCounty = unstable_cache(
-  async (county: string, state: string): Promise<Bookstore[]> => {
-    const data = await getProcessedBookstoreData();
-    const key = `${county.toLowerCase()}-${state.toLowerCase()}`;
-    return safeMapGet(data.byCounty, key) || [];
-  },
-  ['bookstores-by-county'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+export async function getBookstoresByCounty(county: string, state: string): Promise<Bookstore[]> {
+  const data = await getProcessedBookstoreData();
+  const key = `${county.toLowerCase()}-${state.toLowerCase()}`;
+  return safeMapGet(data.byCounty, key) || [];
+}
 
 /**
  * Get bookstores by feature
  */
-export const getBookstoresByFeature = unstable_cache(
-  async (featureId: number): Promise<Bookstore[]> => {
-    const data = await getProcessedBookstoreData();
-    return safeMapGet(data.byFeature, String(featureId)) || [];
-  },
-  ['bookstores-by-feature'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+export async function getBookstoresByFeature(featureId: number): Promise<Bookstore[]> {
+  const data = await getProcessedBookstoreData();
+  return safeMapGet(data.byFeature, String(featureId)) || [];
+}
 
 /**
  * Get bookstore by slug
  */
-export const getBookstoreBySlug = unstable_cache(
-  async (slug: string): Promise<Bookstore | null> => {
-    const data = await getProcessedBookstoreData();
-    const bookstore = safeMapGet(data.bySlug, slug.toLowerCase());
+export async function getBookstoreBySlug(slug: string): Promise<Bookstore | null> {
+  const data = await getProcessedBookstoreData();
+  const bookstore = safeMapGet(data.bySlug, slug.toLowerCase());
 
-    if (bookstore) return bookstore;
+  if (bookstore) return bookstore;
 
-    // Fallback: check if any bookstore's generated slug matches
-    for (const b of data.all) {
-      const generatedSlug = b.slug || generateSlugFromName(b.name);
-      if (generatedSlug.toLowerCase() === slug.toLowerCase()) {
-        return b;
-      }
+  // Fallback: check if any bookstore's generated slug matches
+  for (const b of data.all) {
+    const generatedSlug = b.slug || generateSlugFromName(b.name);
+    if (generatedSlug.toLowerCase() === slug.toLowerCase()) {
+      return b;
     }
+  }
 
-    return null;
-  },
-  ['bookstore-by-slug'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+  return null;
+}
 
 /**
  * Get bookstore by slug with full details
@@ -419,171 +408,143 @@ export async function getBookstoreBySlugFull(slug: string): Promise<Bookstore | 
 /**
  * Get all unique states
  */
-export const getStates = unstable_cache(
-  async (): Promise<string[]> => {
-    const data = await getProcessedBookstoreData();
-    return data.states;
-  },
-  ['all-states'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+export async function getStates(): Promise<string[]> {
+  const data = await getProcessedBookstoreData();
+  return data.states;
+}
 
 /**
  * Get all unique cities (with state info)
  */
-export const getCitiesWithState = unstable_cache(
-  async (): Promise<Array<{ city: string; state: string; count: number }>> => {
-    const data = await getProcessedBookstoreData();
-    const cities: Array<{ city: string; state: string; count: number }> = [];
+export async function getCitiesWithState(): Promise<Array<{ city: string; state: string; count: number }>> {
+  const data = await getProcessedBookstoreData();
+  const cities: Array<{ city: string; state: string; count: number }> = [];
 
-    for (const key of safeMapKeys(data.byCity)) {
-      const [city, state] = key.split('-');
-      const bookstores = safeMapGet(data.byCity, key) || [];
-      if (bookstores.length > 0) {
-        // Get proper case from first bookstore
-        cities.push({
-          city: bookstores[0].city,
-          state: bookstores[0].state,
-          count: bookstores.length,
-        });
-      }
+  for (const key of safeMapKeys(data.byCity)) {
+    const [city, state] = key.split('-');
+    const bookstores = safeMapGet(data.byCity, key) || [];
+    if (bookstores.length > 0) {
+      // Get proper case from first bookstore
+      cities.push({
+        city: bookstores[0].city,
+        state: bookstores[0].state,
+        count: bookstores.length,
+      });
     }
+  }
 
-    return cities.sort((a, b) => a.city.localeCompare(b.city));
-  },
-  ['cities-with-state'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+  return cities.sort((a, b) => a.city.localeCompare(b.city));
+}
 
 /**
  * Get all unique counties (with state info)
  */
-export const getCountiesWithState = unstable_cache(
-  async (): Promise<Array<{ county: string; state: string; count: number }>> => {
-    const data = await getProcessedBookstoreData();
-    const counties: Array<{ county: string; state: string; count: number }> = [];
+export async function getCountiesWithState(): Promise<Array<{ county: string; state: string; count: number }>> {
+  const data = await getProcessedBookstoreData();
+  const counties: Array<{ county: string; state: string; count: number }> = [];
 
-    for (const key of safeMapKeys(data.byCounty)) {
-      const [county, state] = key.split('-');
-      const bookstores = safeMapGet(data.byCounty, key) || [];
-      if (bookstores.length > 0) {
-        counties.push({
-          county: bookstores[0].county!,
-          state: bookstores[0].state,
-          count: bookstores.length,
-        });
-      }
+  for (const key of safeMapKeys(data.byCounty)) {
+    const [county, state] = key.split('-');
+    const bookstores = safeMapGet(data.byCounty, key) || [];
+    if (bookstores.length > 0) {
+      counties.push({
+        county: bookstores[0].county!,
+        state: bookstores[0].state,
+        count: bookstores.length,
+      });
     }
+  }
 
-    return counties.sort((a, b) => a.county.localeCompare(b.county));
-  },
-  ['counties-with-state'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+  return counties.sort((a, b) => a.county.localeCompare(b.county));
+}
 
 /**
  * Get featured bookstores (random sample)
  */
-export const getFeaturedBookstores = unstable_cache(
-  async (count: number = 8): Promise<Bookstore[]> => {
-    const data = await getProcessedBookstoreData();
-    // Re-shuffle for variety on each cache miss
-    const shuffled = [...data.all].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, count);
-  },
-  ['featured-bookstores'],
-  { tags: ['bookstore-data'], revalidate: 1800 } // 30 minutes for more variety
-);
+export async function getFeaturedBookstores(count: number = 8): Promise<Bookstore[]> {
+  const data = await getProcessedBookstoreData();
+  // Re-shuffle for variety
+  const shuffled = [...data.all].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
 
 /**
  * Get popular bookstores (by rating)
  */
-export const getPopularBookstores = unstable_cache(
-  async (limit: number = 15): Promise<Bookstore[]> => {
-    const data = await getProcessedBookstoreData();
-    return data.popular.slice(0, limit);
-  },
-  ['popular-bookstores'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+export async function getPopularBookstores(limit: number = 15): Promise<Bookstore[]> {
+  const data = await getProcessedBookstoreData();
+  return data.popular.slice(0, limit);
+}
 
 /**
  * Get related bookstores (same city > same state > random)
  */
-export const getRelatedBookstores = unstable_cache(
-  async (bookstore: Bookstore, limit: number = 6): Promise<Bookstore[]> => {
-    const data = await getProcessedBookstoreData();
+export async function getRelatedBookstores(bookstore: Bookstore, limit: number = 6): Promise<Bookstore[]> {
+  const data = await getProcessedBookstoreData();
 
-    // Try same city first
-    if (bookstore.city && bookstore.state) {
-      const cityKey = `${bookstore.city.toLowerCase()}-${bookstore.state.toLowerCase()}`;
-      const cityBookstores = (safeMapGet(data.byCity, cityKey) || [])
-        .filter(b => b.id !== bookstore.id);
+  // Try same city first
+  if (bookstore.city && bookstore.state) {
+    const cityKey = `${bookstore.city.toLowerCase()}-${bookstore.state.toLowerCase()}`;
+    const cityBookstores = (safeMapGet(data.byCity, cityKey) || [])
+      .filter(b => b.id !== bookstore.id);
 
-      if (cityBookstores.length >= 3) {
-        return cityBookstores.slice(0, limit);
-      }
+    if (cityBookstores.length >= 3) {
+      return cityBookstores.slice(0, limit);
     }
+  }
 
-    // Fall back to same state
-    if (bookstore.state) {
-      const stateBookstores = (safeMapGet(data.byState, bookstore.state.toLowerCase()) || [])
-        .filter(b => b.id !== bookstore.id);
+  // Fall back to same state
+  if (bookstore.state) {
+    const stateBookstores = (safeMapGet(data.byState, bookstore.state.toLowerCase()) || [])
+      .filter(b => b.id !== bookstore.id);
 
-      if (stateBookstores.length > 0) {
-        return stateBookstores.slice(0, limit);
-      }
+    if (stateBookstores.length > 0) {
+      return stateBookstores.slice(0, limit);
     }
+  }
 
-    // Last resort: random from featured
-    return data.featured.filter(b => b.id !== bookstore.id).slice(0, limit);
-  },
-  ['related-bookstores'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+  // Last resort: random from featured
+  return data.featured.filter(b => b.id !== bookstore.id).slice(0, limit);
+}
 
 /**
  * Get filtered bookstores with multiple criteria
  */
-export const getFilteredBookstores = unstable_cache(
-  async (filters: {
-    state?: string;
-    city?: string;
-    county?: string;
-    features?: number[];
-  }): Promise<Bookstore[]> => {
-    const data = await getProcessedBookstoreData();
-    let results: Bookstore[] = data.all;
+export async function getFilteredBookstores(filters: {
+  state?: string;
+  city?: string;
+  county?: string;
+  features?: number[];
+}): Promise<Bookstore[]> {
+  const data = await getProcessedBookstoreData();
+  let results: Bookstore[] = data.all;
 
-    // Filter by state
-    if (filters.state) {
-      results = safeMapGet(data.byState, filters.state.toLowerCase()) || [];
-    }
+  // Filter by state
+  if (filters.state) {
+    results = safeMapGet(data.byState, filters.state.toLowerCase()) || [];
+  }
 
-    // Filter by city (requires state context)
-    if (filters.city && filters.state) {
-      const cityKey = `${filters.city.toLowerCase()}-${filters.state.toLowerCase()}`;
-      results = safeMapGet(data.byCity, cityKey) || [];
-    }
+  // Filter by city (requires state context)
+  if (filters.city && filters.state) {
+    const cityKey = `${filters.city.toLowerCase()}-${filters.state.toLowerCase()}`;
+    results = safeMapGet(data.byCity, cityKey) || [];
+  }
 
-    // Filter by county (requires state context)
-    if (filters.county && filters.state) {
-      const countyKey = `${filters.county.toLowerCase()}-${filters.state.toLowerCase()}`;
-      results = safeMapGet(data.byCounty, countyKey) || [];
-    }
+  // Filter by county (requires state context)
+  if (filters.county && filters.state) {
+    const countyKey = `${filters.county.toLowerCase()}-${filters.state.toLowerCase()}`;
+    results = safeMapGet(data.byCounty, countyKey) || [];
+  }
 
-    // Filter by features
-    if (filters.features && filters.features.length > 0) {
-      results = results.filter(b =>
-        b.featureIds && filters.features!.some(fid => b.featureIds!.includes(fid))
-      );
-    }
+  // Filter by features
+  if (filters.features && filters.features.length > 0) {
+    results = results.filter(b =>
+      b.featureIds && filters.features!.some(fid => b.featureIds!.includes(fid))
+    );
+  }
 
-    return results;
-  },
-  ['filtered-bookstores'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+  return results;
+}
 
 // ===========================================
 // STATS & COUNTS
@@ -592,27 +553,19 @@ export const getFilteredBookstores = unstable_cache(
 /**
  * Get total bookstore count
  */
-export const getTotalBookstoreCount = unstable_cache(
-  async (): Promise<number> => {
-    const data = await getProcessedBookstoreData();
-    return data.totalCount;
-  },
-  ['total-bookstore-count'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+export async function getTotalBookstoreCount(): Promise<number> {
+  const data = await getProcessedBookstoreData();
+  return data.totalCount;
+}
 
 /**
  * Get count by state
  */
-export const getCountByState = unstable_cache(
-  async (state: string): Promise<number> => {
-    const data = await getProcessedBookstoreData();
-    const bookstores = safeMapGet(data.byState, state.toLowerCase()) || [];
-    return bookstores.length;
-  },
-  ['count-by-state'],
-  { tags: ['bookstore-data'], revalidate: 3600 }
-);
+export async function getCountByState(state: string): Promise<number> {
+  const data = await getProcessedBookstoreData();
+  const bookstores = safeMapGet(data.byState, state.toLowerCase()) || [];
+  return bookstores.length;
+}
 
 /**
  * Get bookstore by ID (with full details)
