@@ -2,13 +2,15 @@ import { Metadata } from 'next';
 import { getFilteredBookstores, getStates } from '@/lib/data/bookstore-data';
 import DirectoryClient from './DirectoryClient';
 
+type SearchParams = {
+  state?: string;
+  city?: string;
+  county?: string;
+  features?: string;
+};
+
 type Props = {
-  searchParams: {
-    state?: string;
-    city?: string;
-    county?: string;
-    features?: string;
-  };
+  searchParams: Promise<SearchParams> | SearchParams;
 };
 
 /**
@@ -16,7 +18,9 @@ type Props = {
  * This ensures /directory?state=CA and /directory?state=TX have different meta tags!
  */
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { state, city, county } = searchParams;
+  // Handle searchParams - in Next.js 15+, searchParams might be a Promise
+  const resolvedParams = searchParams instanceof Promise ? await searchParams : searchParams;
+  const { state, city, county } = resolvedParams;
 
   // City + State specific metadata
   if (state && city) {
@@ -76,17 +80,20 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
  * with the interactive map and filters.
  */
 export default async function DirectoryPage({ searchParams }: Props) {
+  // Handle searchParams - in Next.js 15+, searchParams might be a Promise
+  const resolvedParams = searchParams instanceof Promise ? await searchParams : searchParams;
+
   // Parse features from comma-separated string to number array
-  const features = searchParams.features
-    ? searchParams.features.split(',').map(f => parseInt(f.trim(), 10)).filter(n => !isNaN(n))
+  const features = resolvedParams.features
+    ? resolvedParams.features.split(',').map(f => parseInt(f.trim(), 10)).filter(n => !isNaN(n))
     : undefined;
 
   // Fetch initial data server-side
   const [bookstores, states] = await Promise.all([
     getFilteredBookstores({
-      state: searchParams.state,
-      city: searchParams.city,
-      county: searchParams.county,
+      state: resolvedParams.state,
+      city: resolvedParams.city,
+      county: resolvedParams.county,
       features,
     }),
     getStates(),
@@ -94,10 +101,10 @@ export default async function DirectoryPage({ searchParams }: Props) {
 
   // Generate page title based on filters
   let pageTitle = 'Bookshop Directory';
-  if (searchParams.city && searchParams.state) {
-    pageTitle = `Independent Bookshops in ${searchParams.city}, ${searchParams.state}`;
-  } else if (searchParams.state) {
-    pageTitle = `Independent Bookshops in ${searchParams.state}`;
+  if (resolvedParams.city && resolvedParams.state) {
+    pageTitle = `Independent Bookshops in ${resolvedParams.city}, ${resolvedParams.state}`;
+  } else if (resolvedParams.state) {
+    pageTitle = `Independent Bookshops in ${resolvedParams.state}`;
   }
 
   return (
@@ -109,7 +116,7 @@ export default async function DirectoryPage({ searchParams }: Props) {
       <DirectoryClient
         initialBookstores={bookstores}
         initialStates={states}
-        initialFilters={searchParams}
+        initialFilters={resolvedParams}
       />
     </div>
   );
