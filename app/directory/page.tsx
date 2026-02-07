@@ -76,9 +76,19 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
  * with the interactive map and filters.
  */
 export default async function DirectoryPage({ searchParams }: Props) {
+  // Parse features from comma-separated string to number array
+  const features = searchParams.features
+    ? searchParams.features.split(',').map(f => parseInt(f.trim(), 10)).filter(n => !isNaN(n))
+    : undefined;
+
   // Fetch initial data server-side
   const [bookstores, states] = await Promise.all([
-    getFilteredBookstores(searchParams),
+    getFilteredBookstores({
+      state: searchParams.state,
+      city: searchParams.city,
+      county: searchParams.county,
+      features,
+    }),
     getStates(),
   ]);
 
