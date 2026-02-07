@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getBookstoreBySlugFullFull, getBookstoreById, getAllBookstores, getRelatedBookstores, generateSlugFromName } from '@/lib/data/bookstore-data';
+import { getBookstoreBySlugFull, getBookstoreById, getAllBookstores, getRelatedBookstores, generateSlugFromName } from '@/lib/data/bookstore-data';
 import BookshopDetailClient from './BookshopDetailClient';
 
 type Props = {
