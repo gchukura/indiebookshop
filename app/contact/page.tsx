@@ -145,6 +145,7 @@ export default function ContactPage() {
                     </Link>
                   </span>
                 </p>
+                {/* FAQ no longer on site
                 <p className="flex items-start">
                   <span className="text-[#E16D3D] font-semibold mr-2">→</span>
                   <span>
@@ -154,6 +155,7 @@ export default function ContactPage() {
                     </Link>
                   </span>
                 </p>
+                */}
               </div>
             </div>
           </div>
