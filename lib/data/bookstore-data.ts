@@ -565,13 +565,13 @@ export async function getFilteredBookstores(filters: {
 
   // Filter by city (requires state context)
   if (filters.city && filters.state) {
-    const cityKey = `${filters.city.toLowerCase()}-${filters.state.toLowerCase()}`;
+    const cityKey = `${filters.city.trim().toLowerCase()}-${filters.state.trim().toLowerCase()}`;
     results = safeMapGet(data.byCity, cityKey) || [];
   }
 
   // Filter by county (requires state context)
   if (filters.county && filters.state) {
-    const countyKey = `${filters.county.toLowerCase()}-${filters.state.toLowerCase()}`;
+    const countyKey = `${filters.county.trim().toLowerCase()}-${filters.state.trim().toLowerCase()}`;
     results = safeMapGet(data.byCounty, countyKey) || [];
   }
 

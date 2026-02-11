@@ -69,7 +69,12 @@ export default function DirectoryClient({
     }
     return initialFilters.state || 'all';
   });
-  const [selectedCity, setSelectedCity] = useState<string>('all');
+  const [selectedCity, setSelectedCity] = useState<string>(() => {
+    if (initialFilters.city && initialFilters.state && initialBookstores.length > 0 && initialBookstores[0].city && initialBookstores[0].state) {
+      return `${initialBookstores[0].city}${LOCATION_DELIMITER}${initialBookstores[0].state}`;
+    }
+    return 'all';
+  });
   const [selectedCounty, setSelectedCounty] = useState<string>('all');
   const [hoveredBookshopId, setHoveredBookshopId] = useState<number | null>(null);
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);

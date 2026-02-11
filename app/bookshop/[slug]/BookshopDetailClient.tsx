@@ -99,7 +99,14 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
   if (bookstore.state) {
     breadcrumbItems.push({
       name: bookstore.state,
-      url: `https://www.indiebookshop.com/directory?state=${bookstore.state}`,
+      url: `https://www.indiebookshop.com/directory?state=${encodeURIComponent(bookstore.state)}`,
+    });
+  }
+
+  if (bookstore.city && bookstore.state) {
+    breadcrumbItems.push({
+      name: bookstore.city,
+      url: `https://www.indiebookshop.com/directory?state=${encodeURIComponent(bookstore.state)}&city=${encodeURIComponent(bookstore.city)}`,
     });
   }
 
@@ -128,8 +135,16 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             <span className="text-gray-400">/</span>
             {bookstore.state && (
               <>
-                <Link href={`/directory?state=${bookstore.state}`} className="text-[#2A6B7C] hover:underline">
+                <Link href={`/directory?state=${encodeURIComponent(bookstore.state)}`} className="text-[#2A6B7C] hover:underline">
                   {bookstore.state}
+                </Link>
+                <span className="text-gray-400">/</span>
+              </>
+            )}
+            {bookstore.city && bookstore.state && (
+              <>
+                <Link href={`/directory?state=${encodeURIComponent(bookstore.state)}&city=${encodeURIComponent(bookstore.city)}`} className="text-[#2A6B7C] hover:underline">
+                  {bookstore.city}
                 </Link>
                 <span className="text-gray-400">/</span>
               </>
