@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { getFeaturedBookstores, getPopularBookstores, getStates, generateSlugFromName } from '@/lib/data/bookstore-data';
+import { getBookshopThumbnailUrl } from '@/lib/bookshop-image';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
 import { OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
-import { LazyAdSenseSlot } from '@/components/ads';
+import BookshopImage from '@/components/BookshopImage';
 
 export const metadata: Metadata = {
   title: 'IndiebookShop.com - Discover Independent Bookshops Across America',
@@ -104,7 +105,7 @@ export default async function HomePage() {
                   Find bookshops near you or in cities you're visiting
                 </p>
                 <Link
-                  href="/directory"
+                  href="/directory?view=map"
                   className="mt-auto block bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white rounded-full px-6 py-3 text-center font-semibold transition-colors"
                 >
                   Open Map & Filters
@@ -149,28 +150,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Top Banner Ad (after hero) */}
-      <div className="py-4 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="hidden md:flex justify-center">
-            <LazyAdSenseSlot
-              adSlot="home-top-banner"
-              adFormat="horizontal"
-              minHeight={90}
-              minWidth={728}
-            />
-          </div>
-          <div className="flex md:hidden justify-center">
-            <LazyAdSenseSlot
-              adSlot="home-top-mobile"
-              adFormat="horizontal"
-              minHeight={50}
-              minWidth={320}
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Trust/Stats Bar */}
       <section className="py-8 bg-white border-y border-gray-200">
         <div className="container mx-auto px-4">
@@ -212,8 +191,15 @@ export default async function HomePage() {
                   <Link
                     key={bookshop.id}
                     href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`}
-                    className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block"
+                    className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block group"
                   >
+                    <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
+                      <BookshopImage
+                        src={getBookshopThumbnailUrl(bookshop, 400)}
+                        alt={`${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
                     <div className="p-4 md:p-5">
                       <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-2 hover:text-[#E16D3D] leading-tight line-clamp-2">
                         {bookshop.name}
@@ -239,18 +225,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Mid-Content Ad */}
-      <div className="py-4 bg-white">
-        <div className="container mx-auto px-4 flex justify-center">
-          <LazyAdSenseSlot
-            adSlot="home-mid-content"
-            adFormat="rectangle"
-            minHeight={250}
-            minWidth={300}
-          />
-        </div>
-      </div>
-
       {/* Popular Bookshops Section */}
       <section className="py-8 md:py-12 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -272,8 +246,15 @@ export default async function HomePage() {
                   <Link
                     key={bookshop.id}
                     href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`}
-                    className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block"
+                    className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block group"
                   >
+                    <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
+                      <BookshopImage
+                        src={getBookshopThumbnailUrl(bookshop, 400)}
+                        alt={`${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
                     <div className="p-4 md:p-5">
                       <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-2 hover:text-[#E16D3D] leading-tight line-clamp-2">
                         {bookshop.name}
@@ -356,28 +337,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Bottom Banner Ad */}
-      <div className="py-6 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="hidden md:flex justify-center">
-            <LazyAdSenseSlot
-              adSlot="home-bottom-banner"
-              adFormat="horizontal"
-              minHeight={90}
-              minWidth={728}
-            />
-          </div>
-          <div className="flex md:hidden justify-center">
-            <LazyAdSenseSlot
-              adSlot="home-bottom-mobile"
-              adFormat="horizontal"
-              minHeight={50}
-              minWidth={320}
-            />
-          </div>
-        </div>
-      </div>
 
     </div>
   );

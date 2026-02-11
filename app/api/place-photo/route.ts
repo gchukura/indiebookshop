@@ -2,16 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * Google Places Photo Proxy (Next.js API Route)
- * 
- * This endpoint securely proxies Google Places photos to avoid exposing
- * the API key in frontend code. It fetches the photo from Google Places API
- * and streams it to the client.
- * 
+ *
+ * Proxies Google Places photos so the API key is not exposed to the client.
+ *
  * Usage:
  *   GET /api/place-photo?photo_reference=PHOTO_REF&maxwidth=400
- * 
- * Environment Variables Required:
- *   - GOOGLE_PLACES_API_KEY: Your Google Places API key
+ *
+ * Note: Photo references expire. If you get 400 errors, refresh stored refs
+ * by re-running enrichment: see docs/setup/GOOGLE_PLACE_PHOTOS_REFRESH.md
+ *
+ * Env: GOOGLE_PLACES_API_KEY
  */
 
 export async function GET(request: NextRequest) {
@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
   let photo_reference = searchParams.get('photo_reference');
   const maxwidth = searchParams.get('maxwidth') || '400';
 
-  // Validate photo_reference
-  if (!photo_reference) {
+  // Validate photo_reference present
+  if (photo_reference === null || photo_reference === undefined || photo_reference === '') {
     return NextResponse.json({ error: 'photo_reference parameter is required' }, { status: 400 });
   }
 
@@ -31,21 +31,35 @@ export async function GET(request: NextRequest) {
     photo_reference = photo_reference[0];
   }
 
-  // Ensure it's a string
+  // Ensure it's a string and extract ref if a stringified object was passed
   let photoRefString = String(photo_reference).trim();
+  if (photoRefString.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(photoRefString) as { photo_reference?: string; photoReference?: string };
+      photoRefString = (parsed.photo_reference ?? parsed.photoReference ?? '').trim();
+    } catch {
+      // leave as-is
+    }
+  }
 
-  // Validate photo_reference format
-  if (photoRefString.length < 10 || photoRefString.length > 2000) {
+  // Validate photo_reference format (Google refs are opaque; allow 10–8000 chars)
+  if (photoRefString.length < 10) {
     return NextResponse.json({ 
       error: 'Invalid photo_reference format',
-      details: `Photo reference length must be between 10 and 2000 characters, got ${photoRefString.length}`
+      details: `Photo reference too short (${photoRefString.length} chars). Must be at least 10 characters.`
+    }, { status: 400 });
+  }
+  if (photoRefString.length > 8000) {
+    return NextResponse.json({ 
+      error: 'Invalid photo_reference format',
+      details: `Photo reference too long (${photoRefString.length} chars). Max 8000.`
     }, { status: 400 });
   }
 
-  // Validate maxwidth
+  // Validate maxwidth (Google allows 1–4800 for New API; legacy supports similar)
   const maxWidthNum = parseInt(maxwidth, 10);
-  if (isNaN(maxWidthNum) || maxWidthNum < 1 || maxWidthNum > 1600) {
-    return NextResponse.json({ error: 'maxwidth must be between 1 and 1600' }, { status: 400 });
+  if (isNaN(maxWidthNum) || maxWidthNum < 1 || maxWidthNum > 4800) {
+    return NextResponse.json({ error: 'maxwidth must be between 1 and 4800' }, { status: 400 });
   }
 
   const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
@@ -56,18 +70,20 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Construct Google Places Photo API URL
-    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?` +
-      `maxwidth=${maxWidthNum}` +
-      `&photo_reference=${encodeURIComponent(photoRefString)}` +
-      `&key=${GOOGLE_PLACES_API_KEY}`;
+    // Support both Legacy and New Places Photo APIs
+    // New API: photo "name" from Place Details is "places/placeId/photos/photoRef" — we must append "/media"
+    // Legacy API: photo_reference is a shorter opaque string
+    const isNewApiName = photoRefString.startsWith('places/');
+    const pathName = isNewApiName
+      ? (photoRefString.endsWith('/media') ? photoRefString : `${photoRefString}/media`)
+      : null;
+    const photoUrl = isNewApiName && pathName
+      ? `https://places.googleapis.com/v1/${pathName}?maxWidthPx=${maxWidthNum}&key=${GOOGLE_PLACES_API_KEY}`
+      : `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidthNum}&photo_reference=${encodeURIComponent(photoRefString)}&key=${GOOGLE_PLACES_API_KEY}`;
 
-    // Fetch the photo from Google
     const response = await fetch(photoUrl, {
       method: 'GET',
-      headers: {
-        'User-Agent': 'IndieBookShop/1.0'
-      }
+      headers: { 'User-Agent': 'IndieBookShop/1.0' }
     });
 
     if (!response.ok) {

@@ -51,6 +51,7 @@ type DirectoryClientProps = {
     city?: string;
     county?: string;
     features?: string;
+    view?: string;
   };
 };
 
@@ -61,12 +62,19 @@ export default function DirectoryClient({
 }: DirectoryClientProps) {
   // State management
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedState, setSelectedState] = useState<string>(initialFilters.state || 'all');
+  // Use canonical state from initial data when coming from a state-filtered URL so client filter matches
+  const [selectedState, setSelectedState] = useState<string>(() => {
+    if (initialFilters.state && initialBookstores.length > 0 && initialBookstores[0].state) {
+      return initialBookstores[0].state;
+    }
+    return initialFilters.state || 'all';
+  });
   const [selectedCity, setSelectedCity] = useState<string>('all');
   const [selectedCounty, setSelectedCounty] = useState<string>('all');
   const [hoveredBookshopId, setHoveredBookshopId] = useState<number | null>(null);
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
+  const [mobileView, setMobileView] = useState<'map' | 'list'>(initialFilters.view === 'map' ? 'map' : 'list');
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
@@ -272,10 +280,7 @@ export default function DirectoryClient({
 
   // Clear filters
   const clearFilters = useCallback(() => {
-    setSearchQuery('');
-    setSelectedState('all');
-    setSelectedCity('all');
-    setSelectedCounty('all');
+    window.location.href = '/directory';
   }, []);
 
   // Visible bookstores in current map bounds
@@ -301,11 +306,11 @@ export default function DirectoryClient({
   }, [selectedState, selectedCity, selectedCounty]);
 
   return (
-    <div className="relative h-[calc(100vh-64px)]">
+    <div className="relative h-full min-h-0 flex flex-col md:block">
       {/* Notification Toast */}
       {notification && (
         <div
-          className={`absolute top-24 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-full shadow-lg font-sans text-sm font-semibold ${
+          className={`absolute top-24 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full shadow-lg font-sans text-sm font-semibold ${
             notification.type === 'error' ? 'bg-red-500 text-white' : notification.type === 'success' ? 'bg-green-500 text-white' : 'bg-[#2A6B7C] text-white'
           }`}
         >
@@ -313,96 +318,136 @@ export default function DirectoryClient({
         </div>
       )}
 
-      {/* Mapbox Map */}
-      {mapboxToken ? (
-        <Map
-          ref={mapRef as any}
-          {...viewState}
-          onMove={handleMapMove}
-          onMoveEnd={updateMapBounds}
-          onLoad={handleMapLoad}
-          mapboxAccessToken={mapboxToken}
-          mapStyle="mapbox://styles/mapbox/streets-v12"
-          style={{ width: '100%', height: '100%' }}
+      {/* Mobile: Map | List toggle — locked at top */}
+      <div className="flex md:hidden flex-shrink-0 gap-0 p-2 bg-gray-100 border-b border-gray-200">
+        <button
+          type="button"
+          onClick={() => setMobileView('map')}
+          className={`flex-1 py-3 px-4 rounded-lg font-sans text-sm font-semibold transition-colors min-h-[44px] ${
+            mobileView === 'map' ? 'bg-[#2A6B7C] text-white shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-200'
+          }`}
+          aria-pressed={mobileView === 'map'}
+          aria-label="Show map view"
         >
-          <NavigationControl position="bottom-right" />
+          Map
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileView('list')}
+          className={`flex-1 py-3 px-4 rounded-lg font-sans text-sm font-semibold transition-colors min-h-[44px] ${
+            mobileView === 'list' ? 'bg-[#2A6B7C] text-white shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-200'
+          }`}
+          aria-pressed={mobileView === 'list'}
+          aria-label="Show list view"
+        >
+          List
+        </button>
+      </div>
 
-          {/* Render clusters and pins */}
-          {clusters.map((cluster: any) => {
-            const [longitude, latitude] = cluster.geometry.coordinates;
-            const { cluster: isCluster, point_count: pointCount, bookshopId, bookshop } = cluster.properties;
+      {/* Mobile: search bar below toggle */}
+      <div className="flex md:hidden flex-shrink-0 px-3 py-2 bg-white border-b border-gray-200">
+        <div className="relative w-full max-w-xl mx-auto bg-gray-50 rounded-full shadow-sm">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Input type="text" placeholder="Search state, city, or bookshop name..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-12 pr-4 py-3 font-sans text-base rounded-full border-0 bg-transparent focus:ring-2 focus:ring-[#2A6B7C]" />
+        </div>
+      </div>
 
-            if (isCluster) {
+      {/* Map: fills remaining space below toggle+search (mobile); full area (desktop) */}
+      <div
+        className={`overflow-hidden flex-1 min-h-0 ${mobileView === 'list' ? 'hidden md:block' : ''} md:absolute md:inset-0 md:flex-none md:h-full md:min-h-0`}
+      >
+        {mapboxToken ? (
+          <Map
+            ref={mapRef as any}
+            {...viewState}
+            onMove={handleMapMove}
+            onMoveEnd={updateMapBounds}
+            onLoad={handleMapLoad}
+            mapboxAccessToken={mapboxToken}
+            mapStyle="mapbox://styles/mapbox/streets-v12"
+            style={{ width: '100%', height: '100%' }}
+          >
+            <NavigationControl position="bottom-right" />
+
+            {/* Render clusters and pins */}
+            {clusters.map((cluster: any) => {
+              const [longitude, latitude] = cluster.geometry.coordinates;
+              const { cluster: isCluster, point_count: pointCount, bookshopId, bookshop } = cluster.properties;
+
+              if (isCluster) {
+                return (
+                  <Marker
+                    key={`cluster-${cluster.id}`}
+                    longitude={longitude}
+                    latitude={latitude}
+                    onClick={(e: any) => {
+                      e.originalEvent.stopPropagation();
+                      handleClusterClick(cluster.id, longitude, latitude);
+                    }}
+                  >
+                    <div className="cursor-pointer">
+                      <div className="relative bg-[#2A6B7C] rounded-full flex items-center justify-center shadow-lg hover:bg-[#1d5a6a] transition-colors" style={{ width: 50, height: 50 }}>
+                        <span className="font-sans font-bold text-white">{pointCount}</span>
+                      </div>
+                    </div>
+                  </Marker>
+                );
+              }
+
+              const isHovered = hoveredBookshopId === bookshopId;
+              const isSelected = selectedBookshopId === bookshopId;
+
               return (
                 <Marker
-                  key={`cluster-${cluster.id}`}
+                  key={`bookshop-${bookshopId}`}
                   longitude={longitude}
                   latitude={latitude}
                   onClick={(e: any) => {
                     e.originalEvent.stopPropagation();
-                    handleClusterClick(cluster.id, longitude, latitude);
+                    handlePinClick(bookshopId);
                   }}
                 >
-                  <div className="cursor-pointer">
-                    <div className="relative bg-[#2A6B7C] rounded-full flex items-center justify-center shadow-lg hover:bg-[#1d5a6a] transition-colors" style={{ width: 50, height: 50 }}>
-                      <span className="font-sans font-bold text-white">{pointCount}</span>
-                    </div>
+                  <div className={`cursor-pointer transition-transform ${isSelected ? 'scale-125' : isHovered ? 'scale-110' : ''}`}>
+                    <MapPin className={`w-8 h-8 ${isSelected ? 'text-[#E16D3D]' : isHovered ? 'text-[#2A6B7C]' : 'text-[#5F4B32]'}`} fill="currentColor" />
                   </div>
                 </Marker>
               );
-            }
+            })}
+          </Map>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full bg-gray-50 p-6 text-center">
+            <Loader2 className="w-12 h-12 text-[#2A6B7C] animate-spin mb-4" />
+            <p className="text-gray-600 font-sans text-sm">Loading map...</p>
+            <p className="text-gray-400 font-sans text-xs mt-2">If the map doesn't load, the Mapbox token may need to be configured.</p>
+          </div>
+        )}
 
-            const isHovered = hoveredBookshopId === bookshopId;
-            const isSelected = selectedBookshopId === bookshopId;
-
-            return (
-              <Marker
-                key={`bookshop-${bookshopId}`}
-                longitude={longitude}
-                latitude={latitude}
-                onClick={(e: any) => {
-                  e.originalEvent.stopPropagation();
-                  handlePinClick(bookshopId);
-                }}
-              >
-                <div className={`cursor-pointer transition-transform ${isSelected ? 'scale-125' : isHovered ? 'scale-110' : ''}`}>
-                  <MapPin className={`w-8 h-8 ${isSelected ? 'text-[#E16D3D]' : isHovered ? 'text-[#2A6B7C]' : 'text-[#5F4B32]'}`} fill="currentColor" />
-                </div>
-              </Marker>
-            );
-          })}
-        </Map>
-      ) : (
-        <div className="flex flex-col items-center justify-center h-full bg-gray-50 p-6 text-center">
-          <Loader2 className="w-12 h-12 text-[#2A6B7C] animate-spin mb-4" />
-          <p className="text-gray-600 font-sans text-sm">Loading map...</p>
-          <p className="text-gray-400 font-sans text-xs mt-2">If the map doesn't load, the Mapbox token may need to be configured.</p>
-        </div>
-      )}
-
-      {/* Search Bar */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-xl px-4">
-        <div className="relative bg-white rounded-full shadow-lg">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <Input type="text" placeholder="Search state, city, or bookshop name..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-12 pr-4 py-4 font-sans text-base rounded-full border-0 focus:ring-2 focus:ring-[#2A6B7C]" />
+        {/* Search Bar — desktop only (mobile has search below toggle) */}
+        <div className="hidden md:block absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-xl px-4">
+          <div className="relative bg-white rounded-full shadow-lg">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Input type="text" placeholder="Search state, city, or bookshop name..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-12 pr-4 py-4 font-sans text-base rounded-full border-0 focus:ring-2 focus:ring-[#2A6B7C]" />
+          </div>
         </div>
       </div>
 
-      {/* Sliding Panel */}
-      <div className={`absolute top-0 left-0 h-full bg-white shadow-2xl transition-all duration-300 z-20 ${isPanelCollapsed ? 'w-16' : 'w-96'}`}>
-        {isPanelCollapsed ? (
-          <div className="relative h-full w-16 bg-white border-r-2 border-gray-200">
+      {/* List: full height when toggled (mobile) / left overlay (desktop) */}
+      <div
+        className={`flex-1 min-h-0 flex flex-col bg-white border-t border-gray-200 overflow-hidden md:flex-none md:absolute md:top-0 md:left-0 md:h-full md:border-t-0 md:shadow-2xl md:transition-all md:duration-300 md:z-20 ${isPanelCollapsed ? 'md:w-16' : 'md:w-96'} ${mobileView === 'map' ? 'hidden md:flex' : ''}`}
+      >
+        {/* Collapsed strip: desktop only */}
+        {isPanelCollapsed && (
+          <div className="hidden md:flex relative h-full w-16 bg-white border-r-2 border-gray-200 items-center justify-center">
             <button onClick={() => setIsPanelCollapsed(false)} aria-label="Expand bookshop list panel" className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white rounded-full border-2 shadow-lg hover:bg-gray-50 min-h-[44px] min-w-[44px]">
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
-        ) : (
-          <div className="h-full flex flex-col relative">
-            <button onClick={() => setIsPanelCollapsed(true)} aria-label="Collapse bookshop list panel" className="absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white rounded-full border-2 shadow-lg z-30 hover:bg-gray-50 min-h-[44px] min-w-[44px]">
-              <ChevronLeft className="w-5 h-5" />
-            </button>
+        )}
+        {/* Full panel: always on mobile; on desktop only when not collapsed */}
+        <div className={`h-full min-h-0 flex flex-col relative ${isPanelCollapsed ? 'md:hidden' : ''}`}>
+          <button onClick={() => setIsPanelCollapsed(true)} aria-label="Collapse bookshop list panel" className="hidden md:flex absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white rounded-full border-2 shadow-lg z-30 hover:bg-gray-50 min-h-[44px] min-w-[44px] items-center justify-center" />
 
-            <div className="flex-shrink-0 p-6 border-b border-gray-200">
+          <div className="flex-shrink-0 p-4 md:p-6 border-b border-gray-200">
               <div className="space-y-3">
                 <h3 className="font-sans text-sm font-semibold text-gray-700">Location</h3>
 
@@ -446,7 +491,7 @@ export default function DirectoryClient({
             </div>
 
             {/* Scrollable List */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
               {visibleBookshops.length > 0 ? (
                 <div className="p-4 space-y-3">
                   {visibleBookshops.map((bookshop) => (
@@ -491,7 +536,6 @@ export default function DirectoryClient({
               )}
             </div>
           </div>
-        )}
       </div>
     </div>
   );

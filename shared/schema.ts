@@ -78,6 +78,13 @@ export const events = pgTable("events", {
   time: text("time").notNull(),
 });
 
+export const newsletterSubscriptions = pgTable("newsletter_subscriptions", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull(),
+  source: text("source").default("footer"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -120,6 +127,8 @@ export type Feature = typeof features.$inferSelect;
 
 export type InsertEvent = z.infer<typeof insertEventSchema>;
 export type Event = typeof events.$inferSelect;
+
+export type NewsletterSubscription = typeof newsletterSubscriptions.$inferSelect;
 
 export const addToFavoritesSchema = z.object({
   bookstoreId: z.number(),

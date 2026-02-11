@@ -14,20 +14,17 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { generateAboutBookstoreContent } from '@/lib/bookstore-content-utils';
-import { LazyAdSenseSlot, StickyAdSidebar } from '@/components/ads';
 
 interface BookstorePageTemplateProps {
   bookstore: Bookstore;
   relatedBookstores?: Bookstore[];
   aboutContent?: string;
-  showAds?: boolean;
 }
 
 export function BookstorePageTemplate({
   bookstore,
   relatedBookstores = [],
   aboutContent,
-  showAds = true,
 }: BookstorePageTemplateProps) {
   // Generate about content if not provided
   const content = aboutContent || generateAboutBookstoreContent(bookstore);
@@ -36,18 +33,6 @@ export function BookstorePageTemplate({
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Top Ad Banner */}
-      {showAds && (
-        <div className="mb-6 flex justify-center">
-          <LazyAdSenseSlot
-            adSlot="top-banner"
-            adFormat="horizontal"
-            minHeight={90}
-            minWidth={728}
-          />
-        </div>
-      )}
-
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Main Content */}
         <div className="flex-1">
@@ -97,18 +82,6 @@ export function BookstorePageTemplate({
               </p>
             </CardContent>
           </Card>
-
-          {/* Mid-Content Ad */}
-          {showAds && (
-            <div className="mb-6 flex justify-center">
-              <LazyAdSenseSlot
-                adSlot="mid-content"
-                adFormat="rectangle"
-                minHeight={250}
-                minWidth={300}
-              />
-            </div>
-          )}
 
           {/* Contact & Hours */}
           <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -232,31 +205,7 @@ export function BookstorePageTemplate({
               </CardContent>
             </Card>
           )}
-
-          {/* Bottom Ad */}
-          {showAds && (
-            <div className="mt-6 flex justify-center">
-              <LazyAdSenseSlot
-                adSlot="bottom-banner"
-                adFormat="horizontal"
-                minHeight={90}
-                minWidth={728}
-              />
-            </div>
-          )}
         </div>
-
-        {/* Sidebar with Sticky Ad */}
-        {showAds && (
-          <div className="hidden lg:block w-[300px]">
-            <StickyAdSidebar
-              adSlot="sidebar-sticky"
-              width={300}
-              height={600}
-              topOffset={100}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

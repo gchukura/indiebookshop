@@ -6,52 +6,13 @@ import { ArrowRight, MapPin } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Bookstore } from '@/shared/schema';
 import { generateSlugFromName } from '@/shared/utils';
+import { getBookshopThumbnailUrl } from '@/lib/bookshop-image';
 import BookshopImage from './BookshopImage';
 
 interface RelatedBookshopsProps {
   currentBookshop: Bookstore;
   maxResults?: number;
 }
-
-// Helper to extract photo reference
-const extractPhotoReference = (photo: any): string | null => {
-  if (!photo) return null;
-  if (typeof photo === 'string') return photo;
-  if (typeof photo === 'object' && photo.photo_reference) {
-    return photo.photo_reference;
-  }
-  return null;
-};
-
-// Helper to get bookshop image URL
-const getBookshopImageUrl = (bookshop: Bookstore): string => {
-  // Priority 1: First Google photo if available
-  let photos = bookshop.googlePhotos;
-  // Handle case where photos might be a JSON string
-  if (photos && typeof photos === 'string') {
-    try {
-      photos = JSON.parse(photos);
-    } catch (e) {
-      // If parsing fails, treat as null
-      photos = null;
-    }
-  }
-  if (photos && Array.isArray(photos) && photos.length > 0) {
-    const firstPhoto = photos[0];
-    const photoRef = extractPhotoReference(firstPhoto);
-    if (photoRef) {
-      return `/api/place-photo?photo_reference=${encodeURIComponent(photoRef)}&maxwidth=400`;
-    }
-  }
-  
-  // Priority 2: Existing imageUrl
-  if (bookshop.imageUrl) {
-    return bookshop.imageUrl;
-  }
-  
-  // Priority 3: Fallback to Unsplash stock photo
-  return 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300';
-};
 
 const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({ 
   currentBookshop, 
@@ -127,7 +88,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
         {relatedBookshops.map((bookshop) => {
           const slug = (bookshop.slug || generateSlugFromName(bookshop.name)) || String(bookshop.id);
           const isSameCity = bookshop.city === currentBookshop.city;
-          const imageUrl = getBookshopImageUrl(bookshop);
+          const imageUrl = getBookshopThumbnailUrl(bookshop);
 
           return (
             <Link

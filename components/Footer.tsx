@@ -15,8 +15,21 @@ const Footer = () => {
     setIsSubmitting(true);
 
     try {
-      // This is just a mock subscription - would connect to API in production
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const res = await fetch("/api/newsletter-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        toast({
+          title: "Subscription failed",
+          description: (data as { error?: string }).error ?? "Please try again later.",
+          variant: "destructive",
+        });
+        return;
+      }
       toast({
         title: "Subscribed!",
         description: "Thank you for joining our newsletter.",

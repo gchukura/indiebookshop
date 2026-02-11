@@ -24,6 +24,19 @@ const PHOTO_COLUMNS = 'google_photos';
 const REVIEW_COLUMNS = 'google_reviews';
 const FULL_DETAIL = `${DETAIL_COLUMNS},${PHOTO_COLUMNS},${REVIEW_COLUMNS}`;
 
+/** US state abbreviation → full name so directory ?state=FL works when DB stores "Florida" */
+const STATE_ABBREV_TO_FULL: Record<string, string> = {
+  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado',
+  CT: 'Connecticut', DE: 'Delaware', DC: 'District of Columbia', FL: 'Florida', GA: 'Georgia',
+  HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa', KS: 'Kansas', KY: 'Kentucky',
+  LA: 'Louisiana', ME: 'Maine', MD: 'Maryland', MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota',
+  MS: 'Mississippi', MO: 'Missouri', MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire',
+  NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota',
+  OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina',
+  SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont', VA: 'Virginia',
+  WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming',
+};
+
 // ===========================================
 // TYPES
 // ===========================================
@@ -102,17 +115,23 @@ function mapBookstoreData(item: any): Bookstore {
 }
 
 /**
- * Safely parse jsonb columns (may be string or object)
+ * Safely parse jsonb columns (may be string, array, or object from Supabase/PostgREST)
  */
 function parseJsonb(value: any): any[] | null {
-  if (!value) return null;
+  if (value === undefined || value === null) return null;
   if (Array.isArray(value)) return value;
   if (typeof value === 'string') {
     try {
-      return JSON.parse(value);
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : null;
     } catch {
       return null;
     }
+  }
+  // Supabase/PostgREST sometimes returns JSONB as plain object (e.g. indexed keys)
+  if (typeof value === 'object') {
+    const arr = Object.values(value);
+    return arr.length > 0 ? arr : null;
   }
   return null;
 }
@@ -201,28 +220,33 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
       bySlug[slug.toLowerCase()] = bookstore;
     }
 
+    // Normalize for consistent lookups (trim so " FL " and "FL" match)
+    const stateNorm = (bookstore.state || '').trim();
+    const cityNorm = (bookstore.city || '').trim();
+    const countyNorm = (bookstore.county || '').trim();
+
     // Index by city
-    if (bookstore.city && bookstore.state) {
-      const cityKey = `${bookstore.city.toLowerCase()}-${bookstore.state.toLowerCase()}`;
+    if (cityNorm && stateNorm) {
+      const cityKey = `${cityNorm.toLowerCase()}-${stateNorm.toLowerCase()}`;
       if (!byCity[cityKey]) byCity[cityKey] = [];
       byCity[cityKey].push(bookstore);
-      citiesSet.add(bookstore.city);
+      citiesSet.add(cityNorm);
     }
 
     // Index by state
-    if (bookstore.state) {
-      const stateKey = bookstore.state.toLowerCase();
+    if (stateNorm) {
+      const stateKey = stateNorm.toLowerCase();
       if (!byState[stateKey]) byState[stateKey] = [];
       byState[stateKey].push(bookstore);
-      statesSet.add(bookstore.state);
+      statesSet.add(stateNorm);
     }
 
     // Index by county
-    if (bookstore.county && bookstore.state) {
-      const countyKey = `${bookstore.county.toLowerCase()}-${bookstore.state.toLowerCase()}`;
+    if (countyNorm && stateNorm) {
+      const countyKey = `${countyNorm.toLowerCase()}-${stateNorm.toLowerCase()}`;
       if (!byCounty[countyKey]) byCounty[countyKey] = [];
       byCounty[countyKey].push(bookstore);
-      countiesSet.add(bookstore.county);
+      countiesSet.add(countyNorm);
     }
 
     // Index by feature
@@ -519,9 +543,24 @@ export async function getFilteredBookstores(filters: {
   const data = await getProcessedBookstoreData();
   let results: Bookstore[] = data.all;
 
-  // Filter by state
+  // Filter by state (support abbreviation, full name, and match any canonical state in data)
   if (filters.state) {
-    results = safeMapGet(data.byState, filters.state.toLowerCase()) || [];
+    const stateParam = filters.state.trim();
+    const stateKey = stateParam.toLowerCase();
+    results = safeMapGet(data.byState, stateKey) || [];
+    if (results.length === 0 && stateKey.length === 2) {
+      const fullName = STATE_ABBREV_TO_FULL[stateParam.toUpperCase()];
+      if (fullName) results = safeMapGet(data.byState, fullName.toLowerCase()) || [];
+    }
+    if (results.length === 0 && stateKey.length > 2) {
+      const abbrev = Object.entries(STATE_ABBREV_TO_FULL).find(([, full]) => full.toLowerCase() === stateKey)?.[0];
+      if (abbrev) results = safeMapGet(data.byState, abbrev.toLowerCase()) || [];
+    }
+    // Match any state in data that equals param (case-insensitive)
+    if (results.length === 0 && data.states.length > 0) {
+      const match = data.states.find((s) => s.trim().toLowerCase() === stateKey);
+      if (match) results = safeMapGet(data.byState, match.trim().toLowerCase()) || [];
+    }
   }
 
   // Filter by city (requires state context)

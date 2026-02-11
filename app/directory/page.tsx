@@ -108,7 +108,7 @@ export default async function DirectoryPage({ searchParams }: Props) {
   }
 
   return (
-    <div>
+    <div className="h-[calc(100vh-5rem)] min-h-[300px] md:min-h-[calc(100vh-6rem)]">
       {/* H1 for SEO - Hidden but accessible */}
       <h1 className="sr-only">{pageTitle}</h1>
 

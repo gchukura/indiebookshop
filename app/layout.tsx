@@ -69,12 +69,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Google AdSense Script - Loaded async to not block rendering */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4357894821158922"
-          crossOrigin="anonymous"
-        />
+        {/* AdSense script omitted until ad tech is implemented */}
       </head>
       <body className={inter.className}>
         <Providers>
