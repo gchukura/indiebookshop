@@ -327,7 +327,7 @@ export default function DirectoryClient({
   }, [selectedState, selectedCity, selectedCounty]);
 
   return (
-    <div className="relative h-full min-h-0 flex flex-col md:block">
+    <div className="relative flex-1 min-h-0 flex flex-col md:block w-full">
       {/* Notification Toast */}
       {notification && (
         <div
@@ -373,9 +373,9 @@ export default function DirectoryClient({
         </div>
       </div>
 
-      {/* Map: fills remaining space below toggle+search (mobile); full area (desktop) */}
+      {/* Map: fills remaining space below toggle+search (mobile); full viewport area (desktop) */}
       <div
-        className={`overflow-hidden flex-1 min-h-0 ${mobileView === 'list' ? 'hidden md:block' : ''} md:absolute md:inset-0 md:flex-none md:h-full md:min-h-0`}
+        className={`overflow-hidden flex-1 min-h-0 w-full ${mobileView === 'list' ? 'hidden md:block' : ''} md:absolute md:inset-0 md:right-0 md:bottom-0 md:left-0 md:top-0 md:w-full md:h-full md:min-h-0`}
       >
         {mapboxToken ? (
           <Map
