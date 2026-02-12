@@ -40,9 +40,9 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
     }
   }, [canonicalSlug, router]);
 
-  // Priority-based description for UI display
+  // Priority-based description for UI display (Google first whenever present)
   const displayDescription =
-    (bookstore.googleDescription && bookstore.googleDescription.length >= 100 && bookstore.googleDescription) ||
+    (bookstore.googleDescription && bookstore.googleDescription.trim().length > 0 && bookstore.googleDescription.trim()) ||
     (bookstore.aiGeneratedDescription && bookstore.descriptionValidated && bookstore.aiGeneratedDescription) ||
     bookstore.description ||
     undefined;

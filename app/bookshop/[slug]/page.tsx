@@ -59,14 +59,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     // Priority-based description:
-    // 1. Google description (if >= 100 chars)
+    // 1. Google description (whenever present)
     // 2. AI-generated description (if validated)
     // 3. Original description
     // 4. Fallback template
     let description = '';
 
-    if (bookstore.googleDescription && bookstore.googleDescription.length >= 100) {
-      description = bookstore.googleDescription;
+    if (bookstore.googleDescription && bookstore.googleDescription.trim().length > 0) {
+      description = bookstore.googleDescription.trim();
     } else if (bookstore.aiGeneratedDescription && bookstore.descriptionValidated === true) {
       description = bookstore.aiGeneratedDescription;
     } else if (bookstore.description && bookstore.description.trim().length > 0) {

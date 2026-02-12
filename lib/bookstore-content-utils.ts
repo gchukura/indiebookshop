@@ -55,7 +55,12 @@ export function generateAboutBookstoreContent(bookstore: Bookstore): string {
     paragraphs.push(parts.hours);
   }
 
-  // If we have an AI-generated description, use it as the primary content
+  // Google description first whenever present
+  if (bookstore.googleDescription && bookstore.googleDescription.trim().length > 0) {
+    return bookstore.googleDescription.trim();
+  }
+
+  // If we have an AI-generated description, use it
   if (bookstore.aiGeneratedDescription) {
     return bookstore.aiGeneratedDescription;
   }
