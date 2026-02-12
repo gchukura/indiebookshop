@@ -455,11 +455,37 @@ export class GoogleSheetsStorage implements IStorage {
     ];
   }
 
+  private static readonly BOOKSTORE_NULLS: Pick<Bookstore, 'slug' | 'googlePlaceId' | 'googleRating' | 'googleReviewCount' | 'googleDescription' | 'googlePhotos' | 'googleReviews' | 'googlePriceLevel' | 'googleDataUpdatedAt' | 'formattedPhone' | 'websiteVerified' | 'openingHoursJson' | 'googleMapsUrl' | 'googleTypes' | 'formattedAddressGoogle' | 'businessStatus' | 'contactDataFetchedAt' | 'aiGeneratedDescription' | 'descriptionGeneratedAt' | 'descriptionValidated' | 'descriptionSource'> = {
+    slug: null,
+    googlePlaceId: null,
+    googleRating: null,
+    googleReviewCount: null,
+    googleDescription: null,
+    googlePhotos: null,
+    googleReviews: null,
+    googlePriceLevel: null,
+    googleDataUpdatedAt: null,
+    formattedPhone: null,
+    websiteVerified: null,
+    openingHoursJson: null,
+    googleMapsUrl: null,
+    googleTypes: null,
+    formattedAddressGoogle: null,
+    businessStatus: null,
+    contactDataFetchedAt: null,
+    aiGeneratedDescription: null,
+    descriptionGeneratedAt: null,
+    descriptionValidated: null,
+    descriptionSource: null,
+  };
+
   private initializeBookstores(): void {
     this.bookstores = [
       {
+        ...GoogleSheetsStorage.BOOKSTORE_NULLS,
         id: 1,
         name: 'Book Haven',
+        slug: 'book-haven',
         street: '123 Main St',
         city: 'Portland',
         state: 'OR',
@@ -469,15 +495,17 @@ export class GoogleSheetsStorage implements IStorage {
         imageUrl: 'https://images.unsplash.com/photo-1521123845560-14093637aa7d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
         website: 'https://www.bookhaven.com',
         phone: '(503) 555-1234',
-        hours: { 'Monday': '9am-6pm', 'Tuesday': '9am-6pm', 'Wednesday': '9am-6pm', 'Thursday': '9am-6pm', 'Friday': '9am-8pm', 'Saturday': '10am-8pm', 'Sunday': '11am-5pm' },
+        hours: { Monday: '9am-6pm', Tuesday: '9am-6pm', Wednesday: '9am-6pm', Thursday: '9am-6pm', Friday: '9am-8pm', Saturday: '10am-8pm', Sunday: '11am-5pm' },
         latitude: '45.5231',
         longitude: '-122.6765',
         featureIds: [1, 4, 7, 8],
-        live: true
+        live: true,
       },
       {
+        ...GoogleSheetsStorage.BOOKSTORE_NULLS,
         id: 2,
         name: 'The Reading Room',
+        slug: 'the-reading-room',
         street: '456 Oak Ave',
         city: 'Seattle',
         state: 'WA',
@@ -487,15 +515,17 @@ export class GoogleSheetsStorage implements IStorage {
         imageUrl: 'https://images.unsplash.com/photo-1526243741027-444d633d7365?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
         website: 'https://www.readingroom.com',
         phone: '(206) 555-5678',
-        hours: { 'Monday': 'Closed', 'Tuesday': '10am-7pm', 'Wednesday': '10am-7pm', 'Thursday': '10am-7pm', 'Friday': '10am-9pm', 'Saturday': '10am-9pm', 'Sunday': '12pm-6pm' },
+        hours: { Monday: 'Closed', Tuesday: '10am-7pm', Wednesday: '10am-7pm', Thursday: '10am-7pm', Friday: '10am-9pm', Saturday: '10am-9pm', Sunday: '12pm-6pm' },
         latitude: '47.6062',
         longitude: '-122.3321',
         featureIds: [2, 3, 5],
-        live: true
+        live: true,
       },
       {
+        ...GoogleSheetsStorage.BOOKSTORE_NULLS,
         id: 3,
         name: 'Page Turner Books',
+        slug: 'page-turner-books',
         street: '789 Elm St',
         city: 'San Francisco',
         state: 'CA',
@@ -505,15 +535,17 @@ export class GoogleSheetsStorage implements IStorage {
         imageUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
         website: 'https://www.pageturnerbooks.com',
         phone: '(415) 555-9012',
-        hours: { 'Monday': '8am-8pm', 'Tuesday': '8am-8pm', 'Wednesday': '8am-8pm', 'Thursday': '8am-8pm', 'Friday': '8am-10pm', 'Saturday': '9am-10pm', 'Sunday': '9am-7pm' },
+        hours: { Monday: '8am-8pm', Tuesday: '8am-8pm', Wednesday: '8am-8pm', Thursday: '8am-8pm', Friday: '8am-10pm', Saturday: '9am-10pm', Sunday: '9am-7pm' },
         latitude: '37.7749',
         longitude: '-122.4194',
         featureIds: [1, 4, 5, 6, 7, 8],
-        live: false // This bookstore is not active
+        live: false,
       },
       {
+        ...GoogleSheetsStorage.BOOKSTORE_NULLS,
         id: 4,
         name: 'Literary Corner',
+        slug: 'literary-corner',
         street: '101 Pine St',
         city: 'Austin',
         state: 'TX',
@@ -523,15 +555,17 @@ export class GoogleSheetsStorage implements IStorage {
         imageUrl: 'https://images.unsplash.com/photo-1533327325824-76bc4e62d560?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
         website: 'https://www.literarycorner.com',
         phone: '(512) 555-3456',
-        hours: { 'Monday': '10am-7pm', 'Tuesday': '10am-7pm', 'Wednesday': '10am-7pm', 'Thursday': '10am-7pm', 'Friday': '10am-9pm', 'Saturday': '10am-9pm', 'Sunday': '12pm-6pm' },
+        hours: { Monday: '10am-7pm', Tuesday: '10am-7pm', Wednesday: '10am-7pm', Thursday: '10am-7pm', Friday: '10am-9pm', Saturday: '10am-9pm', Sunday: '12pm-6pm' },
         latitude: '30.2672',
         longitude: '-97.7431',
         featureIds: [2, 5, 6, 7],
-        live: true
+        live: true,
       },
       {
+        ...GoogleSheetsStorage.BOOKSTORE_NULLS,
         id: 5,
         name: 'Bookworm Paradise',
+        slug: 'bookworm-paradise',
         street: '222 Cedar Ave',
         city: 'Portland',
         state: 'OR',
@@ -541,12 +575,12 @@ export class GoogleSheetsStorage implements IStorage {
         imageUrl: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
         website: 'https://www.bookwormparadise.com',
         phone: '(503) 555-7890',
-        hours: { 'Monday': '7am-7pm', 'Tuesday': '7am-7pm', 'Wednesday': '7am-7pm', 'Thursday': '7am-7pm', 'Friday': '7am-9pm', 'Saturday': '8am-9pm', 'Sunday': '8am-7pm' },
+        hours: { Monday: '7am-7pm', Tuesday: '7am-7pm', Wednesday: '7am-7pm', Thursday: '7am-7pm', Friday: '7am-9pm', Saturday: '8am-9pm', Sunday: '8am-7pm' },
         latitude: '45.5234',
         longitude: '-122.6762',
         featureIds: [1, 2, 4, 8],
-        live: true
-      }
+        live: true,
+      },
     ];
   }
 

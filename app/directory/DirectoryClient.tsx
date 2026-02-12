@@ -7,6 +7,7 @@ import { Marker, NavigationControl } from 'react-map-gl/mapbox';
 import Supercluster from 'supercluster';
 import Link from 'next/link';
 import { Bookstore } from '@/shared/schema';
+import { getStateAbbrev, getStateDisplayName } from '@/lib/state-utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { generateSlugFromName } from '@/shared/utils';
@@ -62,16 +63,17 @@ export default function DirectoryClient({
 }: DirectoryClientProps) {
   // State management
   const [searchQuery, setSearchQuery] = useState('');
-  // Use canonical state from initial data when coming from a state-filtered URL so client filter matches
+  // Use canonical state abbreviation so filter comparisons and dropdown always match
   const [selectedState, setSelectedState] = useState<string>(() => {
     if (initialFilters.state && initialBookstores.length > 0 && initialBookstores[0].state) {
-      return initialBookstores[0].state;
+      return getStateAbbrev(initialBookstores[0].state);
     }
-    return initialFilters.state || 'all';
+    return getStateAbbrev(initialFilters.state) || 'all';
   });
   const [selectedCity, setSelectedCity] = useState<string>(() => {
     if (initialFilters.city && initialFilters.state && initialBookstores.length > 0 && initialBookstores[0].city && initialBookstores[0].state) {
-      return `${initialBookstores[0].city}${LOCATION_DELIMITER}${initialBookstores[0].state}`;
+      const stateAbbrev = getStateAbbrev(initialBookstores[0].state);
+      return `${initialBookstores[0].city}${LOCATION_DELIMITER}${stateAbbrev}`;
     }
     return 'all';
   });
@@ -132,36 +134,50 @@ export default function DirectoryClient({
       });
     }
 
-    // State filter
+    // State filter (compare using canonical abbreviation)
     if (selectedState !== 'all') {
-      filtered = filtered.filter((b) => b.state?.toUpperCase() === selectedState.toUpperCase());
+      filtered = filtered.filter((b) => getStateAbbrev(b.state) === selectedState);
     }
 
-    // City filter
+    // City filter (state in option is abbrev; compare normalized)
     if (selectedCity !== 'all') {
-      const [city, state] = selectedCity.split(LOCATION_DELIMITER);
-      filtered = filtered.filter((b) => b.city === city && b.state === state);
+      const [city, stateAbbrev] = selectedCity.split(LOCATION_DELIMITER);
+      filtered = filtered.filter((b) => b.city === city && getStateAbbrev(b.state) === stateAbbrev);
     }
 
-    // County filter
+    // County filter (state in option is abbrev; compare normalized)
     if (selectedCounty !== 'all') {
-      const [county, state] = selectedCounty.split(LOCATION_DELIMITER);
-      filtered = filtered.filter((b) => b.county === county && b.state === state);
+      const [county, stateAbbrev] = selectedCounty.split(LOCATION_DELIMITER);
+      filtered = filtered.filter((b) => b.county === county && getStateAbbrev(b.state) === stateAbbrev);
     }
 
     return filtered;
   }, [initialBookstores, searchQuery, selectedState, selectedCity, selectedCounty]);
 
-  // Get unique cities and counties
+  // Get unique cities and counties (use state abbrev in key so option values are consistent)
   const cities = useMemo(() => {
-    const bookshopsToFilter = selectedState !== 'all' ? initialBookstores.filter((b) => b.state === selectedState) : initialBookstores;
-    const citySet = new Set(bookshopsToFilter.filter((b) => b.city && b.state).map((b) => `${b.city}${LOCATION_DELIMITER}${b.state}`));
+    const bookshopsToFilter =
+      selectedState !== 'all'
+        ? initialBookstores.filter((b) => getStateAbbrev(b.state) === selectedState)
+        : initialBookstores;
+    const citySet = new Set(
+      bookshopsToFilter
+        .filter((b) => b.city && b.state)
+        .map((b) => `${b.city}${LOCATION_DELIMITER}${getStateAbbrev(b.state)}`)
+    );
     return Array.from(citySet).sort();
   }, [initialBookstores, selectedState]);
 
   const counties = useMemo(() => {
-    const bookshopsToFilter = selectedState !== 'all' ? initialBookstores.filter((b) => b.state === selectedState) : initialBookstores;
-    const countySet = new Set(bookshopsToFilter.filter((b) => b.county && b.state).map((b) => `${b.county}${LOCATION_DELIMITER}${b.state}`));
+    const bookshopsToFilter =
+      selectedState !== 'all'
+        ? initialBookstores.filter((b) => getStateAbbrev(b.state) === selectedState)
+        : initialBookstores;
+    const countySet = new Set(
+      bookshopsToFilter
+        .filter((b) => b.county && b.state)
+        .map((b) => `${b.county}${LOCATION_DELIMITER}${getStateAbbrev(b.state)}`)
+    );
     return Array.from(countySet).sort();
   }, [initialBookstores, selectedState]);
 
@@ -456,12 +472,12 @@ export default function DirectoryClient({
               <div className="space-y-3">
                 <h3 className="font-sans text-sm font-semibold text-gray-700">Location</h3>
 
-                {/* State Filter */}
+                {/* State Filter (initialStates are abbrevs; display full name) */}
                 <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-sans text-sm">
                   <option value="all">All States</option>
-                  {initialStates.map((state) => (
-                    <option key={state} value={state}>
-                      {state}
+                  {initialStates.map((abbrev) => (
+                    <option key={abbrev} value={abbrev}>
+                      {getStateDisplayName(abbrev) || abbrev}
                     </option>
                   ))}
                 </select>

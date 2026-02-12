@@ -5,6 +5,7 @@
 import { cache } from 'react';
 import { createServerClient } from '@/lib/supabase/server';
 import { Bookstore } from '@/shared/schema';
+import { getStateAbbrev, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 import { safeMapGet, safeMapKeys } from './cache-utils';
 
 // In-memory cache for processed data (survives across requests in dev)
@@ -24,18 +25,7 @@ const PHOTO_COLUMNS = 'google_photos';
 const REVIEW_COLUMNS = 'google_reviews';
 const FULL_DETAIL = `${DETAIL_COLUMNS},${PHOTO_COLUMNS},${REVIEW_COLUMNS}`;
 
-/** US state abbreviation → full name so directory ?state=FL works when DB stores "Florida" */
-const STATE_ABBREV_TO_FULL: Record<string, string> = {
-  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado',
-  CT: 'Connecticut', DE: 'Delaware', DC: 'District of Columbia', FL: 'Florida', GA: 'Georgia',
-  HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa', KS: 'Kansas', KY: 'Kentucky',
-  LA: 'Louisiana', ME: 'Maine', MD: 'Maryland', MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota',
-  MS: 'Mississippi', MO: 'Missouri', MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire',
-  NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota',
-  OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina',
-  SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont', VA: 'Virginia',
-  WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming',
-};
+export { getStateAbbrev, getStateDisplayName, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 
 // ===========================================
 // TYPES
@@ -220,30 +210,31 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
       bySlug[slug.toLowerCase()] = bookstore;
     }
 
-    // Normalize for consistent lookups (trim so " FL " and "FL" match)
+    // Normalize for consistent lookups: use canonical state abbreviation so "California" and "CA" match
     const stateNorm = (bookstore.state || '').trim();
+    const stateAbbrev = stateNorm ? getStateAbbrev(stateNorm) : '';
     const cityNorm = (bookstore.city || '').trim();
     const countyNorm = (bookstore.county || '').trim();
 
-    // Index by city
-    if (cityNorm && stateNorm) {
-      const cityKey = `${cityNorm.toLowerCase()}-${stateNorm.toLowerCase()}`;
+    // Index by city (key by state abbrev so city+state lookup is consistent)
+    if (cityNorm && stateAbbrev) {
+      const cityKey = `${cityNorm.toLowerCase()}-${stateAbbrev.toLowerCase()}`;
       if (!byCity[cityKey]) byCity[cityKey] = [];
       byCity[cityKey].push(bookstore);
       citiesSet.add(cityNorm);
     }
 
-    // Index by state
-    if (stateNorm) {
-      const stateKey = stateNorm.toLowerCase();
+    // Index by state (always key by abbreviation)
+    if (stateAbbrev) {
+      const stateKey = stateAbbrev.toLowerCase();
       if (!byState[stateKey]) byState[stateKey] = [];
       byState[stateKey].push(bookstore);
-      statesSet.add(stateNorm);
+      statesSet.add(stateAbbrev);
     }
 
-    // Index by county
-    if (countyNorm && stateNorm) {
-      const countyKey = `${countyNorm.toLowerCase()}-${stateNorm.toLowerCase()}`;
+    // Index by county (key by state abbrev)
+    if (countyNorm && stateAbbrev) {
+      const countyKey = `${countyNorm.toLowerCase()}-${stateAbbrev.toLowerCase()}`;
       if (!byCounty[countyKey]) byCounty[countyKey] = [];
       byCounty[countyKey].push(bookstore);
       countiesSet.add(countyNorm);
@@ -282,7 +273,9 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
     byFeature,
     bySlug,
     cities: Array.from(citiesSet).sort(),
-    states: Array.from(statesSet).sort(),
+    states: Array.from(statesSet).sort((a, b) =>
+      (STATE_ABBREV_TO_FULL[a] || a).localeCompare(STATE_ABBREV_TO_FULL[b] || b)
+    ),
     counties: Array.from(countiesSet).sort(),
     features: Array.from(featuresSet).sort((a, b) => a - b),
     featured,
@@ -341,7 +334,8 @@ export async function getAllBookstores(): Promise<Bookstore[]> {
  */
 export async function getBookstoresByCity(city: string, state: string): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
-  const key = `${city.toLowerCase()}-${state.toLowerCase()}`;
+  const stateAbbrev = getStateAbbrev(state);
+  const key = `${city.trim().toLowerCase()}-${stateAbbrev.toLowerCase()}`;
   return safeMapGet(data.byCity, key) || [];
 }
 
@@ -350,7 +344,8 @@ export async function getBookstoresByCity(city: string, state: string): Promise<
  */
 export async function getBookstoresByState(state: string): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
-  return safeMapGet(data.byState, state.toLowerCase()) || [];
+  const stateAbbrev = getStateAbbrev(state);
+  return safeMapGet(data.byState, stateAbbrev.toLowerCase()) || [];
 }
 
 /**
@@ -358,7 +353,8 @@ export async function getBookstoresByState(state: string): Promise<Bookstore[]> 
  */
 export async function getBookstoresByCounty(county: string, state: string): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
-  const key = `${county.toLowerCase()}-${state.toLowerCase()}`;
+  const stateAbbrev = getStateAbbrev(state);
+  const key = `${county.trim().toLowerCase()}-${stateAbbrev.toLowerCase()}`;
   return safeMapGet(data.byCounty, key) || [];
 }
 
@@ -508,7 +504,8 @@ export async function getRelatedBookstores(bookstore: Bookstore, limit: number =
 
   // Try same city first
   if (bookstore.city && bookstore.state) {
-    const cityKey = `${bookstore.city.toLowerCase()}-${bookstore.state.toLowerCase()}`;
+    const stateAbbrev = getStateAbbrev(bookstore.state);
+    const cityKey = `${bookstore.city.toLowerCase()}-${stateAbbrev.toLowerCase()}`;
     const cityBookstores = (safeMapGet(data.byCity, cityKey) || [])
       .filter(b => b.id !== bookstore.id);
 
@@ -519,7 +516,8 @@ export async function getRelatedBookstores(bookstore: Bookstore, limit: number =
 
   // Fall back to same state
   if (bookstore.state) {
-    const stateBookstores = (safeMapGet(data.byState, bookstore.state.toLowerCase()) || [])
+    const stateAbbrev = getStateAbbrev(bookstore.state);
+    const stateBookstores = (safeMapGet(data.byState, stateAbbrev.toLowerCase()) || [])
       .filter(b => b.id !== bookstore.id);
 
     if (stateBookstores.length > 0) {
@@ -543,35 +541,25 @@ export async function getFilteredBookstores(filters: {
   const data = await getProcessedBookstoreData();
   let results: Bookstore[] = data.all;
 
-  // Filter by state (support abbreviation, full name, and match any canonical state in data)
+  // Filter by state (byState is keyed by canonical abbreviation)
   if (filters.state) {
-    const stateParam = filters.state.trim();
-    const stateKey = stateParam.toLowerCase();
-    results = safeMapGet(data.byState, stateKey) || [];
-    if (results.length === 0 && stateKey.length === 2) {
-      const fullName = STATE_ABBREV_TO_FULL[stateParam.toUpperCase()];
-      if (fullName) results = safeMapGet(data.byState, fullName.toLowerCase()) || [];
-    }
-    if (results.length === 0 && stateKey.length > 2) {
-      const abbrev = Object.entries(STATE_ABBREV_TO_FULL).find(([, full]) => full.toLowerCase() === stateKey)?.[0];
-      if (abbrev) results = safeMapGet(data.byState, abbrev.toLowerCase()) || [];
-    }
-    // Match any state in data that equals param (case-insensitive)
-    if (results.length === 0 && data.states.length > 0) {
-      const match = data.states.find((s) => s.trim().toLowerCase() === stateKey);
-      if (match) results = safeMapGet(data.byState, match.trim().toLowerCase()) || [];
+    const stateAbbrev = getStateAbbrev(filters.state.trim());
+    if (stateAbbrev) {
+      results = safeMapGet(data.byState, stateAbbrev.toLowerCase()) || [];
     }
   }
 
-  // Filter by city (requires state context)
+  // Filter by city (requires state context; keys use state abbrev)
   if (filters.city && filters.state) {
-    const cityKey = `${filters.city.trim().toLowerCase()}-${filters.state.trim().toLowerCase()}`;
+    const stateAbbrev = getStateAbbrev(filters.state.trim());
+    const cityKey = `${filters.city.trim().toLowerCase()}-${stateAbbrev.toLowerCase()}`;
     results = safeMapGet(data.byCity, cityKey) || [];
   }
 
-  // Filter by county (requires state context)
+  // Filter by county (requires state context; keys use state abbrev)
   if (filters.county && filters.state) {
-    const countyKey = `${filters.county.trim().toLowerCase()}-${filters.state.trim().toLowerCase()}`;
+    const stateAbbrev = getStateAbbrev(filters.state.trim());
+    const countyKey = `${filters.county.trim().toLowerCase()}-${stateAbbrev.toLowerCase()}`;
     results = safeMapGet(data.byCounty, countyKey) || [];
   }
 
@@ -602,7 +590,8 @@ export async function getTotalBookstoreCount(): Promise<number> {
  */
 export async function getCountByState(state: string): Promise<number> {
   const data = await getProcessedBookstoreData();
-  const bookstores = safeMapGet(data.byState, state.toLowerCase()) || [];
+  const stateAbbrev = getStateAbbrev(state);
+  const bookstores = safeMapGet(data.byState, stateAbbrev.toLowerCase()) || [];
   return bookstores.length;
 }
 

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getFeaturedBookstores, getPopularBookstores, getStates, generateSlugFromName } from '@/lib/data/bookstore-data';
+import { getFeaturedBookstores, getPopularBookstores, getStates, generateSlugFromName, getStateDisplayName } from '@/lib/data/bookstore-data';
 import { getBookshopThumbnailUrl } from '@/lib/bookshop-image';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -298,15 +298,14 @@ export default async function HomePage() {
 
               <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">United States</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-                {states.slice(0, 51).map((state) => {
-                  const stateCode = state.split(' - ')[0] || state.substring(0, 2).toUpperCase();
-                  const stateName = state.split(' - ')[1] || state;
-                  const flagUrl = getStateImageUrl(stateCode);
+                {states.slice(0, 51).map((abbrev) => {
+                  const stateName = getStateDisplayName(abbrev) || abbrev;
+                  const flagUrl = getStateImageUrl(abbrev);
 
                   return (
                     <Link
-                      key={state}
-                      href={`/directory?state=${encodeURIComponent(stateName)}`}
+                      key={abbrev}
+                      href={`/directory?state=${encodeURIComponent(abbrev)}`}
                       className="bg-white border-2 border-gray-200 hover:border-[#2A6B7C] rounded-lg p-3 transition-all hover:shadow-md flex items-center gap-2"
                     >
                       <img

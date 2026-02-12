@@ -374,9 +374,10 @@ export class MemStorage implements IStorage {
 
   async createBookstore(insertBookstore: InsertBookstore): Promise<Bookstore> {
     const id = this.bookstoreCurrentId++;
-    const bookstore: Bookstore = { 
+    const bookstore: Bookstore = {
       id,
       name: insertBookstore.name,
+      slug: null,
       street: insertBookstore.street,
       city: insertBookstore.city,
       state: insertBookstore.state,
@@ -389,8 +390,28 @@ export class MemStorage implements IStorage {
       hours: insertBookstore.hours || null,
       latitude: insertBookstore.latitude || null,
       longitude: insertBookstore.longitude || null,
-      featureIds: insertBookstore.featureIds || null,
-      live: insertBookstore.live || null
+      featureIds: insertBookstore.featureIds ?? [],
+      live: insertBookstore.live ?? true,
+      googlePlaceId: null,
+      googleRating: null,
+      googleReviewCount: null,
+      googleDescription: null,
+      googlePhotos: null,
+      googleReviews: null,
+      googlePriceLevel: null,
+      googleDataUpdatedAt: null,
+      formattedPhone: null,
+      websiteVerified: null,
+      openingHoursJson: null,
+      googleMapsUrl: null,
+      googleTypes: null,
+      formattedAddressGoogle: null,
+      businessStatus: null,
+      contactDataFetchedAt: null,
+      aiGeneratedDescription: null,
+      descriptionGeneratedAt: null,
+      descriptionValidated: null,
+      descriptionSource: null,
     };
     this.bookstores.set(id, bookstore);
     return bookstore;

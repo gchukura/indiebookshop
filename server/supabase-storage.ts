@@ -7,9 +7,9 @@ import { populateCountyData } from './countyLookup';
  * Column selections optimized for egress costs
  * CRITICAL: These constants dramatically reduce Supabase egress by fetching only needed columns
  */
-const LIST_COLUMNS = 'id,name,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,image_url,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids';
+const LIST_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,image_url,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids';
 
-const DETAIL_COLUMNS = 'id,name,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,image_url,website,phone,live,description,google_place_id,google_rating,google_review_count,google_description,formatted_phone,website_verified,google_maps_url,google_types,formatted_address_google,business_status,google_price_level,google_data_updated_at,contact_data_fetched_at,opening_hours_json,ai_generated_description,description_source,description_generated_at,description_validated,feature_ids,hours_json';
+const DETAIL_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,image_url,website,phone,live,description,google_place_id,google_rating,google_review_count,google_description,formatted_phone,website_verified,google_maps_url,google_types,formatted_address_google,business_status,google_price_level,google_data_updated_at,contact_data_fetched_at,opening_hours_json,ai_generated_description,description_source,description_generated_at,description_validated,feature_ids,hours_json';
 
 const PHOTO_COLUMNS = 'google_photos';
 const REVIEW_COLUMNS = 'google_reviews';
@@ -208,9 +208,6 @@ export class SupabaseStorage implements IStorage {
           if (item.hours_json) {
             return typeof item.hours_json === 'string' ? JSON.parse(item.hours_json) : item.hours_json;
           }
-          if (item['hours (JSON)']) {
-            return typeof item['hours (JSON)'] === 'string' ? JSON.parse(item['hours (JSON)']) : item['hours (JSON)'];
-          }
           return null;
         })(),
         // Map Google Places fields from snake_case to camelCase
@@ -252,21 +249,17 @@ export class SupabaseStorage implements IStorage {
 
       if (error || !data) return undefined;
 
-      // Map Supabase column names
+      // Map Supabase column names (snake_case -> camelCase, explicit slug)
       return {
         ...data,
+        slug: data.slug ?? null,
         latitude: data.lat_numeric?.toString() || data.latitude || null,
         longitude: data.lng_numeric?.toString() || data.longitude || null,
-        featureIds: data.feature_ids || data.featureIds || [],
-        imageUrl: data.image_url || data.imageUrl || null,
-        // Map hours from hours_json (jsonb) to hours for frontend
-        // Prefer hours_json (jsonb) over "hours (JSON)" (text)
+        featureIds: data.feature_ids ?? [],
+        imageUrl: data.image_url ?? null,
         hours: (() => {
           if (data.hours_json) {
             return typeof data.hours_json === 'string' ? JSON.parse(data.hours_json) : data.hours_json;
-          }
-          if (data['hours (JSON)']) {
-            return typeof data['hours (JSON)'] === 'string' ? JSON.parse(data['hours (JSON)']) : data['hours (JSON)'];
           }
           return null;
         })(),

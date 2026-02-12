@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getFilteredBookstores, getStates } from '@/lib/data/bookstore-data';
+import { getFilteredBookstores, getStates, getStateDisplayName } from '@/lib/data/bookstore-data';
 import DirectoryClient from './DirectoryClient';
 
 type SearchParams = {
@@ -99,12 +99,14 @@ export default async function DirectoryPage({ searchParams }: Props) {
     getStates(),
   ]);
 
-  // Generate page title based on filters
+  // Generate page title based on filters (state may be abbrev; show full name when available)
   let pageTitle = 'Bookshop Directory';
   if (resolvedParams.city && resolvedParams.state) {
-    pageTitle = `Independent Bookshops in ${resolvedParams.city}, ${resolvedParams.state}`;
+    const stateLabel = getStateDisplayName(resolvedParams.state) || resolvedParams.state;
+    pageTitle = `Independent Bookshops in ${resolvedParams.city}, ${stateLabel}`;
   } else if (resolvedParams.state) {
-    pageTitle = `Independent Bookshops in ${resolvedParams.state}`;
+    const stateLabel = getStateDisplayName(resolvedParams.state) || resolvedParams.state;
+    pageTitle = `Independent Bookshops in ${stateLabel}`;
   }
 
   return (

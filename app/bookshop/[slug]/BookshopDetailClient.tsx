@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { MapPin, Phone, Globe, Star, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { Bookstore } from '@/shared/schema';
+import { getStateAbbrev } from '@/lib/state-utils';
 import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/StructuredData';
 import SingleLocationMap from '@/components/SingleLocationMap';
 import { getBookshopThumbnailUrl } from '@/lib/bookshop-image';
@@ -99,14 +100,14 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
   if (bookstore.state) {
     breadcrumbItems.push({
       name: bookstore.state,
-      url: `https://www.indiebookshop.com/directory?state=${encodeURIComponent(bookstore.state)}`,
+      url: `https://www.indiebookshop.com/directory?state=${encodeURIComponent(getStateAbbrev(bookstore.state))}`,
     });
   }
 
   if (bookstore.city && bookstore.state) {
     breadcrumbItems.push({
       name: bookstore.city,
-      url: `https://www.indiebookshop.com/directory?state=${encodeURIComponent(bookstore.state)}&city=${encodeURIComponent(bookstore.city)}`,
+      url: `https://www.indiebookshop.com/directory?state=${encodeURIComponent(getStateAbbrev(bookstore.state))}&city=${encodeURIComponent(bookstore.city)}`,
     });
   }
 
@@ -135,7 +136,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             <span className="text-gray-400">/</span>
             {bookstore.state && (
               <>
-                <Link href={`/directory?state=${encodeURIComponent(bookstore.state)}`} className="text-[#2A6B7C] hover:underline">
+                <Link href={`/directory?state=${encodeURIComponent(getStateAbbrev(bookstore.state))}`} className="text-[#2A6B7C] hover:underline">
                   {bookstore.state}
                 </Link>
                 <span className="text-gray-400">/</span>
@@ -143,7 +144,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             )}
             {bookstore.city && bookstore.state && (
               <>
-                <Link href={`/directory?state=${encodeURIComponent(bookstore.state)}&city=${encodeURIComponent(bookstore.city)}`} className="text-[#2A6B7C] hover:underline">
+                <Link href={`/directory?state=${encodeURIComponent(getStateAbbrev(bookstore.state))}&city=${encodeURIComponent(bookstore.city)}`} className="text-[#2A6B7C] hover:underline">
                   {bookstore.city}
                 </Link>
                 <span className="text-gray-400">/</span>
@@ -461,7 +462,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             </div>
             {bookstore.state && (
               <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                <Link href={`/directory?state=${bookstore.state}`} className="text-[#2A6B7C] hover:underline font-semibold text-lg">
+                <Link href={`/directory?state=${encodeURIComponent(getStateAbbrev(bookstore.state))}`} className="text-[#2A6B7C] hover:underline font-semibold text-lg">
                   Browse all bookshops in {bookstore.state} →
                 </Link>
               </div>

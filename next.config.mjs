@@ -1,5 +1,14 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Explicit workspace root so Turbopack doesn't infer wrong root when multiple lockfiles exist
+  turbopack: {
+    root: __dirname,
+  },
   // Use Next.js-specific tsconfig to avoid conflicts with Vite app
   typescript: {
     tsconfigPath: './tsconfig.next.json',
