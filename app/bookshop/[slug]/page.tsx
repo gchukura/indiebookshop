@@ -59,18 +59,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     // Priority-based description:
-    // 1. Google description (whenever present)
-    // 2. AI-generated description (if validated)
-    // 3. Original description
+    // 1. description field from bookstores table
+    // 2. Google description (whenever present)
+    // 3. AI-generated description (if validated)
     // 4. Fallback template
     let description = '';
 
-    if (bookstore.googleDescription && bookstore.googleDescription.trim().length > 0) {
+    if (bookstore.description && bookstore.description.trim().length > 0) {
+      description = bookstore.description.trim();
+    } else if (bookstore.googleDescription && bookstore.googleDescription.trim().length > 0) {
       description = bookstore.googleDescription.trim();
     } else if (bookstore.aiGeneratedDescription && bookstore.descriptionValidated === true) {
       description = bookstore.aiGeneratedDescription;
-    } else if (bookstore.description && bookstore.description.trim().length > 0) {
-      description = bookstore.description;
     } else {
       const location = bookstore.city && bookstore.state ? `${bookstore.city}, ${bookstore.state}` : bookstore.city || bookstore.state || 'America';
       description = `${bookstore.name} is an independent bookstore in ${location}. Discover this local indie bookshop, browse their curated selection, and support independent bookselling in your community.`;

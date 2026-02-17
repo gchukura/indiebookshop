@@ -40,11 +40,11 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
     }
   }, [canonicalSlug, router]);
 
-  // Priority-based description for UI display (Google first whenever present)
+  // Priority-based description for UI display (bookstores.description first)
   const displayDescription =
+    (bookstore.description && bookstore.description.trim().length > 0 && bookstore.description.trim()) ||
     (bookstore.googleDescription && bookstore.googleDescription.trim().length > 0 && bookstore.googleDescription.trim()) ||
     (bookstore.aiGeneratedDescription && bookstore.descriptionValidated && bookstore.aiGeneratedDescription) ||
-    bookstore.description ||
     undefined;
 
   // Helper to extract photo reference from photo object or string (DB uses snake_case)

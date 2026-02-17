@@ -55,19 +55,19 @@ export function generateAboutBookstoreContent(bookstore: Bookstore): string {
     paragraphs.push(parts.hours);
   }
 
-  // Google description first whenever present
+  // description field from bookstores table first
+  if (bookstore.description && bookstore.description.trim().length > 0) {
+    return bookstore.description.trim();
+  }
+
+  // Google description when present
   if (bookstore.googleDescription && bookstore.googleDescription.trim().length > 0) {
     return bookstore.googleDescription.trim();
   }
 
-  // If we have an AI-generated description, use it
+  // AI-generated description
   if (bookstore.aiGeneratedDescription) {
     return bookstore.aiGeneratedDescription;
-  }
-
-  // If we have a manual description, use it
-  if (bookstore.description && bookstore.description.length > 50) {
-    return bookstore.description;
   }
 
   // Otherwise, use our generated content
