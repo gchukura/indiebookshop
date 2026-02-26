@@ -4,9 +4,28 @@ import { Heart, Map, Search, Users, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
-  title: 'About IndiebookShop.com | Supporting Independent Bookshops Across America',
-  description: 'Learn about IndiebookShop.com and our mission to support independent bookshops across America. Discover how we connect readers with 2,000+ local indie bookshops through our comprehensive directory.',
-  keywords: ['about IndiebookShop.com', 'independent bookstore directory', 'indie bookshop mission', 'support local bookstores'],
+  title: 'About IndieBookshop.com | Supporting Independent Bookshops Worldwide',
+  description:
+    'Learn about IndieBookshop.com and our mission to support independent bookshops around the world. Discover how we connect readers with 3,000+ local indie bookshops through our comprehensive directory.',
+  keywords: [
+    'about IndieBookshop.com',
+    'independent bookshop directory',
+    'global independent bookstore directory',
+    '3,000 independent bookshops',
+    'find local bookshops',
+    'support local bookstores',
+    'independent bookshops worldwide',
+    'indie bookshop mission',
+    'local bookstore finder',
+    'bookshop community',
+    'bookstore advocacy',
+    'indie bookseller network',
+    'why independent bookstores matter',
+    'community bookshops',
+    'Northern Virginia indie bookshop founders',
+    'manually researched bookshop directory',
+    'interactive bookshop map',
+  ],
 };
 
 export default function AboutPage() {
@@ -17,17 +36,17 @@ export default function AboutPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
-              About IndiebookShop.com
+              About IndieBookshop.com
             </h1>
             <div className="prose prose-lg prose-p:text-gray-700 mx-auto">
               <p className="text-xl text-gray-600 text-center mb-8">
-                We're building the most comprehensive directory of independent bookshops in America—making it easy to discover and support the local bookshops that make reading personal.
+                Our mission is to build the most comprehensive directory of independent bookshops around the world, making it easy to discover and support local businesses in your community.
               </p>
               <p>
-                IndiebookShop.com features over 2,000 independent bookshops across all 50 states—the most comprehensive directory of indie bookshops available. Our searchable database connects book lovers with local independent booksellers, helping you discover unique literary spaces in your neighborhood or while traveling.
+                IndieBookshop.com features over 3,000 independent bookshops across all 50 U.S. states, Canada, and other countries across the globe. Our searchable and interactive database connects book lovers with local independent booksellers, helping you discover unique literary spaces in your neighborhood or while traveling.
               </p>
               <p>
-                We believe that independent bookshops are vital cultural hubs that foster community, support local economies, and celebrate the diversity of literature. In a world where convenience often trumps community, we're here to help readers find the local bookshops that offer something algorithms never can: expert curation, personal connection, and community belonging.
+                We believe that independent bookshops are vital cultural hubs that foster community, support local economies, and celebrate the diversity of literature. In a world where convenience often trumps community, we're here to help readers find local bookshops that offer something big online retailers can’t: expert curation, personal connection, and community.
               </p>
             </div>
           </div>
@@ -42,33 +61,28 @@ export default function AboutPage() {
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
                 Our Story
               </h2>
-              
+
               <div className="prose prose-lg prose-p:text-gray-700 max-w-none">
                 <p>
-                  IndiebookShop.com was founded in 2025 by a husband-and-wife team who share a love of books and a deep belief in supporting small businesses. With backgrounds in technology, we saw an opportunity to solve a problem many readers face: finding local independent bookshops when online discovery defaults to corporate retailers.
+                  IndieBookshop.com was founded in 2025 by a husband and wife in Northern Virginia who share a love of books and a deep belief in supporting small businesses. With backgrounds in technology, we saw an opportunity to solve a problem many readers face: finding local independent bookshops when online discovery defaults to corporate retailers.
                 </p>
-                
+
                 <p>
-                  While most people want to support their local economy and discover neighborhood bookshops, the easiest path has become clicking through to big-box retailers. We knew there had to be a better way—a comprehensive, searchable directory that made finding indie bookshops as easy as finding chain stores.
+                  While most people want to support their local economy and discover neighborhood bookshops, the easiest path has become clicking through to big-box retailers. We knew there had to be a better way - a comprehensive, searchable directory that made finding indie bookshops easy.
                 </p>
-                
+
                 <p>
-                  What started as a passion project has grown into the largest independent bookshop directory in America. Through dedicated manual research and compilation, we've built a database of over 2,000 bookshops across all 50 states. We've spent countless hours researching, verifying, and cataloging independent bookshops-from beloved neighborhood shops to hidden gems in small towns.
+                  What started as a passion project has grown into the largest independent bookshop directory in America. Through dedicated manual research and compilation, we've built a database of over 3,000 bookshops. We've spent countless hours researching, verifying, and cataloging independent bookshops - from beloved neighborhood shops to hidden gems in small towns.
                 </p>
-                
+
                 <div className="bg-[#F7F3E8] border-l-4 border-[#E16D3D] p-6 my-8 rounded-r-lg flex items-center">
                   <p className="text-lg md:text-xl italic text-gray-700 mb-0">
-                    "We've spent countless hours researching and cataloging independent 
-                    bookshops - from beloved neighborhood shops to hidden gems in small towns."
+                    "We've spent countless hours researching and cataloging independent bookshops - from beloved neighborhood shops to hidden gems in small towns."
                   </p>
                 </div>
-                
+
                 <p>
-                  This is very much a work in progress. While we're proud of our comprehensive coverage, we're continuously improving profiles with better descriptions, photos, and details about what makes each shop special. We're also actively seeking community input—if you know a bookshop we're missing or have updates about a listing, we want to hear from you.
-                </p>
-                
-                <p>
-                  Today, IndiebookShop.com isn't just a directory—it's a resource for readers who believe bookshops are more than retail spaces. They're community anchors, cultural hubs, and gathering places for people who love books. Every search, every discovery, every visit to a local bookshop helps ensure these vital spaces continue to thrive.
+                  The directory is still very much a work in progress and we hope to have catalogued all indie bookshops around the world one day. While we're proud of our comprehensive coverage, we're continuously improving profiles with better descriptions, photos, and details about what makes each shop special. We're also actively seeking community input, so if you know a bookshop we're missing or have updates about a listing, we want to hear from you.
                 </p>
               </div>
             </div>
@@ -107,7 +121,7 @@ export default function AboutPage() {
                     <div>
                       <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Local Economic Impact</h3>
                       <p className="text-sm md:text-base text-gray-700">
-                        When you buy from an independent bookshop, approximately 48% of your purchase stays in the local economy—compared to less than 14% at chain stores.
+                        When you buy from an independent bookshop, your money stays within the local economy.
                       </p>
                     </div>
                   </div>
@@ -119,7 +133,7 @@ export default function AboutPage() {
                     <div>
                       <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Champion Diverse Voices</h3>
                       <p className="text-sm md:text-base text-gray-700">
-                        Independent booksellers have the freedom to stock challenging books, amplify marginalized voices, and champion debut authors often overlooked by mainstream retailers.
+                        Independent booksellers have the freedom to stock a broader range of books, amplify marginalized voices, and champion debut authors that are often overlooked by large retailers.
                       </p>
                     </div>
                   </div>
@@ -131,7 +145,7 @@ export default function AboutPage() {
                     <div>
                       <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Expert Curation</h3>
                       <p className="text-sm md:text-base text-gray-700">
-                        Thoughtful recommendations from booksellers who remember what you loved and understand what you're looking for—expertise that algorithms can't replicate.
+                        Thoughtful recommendations from people who remember your personal preferences - books you loved to read, genres you want to avoid.
                       </p>
                     </div>
                   </div>
@@ -158,10 +172,7 @@ export default function AboutPage() {
                       More Than a Map
                     </h3>
                     <p className="text-sm md:text-base text-gray-700">
-                      While map apps can show you bookshop locations, we capture 
-                      the character of each shop - their specialties, their vibe, 
-                      their role in the community. We help you find not just <em>a</em> bookshop, 
-                      but <em>your</em> bookshop.
+                      While traditional search can show you bookshop locations, our goal is to capture the character of each shop - their specialties, their vibe, their role in the community. We help you find not just <em>a</em> bookshop, but <em>your</em> bookshop.
                     </p>
                   </div>
                 </div>
@@ -173,9 +184,7 @@ export default function AboutPage() {
                       Manually Researched
                     </h3>
                     <p className="text-sm md:text-base text-gray-700">
-                      Every bookshop in our directory has been individually researched 
-                      and verified. We're not scraping data or relying on automated 
-                      systems—we're building this the old-fashioned way, one bookshop at a time.
+                      Every bookshop in our directory has been individually researched.
                     </p>
                   </div>
                 </div>
@@ -187,9 +196,7 @@ export default function AboutPage() {
                       Built by Book Lovers
                     </h3>
                     <p className="text-sm md:text-base text-gray-700">
-                      We're not owned by corporate interests or funded by chains. 
-                      We're book lovers building a resource for other book lovers, 
-                      with no ulterior motive beyond helping independent bookshops thrive.
+                      We're not owned by corporate interests or funded by chains. Our mission is simple: help local independent bookshops thrive.
                     </p>
                   </div>
                 </div>
