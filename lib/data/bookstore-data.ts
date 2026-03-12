@@ -69,40 +69,41 @@ export interface ProcessedBookstoreData {
  * numeric-column fallbacks retained for safety.
  */
 function mapBookstoreData(item: any): Bookstore {
+  // item comes from getBookstoresFromSheets() which already returns camelCase properties.
+  // Each override checks snake_case first (legacy/Supabase path) then camelCase (Sheets path).
   return {
     ...item,
-    // Use numeric columns for calculations, convert to string for display
+    // Numeric columns — prefer pre-parsed numeric field
     latitude: item.lat_numeric?.toString() || item.latitude || null,
     longitude: item.lng_numeric?.toString() || item.longitude || null,
-    // Use array column (preferred over comma-separated text)
+    // Feature IDs
     featureIds: item.feature_ids || item.featureIds || [],
-    // Handle camelCase column name
+    // Image URL — sheet column is camelCase "imageUrl"
     imageUrl: item.image_url || item.imageUrl || null,
-    // Parse google_rating from TEXT to number if needed
-    googleRating: item.google_rating || null,
-    googlePlaceId: item.google_place_id || null,
-    googleReviewCount: item.google_review_count || null,
-    googleDescription: item.google_description || null,
-    // Handle jsonb columns (defensive parsing)
-    googlePhotos: parseJsonb(item.google_photos),
-    googleReviews: parseJsonb(item.google_reviews),
-    googlePriceLevel: item.google_price_level || null,
-    googleDataUpdatedAt: item.google_data_updated_at || null,
-    formattedPhone: item.formatted_phone || null,
-    websiteVerified: item.website_verified || null,
-    openingHoursJson: item.opening_hours_json || null,
-    googleMapsUrl: item.google_maps_url || null,
-    googleTypes: item.google_types || null,
-    formattedAddressGoogle: item.formatted_address_google || null,
-    businessStatus: item.business_status || null,
-    contactDataFetchedAt: item.contact_data_fetched_at || null,
-    aiGeneratedDescription: item.ai_generated_description || null,
-    descriptionGeneratedAt: item.description_generated_at || null,
-    descriptionValidated: item.description_validated ?? null,
-    descriptionSource: item.description_source || null,
-    // Prefer jsonb hours over text
-    hours: item.hours_json
-      ? (typeof item.hours_json === 'string' ? JSON.parse(item.hours_json) : item.hours_json)
+    // Google enrichment fields — snake_case from Supabase, camelCase from Sheets
+    googleRating: item.google_rating || item.googleRating || null,
+    googlePlaceId: item.google_place_id || item.googlePlaceId || null,
+    googleReviewCount: item.google_review_count || item.googleReviewCount || null,
+    googleDescription: item.google_description || item.googleDescription || null,
+    googlePhotos: parseJsonb(item.google_photos ?? item.googlePhotos),
+    googleReviews: parseJsonb(item.google_reviews ?? item.googleReviews),
+    googlePriceLevel: item.google_price_level || item.googlePriceLevel || null,
+    googleDataUpdatedAt: item.google_data_updated_at || item.googleDataUpdatedAt || null,
+    formattedPhone: item.formatted_phone || item.formattedPhone || null,
+    websiteVerified: item.website_verified ?? item.websiteVerified ?? null,
+    openingHoursJson: item.opening_hours_json || item.openingHoursJson || null,
+    googleMapsUrl: item.google_maps_url || item.googleMapsUrl || null,
+    googleTypes: item.google_types || item.googleTypes || null,
+    formattedAddressGoogle: item.formatted_address_google || item.formattedAddressGoogle || null,
+    businessStatus: item.business_status || item.businessStatus || null,
+    contactDataFetchedAt: item.contact_data_fetched_at || item.contactDataFetchedAt || null,
+    aiGeneratedDescription: item.ai_generated_description || item.aiGeneratedDescription || null,
+    descriptionGeneratedAt: item.description_generated_at || item.descriptionGeneratedAt || null,
+    descriptionValidated: item.description_validated ?? item.descriptionValidated ?? null,
+    descriptionSource: item.description_source || item.descriptionSource || null,
+    // Prefer parsed JSON hours over raw text
+    hours: (item.hours_json || item.openingHoursJson)
+      ? (() => { const v = item.hours_json || item.openingHoursJson; return typeof v === 'string' ? JSON.parse(v) : v; })()
       : null,
   } as Bookstore;
 }
