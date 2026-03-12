@@ -3,27 +3,27 @@
 // Single processing function that powers all pages efficiently
 
 import { cache } from 'react';
-import { createServerClient } from '@/lib/supabase/server';
+import { unstable_cache } from 'next/cache';
+import { getBookstoresFromSheets } from '@/lib/google-sheets-client';
 import { Bookstore } from '@/shared/schema';
 import { getStateAbbrev, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 import { safeMapGet, safeMapKeys } from './cache-utils';
 
-// In-memory cache for processed data (survives across requests in dev)
+// In-memory cache for the *processed* result (avoids re-processing on warm Lambda instances)
 let processedDataCache: ProcessedBookstoreData | null = null;
 let cacheTimestamp: number = 0;
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
-// ===========================================
-// COLUMN SELECTIONS (optimized for egress)
-// ===========================================
-
-const LIST_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids,imageUrl,google_photos';
-
-const DETAIL_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,description,google_place_id,google_rating,google_review_count,google_description,formatted_phone,website_verified,google_maps_url,google_types,formatted_address_google,business_status,google_price_level,google_data_updated_at,contact_data_fetched_at,opening_hours_json,ai_generated_description,description_source,description_generated_at,description_validated,feature_ids,hours_json';
-
-const PHOTO_COLUMNS = 'google_photos';
-const REVIEW_COLUMNS = 'google_reviews';
-const FULL_DETAIL = `${DETAIL_COLUMNS},${PHOTO_COLUMNS},${REVIEW_COLUMNS}`;
+/**
+ * Fetch raw rows from Google Sheets, cached in Vercel's shared Data Cache.
+ * This survives cold starts and is shared across all Lambda instances,
+ * so the Sheets API is called at most once per hour globally.
+ */
+const getCachedRawBookstores = unstable_cache(
+  () => getBookstoresFromSheets(),
+  ['bookstores-raw'],
+  { revalidate: 3600 } // 1 hour
+);
 
 export { getStateAbbrev, getStateDisplayName, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 
@@ -36,6 +36,7 @@ export interface ProcessedBookstoreData {
   all: Bookstore[];
 
   // Lookup Maps (serialized as objects by cache)
+  byId: Record<number, Bookstore>;
   byCity: Record<string, Bookstore[]>;
   byState: Record<string, Bookstore[]>;
   byCounty: Record<string, Bookstore[]>;
@@ -62,44 +63,47 @@ export interface ProcessedBookstoreData {
 // ===========================================
 
 /**
- * Maps Supabase column names to Bookstore type
- * Handles schema-specific conversions and legacy column fallbacks
+ * Maps raw row data (from Google Sheets) to the Bookstore type.
+ * The Google Sheets client already handles all column-name mapping and
+ * JSON parsing, so this is a lightweight identity pass with a few
+ * numeric-column fallbacks retained for safety.
  */
 function mapBookstoreData(item: any): Bookstore {
+  // item comes from getBookstoresFromSheets() which already returns camelCase properties.
+  // Each override checks snake_case first (legacy/Supabase path) then camelCase (Sheets path).
   return {
     ...item,
-    // Use numeric columns for calculations, convert to string for display
+    // Numeric columns — prefer pre-parsed numeric field
     latitude: item.lat_numeric?.toString() || item.latitude || null,
     longitude: item.lng_numeric?.toString() || item.longitude || null,
-    // Use array column (preferred over comma-separated text)
+    // Feature IDs
     featureIds: item.feature_ids || item.featureIds || [],
-    // Handle camelCase column name
+    // Image URL — sheet column is camelCase "imageUrl"
     imageUrl: item.image_url || item.imageUrl || null,
-    // Parse google_rating from TEXT to number if needed
-    googleRating: item.google_rating || null,
-    googlePlaceId: item.google_place_id || null,
-    googleReviewCount: item.google_review_count || null,
-    googleDescription: item.google_description || null,
-    // Handle jsonb columns (defensive parsing)
-    googlePhotos: parseJsonb(item.google_photos),
-    googleReviews: parseJsonb(item.google_reviews),
-    googlePriceLevel: item.google_price_level || null,
-    googleDataUpdatedAt: item.google_data_updated_at || null,
-    formattedPhone: item.formatted_phone || null,
-    websiteVerified: item.website_verified || null,
-    openingHoursJson: item.opening_hours_json || null,
-    googleMapsUrl: item.google_maps_url || null,
-    googleTypes: item.google_types || null,
-    formattedAddressGoogle: item.formatted_address_google || null,
-    businessStatus: item.business_status || null,
-    contactDataFetchedAt: item.contact_data_fetched_at || null,
-    aiGeneratedDescription: item.ai_generated_description || null,
-    descriptionGeneratedAt: item.description_generated_at || null,
-    descriptionValidated: item.description_validated ?? null,
-    descriptionSource: item.description_source || null,
-    // Prefer jsonb hours over text
-    hours: item.hours_json
-      ? (typeof item.hours_json === 'string' ? JSON.parse(item.hours_json) : item.hours_json)
+    // Google enrichment fields — snake_case from Supabase, camelCase from Sheets
+    googleRating: item.google_rating || item.googleRating || null,
+    googlePlaceId: item.google_place_id || item.googlePlaceId || null,
+    googleReviewCount: item.google_review_count || item.googleReviewCount || null,
+    googleDescription: item.google_description || item.googleDescription || null,
+    googlePhotos: parseJsonb(item.google_photos ?? item.googlePhotos),
+    googleReviews: parseJsonb(item.google_reviews ?? item.googleReviews),
+    googlePriceLevel: item.google_price_level || item.googlePriceLevel || null,
+    googleDataUpdatedAt: item.google_data_updated_at || item.googleDataUpdatedAt || null,
+    formattedPhone: item.formatted_phone || item.formattedPhone || null,
+    websiteVerified: item.website_verified ?? item.websiteVerified ?? null,
+    openingHoursJson: item.opening_hours_json || item.openingHoursJson || null,
+    googleMapsUrl: item.google_maps_url || item.googleMapsUrl || null,
+    googleTypes: item.google_types || item.googleTypes || null,
+    formattedAddressGoogle: item.formatted_address_google || item.formattedAddressGoogle || null,
+    businessStatus: item.business_status || item.businessStatus || null,
+    contactDataFetchedAt: item.contact_data_fetched_at || item.contactDataFetchedAt || null,
+    aiGeneratedDescription: item.ai_generated_description || item.aiGeneratedDescription || null,
+    descriptionGeneratedAt: item.description_generated_at || item.descriptionGeneratedAt || null,
+    descriptionValidated: item.description_validated ?? item.descriptionValidated ?? null,
+    descriptionSource: item.description_source || item.descriptionSource || null,
+    // Prefer parsed JSON hours over raw text
+    hours: (item.hours_json || item.openingHoursJson)
+      ? (() => { const v = item.hours_json || item.openingHoursJson; return typeof v === 'string' ? JSON.parse(v) : v; })()
       : null,
   } as Bookstore;
 }
@@ -145,39 +149,14 @@ export function generateSlugFromName(name: string): string {
 // ===========================================
 
 /**
- * Fetch all bookstore data from Supabase
- * Uses pagination to handle large datasets efficiently
+ * Fetch all bookstore data from Google Sheets.
+ * The Sheets client loads every column in a single API call; the
+ * in-memory TTL cache means this runs at most once per hour.
  */
 async function fetchAllBookstoreData(): Promise<Bookstore[]> {
-  const supabase = createServerClient();
-  const allBookstores: any[] = [];
-  const pageSize = 1000;
-  let from = 0;
-  let hasMore = true;
-
-  while (hasMore) {
-    const { data, error } = await supabase
-      .from('bookstores')
-      .select(LIST_COLUMNS)
-      .eq('live', true)
-      .order('name')
-      .range(from, from + pageSize - 1);
-
-    if (error) {
-      console.error('Error fetching bookstores:', error);
-      break;
-    }
-
-    if (data && data.length > 0) {
-      allBookstores.push(...data);
-      from += pageSize;
-      hasMore = data.length === pageSize;
-    } else {
-      hasMore = false;
-    }
-  }
-
-  return allBookstores.map(mapBookstoreData);
+  // getCachedRawBookstores hits Vercel's shared Data Cache — no Sheets API call on cache hit
+  const rows = await getCachedRawBookstores();
+  return rows.map(mapBookstoreData);
 }
 
 // ===========================================
@@ -190,6 +169,7 @@ async function fetchAllBookstoreData(): Promise<Bookstore[]> {
  */
 function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
   // Initialize lookup objects
+  const byId: Record<number, Bookstore> = {};
   const byCity: Record<string, Bookstore[]> = {};
   const byState: Record<string, Bookstore[]> = {};
   const byCounty: Record<string, Bookstore[]> = {};
@@ -204,6 +184,9 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
 
   // Single pass through all bookstores
   for (const bookstore of bookstores) {
+    // Index by id
+    byId[bookstore.id] = bookstore;
+
     // Index by slug
     const slug = bookstore.slug || generateSlugFromName(bookstore.name);
     if (slug) {
@@ -267,6 +250,7 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
 
   return {
     all: bookstores,
+    byId,
     byCity,
     byState,
     byCounty,
@@ -387,42 +371,12 @@ export async function getBookstoreBySlug(slug: string): Promise<Bookstore | null
 }
 
 /**
- * Get bookstore by slug with full details
- * Fetches directly from DB for complete data including photos/reviews
+ * Get bookstore by slug with full details.
+ * Google Sheets loads all columns at once, so the main cache already
+ * contains every field — no separate "full detail" fetch needed.
  */
 export async function getBookstoreBySlugFull(slug: string): Promise<Bookstore | null> {
-  const supabase = createServerClient();
-
-  // Try exact slug match first
-  let { data, error } = await supabase
-    .from('bookstores')
-    .select(FULL_DETAIL)
-    .eq('slug', slug)
-    .eq('live', true)
-    .single();
-
-  // If not found, try case-insensitive
-  if (error && error.code === 'PGRST116') {
-    const { data: caseInsensitiveData, error: caseError } = await supabase
-      .from('bookstores')
-      .select(FULL_DETAIL)
-      .eq('live', true)
-      .ilike('slug', slug)
-      .limit(1)
-      .maybeSingle();
-
-    if (!caseError && caseInsensitiveData) {
-      data = caseInsensitiveData;
-      error = null;
-    }
-  }
-
-  if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching bookstore by slug:', error);
-    return null;
-  }
-
-  return data ? mapBookstoreData(data) : null;
+  return getBookstoreBySlug(slug);
 }
 
 /**
@@ -596,25 +550,10 @@ export async function getCountByState(state: string): Promise<number> {
 }
 
 /**
- * Get bookstore by ID (with full details)
- * Fetches directly from DB for complete data including photos/reviews
+ * Get bookstore by ID.
+ * Uses the in-memory cache — all fields are already loaded from Sheets.
  */
 export async function getBookstoreById(id: number): Promise<Bookstore | null> {
-  const supabase = createServerClient();
-
-  const { data, error } = await supabase
-    .from('bookstores')
-    .select(FULL_DETAIL)
-    .eq('id', id)
-    .eq('live', true)
-    .single();
-
-  if (error) {
-    if (error.code !== 'PGRST116') {
-      console.error('Error fetching bookstore by id:', error);
-    }
-    return null;
-  }
-
-  return data ? mapBookstoreData(data) : null;
+  const data = await getProcessedBookstoreData();
+  return data.byId[id] ?? null;
 }

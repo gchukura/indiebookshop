@@ -66,10 +66,27 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
     return `/api/place-photo?photo_reference=${encodeURIComponent(photoReference)}&maxwidth=${maxWidth}`;
   };
 
-  // Parse Google photos: support both camelCase (mapped) and snake_case (raw) from server
+  // Build a unified gallery list:
+  //   1. Blob CDN imageUrl (permanent, always first if available)
+  //   2. Google Places proxy photos (may be expired — shown as bonus photos)
+  type GalleryPhoto =
+    | { type: 'cdn'; url: string }
+    | { type: 'proxy'; photoRef: string };
+
   const rawPhotos = bookstore.googlePhotos ?? (bookstore as any).google_photos;
   const googlePhotosArray = Array.isArray(rawPhotos) ? rawPhotos : [];
-  const galleryPhotos = googlePhotosArray.filter(photo => extractPhotoReference(photo) !== null);
+
+  const galleryPhotos: GalleryPhoto[] = [];
+  if (bookstore.imageUrl && typeof bookstore.imageUrl === 'string') {
+    galleryPhotos.push({ type: 'cdn', url: bookstore.imageUrl });
+  }
+  for (const photo of googlePhotosArray) {
+    const photoRef = extractPhotoReference(photo);
+    if (photoRef) galleryPhotos.push({ type: 'proxy', photoRef });
+  }
+
+  const getGalleryPhotoSrc = (photo: GalleryPhoto, maxWidth: number): string =>
+    photo.type === 'cdn' ? photo.url : getPhotoUrl(photo.photoRef, maxWidth);
 
   // Parse Google reviews array
   const googleReviews: GoogleReview[] = Array.isArray(bookstore.googleReviews) 
@@ -252,29 +269,24 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
               </div>
             )}
 
-            {/* Google Photos Gallery */}
+            {/* Photo Gallery */}
             {galleryPhotos.length > 0 && (
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">Photo Gallery</h2>
-                
+
                 {/* Main featured photo */}
                 {galleryPhotos.length > 0 && (
                   <div className="mb-4">
                     <div className="relative aspect-[16/9] rounded-lg overflow-hidden bg-gray-200">
-                      {(() => {
-                        const photoRef = extractPhotoReference(galleryPhotos[currentPhotoIndex]);
-                        return photoRef ? (
-                          <img
-                            src={getPhotoUrl(photoRef, 1200)}
-                            alt={`${bookstore.name} - Photo ${currentPhotoIndex + 1}`}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=675';
-                            }}
-                          />
-                        ) : null;
-                      })()}
-                      
+                      <img
+                        src={getGalleryPhotoSrc(galleryPhotos[currentPhotoIndex], 1200)}
+                        alt={`${bookstore.name} - Photo ${currentPhotoIndex + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=675';
+                        }}
+                      />
+
                       {/* Navigation arrows */}
                       {galleryPhotos.length > 1 && (
                         <>
@@ -295,7 +307,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                         </>
                       )}
                     </div>
-                    
+
                     {/* Photo counter */}
                     {galleryPhotos.length > 1 && (
                       <div className="mt-2 text-center text-sm text-gray-600">
@@ -308,9 +320,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                 {/* Thumbnail grid */}
                 {galleryPhotos.length > 1 && (
                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                    {galleryPhotos.slice(0, 12).map((photo, index) => {
-                      const photoRef = extractPhotoReference(photo);
-                      return photoRef ? (
+                    {galleryPhotos.slice(0, 12).map((photo, index) => (
                         <button
                           key={index}
                           onClick={() => setCurrentPhotoIndex(index)}
@@ -319,7 +329,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                           }`}
                         >
                           <img
-                            src={getPhotoUrl(photoRef, 200)}
+                            src={getGalleryPhotoSrc(photo, 200)}
                             alt={`${bookstore.name} thumbnail ${index + 1}`}
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -327,8 +337,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                             }}
                           />
                         </button>
-                      ) : null;
-                    })}
+                      ))}
                   </div>
                 )}
               </div>
