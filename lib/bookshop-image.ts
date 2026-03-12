@@ -22,11 +22,17 @@ function extractPhotoReference(photo: unknown): string | null {
 
 /**
  * Returns the best thumbnail URL for a bookstore card/list:
- * 1. First Google photo (via place-photo API)
- * 2. imageUrl
+ * 1. imageUrl (permanent Vercel Blob CDN — preferred now that photos are migrated)
+ * 2. First Google photo via place-photo proxy (fallback for bookstores not yet migrated)
  * 3. Fallback Unsplash
  */
 export function getBookshopThumbnailUrl(bookshop: Bookstore, maxWidth: number = 400): string {
+  // Prefer the permanent CDN URL written by the photo migration scripts
+  if (bookshop.imageUrl && typeof bookshop.imageUrl === 'string') {
+    return bookshop.imageUrl;
+  }
+
+  // Fall back to Google Places proxy for bookstores without a migrated CDN photo
   const rawPhotos = bookshop.googlePhotos ?? (bookshop as { google_photos?: unknown[] }).google_photos;
   const photos = Array.isArray(rawPhotos) ? rawPhotos : [];
   const firstPhoto = photos[0];
@@ -34,10 +40,6 @@ export function getBookshopThumbnailUrl(bookshop: Bookstore, maxWidth: number = 
 
   if (photoRef) {
     return `/api/place-photo?photo_reference=${encodeURIComponent(photoRef)}&maxwidth=${maxWidth}`;
-  }
-
-  if (bookshop.imageUrl && typeof bookshop.imageUrl === 'string') {
-    return bookshop.imageUrl;
   }
 
   return FALLBACK_IMAGE;
