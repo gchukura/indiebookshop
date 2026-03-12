@@ -3,7 +3,7 @@
 // Single processing function that powers all pages efficiently
 
 import { cache } from 'react';
-import { createServerClient } from '@/lib/supabase/server';
+import { getBookstoresFromSheets } from '@/lib/google-sheets-client';
 import { Bookstore } from '@/shared/schema';
 import { getStateAbbrev, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 import { safeMapGet, safeMapKeys } from './cache-utils';
@@ -12,18 +12,6 @@ import { safeMapGet, safeMapKeys } from './cache-utils';
 let processedDataCache: ProcessedBookstoreData | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour in milliseconds
-
-// ===========================================
-// COLUMN SELECTIONS (optimized for egress)
-// ===========================================
-
-const LIST_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,google_rating,google_review_count,google_place_id,feature_ids,imageUrl,google_photos';
-
-const DETAIL_COLUMNS = 'id,name,slug,city,state,county,street,zip,latitude,longitude,lat_numeric,lng_numeric,website,phone,live,description,google_place_id,google_rating,google_review_count,google_description,formatted_phone,website_verified,google_maps_url,google_types,formatted_address_google,business_status,google_price_level,google_data_updated_at,contact_data_fetched_at,opening_hours_json,ai_generated_description,description_source,description_generated_at,description_validated,feature_ids,hours_json';
-
-const PHOTO_COLUMNS = 'google_photos';
-const REVIEW_COLUMNS = 'google_reviews';
-const FULL_DETAIL = `${DETAIL_COLUMNS},${PHOTO_COLUMNS},${REVIEW_COLUMNS}`;
 
 export { getStateAbbrev, getStateDisplayName, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 
@@ -36,6 +24,7 @@ export interface ProcessedBookstoreData {
   all: Bookstore[];
 
   // Lookup Maps (serialized as objects by cache)
+  byId: Record<number, Bookstore>;
   byCity: Record<string, Bookstore[]>;
   byState: Record<string, Bookstore[]>;
   byCounty: Record<string, Bookstore[]>;
@@ -62,8 +51,10 @@ export interface ProcessedBookstoreData {
 // ===========================================
 
 /**
- * Maps Supabase column names to Bookstore type
- * Handles schema-specific conversions and legacy column fallbacks
+ * Maps raw row data (from Google Sheets) to the Bookstore type.
+ * The Google Sheets client already handles all column-name mapping and
+ * JSON parsing, so this is a lightweight identity pass with a few
+ * numeric-column fallbacks retained for safety.
  */
 function mapBookstoreData(item: any): Bookstore {
   return {
@@ -145,39 +136,14 @@ export function generateSlugFromName(name: string): string {
 // ===========================================
 
 /**
- * Fetch all bookstore data from Supabase
- * Uses pagination to handle large datasets efficiently
+ * Fetch all bookstore data from Google Sheets.
+ * The Sheets client loads every column in a single API call; the
+ * in-memory TTL cache means this runs at most once per hour.
  */
 async function fetchAllBookstoreData(): Promise<Bookstore[]> {
-  const supabase = createServerClient();
-  const allBookstores: any[] = [];
-  const pageSize = 1000;
-  let from = 0;
-  let hasMore = true;
-
-  while (hasMore) {
-    const { data, error } = await supabase
-      .from('bookstores')
-      .select(LIST_COLUMNS)
-      .eq('live', true)
-      .order('name')
-      .range(from, from + pageSize - 1);
-
-    if (error) {
-      console.error('Error fetching bookstores:', error);
-      break;
-    }
-
-    if (data && data.length > 0) {
-      allBookstores.push(...data);
-      from += pageSize;
-      hasMore = data.length === pageSize;
-    } else {
-      hasMore = false;
-    }
-  }
-
-  return allBookstores.map(mapBookstoreData);
+  const rows = await getBookstoresFromSheets();
+  // mapBookstoreData is a lightweight pass — Sheets client already normalised fields
+  return rows.map(mapBookstoreData);
 }
 
 // ===========================================
@@ -190,6 +156,7 @@ async function fetchAllBookstoreData(): Promise<Bookstore[]> {
  */
 function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
   // Initialize lookup objects
+  const byId: Record<number, Bookstore> = {};
   const byCity: Record<string, Bookstore[]> = {};
   const byState: Record<string, Bookstore[]> = {};
   const byCounty: Record<string, Bookstore[]> = {};
@@ -204,6 +171,9 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
 
   // Single pass through all bookstores
   for (const bookstore of bookstores) {
+    // Index by id
+    byId[bookstore.id] = bookstore;
+
     // Index by slug
     const slug = bookstore.slug || generateSlugFromName(bookstore.name);
     if (slug) {
@@ -267,6 +237,7 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
 
   return {
     all: bookstores,
+    byId,
     byCity,
     byState,
     byCounty,
@@ -387,42 +358,12 @@ export async function getBookstoreBySlug(slug: string): Promise<Bookstore | null
 }
 
 /**
- * Get bookstore by slug with full details
- * Fetches directly from DB for complete data including photos/reviews
+ * Get bookstore by slug with full details.
+ * Google Sheets loads all columns at once, so the main cache already
+ * contains every field — no separate "full detail" fetch needed.
  */
 export async function getBookstoreBySlugFull(slug: string): Promise<Bookstore | null> {
-  const supabase = createServerClient();
-
-  // Try exact slug match first
-  let { data, error } = await supabase
-    .from('bookstores')
-    .select(FULL_DETAIL)
-    .eq('slug', slug)
-    .eq('live', true)
-    .single();
-
-  // If not found, try case-insensitive
-  if (error && error.code === 'PGRST116') {
-    const { data: caseInsensitiveData, error: caseError } = await supabase
-      .from('bookstores')
-      .select(FULL_DETAIL)
-      .eq('live', true)
-      .ilike('slug', slug)
-      .limit(1)
-      .maybeSingle();
-
-    if (!caseError && caseInsensitiveData) {
-      data = caseInsensitiveData;
-      error = null;
-    }
-  }
-
-  if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching bookstore by slug:', error);
-    return null;
-  }
-
-  return data ? mapBookstoreData(data) : null;
+  return getBookstoreBySlug(slug);
 }
 
 /**
@@ -596,25 +537,10 @@ export async function getCountByState(state: string): Promise<number> {
 }
 
 /**
- * Get bookstore by ID (with full details)
- * Fetches directly from DB for complete data including photos/reviews
+ * Get bookstore by ID.
+ * Uses the in-memory cache — all fields are already loaded from Sheets.
  */
 export async function getBookstoreById(id: number): Promise<Bookstore | null> {
-  const supabase = createServerClient();
-
-  const { data, error } = await supabase
-    .from('bookstores')
-    .select(FULL_DETAIL)
-    .eq('id', id)
-    .eq('live', true)
-    .single();
-
-  if (error) {
-    if (error.code !== 'PGRST116') {
-      console.error('Error fetching bookstore by id:', error);
-    }
-    return null;
-  }
-
-  return data ? mapBookstoreData(data) : null;
+  const data = await getProcessedBookstoreData();
+  return data.byId[id] ?? null;
 }

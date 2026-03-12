@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { sendContactNotification } from '@/lib/contact-email';
+
+const NOTIFY_EMAIL = 'info@bluestonebrands.com';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_LENGTH = { name: 200, email: 254, reason: 100, subject: 500, message: 10000 };
@@ -84,17 +86,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = createServerClient();
-    const { error } = await supabase.from('contact_messages').insert({
-      name,
-      email,
-      reason,
-      subject,
-      message,
-    });
+    const result = await sendContactNotification(NOTIFY_EMAIL, { name, email, reason, subject, message });
 
-    if (error) {
-      console.error('Contact form insert error:', error);
+    if (!result.ok) {
+      console.error('Contact email error:', result.error);
       return NextResponse.json(
         { message: 'Failed to send message. Please try again later.' },
         { status: 500 }
@@ -102,7 +97,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { message: 'Thank you! Your message has been sent. We\'ll get back to you soon.' },
+      { message: "Thank you! Your message has been sent. We'll get back to you soon." },
       { status: 200 }
     );
   } catch (e) {
