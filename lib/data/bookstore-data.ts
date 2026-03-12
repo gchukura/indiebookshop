@@ -3,15 +3,27 @@
 // Single processing function that powers all pages efficiently
 
 import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import { getBookstoresFromSheets } from '@/lib/google-sheets-client';
 import { Bookstore } from '@/shared/schema';
 import { getStateAbbrev, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 import { safeMapGet, safeMapKeys } from './cache-utils';
 
-// In-memory cache for processed data (survives across requests in dev)
+// In-memory cache for the *processed* result (avoids re-processing on warm Lambda instances)
 let processedDataCache: ProcessedBookstoreData | null = null;
 let cacheTimestamp: number = 0;
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+/**
+ * Fetch raw rows from Google Sheets, cached in Vercel's shared Data Cache.
+ * This survives cold starts and is shared across all Lambda instances,
+ * so the Sheets API is called at most once per hour globally.
+ */
+const getCachedRawBookstores = unstable_cache(
+  () => getBookstoresFromSheets(),
+  ['bookstores-raw'],
+  { revalidate: 3600 } // 1 hour
+);
 
 export { getStateAbbrev, getStateDisplayName, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 
@@ -141,8 +153,8 @@ export function generateSlugFromName(name: string): string {
  * in-memory TTL cache means this runs at most once per hour.
  */
 async function fetchAllBookstoreData(): Promise<Bookstore[]> {
-  const rows = await getBookstoresFromSheets();
-  // mapBookstoreData is a lightweight pass — Sheets client already normalised fields
+  // getCachedRawBookstores hits Vercel's shared Data Cache — no Sheets API call on cache hit
+  const rows = await getCachedRawBookstores();
   return rows.map(mapBookstoreData);
 }
 
