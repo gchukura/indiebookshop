@@ -230,7 +230,7 @@ export async function getBookstoresFromSheets(): Promise<Bookstore[]> {
       descriptionSource: null,
       descriptionGeneratedAt: null,
       descriptionValidated: null,
-    } as Bookstore);
+    } as unknown as Bookstore);
   }
 
   console.log(`[GoogleSheets] Loaded ${bookstores.length} live bookstores`);
