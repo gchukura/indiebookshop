@@ -21,12 +21,13 @@ import {
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Bookstore as Bookshop, Feature } from "@shared/schema";
+import { Feature } from "@shared/schema";
 import { STATES } from "@/lib/constants";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
+// Supabase removed — bookshop list now comes from Google Sheets via API.
+type Bookshop = { id: number; name: string; city: string; state: string };
 
 // Form validation schema for submission
 // Address fields are only required if hasPhysicalStore is true
@@ -131,27 +132,16 @@ export const BookshopSubmissionForm = () => {
   const submissionType = form.watch("submissionType");
   const selectedBookshopName = form.watch("existingBookshopName");
 
-  // Fetch all bookshops for the selector (when editing)
+  // Fetch all bookshops for the selector (when editing) — from Google Sheets via API.
   const { data: bookshops = [], isLoading: isLoadingBookshops } = useQuery<Bookshop[]>({
     queryKey: ['bookshops-for-editing'],
     queryFn: async () => {
-      if (!supabase) {
-        throw new Error('Supabase client not available');
-      }
-      const { data, error } = await supabase
-        .from('bookstores')
-        .select('id, name, city, state')
-        .eq('live', true)
-        .order('name');
-      
-      if (error) throw error;
-      
-      return (data || []).map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        city: item.city,
-        state: item.state,
-      })) as Bookshop[];
+      const res = await fetch('/api/bookstores/filter');
+      if (!res.ok) throw new Error('Failed to fetch bookshops');
+      const data = await res.json();
+      return (data as Bookshop[])
+        .map((b) => ({ id: b.id, name: b.name, city: b.city, state: b.state }))
+        .sort((a, b) => a.name.localeCompare(b.name));
     },
     enabled: submissionType === "change",
   });

@@ -24,10 +24,13 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'maps.googleapis.com',
       },
+      // Cloudflare R2 — primary photo host
+      // Free r2.dev subdomain (enable public access in R2 dashboard):
       {
         protocol: 'https',
-        hostname: '**.supabase.co',
+        hostname: '*.r2.dev',
       },
+      // Supabase removed — all image_url values suppressed server-side in google-sheets-client.ts
     ],
   },
 
@@ -65,14 +68,6 @@ const nextConfig = {
         permanent: true,
       },
     ];
-  },
-
-  // Environment variables exposed to the browser
-  // Note: Vercel should have NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY set
-  // If not set, fall back to SUPABASE_URL and SUPABASE_ANON_KEY
-  env: {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
   },
 
   // Optimize builds

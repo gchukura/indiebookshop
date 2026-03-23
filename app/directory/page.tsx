@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { getFilteredBookstores, getStates, getStateDisplayName } from '@/lib/data/bookstore-data';
-import DirectoryClient from './DirectoryClient';
+import DirectoryClient, { DirectoryBookstore } from './DirectoryClient';
 
 type SearchParams = {
   state?: string;
@@ -10,7 +10,7 @@ type SearchParams = {
 };
 
 type Props = {
-  searchParams: Promise<SearchParams> | SearchParams;
+  searchParams: Promise<SearchParams>;
 };
 
 /**
@@ -18,8 +18,7 @@ type Props = {
  * This ensures /directory?state=CA and /directory?state=TX have different meta tags!
  */
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  // Handle searchParams - in Next.js 15+, searchParams might be a Promise
-  const resolvedParams = searchParams instanceof Promise ? await searchParams : searchParams;
+  const resolvedParams = await searchParams;
   const { state, city, county } = resolvedParams;
 
   // City + State specific metadata
@@ -80,8 +79,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
  * with the interactive map and filters.
  */
 export default async function DirectoryPage({ searchParams }: Props) {
-  // Handle searchParams - in Next.js 15+, searchParams might be a Promise
-  const resolvedParams = searchParams instanceof Promise ? await searchParams : searchParams;
+  const resolvedParams = await searchParams;
 
   // Parse features from comma-separated string to number array
   const features = resolvedParams.features
@@ -89,7 +87,7 @@ export default async function DirectoryPage({ searchParams }: Props) {
     : undefined;
 
   // Fetch initial data server-side
-  const [bookstores, states] = await Promise.all([
+  const [bookstoresFull, states] = await Promise.all([
     getFilteredBookstores({
       state: resolvedParams.state,
       city: resolvedParams.city,
@@ -98,6 +96,20 @@ export default async function DirectoryPage({ searchParams }: Props) {
     }),
     getStates(),
   ]);
+
+  // Slim down to only the fields DirectoryClient actually uses.
+  // This reduces the RSC payload from ~12 MB to ~500 KB.
+  const bookstores: DirectoryBookstore[] = bookstoresFull.map((b) => ({
+    id: b.id,
+    name: b.name,
+    slug: b.slug ?? null,
+    city: b.city,
+    state: b.state,
+    county: b.county ?? null,
+    latitude: b.latitude ?? null,
+    longitude: b.longitude ?? null,
+    description: b.description || '',
+  }));
 
   // Generate page title based on filters (state may be abbrev; show full name when available)
   let pageTitle = 'Bookshop Directory';

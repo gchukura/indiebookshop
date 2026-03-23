@@ -12,11 +12,5 @@
       "destination": "https://www.indiebookshop.com/:path*",
       "permanent": true
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/refresh-google-photos",
-      "schedule": "0 2 1 */2 *"
-    }
   ]
 }

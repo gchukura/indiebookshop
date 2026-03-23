@@ -4,7 +4,7 @@ import { getBookstoreBySlugFull, getBookstoreById, getAllBookstores, getRelatedB
 import BookshopDetailClient from './BookshopDetailClient';
 
 type Props = {
-  params: Promise<{ slug: string }> | { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 /**
@@ -38,8 +38,7 @@ export const dynamicParams = true;
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
-    // Handle params - in Next.js 15+, params might be a Promise
-    const resolvedParams = params instanceof Promise ? await params : params;
+    const resolvedParams = await params;
     
     // Validate slug exists
     if (!resolvedParams?.slug) {
@@ -130,8 +129,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function BookshopPage({ params }: Props) {
   try {
-    // Handle params - in Next.js 15+, params might be a Promise
-    const resolvedParams = params instanceof Promise ? await params : params;
+    const resolvedParams = await params;
     
     // Validate slug exists
     if (!resolvedParams?.slug) {
