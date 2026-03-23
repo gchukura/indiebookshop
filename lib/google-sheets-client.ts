@@ -186,44 +186,50 @@ export async function getBookstoresFromSheets(): Promise<Bookstore[]> {
       id: parseInt(get('id') || '0', 10),
       name,
       slug: get('slug') || null,
-      street: get('street') || '',
+      street: null, // detail-page-only; omitted to keep listing cache under 2MB
       city,
       state,
-      zip: get('zip') || '',
+      zip: null,   // detail-page-only
       county: get('county') || null,
-      description: get('description') || '',
-      imageUrl: get('image_url') || get('imageurl') || null,
-      website: get('website') || null,
-      phone: get('phone') || null,
+      // Truncated to 150 chars for the listing cache; full value baked into static detail pages.
+      description: (get('description') || '').slice(0, 150),
+      // Suppress Supabase Storage URLs while migrating to a new photo host.
+      // They are currently returning 403 (quota exceeded). Once photos are
+      // migrated the raw value will point to the new CDN and this guard can be removed.
+      imageUrl: (() => {
+        const raw = get('image_url') || get('imageurl') || null;
+        return raw && raw.includes('supabase.co') ? null : raw;
+      })(),
+      // Detail-page-only fields nulled out to keep the listing cache under Vercel's 2MB limit.
+      // These are only needed at build time (static pre-generation) or on dynamicParams detail pages.
+      website: null,
+      phone: null,
       live,
       latitude: latitude || null,
       longitude: longitude || null,
       featureIds,
-      // Google Places enrichment
-      googlePlaceId: get('google_place_id') || null,
+      // Google Places enrichment — keep rating/count for directory cards
+      googlePlaceId: null,
       googleRating: get('google_rating') || null,
       googleReviewCount: parseInt(get('google_review_count') || '0', 10) || null,
-      googleDescription: get('google_description') || null,
-      googlePhotos: parseJsonField(get('google_photos')),
-      googleReviews: parseJsonField(get('google_reviews')),
-      googlePriceLevel: get('google_price_level') || null,
-      googleDataUpdatedAt: get('google_data_updated_at') || null,
-      googleMapsUrl: get('google_maps_url') || null,
-      googleTypes: parseJsonField(get('google_types')),
-      formattedAddressGoogle: get('formatted_address_google') || null,
-      businessStatus: get('business_status') || null,
-      // Contact & verification
-      formattedPhone: get('formatted_phone') || null,
-      websiteVerified: parseBoolField(get('website_verified')),
-      contactDataFetchedAt: get('contact_data_fetched_at') || null,
-      // Hours
-      openingHoursJson: parseJsonField(get('opening_hours_json')),
-      hours: parseJsonField(get('hours_json')) || parseJsonField(get('hours')) || null,
-      // AI content
-      aiGeneratedDescription: get('ai_generated_description') || null,
-      descriptionSource: get('description_source') || null,
-      descriptionGeneratedAt: get('description_generated_at') || null,
-      descriptionValidated: parseBoolField(get('description_validated')),
+      googleDescription: null,
+      googlePhotos: null,
+      googleReviews: null,
+      googlePriceLevel: null,
+      googleDataUpdatedAt: null,
+      googleMapsUrl: null,
+      googleTypes: null,
+      formattedAddressGoogle: null,
+      businessStatus: null,
+      formattedPhone: null,
+      websiteVerified: null,
+      contactDataFetchedAt: null,
+      openingHoursJson: null,
+      hours: null,
+      aiGeneratedDescription: null,
+      descriptionSource: null,
+      descriptionGeneratedAt: null,
+      descriptionValidated: null,
     } as Bookstore);
   }
 

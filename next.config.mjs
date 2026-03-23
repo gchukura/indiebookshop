@@ -24,10 +24,13 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'maps.googleapis.com',
       },
+      // Cloudflare R2 — primary photo host
+      // Free r2.dev subdomain (enable public access in R2 dashboard):
       {
         protocol: 'https',
-        hostname: '*.supabase.co',
+        hostname: '*.r2.dev',
       },
+      // Supabase removed — all image_url values suppressed server-side in google-sheets-client.ts
     ],
   },
 

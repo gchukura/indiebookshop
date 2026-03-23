@@ -6,7 +6,6 @@ import Map from 'react-map-gl/mapbox';
 import { Marker, NavigationControl } from 'react-map-gl/mapbox';
 import Supercluster from 'supercluster';
 import Link from 'next/link';
-import { Bookstore } from '@/shared/schema';
 import { getStateAbbrev, getStateDisplayName } from '@/lib/state-utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,8 +43,21 @@ const CLUSTER_CONFIG = {
 
 const LOCATION_DELIMITER = '|';
 
+/** Lean bookstore type for the directory listing — only the fields DirectoryClient needs. */
+export interface DirectoryBookstore {
+  id: number;
+  name: string;
+  slug: string | null;
+  city: string;
+  state: string;
+  county: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  description: string;
+}
+
 type DirectoryClientProps = {
-  initialBookstores: Bookstore[];
+  initialBookstores: DirectoryBookstore[];
   initialStates: string[];
   initialFilters: {
     state?: string;
@@ -513,9 +525,9 @@ export default function DirectoryClient({
 
             {/* Scrollable List */}
             <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-              {visibleBookshops.length > 0 ? (
+              {filteredBookstores.length > 0 ? (
                 <div className="p-4 space-y-3">
-                  {visibleBookshops.map((bookshop) => (
+                  {filteredBookstores.map((bookshop) => (
                     <div
                       key={bookshop.id}
                       id={`bookshop-${bookshop.id}`}
@@ -547,8 +559,8 @@ export default function DirectoryClient({
                 <div className="p-6 text-center">
                   <MapPin className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                   <h3 className="font-serif text-lg font-bold text-gray-700 mb-2">No bookshops found</h3>
-                  <p className="font-sans text-sm text-gray-600 mb-4">Try adjusting your filters or search in a different area</p>
-                  {activeFilterCount > 0 && (
+                  <p className="font-sans text-sm text-gray-600 mb-4">Try adjusting your filters or search query</p>
+                  {(activeFilterCount > 0 || searchQuery) && (
                     <Button onClick={clearFilters} variant="outline" size="sm" className="rounded-full">
                       Clear filters
                     </Button>

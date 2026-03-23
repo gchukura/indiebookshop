@@ -18,8 +18,8 @@ import {
 import { format } from "date-fns";
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
-import { Bookstore } from "@shared/schema";
+// Supabase removed — bookshop list now comes from Google Sheets via API.
+type BookshopListItem = { id: number; name: string; city: string; state: string };
 
 // Simple form for event submission
 const EventSubmissionForm = () => {
@@ -32,28 +32,17 @@ const EventSubmissionForm = () => {
   const [bookshopSearchOpen, setBookshopSearchOpen] = useState(false);
   const { toast } = useToast();
 
-  // Fetch all bookshops for the selector
-  const { data: bookshops = [], isLoading: isLoadingBookshops } = useQuery<Bookstore[]>({
+  // Fetch all bookshops for the selector — from Google Sheets via API.
+  const { data: bookshops = [], isLoading: isLoadingBookshops } = useQuery<BookshopListItem[]>({
     queryKey: ['bookshops-for-events'],
     queryFn: async () => {
-      if (!supabase) {
-        throw new Error('Supabase client not available');
-      }
-      const { data, error } = await supabase
-        .from('bookstores')
-        .select('id, name, city, state')
-        .eq('live', true)
-        .order('name');
-      
-      if (error) throw error;
-      
-      return (data || []).map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        city: item.city,
-        state: item.state,
-      })) as Bookstore[];
-    }
+      const res = await fetch('/api/bookstores/filter');
+      if (!res.ok) throw new Error('Failed to fetch bookshops');
+      const data = await res.json();
+      return (data as BookshopListItem[])
+        .map((b) => ({ id: b.id, name: b.name, city: b.city, state: b.state }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    },
   });
 
   const selectedBookshop = bookshops.find(b => b.id === bookstoreId);

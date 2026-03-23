@@ -435,19 +435,23 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
               {bookstore.city ? `More Bookshops in ${bookstore.city}, ${bookstore.state}` : `More Bookshops in ${bookstore.state}`}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-              {relatedBookshops.map((shop) => (
+              {relatedBookshops.map((shop) => {
+                const shopThumb = getBookshopThumbnailUrl(shop, 400);
+                return (
                 <Link
                   key={shop.id}
                   href={`/bookshop/${shop.slug || shop.id}`}
                   className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group block"
                 >
+                  {shopThumb && (
                   <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
                     <BookshopImage
-                      src={getBookshopThumbnailUrl(shop, 400)}
+                      src={shopThumb}
                       alt={`${shop.name} in ${shop.city}, ${shop.state}`}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
+                  )}
                   <div className="p-6">
                     <h3 className="font-serif text-lg font-bold text-[#5F4B32] mb-2">{shop.name}</h3>
                     <div className="flex items-start text-sm text-gray-600 mb-2">
@@ -467,7 +471,8 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                     )}
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
             {bookstore.state && (
               <div className="bg-white rounded-lg shadow-md p-6 text-center">
