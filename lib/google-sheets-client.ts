@@ -133,7 +133,16 @@ function buildColMap(headerRow: string[]): Record<string, number> {
 // Public API
 // ---------------------------------------------------------------------------
 
-export async function getBookstoresFromSheets(): Promise<Bookstore[]> {
+/**
+ * Fetch bookstores from Google Sheets.
+ *
+ * @param listingOnly  When true, strips detail-page-only fields so the result
+ *                     fits inside Vercel's 2 MB unstable_cache limit (used for
+ *                     the directory listing and /api/bookstores/filter).
+ *                     When false (default), all columns are returned for detail
+ *                     pages and the module-level full-data cache.
+ */
+export async function getBookstoresFromSheets(listingOnly = false): Promise<Bookstore[]> {
   const sheets = buildSheetsClient();
 
   const [headerRes, dataRes] = await Promise.all([
@@ -182,58 +191,98 @@ export async function getBookstoresFromSheets(): Promise<Bookstore[]> {
     const latitude = get('lat_numeric') || get('latitude') || null;
     const longitude = get('lng_numeric') || get('longitude') || null;
 
-    bookstores.push({
-      id: parseInt(get('id') || '0', 10),
-      name,
-      slug: get('slug') || null,
-      street: null, // detail-page-only; omitted to keep listing cache under 2MB
-      city,
-      state,
-      zip: null,   // detail-page-only
-      county: get('county') || null,
-      // Truncated to 150 chars for the listing cache; full value baked into static detail pages.
-      description: (get('description') || '').slice(0, 150),
-      // Suppress Supabase Storage URLs while migrating to a new photo host.
-      // They are currently returning 403 (quota exceeded). Once photos are
-      // migrated the raw value will point to the new CDN and this guard can be removed.
-      imageUrl: (() => {
-        const raw = get('image_url') || get('imageurl') || null;
-        return raw && raw.includes('supabase.co') ? null : raw;
-      })(),
-      // Detail-page-only fields nulled out to keep the listing cache under Vercel's 2MB limit.
-      // These are only needed at build time (static pre-generation) or on dynamicParams detail pages.
-      website: null,
-      phone: null,
-      live,
-      latitude: latitude || null,
-      longitude: longitude || null,
-      featureIds,
-      // Google Places enrichment — keep rating/count for directory cards
-      googlePlaceId: null,
-      googleRating: get('google_rating') || null,
-      googleReviewCount: parseInt(get('google_review_count') || '0', 10) || null,
-      googleDescription: null,
-      googlePhotos: null,
-      googleReviews: null,
-      googlePriceLevel: null,
-      googleDataUpdatedAt: null,
-      googleMapsUrl: null,
-      googleTypes: null,
-      formattedAddressGoogle: null,
-      businessStatus: null,
-      formattedPhone: null,
-      websiteVerified: null,
-      contactDataFetchedAt: null,
-      openingHoursJson: null,
-      hours: null,
-      aiGeneratedDescription: null,
-      descriptionSource: null,
-      descriptionGeneratedAt: null,
-      descriptionValidated: null,
-    } as unknown as Bookstore);
+    // Suppress Supabase Storage URLs while migrating to a new photo host.
+    const rawImageUrl = get('image_url') || get('imageurl') || null;
+    const imageUrl = rawImageUrl && rawImageUrl.includes('supabase.co') ? null : rawImageUrl;
+
+    if (listingOnly) {
+      // Stripped listing record — fits inside Vercel's 2 MB unstable_cache limit.
+      // Detail-page-only fields are nulled; directory cards only need the fields below.
+      bookstores.push({
+        id: parseInt(get('id') || '0', 10),
+        name,
+        slug: get('slug') || null,
+        street: null,
+        city,
+        state,
+        zip: null,
+        county: get('county') || null,
+        description: (get('description') || '').slice(0, 150),
+        imageUrl,
+        website: null,
+        phone: null,
+        live,
+        latitude: latitude || null,
+        longitude: longitude || null,
+        featureIds,
+        googlePlaceId: null,
+        googleRating: get('google_rating') || null,
+        googleReviewCount: parseInt(get('google_review_count') || '0', 10) || null,
+        googleDescription: null,
+        googlePhotos: null,
+        googleReviews: null,
+        googlePriceLevel: null,
+        googleDataUpdatedAt: null,
+        googleMapsUrl: null,
+        googleTypes: null,
+        formattedAddressGoogle: null,
+        businessStatus: null,
+        formattedPhone: null,
+        websiteVerified: null,
+        contactDataFetchedAt: null,
+        openingHoursJson: null,
+        hours: null,
+        aiGeneratedDescription: null,
+        descriptionSource: null,
+        descriptionGeneratedAt: null,
+        descriptionValidated: null,
+      } as unknown as Bookstore);
+    } else {
+      // Full record — all columns included for detail pages.
+      // Not stored in unstable_cache; held in a module-level memory cache instead.
+      bookstores.push({
+        id: parseInt(get('id') || '0', 10),
+        name,
+        slug: get('slug') || null,
+        street: get('street') || null,
+        city,
+        state,
+        zip: get('zip') || null,
+        county: get('county') || null,
+        description: get('description') || null,
+        imageUrl,
+        website: get('website') || null,
+        phone: get('phone') || null,
+        live,
+        latitude: latitude || null,
+        longitude: longitude || null,
+        featureIds,
+        googlePlaceId: get('google_place_id') || null,
+        googleRating: get('google_rating') || null,
+        googleReviewCount: parseInt(get('google_review_count') || '0', 10) || null,
+        googleDescription: get('google_description') || null,
+        googlePhotos: null, // photos commented out pending R2 migration
+        googleReviews: parseJsonField(get('google_reviews')),
+        googlePriceLevel: get('google_price_level') || null,
+        googleDataUpdatedAt: get('google_data_updated_at') || null,
+        googleMapsUrl: get('google_maps_url') || null,
+        googleTypes: parseJsonField(get('google_types')),
+        formattedAddressGoogle: get('formatted_address_google') || null,
+        businessStatus: get('business_status') || null,
+        formattedPhone: get('formatted_phone') || null,
+        websiteVerified: parseBoolField(get('website_verified')),
+        contactDataFetchedAt: get('contact_data_fetched_at') || null,
+        openingHoursJson: parseJsonField(get('opening_hours_json')),
+        hours: parseJsonField(get('opening_hours_json')),
+        aiGeneratedDescription: get('ai_generated_description') || null,
+        descriptionSource: get('description_source') || null,
+        descriptionGeneratedAt: get('description_generated_at') || null,
+        descriptionValidated: parseBoolField(get('description_validated')),
+      } as unknown as Bookstore);
+    }
   }
 
-  console.log(`[GoogleSheets] Loaded ${bookstores.length} live bookstores`);
+  console.log(`[GoogleSheets] Loaded ${bookstores.length} live bookstores (listingOnly=${listingOnly})`);
   return bookstores;
 }
 

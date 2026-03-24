@@ -15,15 +15,34 @@ let cacheTimestamp: number = 0;
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 /**
- * Fetch raw rows from Google Sheets, cached in Vercel's shared Data Cache.
- * This survives cold starts and is shared across all Lambda instances,
- * so the Sheets API is called at most once per hour globally.
+ * Fetch stripped listing rows from Google Sheets, cached in Vercel's shared
+ * Data Cache (survives cold starts, shared across Lambda instances).
+ * Detail-page-only fields are omitted so the payload stays under the 2 MB limit.
  */
 const getCachedRawBookstores = unstable_cache(
-  () => getBookstoresFromSheets(),
+  () => getBookstoresFromSheets(true), // listingOnly=true — strips detail fields
   ['bookstores-raw'],
   { revalidate: 3600 } // 1 hour
 );
+
+/**
+ * Full bookstore data for detail pages — all columns included.
+ * Stored in module-level memory only (no unstable_cache) so there is no 2 MB limit.
+ */
+let fullDataCache: Bookstore[] | null = null;
+let fullDataTimestamp = 0;
+
+async function fetchFullBookstoreData(): Promise<Bookstore[]> {
+  const now = Date.now();
+  if (fullDataCache && (now - fullDataTimestamp) < CACHE_TTL_MS) {
+    return fullDataCache;
+  }
+  console.log('[BookstoreData] Fetching full bookstore data for detail pages...');
+  const rows = await getBookstoresFromSheets(false); // listingOnly=false — all columns
+  fullDataCache = rows.map(mapBookstoreData);
+  fullDataTimestamp = now;
+  return fullDataCache;
+}
 
 export { getStateAbbrev, getStateDisplayName, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 
@@ -371,12 +390,16 @@ export async function getBookstoreBySlug(slug: string): Promise<Bookstore | null
 }
 
 /**
- * Get bookstore by slug with full details.
- * Google Sheets loads all columns at once, so the main cache already
- * contains every field — no separate "full detail" fetch needed.
+ * Get bookstore by slug with full details (contact info, reviews, hours, etc.).
+ * Uses the full-data cache which is NOT subject to the unstable_cache 2 MB limit.
  */
 export async function getBookstoreBySlugFull(slug: string): Promise<Bookstore | null> {
-  return getBookstoreBySlug(slug);
+  const bookstores = await fetchFullBookstoreData();
+  const lowerSlug = slug.toLowerCase();
+  return (
+    bookstores.find(b => (b.slug || generateSlugFromName(b.name)).toLowerCase() === lowerSlug) ??
+    null
+  );
 }
 
 /**
@@ -550,10 +573,10 @@ export async function getCountByState(state: string): Promise<number> {
 }
 
 /**
- * Get bookstore by ID.
- * Uses the in-memory cache — all fields are already loaded from Sheets.
+ * Get bookstore by ID with full details.
+ * Uses the full-data cache (no 2 MB limit).
  */
 export async function getBookstoreById(id: number): Promise<Bookstore | null> {
-  const data = await getProcessedBookstoreData();
-  return data.byId[id] ?? null;
+  const bookstores = await fetchFullBookstoreData();
+  return bookstores.find(b => b.id === id) ?? null;
 }
