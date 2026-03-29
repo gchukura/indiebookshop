@@ -8,7 +8,7 @@ For serverless functions to save form submissions, you need:
 
 1. **`SUPABASE_URL`** - Your Supabase project URL
    - Format: `https://[project-id].supabase.co`
-   - Example: `https://imhpnaucjyswcgpwrvdz.supabase.co`
+   - Example: `https://your-project-id.supabase.co`
 
 2. **`SUPABASE_SERVICE_ROLE_KEY`** - Service role key (bypasses RLS)
    - Format: Long JWT token starting with `eyJ...`

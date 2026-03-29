@@ -1040,9 +1040,17 @@ export async function registerRoutes(app: Express, storageImpl: IStorage = stora
       const sanitizedMessage = message.trim().slice(0, 5000);
       const sanitizedReason = reason.trim();
       
-      // Send email to info@bluestonebrands.com
+      // Send email to configured contact address
+      const contactEmail = process.env.CONTACT_FORM_EMAIL;
+      if (!contactEmail) {
+        console.error('CONTACT_FORM_EMAIL environment variable is not configured');
+        return res.status(500).json({
+          message: "Contact form is not configured. Please try again later."
+        });
+      }
+
       const emailSent = await sendContactFormEmail(
-        'info@bluestonebrands.com',
+        contactEmail,
         {
           name: sanitizedName,
           email: sanitizedEmail,

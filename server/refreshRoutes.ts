@@ -4,6 +4,7 @@
 
 import type { Express } from "express";
 import { DataRefreshManager } from "./dataRefresh";
+import * as crypto from "crypto";
 
 // Refresh API key for basic security
 // In production, use a proper authentication system
@@ -103,7 +104,19 @@ export function registerRefreshRoutes(app: Express, refreshManager: DataRefreshM
       });
     }
     
-    if (!apiKey || apiKey !== validApiKey) {
+    if (!apiKey) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or missing API key'
+      });
+    }
+
+    // Use timing-safe comparison to prevent timing attacks
+    const apiKeyBuffer = Buffer.from(apiKey);
+    const validKeyBuffer = Buffer.from(validApiKey);
+
+    if (apiKeyBuffer.length !== validKeyBuffer.length ||
+        !crypto.timingSafeEqual(apiKeyBuffer, validKeyBuffer)) {
       return res.status(401).json({
         success: false,
         message: 'Invalid or missing API key'

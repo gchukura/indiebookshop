@@ -15,13 +15,17 @@ interface SheetsConfig {
   eventsRange: string;
 }
 
-// Get spreadsheet ID from environment variable or use default
-// You can set GOOGLE_SHEETS_ID as an environment variable in your Replit Secrets
-const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID || '1Qa3AW5Zmu0X4yT3fXjmoU62Drqz0oMKRsXsm3a7JiQs';
+// Get spreadsheet ID from environment variable (required)
+// Set GOOGLE_SHEETS_ID in your environment variables
+const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_ID;
+
+if (!SPREADSHEET_ID && process.env.USE_GOOGLE_SHEETS === 'true') {
+  console.error('GOOGLE_SHEETS_ID environment variable is required when USE_GOOGLE_SHEETS is enabled');
+}
 
 // Default configuration
 const DEFAULT_CONFIG: SheetsConfig = {
-  spreadsheetId: SPREADSHEET_ID,
+  spreadsheetId: SPREADSHEET_ID || '',
   bookshopRange: 'Bookstores!A2:O', // Added an additional column for 'live' field
   featuresRange: 'Features!A2:B',    // Assumes headers are in row 1
   eventsRange: 'Events!A2:F'         // Assumes headers are in row 1
