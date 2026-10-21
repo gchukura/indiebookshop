@@ -1,0 +1,91 @@
+# CLAUDE.md — indiebookshop.com
+
+Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App Router** (React 18, Tailwind 3, shadcn/Radix UI), deployed on Vercel. Data comes from a **Google Sheet** — there is no database.
+
+## Do not touch (pending cleanup)
+- `client/`, `server/`, `api.old-vite/` — dead Vite + Express app. Never import from them.
+- `scripts/` — one-off migration/enrichment scripts, many still target Supabase.
+- Also legacy: root `tsconfig.json` (points at client/server), `drizzle.config.ts`, `migrations/`, `supabase/`, `*.old*` files, root `test-*.sh`/`debug-*.sh`, root report `*.md` files.
+
+## Commands
+- `npm run dev:next` — dev server (`npm run dev` starts the dead Express app — don't use it)
+- `npm run build` (= `next build`; needs Sheet credentials, it fetches data and prerenders every shop)
+- `npm run start:next` — serve the build
+- Type-check: `npx tsc -p tsconfig.next.json --noEmit` (`npm run check` uses the legacy tsconfig — don't use it)
+- No test runner or linter configured yet.
+
+## Env vars (`.env.local`)
+| Var | Used by | Required |
+|---|---|---|
+| `GOOGLE_SERVICE_ACCOUNT_CREDENTIALS` | `lib/google-sheets-client.ts` — single-line JSON with `client_email`, `private_key` | yes |
+| `GOOGLE_SHEETS_ID` | Sheet id (falls back to a hard-coded id) | recommended |
+| `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` (or `MAPBOX_ACCESS_TOKEN`) | `/api/config`, `DirectoryClient`, `SingleLocationMap` | for maps |
+| `SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL` | contact, submit, events emails | for forms |
+| `GOOGLE_PLACES_API_KEY` | `/api/place-photo` proxy | optional |
+| `NEXT_PUBLIC_BASE_URL` | only `lib/seo-utils.ts` (currently unused) | no |
+
+## Routes
+| Route | File | Notes |
+|---|---|---|
+| `/` | `app/page.tsx` | server, `revalidate=3600`; featured, popular, browse-by-state |
+| `/directory` | `app/directory/page.tsx` + `DirectoryClient.tsx` | server page reads `?state&city&county&features`, client list + Mapbox map |
+| `/bookshop/[slug]` | `app/bookshop/[slug]/page.tsx` + `BookshopDetailClient.tsx` | all slugs via `generateStaticParams`, `dynamicParams=true`, `revalidate=86400`; numeric id / non-canonical slug → client-side `router.replace` |
+| `/about`, `/blog` | static server pages | blog is a placeholder |
+| `/events` | `app/events/page.tsx` (`'use client'`) + `EventsClient.tsx` | fetches `GET /api/events` and `/api/bookstores`, neither exists (only `POST /api/events`) |
+| `/submit`, `/submit-event`, `/contact` | client pages with forms | |
+| `/sitemap.xml`, `/robots.txt` | `app/sitemap.ts`, `app/robots.ts` | sitemap still emits `/state/`, `/city/`, `/county/`, `/features/` URLs that have no routes (404) |
+| `not-found`, `error`, `loading` | `app/*.tsx` | |
+
+API (`app/api/`): `bookstores/filter` (GET, listing data), `bookstores/submit` (POST → SendGrid), `bookstores/[id]/events` (GET), `events` (POST → SendGrid), `contact` (POST → `lib/contact-email.ts`), `newsletter-signup` (POST → appends to Sheet "Newsletter" tab), `features` (GET), `config` (GET Mapbox token), `place-photo` (GET Google Places photo proxy).
+
+Redirects: `next.config.mjs` maps `/bookstore/:id`, `/submit-bookshop`, `/directory/{state,city,county,category}/...` to current URLs; `vercel.json` redirects apex → `www`.
+
+## Data flow
+```
+Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
+  → lib/google-sheets-client.ts   getBookstoresFromSheets(listingOnly), getFeaturesFromSheets, getEventsFromSheets, appendNewsletterSignup
+  → lib/data/bookstore-data.ts    caches + processBookstoreData → indexes
+  → server pages / API routes     (client components get data as props or via /api/*)
+```
+- The Sheets client maps header names (lowercased) to columns, skips rows with no name or `#ERROR` cells, drops `live=false`, parses `feature_ids` (`{1,2}`, `[1,2]` or `1,2`), JSON columns, and booleans. Rows are cast `as unknown as Bookstore` — no runtime validation.
+- **Two caches, on purpose:**
+  1. **Listing cache** — `getCachedRawBookstores = unstable_cache(getBookstoresFromSheets(true), revalidate 3600)`. Detail-only fields (street, zip, phone, website, reviews, hours, google_*, AI description) are nulled and description cut to 150 chars so the payload fits Vercel's **2 MB unstable_cache entry limit**. It lives in Vercel's shared Data Cache, so it survives cold starts. `getProcessedBookstoreData()` (wrapped in React `cache()` plus a 1h module-level memo) builds on this and powers home, directory, sitemap, filter API, related shops.
+  2. **Full cache** — `fetchFullBookstoreData()` calls `getBookstoresFromSheets(false)` and keeps all columns in a module-level variable (1h TTL). No size limit, but per-Lambda: a cold detail-page render fetches the whole Sheet. Used only by `getBookstoreBySlugFull` and `getBookstoreById` (detail pages).
+- Don't add detail fields to the listing record — it will blow the 2 MB limit. Detail data must come from the full cache.
+- `ProcessedBookstoreData` indexes: `byId`, `bySlug` (lowercased), `byState` (key = lowercase state abbrev), `byCity`/`byCounty` (key = `` `${name}-${st}` `` lowercased — breaks for hyphenated names in `getCitiesWithState`), `byFeature` (feature id string), plus `featured` (random 8), `popular` (top 15 by rating then review count). `getFeaturedBookstores` reshuffles on every call.
+- Slugs: `bookstore.slug` from the Sheet, else `generateSlugFromName(name)`. State conversion: `lib/state-utils.ts` (`getStateAbbrev`, `getStateDisplayName`).
+- Photos are off: `googlePhotos` is always null and `image_url` values on `supabase.co` are suppressed pending the R2 migration. `lib/bookshop-image.ts#getBookshopThumbnailUrl` returns `imageUrl`, else a `/api/place-photo` URL, else null (callers skip the image). `next.config.mjs` allows images from `*.r2.dev` and `maps.googleapis.com`.
+
+## Bookstore type
+`Bookstore` is inferred from the drizzle table in `shared/schema.ts` (`typeof bookstores.$inferSelect`); drizzle is only there for the type now. `Feature`, `Event`, and zod `insert*Schema`s live there too. Fields and their Sheet columns (`Bookstores` tab):
+- Core: `id`, `name`, `slug`, `street`, `city`, `state`, `zip`, `county`, `description`, `imageUrl` (`image_url`), `website`, `phone`, `live`
+- Location: `latitude`/`longitude` — strings, from `lat_numeric`/`lng_numeric`, else `latitude`/`longitude`
+- `featureIds` (`feature_ids`) → ids in the `Features` tab (id, name, slug, description, keywords, icon)
+- Google Places enrichment: `googlePlaceId`, `googleRating` (string), `googleReviewCount`, `googleDescription`, `googlePhotos` (null for now), `googleReviews` (JSON), `googlePriceLevel`, `googleDataUpdatedAt`, `googleMapsUrl`, `googleTypes` (JSON), `formattedAddressGoogle`, `businessStatus`, `formattedPhone`, `websiteVerified`, `contactDataFetchedAt`
+- Hours: `openingHoursJson` and `hours` both come from `opening_hours_json` (`{ open_now, weekday_text[], periods[] }`)
+- AI copy: `aiGeneratedDescription`, `descriptionSource`, `descriptionGeneratedAt`, `descriptionValidated`
+- Description priority on detail pages: `description` → `googleDescription` → validated `aiGeneratedDescription` → template. This logic is duplicated in `page.tsx` generateMetadata and `BookshopDetailClient.tsx`.
+
+`Event` (`Events` tab): `id, bookshopId, title, description, date, time`.
+
+## Key files
+- `components/Header.tsx`, `Footer.tsx` (client; footer posts the newsletter form), `Logo.tsx`
+- `components/StructuredData.tsx` — JSON-LD (`LocalBusinessSchema`, `BreadcrumbSchema`, etc.)
+- `components/BookshopImage.tsx`, `RelatedBookshops.tsx`, `SingleLocationMap.tsx` (Mapbox), forms `BookshopSubmissionForm.tsx`, `EventSubmissionForm.tsx`
+- `components/ui/` — shadcn primitives. `components/Providers.tsx` wraps the app in React Query (`lib/queryClient.ts`); used by the events page, the two forms, and `RelatedBookshops`.
+- Imported by nothing (candidates for removal): `lib/seo-utils.ts`, `lib/bookstore-content-utils.ts`, `components/templates/`, `components/StateFlag.tsx`, `components/ads/*` (AdSense, not rendered), `lib/supabase.ts` (commented out).
+
+## Brand
+- Colors: brown `#5F4B32` (headings), teal `#2A6B7C` (primary actions), orange `#E16D3D` (accent/CTAs), cream `#F7F3E8` (section backgrounds). Hover shades in use: `#1d5a6a` (teal), `#d06a4f` (orange). Also in `lib/constants.ts` `COLORS`.
+- Today these are hard-coded hex classes (`text-[#5F4B32]`); `app/globals.css` still has the default shadcn slate theme, so `bg-primary` is navy, not brand.
+- Fonts: Libre Baskerville (`font-serif`, headings) and Open Sans (`font-sans`, body) per `tailwind.config.ts`. `app/layout.tsx` currently loads only Inter via `next/font`, so the brand fonts don't actually load.
+- Type scale tokens in tailwind: `text-display`, `text-h1`…`text-h4`, `text-body-lg`, `text-body`, `text-body-sm`, `text-label`, `text-meta`.
+
+## Conventions
+- Server components by default. Use `'use client'` only for interactive islands (maps, forms, filters, menus), and pass data down as props instead of fetching after mount.
+- Import data through `@/lib/data/bookstore-data`, never call the Sheets client from pages directly (except events/features until they get cached getters).
+- Path aliases: `@/*` → repo root, `@shared/*` → `shared/`.
+- Once brand tokens exist in `globals.css`/`tailwind.config.ts`, no new hard-coded hex colors. Use the token classes.
+- Mapbox/`mapbox-gl` is heavy, so load map components with `next/dynamic({ ssr: false })`.
+- Keep the 2 MB `unstable_cache` limit in mind for anything you cache.
+- Before you finish, run `npx tsc -p tsconfig.next.json --noEmit` and `npm run build`.
