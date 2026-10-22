@@ -13,7 +13,6 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 - Type-check: `npm run check` (`tsc -p tsconfig.json --noEmit`)
 - `node scripts/fetch-google-photos.mjs` — fetch Google photos into R2 for shops that lack one (see Photos below)
 - `npx tsx scripts/test-interactive-elements.ts [url]` — Playwright smoke test of buttons, search, and forms
-- `scripts/setup-google-sheets.sh <service-account.json>` — prints the credentials JSON as a one-line env value
 - No test runner or linter configured yet.
 
 ## Env vars (`.env.local`)
