@@ -14,8 +14,7 @@ Setup and installation guides:
 - **SENDGRID_CONTACT_FORM_SETUP.md** - SendGrid email configuration
 - **CREATE_EVENTS_TABLE.md** - How to create the events table in Supabase
 - **VERIFY_SUPABASE_ENV.md** - Supabase environment variable verification
-- **TEST_RATE_LIMITING.md** - Rate limiting testing guide
-- **VERCEL_RATE_LIMITING.md** - Vercel rate limiting configuration
+- **RATE_LIMITING.md** - Rate limiting and honeypot on form endpoints
 - **SMOKE_TESTING.md** - Smoke testing procedures
 
 ### `/guides`
