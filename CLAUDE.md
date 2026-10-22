@@ -3,14 +3,17 @@
 Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App Router** (React 18, Tailwind 3, shadcn/Radix UI), deployed on Vercel. Data comes from a **Google Sheet** — there is no database.
 
 ## Do not touch (pending cleanup)
-- `scripts/` — one-off migration/enrichment scripts, many still target Supabase. Exception: `scripts/fetch-google-photos.mjs` is current (see Photos below).
-- Also legacy: `migrations/`, `supabase/`, root report `*.md` files.
+- `scripts/archive/` — old Supabase, Vercel Blob, and Vite-era scripts, kept for reference only. They don't run against the current setup.
+- Root report `*.md` files (legacy notes).
 
 ## Commands
 - `npm run dev` — dev server
 - `npm run build` (= `next build`; needs Sheet credentials, it fetches data and prerenders every shop)
 - `npm run start` — serve the build
 - Type-check: `npm run check` (`tsc -p tsconfig.json --noEmit`)
+- `node scripts/fetch-google-photos.mjs` — fetch Google photos into R2 for shops that lack one (see Photos below)
+- `npx tsx scripts/test-interactive-elements.ts [url]` — Playwright smoke test of buttons, search, and forms
+- `scripts/setup-google-sheets.sh <service-account.json>` — prints the credentials JSON as a one-line env value
 - No test runner or linter configured yet.
 
 ## Env vars (`.env.local`)
