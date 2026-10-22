@@ -3,7 +3,6 @@ import {
   getProcessedBookstoreData,
   generateSlugFromName,
 } from '@/lib/data/bookstore-data';
-import { safeMapKeys, safeMapGet } from '@/lib/data/cache-utils';
 
 /**
  * Generate comprehensive sitemap.xml for SEO
@@ -12,6 +11,8 @@ import { safeMapKeys, safeMapGet } from '@/lib/data/cache-utils';
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.indiebookshop.com';
+  // One timestamp per sitemap run so entries don't differ by milliseconds
+  const lastModified = new Date();
 
   try {
     // Use shared processed data (same cache as all pages)
@@ -24,112 +25,64 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const staticPages: MetadataRoute.Sitemap = [
       {
         url: baseUrl,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'daily',
         priority: 1.0,
       },
       {
         url: `${baseUrl}/directory`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'daily',
         priority: 0.9,
       },
       {
         url: `${baseUrl}/about`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'monthly',
         priority: 0.5,
       },
       {
         url: `${baseUrl}/contact`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'monthly',
         priority: 0.5,
       },
       {
         url: `${baseUrl}/events`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'weekly',
         priority: 0.6,
       },
       {
         url: `${baseUrl}/blog`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'weekly',
         priority: 0.6,
       },
       {
         url: `${baseUrl}/submit`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'monthly',
         priority: 0.4,
       },
       {
         url: `${baseUrl}/submit-event`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'monthly',
         priority: 0.4,
       },
     ];
 
     // ===========================================
-    // STATE PAGES (only states with bookstores)
+    // STATE-FILTERED DIRECTORY PAGES
     // ===========================================
 
-    const statePages: MetadataRoute.Sitemap = data.states.map((state) => ({
-      url: `${baseUrl}/state/${encodeURIComponent(state.toLowerCase().replace(/\s+/g, '-'))}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    }));
-
-    // Also add state-filtered directory pages for backward compatibility
     const stateDirectoryPages: MetadataRoute.Sitemap = data.states.map((state) => ({
       url: `${baseUrl}/directory?state=${encodeURIComponent(state)}`,
-      lastModified: new Date(),
+      lastModified,
       changeFrequency: 'weekly' as const,
       priority: 0.75,
     }));
-
-    // ===========================================
-    // CITY PAGES (only cities with bookstores)
-    // ===========================================
-
-    const cityPages: MetadataRoute.Sitemap = [];
-    for (const key of safeMapKeys(data.byCity)) {
-      const bookstores = safeMapGet(data.byCity, key) || [];
-      if (bookstores.length > 0) {
-        const [city, state] = key.split('-');
-        const citySlug = city.replace(/\s+/g, '-');
-        const stateSlug = state.replace(/\s+/g, '-');
-        cityPages.push({
-          url: `${baseUrl}/city/${stateSlug}/${citySlug}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.7,
-        });
-      }
-    }
-
-    // ===========================================
-    // COUNTY PAGES (only counties with bookstores)
-    // ===========================================
-
-    const countyPages: MetadataRoute.Sitemap = [];
-    for (const key of safeMapKeys(data.byCounty)) {
-      const bookstores = safeMapGet(data.byCounty, key) || [];
-      if (bookstores.length > 0) {
-        const [county, state] = key.split('-');
-        const countySlug = county.replace(/\s+/g, '-');
-        const stateSlug = state.replace(/\s+/g, '-');
-        countyPages.push({
-          url: `${baseUrl}/county/${stateSlug}/${countySlug}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.65,
-        });
-      }
-    }
 
     // ===========================================
     // BOOKSHOP DETAIL PAGES (deduplicated by slug)
@@ -148,42 +101,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
       .map(({ slug }) => ({
         url: `${baseUrl}/bookshop/${slug}`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'monthly' as const,
         priority: 0.7,
       }));
 
     // ===========================================
-    // FEATURE PAGES (if feature landing pages exist)
-    // ===========================================
-
-    const featurePages: MetadataRoute.Sitemap = [];
-    for (const key of safeMapKeys(data.byFeature)) {
-      const bookstores = safeMapGet(data.byFeature, key) || [];
-      if (bookstores.length > 0) {
-        featurePages.push({
-          url: `${baseUrl}/features/${key}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly',
-          priority: 0.6,
-        });
-      }
-    }
-
-    // ===========================================
     // COMBINE ALL PAGES
     // ===========================================
 
-    console.log(`[Sitemap] Generated: ${staticPages.length} static, ${statePages.length} states, ${cityPages.length} cities, ${countyPages.length} counties, ${bookshopPages.length} bookshops`);
+    console.log(`[Sitemap] Generated: ${staticPages.length} static, ${stateDirectoryPages.length} state directories, ${bookshopPages.length} bookshops`);
 
     return [
       ...staticPages,
-      ...statePages,
       ...stateDirectoryPages,
-      ...cityPages,
-      ...countyPages,
       ...bookshopPages,
-      ...featurePages,
     ];
   } catch (error) {
     console.error('Error generating sitemap:', error);
@@ -192,13 +124,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [
       {
         url: baseUrl,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'daily',
         priority: 1.0,
       },
       {
         url: `${baseUrl}/directory`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: 'daily',
         priority: 0.9,
       },
