@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getFeaturedBookstores, getPopularBookstores, getStates, generateSlugFromName, getStateDisplayName } from '@/lib/data/bookstore-data';
-import { getBookshopThumbnailUrl } from '@/lib/bookshop-image';
+import { getBookshopImageUrl, getPlaceholderUrl } from '@/lib/bookshop-image';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
 import { OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
@@ -188,22 +188,21 @@ export default async function HomePage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                 {featuredBookshops.map((bookshop) => {
-                  const thumbUrl = getBookshopThumbnailUrl(bookshop, 400);
+                  const thumbUrl = getBookshopImageUrl(bookshop);
                   return (
                   <Link
                     key={bookshop.id}
                     href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`}
                     className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block group"
                   >
-                    {thumbUrl && (
                     <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
                       <BookshopImage
                         src={thumbUrl}
                         alt={`${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        fallbackSrc={getPlaceholderUrl(bookshop.id, 'thumb')}
                       />
                     </div>
-                    )}
                     <div className="p-4 md:p-5">
                       <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-2 hover:text-[#E16D3D] leading-tight line-clamp-2">
                         {bookshop.name}
@@ -248,22 +247,21 @@ export default async function HomePage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                 {popularBookshops.map((bookshop) => {
-                  const thumbUrl = getBookshopThumbnailUrl(bookshop, 400);
+                  const thumbUrl = getBookshopImageUrl(bookshop);
                   return (
                   <Link
                     key={bookshop.id}
                     href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`}
                     className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block group"
                   >
-                    {thumbUrl && (
                     <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
                       <BookshopImage
                         src={thumbUrl}
                         alt={`${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        fallbackSrc={getPlaceholderUrl(bookshop.id, 'thumb')}
                       />
                     </div>
-                    )}
                     <div className="p-4 md:p-5">
                       <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-2 hover:text-[#E16D3D] leading-tight line-clamp-2">
                         {bookshop.name}

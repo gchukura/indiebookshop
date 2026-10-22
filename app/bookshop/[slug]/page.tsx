@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound, permanentRedirect, unstable_rethrow } from 'next/navigation';
 import { getBookstoreBySlugFull, getBookstoreById, getAllBookstores, getRelatedBookstores, generateSlugFromName } from '@/lib/data/bookstore-data';
 import BookshopDetailClient from './BookshopDetailClient';
+import { getBookshopPhotoUrl } from '@/lib/bookshop-image';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -91,9 +92,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description = lastSpace > 280 ? truncated.substring(0, lastSpace) + '...' : truncated + '...';
     }
 
-    // Fallback OG image if bookstore doesn't have one
-    const ogImage = bookstore.imageUrl
-      ? [{ url: bookstore.imageUrl, width: 1200, height: 630, alt: `${bookstore.name} storefront` }]
+    // The shop's own photo only (never a placeholder), else the site default
+    const photoUrl = getBookshopPhotoUrl(bookstore);
+    const ogImage = photoUrl
+      ? [{ url: photoUrl, alt: `${bookstore.name} in ${bookstore.city}, ${bookstore.state}` }]
       : [{ url: 'https://www.indiebookshop.com/og-default.jpg', width: 1200, height: 630, alt: 'IndiebookShop.com - Discover Independent Bookstores' }];
 
     return {

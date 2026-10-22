@@ -17,21 +17,15 @@ const nextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
 
-  // Image optimization configuration
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'maps.googleapis.com',
-      },
-      // Cloudflare R2 — primary photo host
-      // Free r2.dev subdomain (enable public access in R2 dashboard):
-      {
-        protocol: 'https',
-        hostname: '*.r2.dev',
-      },
-      // Supabase removed — all image_url values suppressed server-side in google-sheets-client.ts
-    ],
+  // Shop photos are stored in Cloudflare R2 and served same-origin at /photos/...
+  // so they're cached by Vercel's CDN instead of hitting the rate-limited r2.dev URL.
+  async rewrites() {
+    const r2 = (process.env.R2_PUBLIC_URL || '').replace(/\/$/, '');
+    if (!r2) {
+      console.warn('[next.config] R2_PUBLIC_URL is not set; /photos/* will 404');
+      return [];
+    }
+    return [{ source: '/photos/:path*', destination: `${r2}/photos/:path*` }];
   },
 
   // Redirects for legacy URLs (maintaining SEO)
@@ -110,6 +104,16 @@ const nextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        // Placeholder photos (public/placeholders); a week, so swapping one out still propagates
+        source: '/placeholders/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=604800',
           },
         ],
       },

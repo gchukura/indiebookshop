@@ -25,6 +25,8 @@ export const bookstores = pgTable("bookstores", {
   county: text("county"),  // Added county field for better SEO landing pages
   description: text("description").notNull(),
   imageUrl: text("image_url"),
+  photoAttribution: text("photo_attribution"),  // Photographer name for imageUrl (Google Places author)
+  photoAttributionUrl: text("photo_attribution_url"),
   website: text("website"),
   phone: text("phone"),
   hours: json("hours").$type<Record<string, string>>(),
