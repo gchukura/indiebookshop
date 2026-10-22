@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect, unstable_rethrow } from 'next/navigation';
 import { getBookstoreBySlugFull, getBookstoreById, getAllBookstores, getRelatedBookstores, generateSlugFromName } from '@/lib/data/bookstore-data';
 import BookshopDetailClient from './BookshopDetailClient';
 
@@ -172,12 +172,10 @@ export default async function BookshopPage({ params }: Props) {
       notFound();
     }
 
-    // If numeric ID was used, redirect to canonical slug-based URL
-    // Use slug from database if available, otherwise generate
-    const canonicalSlug = bookstore.slug || generateSlugFromName(bookstore.name);
-    if (isNumericId && canonicalSlug) {
-      // Next.js will handle the redirect via middleware or we can use next/navigation redirect
-      // For now, we'll pass the canonical slug to the client for potential redirect
+    // Numeric IDs, ID-prefixed slugs and case variants all 308 to the canonical lowercase slug
+    const canonicalSlug = (bookstore.slug || generateSlugFromName(bookstore.name)).toLowerCase();
+    if (canonicalSlug && decodedSlug !== canonicalSlug) {
+      permanentRedirect(`/bookshop/${canonicalSlug}`);
     }
 
     // Fetch related bookshops for internal linking
@@ -185,6 +183,8 @@ export default async function BookshopPage({ params }: Props) {
 
     return <BookshopDetailClient bookstore={bookstore} canonicalSlug={canonicalSlug} relatedBookshops={relatedBookshops} />;
   } catch (error) {
+    // Let Next's redirect/notFound signals through instead of turning them into a 404
+    unstable_rethrow(error);
     console.error('Error loading bookshop:', error);
     notFound();
   }

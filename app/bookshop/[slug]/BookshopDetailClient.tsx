@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 import { MapPin, Phone, Globe, Star, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { Bookstore } from '@/shared/schema';
@@ -25,20 +24,7 @@ interface GoogleReview {
 }
 
 export default function BookshopDetailClient({ bookstore, canonicalSlug, relatedBookshops = [] }: BookshopDetailClientProps) {
-  const router = useRouter();
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-
-  // Redirect to canonical URL if needed
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const currentPath = window.location.pathname;
-      const canonicalPath = `/bookshop/${canonicalSlug}`;
-
-      if (currentPath !== canonicalPath && canonicalSlug) {
-        router.replace(canonicalPath);
-      }
-    }
-  }, [canonicalSlug, router]);
 
   // Priority-based description for UI display (bookstores.description first)
   const displayDescription =

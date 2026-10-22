@@ -1,12 +1,24 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Libre_Baskerville, Open_Sans } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/Providers';
 
-const inter = Inter({ subsets: ['latin'] });
+// Brand fonts, exposed as CSS variables consumed by tailwind.config.ts fontFamily
+const libreBaskerville = Libre_Baskerville({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-serif',
+  display: 'swap',
+});
+
+const openSans = Open_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
 
 // Configure viewport with proper accessibility settings
 export const viewport: Viewport = {
@@ -67,11 +79,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${libreBaskerville.variable} ${openSans.variable}`}>
       <head>
         {/* AdSense script omitted until ad tech is implemented */}
       </head>
-      <body className={inter.className}>
+      <body className="font-sans">
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Header />
