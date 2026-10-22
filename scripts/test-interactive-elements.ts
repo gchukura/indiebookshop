@@ -3,11 +3,11 @@
  * Verifies buttons, search, forms, and navigation work.
  *
  * Usage:
- *   npm run test:interactive
- *   BASE_URL=https://staging.example.com npm run test:interactive
+ *   npx tsx scripts/test-interactive-elements.ts
+ *   BASE_URL=https://staging.example.com npx tsx scripts/test-interactive-elements.ts
  *   npx tsx scripts/test-interactive-elements.ts https://your-domain.com
  *
- * Requires the site to be running (e.g. npm run dev:next).
+ * Requires the site to be running (e.g. npm run dev).
  * First time: run `npx playwright install chromium` to install the browser.
  * Uses Playwright Chromium in headless mode.
  */
