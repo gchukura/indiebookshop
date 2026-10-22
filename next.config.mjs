@@ -108,6 +108,17 @@ const nextConfig = {
         ],
       },
       {
+        // Let Vercel's CDN cache the /photos rewrite to R2 using R2's Cache-Control
+        // (projects created before April 2026 don't cache external rewrites by default)
+        source: '/photos/:path*',
+        headers: [
+          {
+            key: 'x-vercel-enable-rewrite-caching',
+            value: '1',
+          },
+        ],
+      },
+      {
         // Placeholder photos (public/placeholders); a week, so swapping one out still propagates
         source: '/placeholders/:path*',
         headers: [

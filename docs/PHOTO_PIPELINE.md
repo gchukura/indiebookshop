@@ -94,5 +94,5 @@ Follow-ups:
 - Re-run the script for new shops after they get a place ID. It skips shops already on R2.
 - Refresh the 8 stale place IDs, e.g. with a Text Search by name and city.
 - Delete `.github/workflows/refresh-google-photos.yml` and archive the Supabase/Blob photo scripts (Prompt 4).
-- After deploy, check that `/photos/...` responses show `x-vercel-cache: HIT` on the second request. If the CDN doesn't cache the external rewrite, add `Vercel-CDN-Cache-Control` in `next.config.mjs` headers for `/photos/:path*`.
+- The project predates Vercel's April 2026 default of caching external rewrites, so `next.config.mjs` sets `x-vercel-enable-rewrite-caching: 1` on `/photos/:path*`. Without it, every photo request went to r2.dev (`x-vercel-cache: MISS`).
 - Set a Google Cloud budget alert on the Places key.
