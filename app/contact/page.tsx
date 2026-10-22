@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import HoneypotField, { getHoneypotValue } from '@/components/HoneypotField';
 import type { Metadata } from 'next';
 
 export default function ContactPage() {
@@ -29,8 +30,9 @@ export default function ContactPage() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [validationError, setValidationError] = useState<string>('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const honeypot = getHoneypotValue(e.currentTarget);
     setValidationError('');
 
     if (!formData.name || formData.name.trim().length < 2) {
@@ -72,7 +74,7 @@ export default function ContactPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, website_url: honeypot }),
       });
 
       if (!response.ok) {
@@ -199,6 +201,7 @@ export default function ContactPage() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
+                <HoneypotField />
                 <div className="space-y-2">
                   <Label htmlFor="name" className="font-sans text-sm font-medium text-gray-700">
                     Your Name <span className="text-red-500">*</span>

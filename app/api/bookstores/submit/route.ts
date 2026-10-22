@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { isHoneypotTripped } from '@/lib/honeypot';
 
 const NOTIFY_EMAIL = 'info@bluestonebrands.com';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SUCCESS_MESSAGE = "Bookshop submission received. We'll review it shortly.";
 
 function escapeHtml(text: string): string {
   const map: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
@@ -9,8 +12,17 @@ function escapeHtml(text: string): string {
 }
 
 export async function POST(request: Request) {
+  const limited = await checkRateLimit(request, RATE_LIMITS.submit);
+  if (limited) return limited;
+
   try {
     const body = await request.json();
+
+    // Bot filled the hidden field: report success without sending anything
+    if (isHoneypotTripped(body)) {
+      return NextResponse.json({ message: SUCCESS_MESSAGE }, { status: 200 });
+    }
+
     const submitterEmail = typeof body?.submitterEmail === 'string' ? body.submitterEmail.trim().toLowerCase() : '';
     const submitterName = typeof body?.submitterName === 'string' ? body.submitterName.trim().slice(0, 100) : '';
     const isNewSubmission = body?.isNewSubmission !== false;
@@ -72,7 +84,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { message: "Bookshop submission received. We'll review it shortly." },
+      { message: SUCCESS_MESSAGE },
       { status: 201 }
     );
   } catch (e) {

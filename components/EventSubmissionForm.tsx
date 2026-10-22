@@ -18,6 +18,7 @@ import {
 import { format } from "date-fns";
 import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import HoneypotField, { getHoneypotValue } from "@/components/HoneypotField";
 // Supabase removed — bookshop list now comes from Google Sheets via API.
 type BookshopListItem = { id: number; name: string; city: string; state: string };
 
@@ -47,8 +48,9 @@ const EventSubmissionForm = () => {
 
   const selectedBookshop = bookshops.find(b => b.id === bookstoreId);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const honeypot = getHoneypotValue(e.currentTarget);
     
     // Validate required fields
     if (!bookstoreId) {
@@ -77,6 +79,7 @@ const EventSubmissionForm = () => {
           date: formattedDate,
           time,
           bookstoreId: bookstoreId,
+          website_url: honeypot,
         }),
       });
 
@@ -108,6 +111,7 @@ const EventSubmissionForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <HoneypotField />
       <div className="space-y-2">
         <Label htmlFor="title">Event Title</Label>
         <Input

@@ -1,12 +1,24 @@
 import { NextResponse } from 'next/server';
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { isHoneypotTripped } from '@/lib/honeypot';
 
 const NOTIFY_EMAIL = 'info@bluestonebrands.com';
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)(:([0-5]\d))?$/;
+const SUCCESS_MESSAGE = 'Event submitted successfully.';
 
 export async function POST(request: Request) {
+  const limited = await checkRateLimit(request, RATE_LIMITS.events);
+  if (limited) return limited;
+
   try {
     const body = await request.json();
+
+    // Bot filled the hidden field: report success without sending anything
+    if (isHoneypotTripped(body)) {
+      return NextResponse.json({ message: SUCCESS_MESSAGE }, { status: 200 });
+    }
+
     const title = typeof body?.title === 'string' ? body.title.trim() : '';
     const description = typeof body?.description === 'string' ? body.description.trim() : '';
     const date = typeof body?.date === 'string' ? body.date.trim() : '';
@@ -60,7 +72,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { message: 'Event submitted successfully.' },
+      { message: SUCCESS_MESSAGE },
       { status: 201 }
     );
   } catch (e) {
