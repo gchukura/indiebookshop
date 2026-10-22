@@ -2,7 +2,9 @@
 
 Investigation done 2026-10-22 against the live Sheet and www.indiebookshop.com. No app code was changed.
 
-**Summary:** none of the photo data we hold works today. The stored URLs point at a deleted Supabase project, and the stored Google photo references have expired. The only durable asset is `google_place_id`, which 2,112 of the 2,165 live shops have. Any fix has to fetch photos from Google again. The recommendation is option (c), a place-ID-based proxy.
+**Summary:** none of the photo data we held worked. The stored URLs pointed at a deleted Supabase project, and the stored Google photo references had expired. The only durable asset was `google_place_id`, which 2,112 of the 2,165 live shops have.
+
+**Decision (2026-10-22):** fetch one Google photo per shop once, by place ID, and keep it in Cloudflare R2 with the photographer credit. Shops without a photo show a generic book placeholder. Sections 1–2 are the original inventory; sections 3–5 describe what was built.
 
 ## 1. What the Sheet holds
 
@@ -40,65 +42,57 @@ A 20-row sample (every ~100th live row, ids 1 … 2974) matched these totals: Su
 
 The useful pieces to reuse: the place-ID → fresh-reference → bytes logic in `reenrich-photos-to-blob.mjs` and `migrate-photos-to-supabase.mjs`, and the S3/R2 upload code in `migrate-photos-to-r2.mjs`.
 
-## 3. Options for one photo per shop
+## 3. Options considered
 
-Shared facts:
-- **Backfill size:** ~2,112 shops with a place ID. At 800px JPEG (~100–150 KB each, estimated) that's ~250 MB.
-- **Google pricing:** Places API (New) photo media is roughly **$7 per 1,000** requests, with a monthly free allowance. Getting a photo name via Place Details costs one more request per shop, and fetching only the `photos` field may fall in a free SKU. These are list-price estimates; check https://developers.google.com/maps/billing-and-pricing/pricing before committing.
-- **Terms of service:** the Google Maps Platform terms don't allow storing Places content, photos included, beyond what they explicitly permit; `place_id` is the exception. They also require showing the photo's author attribution. Options (a) and (b) copy Google photos into permanent storage, which these terms don't allow. That's a policy risk for the owner to weigh (this isn't legal advice). It goes away if the photos are the shops' own (submitted or licensed).
+- **(a) R2 via a one-time backfill script.** About $15 once in Google calls, then ≈ $0/month (R2 free tier, zero egress). **Chosen.**
+- **(b) Vercel Blob via a backfill script.** The same Google cost, plus Vercel Pro (~$20/month), because the Hobby Blob limit was already hit in March.
+- **(c) Proxy Google photos at request time by place ID.** Nothing stored, but each CDN miss is billed, and images depend on Google being up.
 
-### (a) Cloudflare R2 via a backfill script
-Write a new script (the existing R2 one can't work): place ID → Place Details (New) `photos` → media → upload to R2 → write the `r2.dev` URL to `imageurl`.
-- **Cost:** about **$15 once** in Google calls (≈2,112 detail + 2,112 photo requests, less any free allowance). Storage stays in R2's free tier (10 GB, zero egress). ≈ $0/month afterwards.
-- **Effort:** ~1 day. Set up the R2 bucket and public access, write and run the script (~30–45 min at a polite rate), schedule it for new shops.
-- **Downsides:** the ToS issue above. A pipeline to keep running for new shops. Attribution has to be captured and stored separately.
+**Terms of service.** Google Maps Platform terms don't allow storing Places photos long-term, and they require showing the author's attribution. The owner accepted the storage risk. We store and show the attribution. If Google objects, switch the affected shops to option (c) or to owner-supplied photos.
 
-### (b) Vercel Blob via a backfill script
-Same as (a), uploading to Blob instead.
-- **Cost:** same one-time Google cost, but the Hobby limit was already hit in March, so this needs **Vercel Pro (~$20/month)** plus Blob usage.
-- **Effort:** ~0.5–1 day (the scripts mostly exist).
-- **Downsides:** the same ToS issue plus a recurring plan cost. No advantage over (a).
+## 4. What was built
 
-### (c) Proxy Google photos at request time, keyed by place ID (recommended)
-Change `app/api/place-photo/route.ts` to take `?place_id=` instead of a stored reference. It looks up a fresh photo name on each cache miss, so nothing expires and nothing is stored. The Vercel CDN caches the image response.
-- **Cost:** each CDN cache miss costs one Details lookup plus one photo request. With one width and a 30-day `s-maxage`, the worst case (every shop viewed in every region every month) is about 2,112 × a few regions ≈ **5–10k photo requests/month ≈ $35–70** before the free allowance. Real traffic is concentrated on fewer pages, so expect much less. Watch the Google Cloud billing report for the first month and set a budget alert.
-- **Effort:** ~0.5–1 day. No backfill, no bucket, no workflow. New shops get photos automatically.
-- **Downsides:** per-view cost scales with traffic. Images depend on Google being up. The first view after a cache miss is slower (~0.5–1 s, measured on the current proxy).
+**`scripts/fetch-google-photos.mjs`** (run locally, see the file header for flags):
+1. Reads the live rows in `Bookstores` that have a `google_place_id` and an `imageurl` not already on R2.
+2. Calls Place Details (New) with field mask `photos`. This is the free "IDs Only" SKU. It prefers a landscape photo among the first three, else the first.
+3. Downloads the photo at 1600px and re-encodes it with `sharp` to `photos/<id>-<sha1-10>.webp` (1200px, q72, ~100 KB) and `…-400.webp` (q70, ~15 KB).
+4. Uploads both to R2 with `Cache-Control: public, max-age=31536000, s-maxage=31536000, immutable`. The hash in the name means a new photo gets a new URL.
+5. Writes the r2.dev URL to `imageurl`, and the first author's name and profile URL to `photo_attribution` and `photo_attribution_url` (columns AS/AT). Writes are batched every 50 rows.
+- `--dry-run` makes Details calls only: no media downloads, uploads, or Sheet writes. `--limit N`, `--ids a,b`, `--force`, `--report <path>`.
+- Calls to Places are spaced 150 ms apart, with backoff on 429/5xx. A full run is ~2,055 photo media calls (billed SKU, ~$7 per 1,000) and takes ~15–20 minutes.
 
-**Pick: (c).** It's the only option that needs no new storage account, no backfill, and no refresh job. It avoids storing Google content and works for shops added later. If the monthly Google bill grows past what R2 would cost, switch to (a) for shops whose owners provide their own photos.
+**Serving.** `next.config.mjs` rewrites `/photos/:path*` to `${R2_PUBLIC_URL}/photos/:path*`. Photos are served from our own domain and cached by Vercel's CDN, so the rate-limited r2.dev URL is only hit on cache misses. DNS stays on Vercel, with no Cloudflare custom domain needed. `R2_PUBLIC_URL` must be set in Vercel's env at build time.
 
-## 4. Code changes for option (c)
+**App.**
+- `lib/google-sheets-client.ts` converts an r2.dev `imageurl` into a `/photos/...` path and nulls any other host (the dead Supabase URLs). `photoAttribution*` are read in the full (detail) branch only. The listing branch leaves them null to stay under the 2 MB cache limit.
+- `lib/bookshop-image.ts`:
+  - `getBookshopPhotoUrl(shop, size)` returns the real photo or null.
+  - `getPlaceholderUrl(id, size)` returns `/placeholders/books-NN[-400].webp` with `NN = id % 18 + 1`, so it's stable per shop.
+  - `getBookshopImageUrl(shop, size)` returns the photo, else the placeholder.
+- Cards (home, related shops) always show an image: the shop's photo or its placeholder. `BookshopImage` falls back to the placeholder if the photo fails to load.
+- Detail page: a single photo (16:9) replaces the old `googlePhotos` gallery. It shows "Photo: {author} via Google", linked to the author, when the shop has its own photo.
+- og:image / twitter:image and the `BookStore` JSON-LD `image` use the real photo only. Shops without one keep `og-default.jpg` and no JSON-LD image. Placeholders are never used there.
+- Placeholders have no "illustrative" label. Alt text is the shop's name and location, the same as a real photo (owner's call).
+- Removed: `app/api/place-photo` (it took the expired `photo_reference`s and was a billable open endpoint) and the `maps.googleapis.com` / `*.r2.dev` `images.remotePatterns` (nothing uses `next/image` for photos).
 
-**`lib/google-sheets-client.ts`**
-- Listing branch: set `googlePlaceId: get('google_place_id') || null` instead of `null`, so cards built from the listing cache can make a photo URL. That's ~27 chars × 2,165 ≈ 60 KB, well inside the 2 MB `unstable_cache` limit.
-- Both branches: keep nulling Supabase `imageurl` values, now permanently. Simplest is to null any host other than the ones we serve, so a stray dead URL can't come back. Remove the "pending R2 migration" comments.
-- Keep `googlePhotos: null`. The stored references are expired, and leaving them out saves ~4.6 MB of cache payload.
+**Placeholders.** `public/placeholders/` holds 18 Unsplash photos (Unsplash License, no attribution required) of shelves and stacks. There are no people, recognisable libraries, or readable covers. Sources are listed in `public/placeholders/SOURCES.md`. To change the count, update `PLACEHOLDER_COUNT` in `lib/bookshop-image.ts`.
 
-**`app/api/place-photo/route.ts`**
-- Accept `place_id` (validate `^[A-Za-z0-9_-]{10,300}$`) and `w` (clamp to 200–1200, default 600). Drop the `photo_reference` path, since all stored references are dead.
-- Look up the photo name with `GET https://places.googleapis.com/v1/places/{place_id}` and header `X-Goog-FieldMask: photos`. Wrap it in `unstable_cache` keyed by place ID (`revalidate: 86400`) so repeat misses skip the Details call.
-- Fetch `https://places.googleapis.com/v1/{photos[0].name}/media?maxWidthPx={w}&skipHttpRedirect=true` and stream the bytes from the returned `photoUri`.
-- Respond with `Cache-Control: public, max-age=86400, s-maxage=2592000, stale-while-revalidate=604800`. A shop with no photos returns `404` with a short `s-maxage` (1 day) so it's retried later.
-- Return the first author attribution in an `X-Photo-Attribution` header for logging. Displaying it is handled by the detail page (below).
-- Rate-limit with `lib/rate-limit.ts` (e.g. 120/min per IP) to cap abuse of the billable endpoint.
+## 5. Status and follow-ups
 
-**`lib/bookshop-image.ts`**
-- `getBookshopThumbnailUrl(bookshop, width = 600)`:
-  1. Return `imageUrl` if set (it can only be a non-Supabase URL now).
-  2. Else, if `googlePlaceId` is set, return `/api/place-photo?place_id=${encodeURIComponent(googlePlaceId)}&w=${width}`.
-  3. Else return `null` (callers already skip the image).
-- Snap `width` to a couple of fixed sizes (400, 800) so the CDN key space stays small.
-- Delete `extractPhotoReference` and the `googlePhotos` branch.
+Dry run, 2026-10-22, over the 2,165 live shops:
 
-**`components/BookshopImage.tsx`**
-- Replace the Unsplash stock-photo fallback with a neutral cream placeholder showing the shop's initials. Currently any failed photo shows an unrelated stock image of a library, which misrepresents the shop. Accept a `name` prop for the initials.
-- Add `width`/`height` (or an aspect-ratio wrapper) and `decoding="async"` to avoid layout shift. Keep the plain `<img>` with `loading="lazy"`: the proxy already returns sized images, and routing them through `next/image` would spend Vercel image-optimization quota for no gain.
+| Result | Shops |
+|---|---|
+| Photo available | 2,055 |
+| Place ID valid but Google has no photos | 50 |
+| Stale place ID (`NOT_FOUND`, "no longer valid") | 8 — ids 929, 982, 1276, 1387, 2039, 2454, 2816, 2960 |
+| No place ID | 52 |
 
-**`next.config.mjs`**
-- Remove the `*.r2.dev` and `maps.googleapis.com` `remotePatterns`. Nothing uses `next/image` with remote photo hosts (`BookshopImage` is a plain `<img>`, and the proxy is same-origin).
-- If a later task switches cards to `next/image`, add `images.localPatterns: [{ pathname: '/api/place-photo', search: '' }]` instead. Next 16 requires local images with query strings to be allow-listed.
+That leaves 110 shops on placeholders. A test run wrote shops 1, 588 and 2972. The full run waits until this branch is deployed, so production doesn't serve r2.dev URLs directly.
 
-**Related, outside the four files:**
-- `app/bookshop/[slug]/BookshopDetailClient.tsx` builds its gallery from `googlePhotos` (always null). Make it a single hero from `getBookshopThumbnailUrl(bookstore, 800)` with a "Photo: {author} via Google" credit. The credit can come from a small cached server call to the same Details lookup.
+Follow-ups:
+- Re-run the script for new shops after they get a place ID. It skips shops already on R2.
+- Refresh the 8 stale place IDs, e.g. with a Text Search by name and city.
 - Delete `.github/workflows/refresh-google-photos.yml` and archive the Supabase/Blob photo scripts (Prompt 4).
-- Set a Google Cloud budget alert on the Places API key before launch.
+- After deploy, check that `/photos/...` responses show `x-vercel-cache: HIT` on the second request. If the CDN doesn't cache the external rewrite, add `Vercel-CDN-Cache-Control` in `next.config.mjs` headers for `/photos/:path*`.
+- Set a Google Cloud budget alert on the Places key.

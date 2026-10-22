@@ -4,7 +4,7 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 
 ## Do not touch (pending cleanup)
 - `client/`, `server/`, `api.old-vite/` — dead Vite + Express app. Never import from them.
-- `scripts/` — one-off migration/enrichment scripts, many still target Supabase.
+- `scripts/` — one-off migration/enrichment scripts, many still target Supabase. Exception: `scripts/fetch-google-photos.mjs` is current (see Photos below).
 - Also legacy: root `tsconfig.json` (points at client/server), `drizzle.config.ts`, `migrations/`, `supabase/`, `*.old*` files, root `test-*.sh`/`debug-*.sh`, root report `*.md` files.
 
 ## Commands
@@ -21,7 +21,8 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 | `GOOGLE_SHEETS_ID` | Sheet id (falls back to a hard-coded id) | recommended |
 | `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` (or `MAPBOX_ACCESS_TOKEN`) | `/api/config`, `DirectoryClient`, `SingleLocationMap` | for maps |
 | `SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL` | contact, submit, events emails | for forms |
-| `GOOGLE_PLACES_API_KEY` | `/api/place-photo` proxy | optional |
+| `R2_PUBLIC_URL` | `next.config.mjs` rewrite `/photos/*` → R2 bucket (build time) | for photos |
+| `GOOGLE_PLACES_API_KEY`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | `scripts/fetch-google-photos.mjs` only (run locally) | no |
 | `NEXT_PUBLIC_BASE_URL` | only `lib/seo-utils.ts` (currently unused) | no |
 
 ## Routes
@@ -36,7 +37,7 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 | `/sitemap.xml`, `/robots.txt` | `app/sitemap.ts`, `app/robots.ts` | sitemap still emits `/state/`, `/city/`, `/county/`, `/features/` URLs that have no routes (404) |
 | `not-found`, `error`, `loading` | `app/*.tsx` | |
 
-API (`app/api/`): `bookstores/filter` (GET, listing data), `bookstores/submit` (POST → SendGrid), `bookstores/[id]/events` (GET), `events` (POST → SendGrid), `contact` (POST → `lib/contact-email.ts`), `newsletter-signup` (POST → appends to Sheet "Newsletter" tab), `features` (GET), `config` (GET Mapbox token), `place-photo` (GET Google Places photo proxy).
+API (`app/api/`): `bookstores/filter` (GET, listing data), `bookstores/submit` (POST → SendGrid), `bookstores/[id]/events` (GET), `events` (POST → SendGrid), `contact` (POST → `lib/contact-email.ts`), `newsletter-signup` (POST → appends to Sheet "Newsletter" tab), `features` (GET), `config` (GET Mapbox token).
 
 Redirects: `next.config.mjs` maps `/bookstore/:id`, `/submit-bookshop`, `/directory/{state,city,county,category}/...` to current URLs; `vercel.json` redirects apex → `www`.
 
@@ -54,11 +55,11 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - Don't add detail fields to the listing record — it will blow the 2 MB limit. Detail data must come from the full cache.
 - `ProcessedBookstoreData` indexes: `byId`, `bySlug` (lowercased), `byState` (key = lowercase state abbrev), `byCity`/`byCounty` (key = `` `${name}-${st}` `` lowercased — breaks for hyphenated names in `getCitiesWithState`), `byFeature` (feature id string), plus `featured` (random 8), `popular` (top 15 by rating then review count). `getFeaturedBookstores` reshuffles on every call.
 - Slugs: `bookstore.slug` from the Sheet, else `generateSlugFromName(name)`. State conversion: `lib/state-utils.ts` (`getStateAbbrev`, `getStateDisplayName`).
-- Photos are off: `googlePhotos` is always null and `image_url` values on `supabase.co` are suppressed pending the R2 migration. `lib/bookshop-image.ts#getBookshopThumbnailUrl` returns `imageUrl`, else a `/api/place-photo` URL, else null (callers skip the image). `next.config.mjs` allows images from `*.r2.dev` and `maps.googleapis.com`.
+- Photos (see `docs/PHOTO_PIPELINE.md`): one Google photo per shop, fetched once by `scripts/fetch-google-photos.mjs` into R2 as `photos/<id>-<hash>.webp` (1200px) plus `-400.webp`. The Sheet's `imageurl` holds the r2.dev URL; the Sheets client turns it into a same-origin `/photos/...` path (served via the rewrite) and drops any other host. `photo_attribution`/`photo_attribution_url` hold the photographer credit shown on detail pages. Shops without a photo get a generic placeholder from `public/placeholders/` picked by `id % 18`. In `lib/bookshop-image.ts`: `getBookshopImageUrl` (photo or placeholder, for display) and `getBookshopPhotoUrl` (real photo or null — use this for og:image and JSON-LD, never placeholders). `googlePhotos` is always null (legacy references expired).
 
 ## Bookstore type
 `Bookstore` is inferred from the drizzle table in `shared/schema.ts` (`typeof bookstores.$inferSelect`); drizzle is only there for the type now. `Feature`, `Event`, and zod `insert*Schema`s live there too. Fields and their Sheet columns (`Bookstores` tab):
-- Core: `id`, `name`, `slug`, `street`, `city`, `state`, `zip`, `county`, `description`, `imageUrl` (`image_url`), `website`, `phone`, `live`
+- Core: `id`, `name`, `slug`, `street`, `city`, `state`, `zip`, `county`, `description`, `imageUrl` (`imageurl`), `photoAttribution`, `photoAttributionUrl`, `website`, `phone`, `live`
 - Location: `latitude`/`longitude` — strings, from `lat_numeric`/`lng_numeric`, else `latitude`/`longitude`
 - `featureIds` (`feature_ids`) → ids in the `Features` tab (id, name, slug, description, keywords, icon)
 - Google Places enrichment: `googlePlaceId`, `googleRating` (string), `googleReviewCount`, `googleDescription`, `googlePhotos` (null for now), `googleReviews` (JSON), `googlePriceLevel`, `googleDataUpdatedAt`, `googleMapsUrl`, `googleTypes` (JSON), `formattedAddressGoogle`, `businessStatus`, `formattedPhone`, `websiteVerified`, `contactDataFetchedAt`

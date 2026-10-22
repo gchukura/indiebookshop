@@ -1,45 +1,45 @@
 import type { Bookstore } from '@/shared/schema';
 
-const FALLBACK_IMAGE =
-  'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300';
+/**
+ * Shop photos live in Cloudflare R2 (scripts/fetch-google-photos.mjs) and are
+ * served same-origin at /photos/... via a rewrite in next.config.mjs. Each photo
+ * has a 1200px file and a `-400` thumbnail next to it.
+ *
+ * Shops without a photo get a generic book placeholder from public/placeholders/,
+ * picked by id so a shop always shows the same one. Placeholders are for display
+ * only: never use them for og:image or structured data.
+ */
 
-function extractPhotoReference(photo: unknown): string | null {
-  if (!photo) return null;
-  if (typeof photo === 'string') {
-    const ref = String(photo).trim();
-    return ref.length > 10 ? ref : null;
+export type PhotoSize = 'large' | 'thumb';
+
+const PLACEHOLDER_COUNT = 18;
+
+/** Converts a stored photo URL (r2.dev or /photos/...) to its same-origin path, or null if it's not ours. */
+export function toPhotoPath(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  if (raw.startsWith('/photos/')) return raw;
+  try {
+    const url = new URL(raw);
+    return url.hostname.endsWith('.r2.dev') && url.pathname.startsWith('/photos/') ? url.pathname : null;
+  } catch {
+    return null;
   }
-  if (typeof photo === 'object' && photo !== null && 'photo_reference' in photo) {
-    const ref = (photo as { photo_reference?: string }).photo_reference;
-    return ref && typeof ref === 'string' && ref.trim().length > 10 ? ref.trim() : null;
-  }
-  if (typeof photo === 'object' && photo !== null && 'photoReference' in photo) {
-    const ref = (photo as { photoReference?: string }).photoReference;
-    return ref && typeof ref === 'string' && ref.trim().length > 10 ? ref.trim() : null;
-  }
-  return null;
 }
 
-/**
- * Returns the best thumbnail URL for a bookstore card/list, or null if no
- * real photo is available. Callers should skip rendering the image when null
- * rather than showing a generic placeholder.
- *
- * Priority:
- * 1. imageUrl (permanent CDN — Supabase URLs suppressed server-side during migration)
- * 2. First Google photo via place-photo proxy
- */
-export function getBookshopThumbnailUrl(bookshop: Bookstore, maxWidth: number = 400): string | null {
-  if (bookshop.imageUrl && typeof bookshop.imageUrl === 'string') {
-    return bookshop.imageUrl;
-  }
+/** The shop's own photo, or null. */
+export function getBookshopPhotoUrl(bookshop: Pick<Bookstore, 'imageUrl'>, size: PhotoSize = 'large'): string | null {
+  const path = toPhotoPath(bookshop.imageUrl);
+  if (!path) return null;
+  return size === 'thumb' ? path.replace(/\.webp$/, '-400.webp') : path;
+}
 
-  const rawPhotos = bookshop.googlePhotos ?? (bookshop as { google_photos?: unknown[] }).google_photos;
-  const photos = Array.isArray(rawPhotos) ? rawPhotos : [];
-  const photoRef = photos[0] ? extractPhotoReference(photos[0]) : null;
-  if (photoRef) {
-    return `/api/place-photo?photo_reference=${encodeURIComponent(photoRef)}&maxwidth=${maxWidth}`;
-  }
+/** Generic book placeholder for a shop, stable per id. */
+export function getPlaceholderUrl(id: number, size: PhotoSize = 'large'): string {
+  const n = String((Math.abs(id || 0) % PLACEHOLDER_COUNT) + 1).padStart(2, '0');
+  return `/placeholders/books-${n}${size === 'thumb' ? '-400' : ''}.webp`;
+}
 
-  return null;
+/** Photo for display on cards and detail pages: the shop's own, else its placeholder. */
+export function getBookshopImageUrl(bookshop: Pick<Bookstore, 'id' | 'imageUrl'>, size: PhotoSize = 'thumb'): string {
+  return getBookshopPhotoUrl(bookshop, size) ?? getPlaceholderUrl(bookshop.id, size);
 }

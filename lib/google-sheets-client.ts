@@ -9,6 +9,7 @@
 
 import { google } from 'googleapis';
 import { Bookstore, Feature, Event } from '@/shared/schema';
+import { toPhotoPath } from '@/lib/bookshop-image';
 
 const SPREADSHEET_ID =
   process.env.GOOGLE_SHEETS_ID || '1Qa3AW5Zmu0X4yT3fXjmoU62Drqz0oMKRsXsm3a7JiQs';
@@ -191,9 +192,9 @@ export async function getBookstoresFromSheets(listingOnly = false): Promise<Book
     const latitude = get('lat_numeric') || get('latitude') || null;
     const longitude = get('lng_numeric') || get('longitude') || null;
 
-    // Suppress Supabase Storage URLs while migrating to a new photo host.
-    const rawImageUrl = get('image_url') || get('imageurl') || null;
-    const imageUrl = rawImageUrl && rawImageUrl.includes('supabase.co') ? null : rawImageUrl;
+    // Only R2 photos are served (as same-origin /photos/... paths); anything
+    // else, like the dead Supabase Storage URLs, is dropped.
+    const imageUrl = toPhotoPath(get('image_url') || get('imageurl'));
 
     if (listingOnly) {
       // Stripped listing record — fits inside Vercel's 2 MB unstable_cache limit.
@@ -220,6 +221,8 @@ export async function getBookstoresFromSheets(listingOnly = false): Promise<Book
         googleReviewCount: parseInt(get('google_review_count') || '0', 10) || null,
         googleDescription: null,
         googlePhotos: null,
+        photoAttribution: null,
+        photoAttributionUrl: null,
         googleReviews: null,
         googlePriceLevel: null,
         googleDataUpdatedAt: null,
@@ -261,7 +264,9 @@ export async function getBookstoresFromSheets(listingOnly = false): Promise<Book
         googleRating: get('google_rating') || null,
         googleReviewCount: parseInt(get('google_review_count') || '0', 10) || null,
         googleDescription: get('google_description') || null,
-        googlePhotos: null, // photos commented out pending R2 migration
+        googlePhotos: null, // legacy photo_reference values have expired; photos come from imageUrl
+        photoAttribution: get('photo_attribution') || null,
+        photoAttributionUrl: get('photo_attribution_url') || null,
         googleReviews: parseJsonField(get('google_reviews')),
         googlePriceLevel: get('google_price_level') || null,
         googleDataUpdatedAt: get('google_data_updated_at') || null,

@@ -6,7 +6,7 @@ import { ArrowRight, MapPin } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Bookstore } from '@/shared/schema';
 import { generateSlugFromName } from '@/shared/utils';
-import { getBookshopThumbnailUrl } from '@/lib/bookshop-image';
+import { getBookshopImageUrl, getPlaceholderUrl } from '@/lib/bookshop-image';
 import BookshopImage from './BookshopImage';
 
 interface RelatedBookshopsProps {
@@ -88,7 +88,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
         {relatedBookshops.map((bookshop) => {
           const slug = (bookshop.slug || generateSlugFromName(bookshop.name)) || String(bookshop.id);
           const isSameCity = bookshop.city === currentBookshop.city;
-          const imageUrl = getBookshopThumbnailUrl(bookshop);
+          const imageUrl = getBookshopImageUrl(bookshop);
 
           return (
             <Link
@@ -97,13 +97,13 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
               className="group block"
             >
               <div className="relative bg-white border-2 border-stone-200 hover:border-[#E16D3D] rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 sm:hover:-translate-y-1 sm:hover:scale-[1.02] h-full flex flex-col">
-                {/* Bookshop Image Thumbnail — only shown when a real photo exists */}
-                {imageUrl && (
+                {/* Bookshop Image Thumbnail — the shop's photo, else its placeholder */}
                 <div className="relative w-full h-32 overflow-hidden bg-stone-100">
                   <BookshopImage
                     src={imageUrl}
                     alt={`${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fallbackSrc={getPlaceholderUrl(bookshop.id, 'thumb')}
                   />
 
                   {/* Same City Badge - positioned over image */}
@@ -116,7 +116,6 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
                     </div>
                   )}
                 </div>
-                )}
 
                 {/* Card Content */}
                 <div className="p-4 sm:p-5 md:p-6 flex flex-col flex-grow">

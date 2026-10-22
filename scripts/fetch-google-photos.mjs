@@ -57,7 +57,8 @@ const SIZES = [
   { suffix: '', width: 1200, quality: 72 },
   { suffix: '-400', width: 400, quality: 70 },
 ];
-const CACHE_CONTROL = 'public, max-age=31536000, immutable';
+// s-maxage lets Vercel's CDN cache the /photos rewrite to R2
+const CACHE_CONTROL = 'public, max-age=31536000, s-maxage=31536000, immutable';
 const ATTR_COLS = ['photo_attribution', 'photo_attribution_url'];
 
 const env = process.env;

@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { MapPin, Phone, Globe, Star, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { Bookstore } from '@/shared/schema';
 import { getStateAbbrev } from '@/lib/state-utils';
 import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/StructuredData';
 import SingleLocationMap from '@/components/SingleLocationMap';
-import { getBookshopThumbnailUrl } from '@/lib/bookshop-image';
+import { getBookshopImageUrl, getBookshopPhotoUrl, getPlaceholderUrl } from '@/lib/bookshop-image';
 import BookshopImage from '@/components/BookshopImage';
 
 type BookshopDetailClientProps = {
@@ -24,8 +24,6 @@ interface GoogleReview {
 }
 
 export default function BookshopDetailClient({ bookstore, canonicalSlug, relatedBookshops = [] }: BookshopDetailClientProps) {
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-
   // Priority-based description for UI display (bookstores.description first)
   const displayDescription =
     (bookstore.description && bookstore.description.trim().length > 0 && bookstore.description.trim()) ||
@@ -33,46 +31,9 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
     (bookstore.aiGeneratedDescription && bookstore.descriptionValidated && bookstore.aiGeneratedDescription) ||
     undefined;
 
-  // Helper to extract photo reference from photo object or string (DB uses snake_case)
-  const extractPhotoReference = (photo: any): string | null => {
-    if (!photo) return null;
-    if (typeof photo === 'string') {
-      const ref = String(photo).trim();
-      return ref.length > 10 ? ref : null;
-    }
-    if (typeof photo === 'object') {
-      const ref = photo.photo_reference ?? photo.photoReference ?? null;
-      if (ref && typeof ref === 'string' && ref.trim().length > 10) return ref.trim();
-    }
-    return null;
-  };
-
-  // Helper to get photo URL (proxied via API to avoid exposing API key)
-  const getPhotoUrl = (photoReference: string, maxWidth: number = 800): string => {
-    return `/api/place-photo?photo_reference=${encodeURIComponent(photoReference)}&maxwidth=${maxWidth}`;
-  };
-
-  // Build a unified gallery list:
-  //   1. Blob CDN imageUrl (permanent, always first if available)
-  //   2. Google Places proxy photos (may be expired — shown as bonus photos)
-  type GalleryPhoto =
-    | { type: 'cdn'; url: string }
-    | { type: 'proxy'; photoRef: string };
-
-  const rawPhotos = bookstore.googlePhotos ?? (bookstore as any).google_photos;
-  const googlePhotosArray = Array.isArray(rawPhotos) ? rawPhotos : [];
-
-  const galleryPhotos: GalleryPhoto[] = [];
-  if (bookstore.imageUrl && typeof bookstore.imageUrl === 'string') {
-    galleryPhotos.push({ type: 'cdn', url: bookstore.imageUrl });
-  }
-  for (const photo of googlePhotosArray) {
-    const photoRef = extractPhotoReference(photo);
-    if (photoRef) galleryPhotos.push({ type: 'proxy', photoRef });
-  }
-
-  const getGalleryPhotoSrc = (photo: GalleryPhoto, maxWidth: number): string =>
-    photo.type === 'cdn' ? photo.url : getPhotoUrl(photo.photoRef, maxWidth);
+  // The shop's own photo (credited to its Google author), else a generic placeholder
+  const hasOwnPhoto = Boolean(getBookshopPhotoUrl(bookstore));
+  const photoSrc = getBookshopImageUrl(bookstore, 'large');
 
   // Parse Google reviews array
   const googleReviews: GoogleReview[] = Array.isArray(bookstore.googleReviews) 
@@ -255,79 +216,30 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
               </div>
             )}
 
-            {/* Photo Gallery */}
-            {galleryPhotos.length > 0 && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">Photo Gallery</h2>
-
-                {/* Main featured photo */}
-                {galleryPhotos.length > 0 && (
-                  <div className="mb-4">
-                    <div className="relative aspect-[16/9] rounded-lg overflow-hidden bg-gray-200">
-                      <img
-                        src={getGalleryPhotoSrc(galleryPhotos[currentPhotoIndex], 1200)}
-                        alt={`${bookstore.name} - Photo ${currentPhotoIndex + 1}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=675';
-                        }}
-                      />
-
-                      {/* Navigation arrows */}
-                      {galleryPhotos.length > 1 && (
-                        <>
-                          <button
-                            onClick={() => setCurrentPhotoIndex((prev) => (prev === 0 ? galleryPhotos.length - 1 : prev - 1))}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all"
-                            aria-label="Previous photo"
-                          >
-                            ←
-                          </button>
-                          <button
-                            onClick={() => setCurrentPhotoIndex((prev) => (prev === galleryPhotos.length - 1 ? 0 : prev + 1))}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all"
-                            aria-label="Next photo"
-                          >
-                            →
-                          </button>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Photo counter */}
-                    {galleryPhotos.length > 1 && (
-                      <div className="mt-2 text-center text-sm text-gray-600">
-                        Photo {currentPhotoIndex + 1} of {galleryPhotos.length}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Thumbnail grid */}
-                {galleryPhotos.length > 1 && (
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                    {galleryPhotos.slice(0, 12).map((photo, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setCurrentPhotoIndex(index)}
-                          className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                            index === currentPhotoIndex ? 'border-[#2A6B7C] ring-2 ring-[#2A6B7C]' : 'border-transparent hover:border-gray-300'
-                          }`}
-                        >
-                          <img
-                            src={getGalleryPhotoSrc(photo, 200)}
-                            alt={`${bookstore.name} thumbnail ${index + 1}`}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200';
-                            }}
-                          />
-                        </button>
-                      ))}
-                  </div>
-                )}
+            {/* Photo */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="relative aspect-[16/9] rounded-lg overflow-hidden bg-gray-200">
+                <BookshopImage
+                  src={photoSrc}
+                  alt={`${bookstore.name} in ${bookstore.city}, ${bookstore.state}`}
+                  className="w-full h-full object-cover"
+                  fallbackSrc={getPlaceholderUrl(bookstore.id, 'large')}
+                />
               </div>
-            )}
+              {hasOwnPhoto && bookstore.photoAttribution && (
+                <p className="mt-2 text-xs text-gray-500">
+                  Photo:{' '}
+                  {bookstore.photoAttributionUrl ? (
+                    <a href={bookstore.photoAttributionUrl} target="_blank" rel="noopener noreferrer nofollow" className="hover:underline">
+                      {bookstore.photoAttribution}
+                    </a>
+                  ) : (
+                    bookstore.photoAttribution
+                  )}{' '}
+                  via Google
+                </p>
+              )}
+            </div>
 
             {/* Google Reviews */}
             {googleReviews.length > 0 && (
@@ -422,22 +334,21 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
               {relatedBookshops.map((shop) => {
-                const shopThumb = getBookshopThumbnailUrl(shop, 400);
+                const shopThumb = getBookshopImageUrl(shop);
                 return (
                 <Link
                   key={shop.id}
                   href={`/bookshop/${shop.slug || shop.id}`}
                   className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group block"
                 >
-                  {shopThumb && (
                   <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
                     <BookshopImage
                       src={shopThumb}
                       alt={`${shop.name} in ${shop.city}, ${shop.state}`}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      fallbackSrc={getPlaceholderUrl(shop.id, 'thumb')}
                     />
                   </div>
-                  )}
                   <div className="p-6">
                     <h3 className="font-serif text-lg font-bold text-[#5F4B32] mb-2">{shop.name}</h3>
                     <div className="flex items-start text-sm text-gray-600 mb-2">

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Bookstore } from '@/shared/schema';
+import { getBookshopPhotoUrl } from '@/lib/bookshop-image';
 
 type LocalBusinessSchemaProps = {
   bookstore: Bookstore;
@@ -10,6 +11,8 @@ type LocalBusinessSchemaProps = {
  * This helps search engines understand the business information
  */
 export function LocalBusinessSchema({ bookstore }: LocalBusinessSchemaProps) {
+  // The shop's own photo only, never a placeholder
+  const photoUrl = getBookshopPhotoUrl(bookstore);
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'BookStore',
@@ -31,6 +34,7 @@ export function LocalBusinessSchema({ bookstore }: LocalBusinessSchemaProps) {
             longitude: parseFloat(bookstore.longitude),
           }
         : undefined,
+    image: photoUrl ? `https://www.indiebookshop.com${photoUrl}` : undefined,
     telephone: bookstore.phone,
     url: bookstore.website,
     priceRange: bookstore.googlePriceLevel ? '$'.repeat(bookstore.googlePriceLevel) : undefined,
