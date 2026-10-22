@@ -1,14 +1,26 @@
 import { NextResponse } from 'next/server';
 import { sendContactNotification } from '@/lib/contact-email';
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { isHoneypotTripped } from '@/lib/honeypot';
 
 const NOTIFY_EMAIL = 'info@bluestonebrands.com';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_LENGTH = { name: 200, email: 254, reason: 100, subject: 500, message: 10000 };
+const SUCCESS_MESSAGE = "Thank you! Your message has been sent. We'll get back to you soon.";
 
 export async function POST(request: Request) {
+  const limited = await checkRateLimit(request, RATE_LIMITS.contact);
+  if (limited) return limited;
+
   try {
     const body = await request.json();
+
+    // Bot filled the hidden field: report success without sending anything
+    if (isHoneypotTripped(body)) {
+      return NextResponse.json({ message: SUCCESS_MESSAGE }, { status: 200 });
+    }
+
     const name = typeof body?.name === 'string' ? body.name.trim() : '';
     const email = typeof body?.email === 'string' ? body.email.trim() : '';
     const reason = typeof body?.reason === 'string' ? body.reason.trim() : '';
@@ -97,7 +109,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { message: "Thank you! Your message has been sent. We'll get back to you soon." },
+      { message: SUCCESS_MESSAGE },
       { status: 200 }
     );
   } catch (e) {

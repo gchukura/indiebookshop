@@ -26,6 +26,7 @@ import { STATES } from "@/lib/constants";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import HoneypotField, { getHoneypotValue } from "@/components/HoneypotField";
 // Supabase removed — bookshop list now comes from Google Sheets via API.
 type Bookshop = { id: number; name: string; city: string; state: string };
 
@@ -151,7 +152,7 @@ export const BookshopSubmissionForm = () => {
   );
 
   // Form submission handler
-  const onSubmit = async (data: SubmissionFormValues) => {
+  const onSubmit = async (data: SubmissionFormValues, honeypot: string) => {
     console.log("Form submission started", data);
     setIsSubmitting(true);
     try {
@@ -188,6 +189,7 @@ export const BookshopSubmissionForm = () => {
           isNewSubmission,
           existingBookshopName: !isNewSubmission ? data.existingBookshopName : undefined,
           bookstoreData: bookshopData, // Note: backend expects 'bookstoreData', not 'bookshopData'
+          website_url: honeypot,
         }
       );
 
@@ -243,9 +245,10 @@ export const BookshopSubmissionForm = () => {
         <Form {...form}>
           <form 
             onSubmit={form.handleSubmit(
-              (data) => {
+              (data, e) => {
                 console.log("Form validation passed, calling onSubmit");
-                onSubmit(data);
+                // e.target, not currentTarget: validation is async so currentTarget is already null
+                onSubmit(data, getHoneypotValue(e?.target));
               },
               (errors) => {
                 console.error("Form validation failed:", errors);
@@ -261,6 +264,7 @@ export const BookshopSubmissionForm = () => {
             )} 
             className="space-y-6"
           >
+            <HoneypotField />
             {/* Submission Type Selection */}
             <FormField
               control={form.control}

@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import { appendNewsletterSignup } from '@/lib/google-sheets-client';
+import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit';
 
 const EMAIL_MAX_LENGTH = 254;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: Request) {
+  const limited = await checkRateLimit(request, RATE_LIMITS.newsletter);
+  if (limited) return limited;
+
   try {
     const body = await request.json();
     const rawEmail = typeof body?.email === 'string' ? body.email.trim() : '';
