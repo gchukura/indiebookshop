@@ -129,9 +129,9 @@ async function placesFetch(url, init = {}, attempt = 1) {
 }
 
 /** Google's first photo is the listing's primary; prefer a landscape one from the first three for cards. */
-function pickPhoto(photos) {
+function orderPhotos(photos) {
   const landscape = photos.slice(0, 3).find(p => p.widthPx >= p.heightPx);
-  return landscape ?? photos[0];
+  return landscape ? [landscape, ...photos.filter(p => p !== landscape)] : photos;
 }
 
 async function getPlacePhotos(placeId) {
@@ -254,10 +254,19 @@ async function main() {
         else if (!details.photos.length) report.noPhotos.push({ id: shop.id, name: shop.name });
         else if (DRY_RUN) wouldFetch++;
         else {
-          const photo = pickPhoto(details.photos);
+          // Fall back to the next photo if one fails to download or decode (e.g. a corrupt JPEG)
+          let photo, url, bytes, lastErr;
+          for (const candidate of orderPhotos(details.photos).slice(0, 3)) {
+            try {
+              ({ url, bytes } = await uploadVariants(shop.id, await downloadPhoto(candidate.name)));
+              photo = candidate;
+              break;
+            } catch (err) {
+              lastErr = err;
+            }
+          }
+          if (!photo) throw lastErr;
           const author = photo.authorAttributions?.[0] ?? {};
-          const source = await downloadPhoto(photo.name);
-          const { url, bytes } = await uploadVariants(shop.id, source);
           report.uploaded.push({ id: shop.id, url });
           report.bytes += bytes;
           const r = shop.rowNumber;
