@@ -3,15 +3,14 @@
 Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App Router** (React 18, Tailwind 3, shadcn/Radix UI), deployed on Vercel. Data comes from a **Google Sheet** — there is no database.
 
 ## Do not touch (pending cleanup)
-- `client/`, `server/`, `api.old-vite/` — dead Vite + Express app. Never import from them.
 - `scripts/` — one-off migration/enrichment scripts, many still target Supabase. Exception: `scripts/fetch-google-photos.mjs` is current (see Photos below).
-- Also legacy: root `tsconfig.json` (points at client/server), `drizzle.config.ts`, `migrations/`, `supabase/`, `*.old*` files, root `test-*.sh`/`debug-*.sh`, root report `*.md` files.
+- Also legacy: `migrations/`, `supabase/`, root report `*.md` files.
 
 ## Commands
-- `npm run dev:next` — dev server (`npm run dev` starts the dead Express app — don't use it)
+- `npm run dev` — dev server
 - `npm run build` (= `next build`; needs Sheet credentials, it fetches data and prerenders every shop)
-- `npm run start:next` — serve the build
-- Type-check: `npx tsc -p tsconfig.next.json --noEmit` (`npm run check` uses the legacy tsconfig — don't use it)
+- `npm run start` — serve the build
+- Type-check: `npm run check` (`tsc -p tsconfig.json --noEmit`)
 - No test runner or linter configured yet.
 
 ## Env vars (`.env.local`)
@@ -58,7 +57,7 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - Photos (see `docs/PHOTO_PIPELINE.md`): one Google photo per shop, fetched once by `scripts/fetch-google-photos.mjs` into R2 as `photos/<id>-<hash>.webp` (1200px) plus `-400.webp`. The Sheet's `imageurl` holds the r2.dev URL; the Sheets client turns it into a same-origin `/photos/...` path (served via the rewrite) and drops any other host. `photo_attribution`/`photo_attribution_url` hold the photographer credit shown on detail pages. Shops without a photo get a generic placeholder from `public/placeholders/` picked by `id % 18`. In `lib/bookshop-image.ts`: `getBookshopImageUrl` (photo or placeholder, for display) and `getBookshopPhotoUrl` (real photo or null — use this for og:image and JSON-LD, never placeholders). `googlePhotos` is always null (legacy references expired).
 
 ## Bookstore type
-`Bookstore` is inferred from the drizzle table in `shared/schema.ts` (`typeof bookstores.$inferSelect`); drizzle is only there for the type now. `Feature`, `Event`, and zod `insert*Schema`s live there too. Fields and their Sheet columns (`Bookstores` tab):
+`Bookstore` is a plain TypeScript type in `shared/schema.ts`. `Feature`, `Event`, and zod `insert*Schema`s live there too. Fields and their Sheet columns (`Bookstores` tab):
 - Core: `id`, `name`, `slug`, `street`, `city`, `state`, `zip`, `county`, `description`, `imageUrl` (`imageurl`), `photoAttribution`, `photoAttributionUrl`, `website`, `phone`, `live`
 - Location: `latitude`/`longitude` — strings, from `lat_numeric`/`lng_numeric`, else `latitude`/`longitude`
 - `featureIds` (`feature_ids`) → ids in the `Features` tab (id, name, slug, description, keywords, icon)
@@ -74,7 +73,7 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - `components/StructuredData.tsx` — JSON-LD (`LocalBusinessSchema`, `BreadcrumbSchema`, etc.)
 - `components/BookshopImage.tsx`, `RelatedBookshops.tsx`, `SingleLocationMap.tsx` (Mapbox), forms `BookshopSubmissionForm.tsx`, `EventSubmissionForm.tsx`
 - `components/ui/` — shadcn primitives. `components/Providers.tsx` wraps the app in React Query (`lib/queryClient.ts`); used by the events page, the two forms, and `RelatedBookshops`.
-- Imported by nothing (candidates for removal): `lib/seo-utils.ts`, `lib/bookstore-content-utils.ts`, `components/templates/`, `components/StateFlag.tsx`, `components/ads/*` (AdSense, not rendered), `lib/supabase.ts` (commented out).
+- Imported by nothing (candidates for removal): `lib/seo-utils.ts`, `lib/bookstore-content-utils.ts`, `components/templates/`, `components/StateFlag.tsx`, `components/ads/*` (AdSense, not rendered).
 
 ## Brand
 - Colors: brown `#5F4B32` (headings), teal `#2A6B7C` (primary actions), orange `#E16D3D` (accent/CTAs), cream `#F7F3E8` (section backgrounds). Hover shades in use: `#1d5a6a` (teal), `#d06a4f` (orange). Also in `lib/constants.ts` `COLORS`.
@@ -89,4 +88,4 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - Once brand tokens exist in `globals.css`/`tailwind.config.ts`, no new hard-coded hex colors. Use the token classes.
 - Mapbox/`mapbox-gl` is heavy, so load map components with `next/dynamic({ ssr: false })`.
 - Keep the 2 MB `unstable_cache` limit in mind for anything you cache.
-- Before you finish, run `npx tsc -p tsconfig.next.json --noEmit` and `npm run build`.
+- Before you finish, run `npm run check` and `npm run build`.
