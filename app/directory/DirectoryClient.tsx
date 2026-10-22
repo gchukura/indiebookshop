@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { getStateAbbrev, getStateDisplayName } from '@/lib/state-utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { generateSlugFromName } from '@/shared/utils';
+import { getBookstoreSlug } from '@/lib/data/slug';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 // Constants for map and clustering
@@ -536,7 +536,7 @@ export default function DirectoryClient({
                       onClick={() => handlePinClick(bookshop.id)}
                       className={`bg-white border-2 rounded-lg p-4 cursor-pointer transition-all ${selectedBookshopId === bookshop.id ? 'border-[#E16D3D] shadow-md' : hoveredBookshopId === bookshop.id ? 'border-[#2A6B7C] shadow-sm' : 'border-gray-200'}`}
                     >
-                      <Link href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`} onClick={(e: React.MouseEvent) => e.stopPropagation()} className="block">
+                      <Link href={`/bookshop/${getBookstoreSlug(bookshop)}`} onClick={(e: React.MouseEvent) => e.stopPropagation()} className="block">
                         <h3 className="font-serif font-bold text-base text-[#5F4B32] mb-1 hover:text-[#2A6B7C]">{bookshop.name}</h3>
                       </Link>
                       {(bookshop.city || bookshop.state) && (
@@ -549,7 +549,7 @@ export default function DirectoryClient({
                         </div>
                       )}
                       {bookshop.description && <p className="font-sans text-xs text-gray-700 line-clamp-2 mb-2">{bookshop.description}</p>}
-                      <Link href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`} className="font-sans text-xs text-[#2A6B7C] hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
+                      <Link href={`/bookshop/${getBookstoreSlug(bookshop)}`} className="font-sans text-xs text-[#2A6B7C] hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
                         View details →
                       </Link>
                     </div>

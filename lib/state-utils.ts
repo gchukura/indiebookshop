@@ -57,6 +57,9 @@ export const STATE_ABBREV_TO_FULL: Record<string, string> = {
   WY: 'Wyoming',
 };
 
+/** Full state names (incl. District of Columbia), alphabetical — for state pickers. */
+export const US_STATE_NAMES: string[] = Object.values(STATE_ABBREV_TO_FULL).sort();
+
 const FULL_TO_ABBREV: Record<string, string> = Object.fromEntries(
   Object.entries(STATE_ABBREV_TO_FULL).map(([abbr, full]) => [full.toLowerCase(), abbr])
 );

@@ -8,6 +8,9 @@ import { getBookstoresFromSheets } from '@/lib/google-sheets-client';
 import { Bookstore } from '@/shared/schema';
 import { getStateAbbrev, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 import { safeMapGet, safeMapKeys } from './cache-utils';
+import { getBookstoreSlug } from './slug';
+import { makeCityKey } from './location-key';
+import { daysSinceEpoch, pickFeaturedBookstores } from './featured';
 
 // In-memory cache for the *processed* result (avoids re-processing on warm Lambda instances)
 let processedDataCache: ProcessedBookstoreData | null = null;
@@ -38,13 +41,10 @@ async function fetchFullBookstoreData(): Promise<Bookstore[]> {
     return fullDataCache;
   }
   console.log('[BookstoreData] Fetching full bookstore data for detail pages...');
-  const rows = await getBookstoresFromSheets(false); // listingOnly=false — all columns
-  fullDataCache = rows.map(mapBookstoreData);
+  fullDataCache = await getBookstoresFromSheets(false); // listingOnly=false — all columns
   fullDataTimestamp = now;
   return fullDataCache;
 }
-
-export { getStateAbbrev, getStateDisplayName, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 
 // ===========================================
 // TYPES
@@ -69,98 +69,11 @@ export interface ProcessedBookstoreData {
   features: number[];
 
   // Pre-computed collections
-  featured: Bookstore[];
   popular: Bookstore[];
 
   // Stats
   totalCount: number;
   lastUpdated: string;
-}
-
-// ===========================================
-// DATA MAPPING FUNCTION
-// ===========================================
-
-/**
- * Maps raw row data (from Google Sheets) to the Bookstore type.
- * The Google Sheets client already handles all column-name mapping and
- * JSON parsing, so this is a lightweight identity pass with a few
- * numeric-column fallbacks retained for safety.
- */
-function mapBookstoreData(item: any): Bookstore {
-  // item comes from getBookstoresFromSheets() which already returns camelCase properties.
-  // Each override checks snake_case first (legacy/Supabase path) then camelCase (Sheets path).
-  return {
-    ...item,
-    // Numeric columns — prefer pre-parsed numeric field
-    latitude: item.lat_numeric?.toString() || item.latitude || null,
-    longitude: item.lng_numeric?.toString() || item.longitude || null,
-    // Feature IDs
-    featureIds: item.feature_ids || item.featureIds || [],
-    // Image URL — sheet column is camelCase "imageUrl"
-    imageUrl: item.image_url || item.imageUrl || null,
-    // Google enrichment fields — snake_case from Supabase, camelCase from Sheets
-    googleRating: item.google_rating || item.googleRating || null,
-    googlePlaceId: item.google_place_id || item.googlePlaceId || null,
-    googleReviewCount: item.google_review_count || item.googleReviewCount || null,
-    googleDescription: item.google_description || item.googleDescription || null,
-    googlePhotos: parseJsonb(item.google_photos ?? item.googlePhotos),
-    googleReviews: parseJsonb(item.google_reviews ?? item.googleReviews),
-    googlePriceLevel: item.google_price_level || item.googlePriceLevel || null,
-    googleDataUpdatedAt: item.google_data_updated_at || item.googleDataUpdatedAt || null,
-    formattedPhone: item.formatted_phone || item.formattedPhone || null,
-    websiteVerified: item.website_verified ?? item.websiteVerified ?? null,
-    openingHoursJson: item.opening_hours_json || item.openingHoursJson || null,
-    googleMapsUrl: item.google_maps_url || item.googleMapsUrl || null,
-    googleTypes: item.google_types || item.googleTypes || null,
-    formattedAddressGoogle: item.formatted_address_google || item.formattedAddressGoogle || null,
-    businessStatus: item.business_status || item.businessStatus || null,
-    contactDataFetchedAt: item.contact_data_fetched_at || item.contactDataFetchedAt || null,
-    aiGeneratedDescription: item.ai_generated_description || item.aiGeneratedDescription || null,
-    descriptionGeneratedAt: item.description_generated_at || item.descriptionGeneratedAt || null,
-    descriptionValidated: item.description_validated ?? item.descriptionValidated ?? null,
-    descriptionSource: item.description_source || item.descriptionSource || null,
-    // Prefer parsed JSON hours over raw text
-    hours: (item.hours_json || item.openingHoursJson)
-      ? (() => { const v = item.hours_json || item.openingHoursJson; return typeof v === 'string' ? JSON.parse(v) : v; })()
-      : null,
-  } as Bookstore;
-}
-
-/**
- * Safely parse jsonb columns (may be string, array, or object from Supabase/PostgREST)
- */
-function parseJsonb(value: any): any[] | null {
-  if (value === undefined || value === null) return null;
-  if (Array.isArray(value)) return value;
-  if (typeof value === 'string') {
-    try {
-      const parsed = JSON.parse(value);
-      return Array.isArray(parsed) ? parsed : null;
-    } catch {
-      return null;
-    }
-  }
-  // Supabase/PostgREST sometimes returns JSONB as plain object (e.g. indexed keys)
-  if (typeof value === 'object') {
-    const arr = Object.values(value);
-    return arr.length > 0 ? arr : null;
-  }
-  return null;
-}
-
-/**
- * Generate slug from bookstore name
- */
-export function generateSlugFromName(name: string): string {
-  if (!name || typeof name !== 'string') return '';
-  return name
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/--+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .trim();
 }
 
 // ===========================================
@@ -174,8 +87,7 @@ export function generateSlugFromName(name: string): string {
  */
 async function fetchAllBookstoreData(): Promise<Bookstore[]> {
   // getCachedRawBookstores hits Vercel's shared Data Cache — no Sheets API call on cache hit
-  const rows = await getCachedRawBookstores();
-  return rows.map(mapBookstoreData);
+  return getCachedRawBookstores();
 }
 
 // ===========================================
@@ -207,7 +119,7 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
     byId[bookstore.id] = bookstore;
 
     // Index by slug
-    const slug = bookstore.slug || generateSlugFromName(bookstore.name);
+    const slug = getBookstoreSlug(bookstore);
     if (slug) {
       bySlug[slug.toLowerCase()] = bookstore;
     }
@@ -220,7 +132,7 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
 
     // Index by city (key by state abbrev so city+state lookup is consistent)
     if (cityNorm && stateAbbrev) {
-      const cityKey = `${cityNorm.toLowerCase()}-${stateAbbrev.toLowerCase()}`;
+      const cityKey = makeCityKey(cityNorm, stateAbbrev);
       if (!byCity[cityKey]) byCity[cityKey] = [];
       byCity[cityKey].push(bookstore);
       citiesSet.add(cityNorm);
@@ -236,7 +148,7 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
 
     // Index by county (key by state abbrev)
     if (countyNorm && stateAbbrev) {
-      const countyKey = `${countyNorm.toLowerCase()}-${stateAbbrev.toLowerCase()}`;
+      const countyKey = makeCityKey(countyNorm, stateAbbrev);
       if (!byCounty[countyKey]) byCounty[countyKey] = [];
       byCounty[countyKey].push(bookstore);
       countiesSet.add(countyNorm);
@@ -253,10 +165,7 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
     }
   }
 
-  // Pre-compute featured (random sample) and popular (by rating)
-  const shuffled = [...bookstores].sort(() => Math.random() - 0.5);
-  const featured = shuffled.slice(0, 8);
-
+  // Pre-compute popular (by rating). Featured is picked per day in getFeaturedBookstores.
   const popular = [...bookstores]
     .filter(b => b.googleRating)
     .sort((a, b) => {
@@ -281,7 +190,6 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
     ),
     counties: Array.from(countiesSet).sort(),
     features: Array.from(featuresSet).sort((a, b) => a - b),
-    featured,
     popular,
     totalCount: bookstores.length,
     lastUpdated: new Date().toISOString(),
@@ -338,8 +246,7 @@ export async function getAllBookstores(): Promise<Bookstore[]> {
 export async function getBookstoresByCity(city: string, state: string): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
   const stateAbbrev = getStateAbbrev(state);
-  const key = `${city.trim().toLowerCase()}-${stateAbbrev.toLowerCase()}`;
-  return safeMapGet(data.byCity, key) || [];
+  return safeMapGet(data.byCity, makeCityKey(city, stateAbbrev)) || [];
 }
 
 /**
@@ -357,8 +264,7 @@ export async function getBookstoresByState(state: string): Promise<Bookstore[]> 
 export async function getBookstoresByCounty(county: string, state: string): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
   const stateAbbrev = getStateAbbrev(state);
-  const key = `${county.trim().toLowerCase()}-${stateAbbrev.toLowerCase()}`;
-  return safeMapGet(data.byCounty, key) || [];
+  return safeMapGet(data.byCounty, makeCityKey(county, stateAbbrev)) || [];
 }
 
 /**
@@ -380,8 +286,7 @@ export async function getBookstoreBySlug(slug: string): Promise<Bookstore | null
 
   // Fallback: check if any bookstore's generated slug matches
   for (const b of data.all) {
-    const generatedSlug = b.slug || generateSlugFromName(b.name);
-    if (generatedSlug.toLowerCase() === slug.toLowerCase()) {
+    if (getBookstoreSlug(b).toLowerCase() === slug.toLowerCase()) {
       return b;
     }
   }
@@ -397,7 +302,7 @@ export async function getBookstoreBySlugFull(slug: string): Promise<Bookstore | 
   const bookstores = await fetchFullBookstoreData();
   const lowerSlug = slug.toLowerCase();
   return (
-    bookstores.find(b => (b.slug || generateSlugFromName(b.name)).toLowerCase() === lowerSlug) ??
+    bookstores.find(b => getBookstoreSlug(b).toLowerCase() === lowerSlug) ??
     null
   );
 }
@@ -418,7 +323,6 @@ export async function getCitiesWithState(): Promise<Array<{ city: string; state:
   const cities: Array<{ city: string; state: string; count: number }> = [];
 
   for (const key of safeMapKeys(data.byCity)) {
-    const [city, state] = key.split('-');
     const bookstores = safeMapGet(data.byCity, key) || [];
     if (bookstores.length > 0) {
       // Get proper case from first bookstore
@@ -441,7 +345,6 @@ export async function getCountiesWithState(): Promise<Array<{ county: string; st
   const counties: Array<{ county: string; state: string; count: number }> = [];
 
   for (const key of safeMapKeys(data.byCounty)) {
-    const [county, state] = key.split('-');
     const bookstores = safeMapGet(data.byCounty, key) || [];
     if (bookstores.length > 0) {
       counties.push({
@@ -456,13 +359,12 @@ export async function getCountiesWithState(): Promise<Array<{ county: string; st
 }
 
 /**
- * Get featured bookstores (random sample)
+ * Featured bookstores for today. Same result for every render and cache hit on
+ * a given day (UTC), so the homepage doesn't change between requests.
  */
 export async function getFeaturedBookstores(count: number = 8): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
-  // Re-shuffle for variety
-  const shuffled = [...data.all].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
+  return pickFeaturedBookstores(data.all, count, daysSinceEpoch());
 }
 
 /**
@@ -481,9 +383,7 @@ export async function getRelatedBookstores(bookstore: Bookstore, limit: number =
 
   // Try same city first
   if (bookstore.city && bookstore.state) {
-    const stateAbbrev = getStateAbbrev(bookstore.state);
-    const cityKey = `${bookstore.city.toLowerCase()}-${stateAbbrev.toLowerCase()}`;
-    const cityBookstores = (safeMapGet(data.byCity, cityKey) || [])
+    const cityBookstores = (safeMapGet(data.byCity, makeCityKey(bookstore.city, bookstore.state)) || [])
       .filter(b => b.id !== bookstore.id);
 
     if (cityBookstores.length >= 3) {
@@ -502,8 +402,10 @@ export async function getRelatedBookstores(bookstore: Bookstore, limit: number =
     }
   }
 
-  // Last resort: random from featured
-  return data.featured.filter(b => b.id !== bookstore.id).slice(0, limit);
+  // Last resort: today's featured shops
+  return pickFeaturedBookstores(data.all, limit + 1, daysSinceEpoch())
+    .filter(b => b.id !== bookstore.id)
+    .slice(0, limit);
 }
 
 /**
@@ -528,16 +430,12 @@ export async function getFilteredBookstores(filters: {
 
   // Filter by city (requires state context; keys use state abbrev)
   if (filters.city && filters.state) {
-    const stateAbbrev = getStateAbbrev(filters.state.trim());
-    const cityKey = `${filters.city.trim().toLowerCase()}-${stateAbbrev.toLowerCase()}`;
-    results = safeMapGet(data.byCity, cityKey) || [];
+    results = safeMapGet(data.byCity, makeCityKey(filters.city, filters.state)) || [];
   }
 
   // Filter by county (requires state context; keys use state abbrev)
   if (filters.county && filters.state) {
-    const stateAbbrev = getStateAbbrev(filters.state.trim());
-    const countyKey = `${filters.county.trim().toLowerCase()}-${stateAbbrev.toLowerCase()}`;
-    results = safeMapGet(data.byCounty, countyKey) || [];
+    results = safeMapGet(data.byCounty, makeCityKey(filters.county, filters.state)) || [];
   }
 
   // Filter by features

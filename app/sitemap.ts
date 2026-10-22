@@ -1,8 +1,6 @@
 import { MetadataRoute } from 'next';
-import {
-  getProcessedBookstoreData,
-  generateSlugFromName,
-} from '@/lib/data/bookstore-data';
+import { getProcessedBookstoreData } from '@/lib/data/bookstore-data';
+import { getBookstoreSlug } from '@/lib/data/slug';
 
 /**
  * Generate comprehensive sitemap.xml for SEO
@@ -91,7 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const seenSlugs = new Set<string>();
     const bookshopPages: MetadataRoute.Sitemap = data.all
       .map((b) => ({
-        slug: b.slug || generateSlugFromName(b.name),
+        slug: getBookstoreSlug(b),
         id: b.id,
       }))
       .filter(({ slug }) => {
