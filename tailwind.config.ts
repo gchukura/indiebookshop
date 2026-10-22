@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        serif: ['Libre Baskerville', 'Georgia', 'serif'],
-        sans: ['Open Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        serif: ['var(--font-serif)', 'Georgia', 'serif'],
+        sans: ['var(--font-sans)', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
       },
       fontSize: {
         'display': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],      // 48px - Hero text
