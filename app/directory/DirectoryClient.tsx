@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import BookshopCard from '@/components/bookshop/BookshopCard';
 import type { FeatureLink } from '@/lib/data/feature-index';
+import { distanceKm, kmToMiles, shopCoordinates } from '@/lib/data/geo';
 
 // react-map-gl + mapbox-gl (~1.6 MB) load only once the map area is on screen
 const DirectoryMap = dynamic(() => import('@/components/directory/DirectoryMap'), {
@@ -47,6 +48,9 @@ type DirectoryClientProps = {
     county?: string;
     features?: string;
     view?: string;
+    q?: string;
+    lat?: string;
+    lng?: string;
   };
 };
 
@@ -90,7 +94,13 @@ export default function DirectoryClient({
 }: DirectoryClientProps) {
   // Filters start from the URL (?state=CA&city=Berkeley&county=Alameda&features=1,2)
   const initialState = getStateAbbrev(initialFilters.state) || 'all';
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialFilters.q ?? '');
+  // "Use my location" from the homepage: sort by distance from here
+  const origin = useMemo(() => {
+    const lat = parseFloat(initialFilters.lat ?? '');
+    const lng = parseFloat(initialFilters.lng ?? '');
+    return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+  }, [initialFilters.lat, initialFilters.lng]);
   const [selectedState, setSelectedState] = useState<string>(initialState);
   const [selectedCity, setSelectedCity] = useState<string>(() =>
     initialPlace(initialBookstores, initialFilters.city, initialState === 'all' ? '' : initialState, b => b.city)
@@ -129,13 +139,18 @@ export default function DirectoryClient({
     if (selectedCity !== 'all') params.set('city', selectedCity.split(LOCATION_DELIMITER)[0]);
     if (selectedCounty !== 'all') params.set('county', selectedCounty.split(LOCATION_DELIMITER)[0]);
     if (selectedFeatures.length) params.set('features', [...selectedFeatures].sort((a, b) => a - b).join(','));
+    if (searchQuery.trim()) params.set('q', searchQuery.trim());
+    if (origin) {
+      params.set('lat', String(origin.lat));
+      params.set('lng', String(origin.lng));
+    }
     if (mobileView === 'map') params.set('view', 'map');
     const query = params.toString().replace(/%2C/g, ','); // keep features=1,2 readable
     const url = `${window.location.pathname}${query ? `?${query}` : ''}`;
     if (url !== `${window.location.pathname}${window.location.search}`) {
       window.history.replaceState(window.history.state, '', url);
     }
-  }, [selectedState, selectedCity, selectedCounty, selectedFeatures, mobileView]);
+  }, [selectedState, selectedCity, selectedCounty, selectedFeatures, mobileView, searchQuery, origin]);
 
   const changeState = useCallback((abbrev: string) => {
     setSelectedState(abbrev);
@@ -184,8 +199,17 @@ export default function DirectoryClient({
       filtered = filtered.filter((b) => selectedFeatures.every((id) => b.featureIds.includes(id)));
     }
 
+    // Nearest first when the visitor shared their location
+    if (origin) {
+      const miles = (b: DirectoryBookstore) => {
+        const at = shopCoordinates(b);
+        return at ? kmToMiles(distanceKm(origin, at)) : Infinity;
+      };
+      filtered = [...filtered].sort((a, b) => miles(a) - miles(b));
+    }
+
     return filtered;
-  }, [initialBookstores, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures]);
+  }, [initialBookstores, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures, origin]);
 
   // Get unique cities and counties (use state abbrev in key so option values are consistent)
   const cities = useMemo(() => {
@@ -296,6 +320,7 @@ export default function DirectoryClient({
           <MapPlaceholder message="Map is unavailable right now." />
         ) : mapWanted ? (
           <DirectoryMap
+            initialCenter={origin}
             shops={filteredBookstores}
             mapboxToken={mapboxToken}
             hoveredId={hoveredBookshopId}
@@ -400,6 +425,11 @@ export default function DirectoryClient({
 
             {/* Scrollable List */}
             <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+              {origin && filteredBookstores.length > 0 && (
+                <p className="px-4 pt-4 text-xs text-gray-600" role="status">
+                  Sorted by distance from your location
+                </p>
+              )}
               {filteredBookstores.length > 0 ? (
                 <div className="p-4 space-y-3">
                   {filteredBookstores.map((bookshop) => (

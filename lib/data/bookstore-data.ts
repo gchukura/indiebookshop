@@ -391,12 +391,13 @@ export async function getCountiesWithState(): Promise<Array<{ county: string; st
 }
 
 /**
- * Featured bookstores for today. Same result for every render and cache hit on
- * a given day (UTC), so the homepage doesn't change between requests.
+ * Featured bookstores for today (or this week). Same result for every render
+ * and cache hit within the period (UTC), so the homepage doesn't change between requests.
  */
-export async function getFeaturedBookstores(count: number = 8): Promise<Bookstore[]> {
+export async function getFeaturedBookstores(count: number = 8, period: 'day' | 'week' = 'day'): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
-  return pickFeaturedBookstores(data.all, count, daysSinceEpoch());
+  const day = daysSinceEpoch();
+  return pickFeaturedBookstores(data.all, count, period === 'week' ? Math.floor(day / 7) : day);
 }
 
 /**
