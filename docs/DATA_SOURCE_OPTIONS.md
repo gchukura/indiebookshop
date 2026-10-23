@@ -1,5 +1,7 @@
 # Data source and caching options
 
+> **Status:** option A was implemented on 2026-10-23 (`scripts/export-sheet.ts`, `docs/setup/PUBLISHING.md`). Build from the snapshot: 31s total, page generation 12.7s, no Sheets reads after the export.
+
 Investigation for item D18 (2026-10-23). No app code was changed. Effort is given as Claude Code time plus the owner's own setup time (human-developer days in brackets). All numbers were measured locally on an M-series Mac over home broadband against the live Sheet (2,165 live shops), unless marked as an estimate.
 
 ## How it works today
