@@ -5,6 +5,8 @@ import { getBookstoreSlug } from '@/lib/data/slug';
 import { getBookstoreDescription } from '@/lib/data/bookstore-content';
 import ShopDetail from '@/components/bookshop/ShopDetail';
 import { getMapboxToken } from '@/lib/mapbox';
+import { BRAND, fitTitle } from '@/lib/seo';
+import { getStateAbbrev } from '@/lib/state-utils';
 import { getFeatureIndex } from '@/lib/data/features';
 import { getBookshopPhotoUrl } from '@/lib/bookshop-image';
 
@@ -48,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Validate slug exists
     if (!resolvedParams?.slug) {
       return {
-        title: 'Bookshop Not Found | IndiebookShop.com',
+        title: 'Bookshop Not Found',
       };
     }
     
@@ -58,7 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!bookstore) {
       return {
-        title: 'Bookshop Not Found | IndiebookShop.com',
+        title: 'Bookshop Not Found',
       };
     }
 
@@ -87,7 +89,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       : [{ url: 'https://www.indiebookshop.com/og-default.jpg', width: 1200, height: 630, alt: 'IndiebookShop.com - Discover Independent Bookstores' }];
 
     return {
-      title: `${bookstore.name} | Independent Bookshop in ${bookstore.city}, ${bookstore.state}`,
+      title: {
+        absolute: fitTitle([
+          `${bookstore.name} | Bookshop in ${bookstore.city}, ${getStateAbbrev(bookstore.state)} | ${BRAND}`,
+          `${bookstore.name}, ${bookstore.city}, ${getStateAbbrev(bookstore.state)} | ${BRAND}`,
+          `${bookstore.name} | ${BRAND}`,
+          bookstore.name,
+        ]),
+      },
       description,
       openGraph: {
         title: `${bookstore.name} - Indie Bookshop`,
@@ -109,15 +118,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: 'Bookshop Details | IndiebookShop.com',
+      title: 'Bookshop Details',
     };
   }
 }
 
-/**
- * Bookshop Detail Page - Server Component with ISR
- */
-export default async function BookshopPage({ params }: Props) {
+/** Finds the shop (redirecting non-canonical slugs) and loads everything the page shows. */
+async function loadBookshopPage(params: Props['params']) {
   try {
     const resolvedParams = await params;
     
@@ -175,22 +182,22 @@ export default async function BookshopPage({ params }: Props) {
       getFeatureIndex().then(f => f.links).catch(() => ({})),
     ]);
 
-    return (
-      <ShopDetail
-        bookstore={bookstore}
-        canonicalSlug={canonicalSlug}
-        nearby={nearby}
-        events={events}
-        featureLinks={featureLinks}
-        mapboxToken={getMapboxToken()}
-      />
-    );
+    return { bookstore, canonicalSlug, nearby, events, featureLinks };
   } catch (error) {
     // Let Next's redirect/notFound signals through instead of turning them into a 404
     unstable_rethrow(error);
     console.error('Error loading bookshop:', error);
     notFound();
   }
+}
+
+/**
+ * Bookshop Detail Page - Server Component with ISR
+ */
+export default async function BookshopPage({ params }: Props) {
+  // JSX is built outside the try/catch so render errors reach the error boundary
+  const props = await loadBookshopPage(params);
+  return <ShopDetail {...props} mapboxToken={getMapboxToken()} />;
 }
 
 // Revalidate every 24 hours (bookstore data rarely changes)

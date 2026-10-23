@@ -6,6 +6,8 @@ import LocationShops from '@/components/location/LocationShops';
 import { getFeatureIndex } from '@/lib/data/features';
 import { getLocationIndex } from '@/lib/data/locations';
 import { stateFeatureIntro, toMetaDescription } from '@/lib/data/location-content';
+import { getStateAbbrev } from '@/lib/state-utils';
+import { BRAND, fitTitle } from '@/lib/seo';
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -31,7 +33,15 @@ async function load(params: Props['params']) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { page, intro } = await load(params);
-  const title = `Independent Bookshops with ${page.feature.phrase} in ${page.stateName} (${page.shops.length}) | IndieBookShop`;
+  const { phrase } = page.feature;
+  const n = page.shops.length;
+  const abbrev = getStateAbbrev(page.stateName);
+  const title = fitTitle([
+    `Independent Bookshops with ${phrase} in ${page.stateName} (${n}) | ${BRAND}`,
+    `Bookshops with ${phrase} in ${page.stateName} (${n}) | ${BRAND}`,
+    `Bookshops with ${phrase} in ${abbrev} (${n}) | ${BRAND}`,
+    `Bookshops with ${phrase} in ${abbrev} (${n})`,
+  ]);
   const description = toMetaDescription(intro);
   const url = `https://www.indiebookshop.com/bookshops/${page.stateSlug}/features/${page.feature.slug}`;
   return {

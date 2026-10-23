@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import { getLocationIndex } from '@/lib/data/locations';
+import { BRAND, fitTitle } from '@/lib/seo';
 
 export const revalidate = 3600;
 
@@ -19,7 +20,7 @@ async function getIntro() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const { total, intro } = await getIntro();
-  const title = `Independent Bookshops by State (${total.toLocaleString('en-US')}) | IndieBookShop`;
+  const title = fitTitle([`Independent Bookshops by State (${total.toLocaleString('en-US')}) | ${BRAND}`, `Bookshops by State | ${BRAND}`]);
   return {
     title: { absolute: title },
     description: intro,

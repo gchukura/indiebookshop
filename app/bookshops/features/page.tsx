@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import PlaceLinks from '@/components/location/PlaceLinks';
 import { getFeatureIndex } from '@/lib/data/features';
+import { BRAND } from '@/lib/seo';
 
 export const revalidate = 3600;
 
@@ -10,7 +11,7 @@ const INTRO =
   'Browse independent bookshops by what they offer: cafés, used and rare books, children’s sections, author events, and book clubs. Each list is grouped by state.';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const title = 'Independent Bookshops by Feature | IndieBookShop';
+  const title = `Independent Bookshops by Feature | ${BRAND}`;
   return {
     title: { absolute: title },
     description: INTRO,
