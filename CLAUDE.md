@@ -13,7 +13,7 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 - `npm run start` — serve the build
 - Type-check: `npm run check` (`tsc -p tsconfig.json --noEmit`)
 - `node scripts/fetch-google-photos.mjs` — fetch Google photos into R2 for shops that lack one (see Photos below)
-- `node scripts/indexnow.mjs [--urls a,b] [--dry-run]` — submit the live sitemap (or given paths) to IndexNow (Bing etc.); the key file is `public/acc33ef596bf47359e1aa5cd6b78344d.txt` and must be deployed first
+- `node scripts/indexnow.mjs [--urls a,b | --diff <file>] [--dry-run]` — submit the live sitemap (or given paths, or only URLs added/removed since `<file>`) to IndexNow (Bing etc.); the key file is `public/acc33ef596bf47359e1aa5cd6b78344d.txt`. `.github/workflows/indexnow.yml` runs the `--diff` mode after every production deploy (and daily at 09:30 UTC), keeping the last URL list in the Actions cache
 - `npx tsx scripts/test-interactive-elements.ts [url]` — Playwright smoke test of buttons, search, and forms
 - `npm test` — Vitest unit tests in `tests/` (`vitest.config.ts` maps `@/`; `tests/setup.ts` turns on fixture data and stubs `unstable_cache`/React `cache`, so tests can import pages, the sitemap, and the data layer)
 - `npm run lint` — ESLint 9 flat config (`eslint.config.mjs`, `eslint-config-next`); `next lint` no longer exists in Next 16. Errors fail CI, warnings don't
