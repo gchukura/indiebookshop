@@ -1,6 +1,6 @@
 import type { Bookstore } from '@/shared/schema';
 import { getStateAbbrev } from '@/lib/state-utils';
-import { distanceKm, kmToMiles, shopCoordinates } from './geo';
+import { nearest, shopCoordinates } from './geo';
 
 export type NearbyShop = { shop: Bookstore; miles?: number };
 
@@ -15,11 +15,5 @@ export function nearestBookstores(all: Bookstore[], shop: Bookstore, limit = 6):
     const state = getStateAbbrev(shop.state);
     return others.filter(b => getStateAbbrev(b.state) === state).slice(0, limit).map(b => ({ shop: b }));
   }
-  return others
-    .flatMap(b => {
-      const at = shopCoordinates(b);
-      return at ? [{ shop: b, miles: kmToMiles(distanceKm(origin, at)) }] : [];
-    })
-    .sort((a, b) => a.miles - b.miles)
-    .slice(0, limit);
+  return nearest(others, origin.lat, origin.lng, limit);
 }
