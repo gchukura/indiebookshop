@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { hasBlogPosts } from '@/lib/blog';
 import { Heart, Map, Search, Users, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -268,10 +269,12 @@ export default function AboutPage() {
                 <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Events</h3>
                 <p className="text-sm text-gray-600">Find bookshop events</p>
               </Link>
-              <Link href="/blog" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Blog</h3>
-                <p className="text-sm text-gray-600">Read bookshop stories</p>
-              </Link>
+              {hasBlogPosts() && (
+                <Link href="/blog" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
+                  <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Blog</h3>
+                  <p className="text-sm text-gray-600">Read bookshop stories</p>
+                </Link>
+              )}
             </div>
           </div>
         </div>

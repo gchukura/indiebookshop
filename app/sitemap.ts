@@ -3,6 +3,7 @@ import { getProcessedBookstoreData } from '@/lib/data/bookstore-data';
 import { getBookstoreSlug } from '@/lib/data/slug';
 import { getLocationIndex } from '@/lib/data/locations';
 import { getFeatureIndex } from '@/lib/data/features';
+import { getAllPosts } from '@/lib/blog';
 
 /**
  * Generate comprehensive sitemap.xml for SEO
@@ -54,12 +55,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.6,
       },
       {
-        url: `${baseUrl}/blog`,
-        lastModified,
-        changeFrequency: 'weekly',
-        priority: 0.6,
-      },
-      {
         url: `${baseUrl}/submit`,
         lastModified,
         changeFrequency: 'monthly',
@@ -95,6 +90,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const countyPages: MetadataRoute.Sitemap = states.flatMap(s =>
       s.counties.map(c => page(`/bookshops/${s.slug}/county/${c.slug}`, 0.6))
     );
+
+    // Blog (only when there are posts; /blog 404s otherwise)
+    const posts = await getAllPosts();
+    const blogPages: MetadataRoute.Sitemap = posts.length
+      ? [
+          { url: `${baseUrl}/blog`, lastModified, changeFrequency: 'weekly' as const, priority: 0.6 },
+          ...posts.map(p => ({ url: `${baseUrl}/blog/${p.slug}`, lastModified: new Date(`${p.date}T12:00:00Z`), changeFrequency: 'monthly' as const, priority: 0.6 })),
+        ]
+      : [];
 
     // Feature pages (/bookshops/features/...) and state + feature pages
     const { index: featureIndex } = await getFeatureIndex();
@@ -140,6 +144,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...cityPages,
       ...countyPages,
       ...featurePages,
+      ...blogPages,
       ...bookshopPages,
     ];
   } catch (error) {

@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
-const Footer = () => {
+/** `showBlog` is false when content/blog has no posts. */
+const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -178,14 +179,16 @@ const Footer = () => {
                     Contact
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/blog"
-                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
-                  >
-                    Blog
-                  </Link>
-                </li>
+                {showBlog && (
+                  <li>
+                    <Link
+                      href="/blog"
+                      className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                    >
+                      Blog
+                    </Link>
+                  </li>
+                )}
               </ul>
             </div>
 

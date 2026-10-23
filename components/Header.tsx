@@ -21,7 +21,8 @@ const NavLink = ({ href, children, className, isActive }: { href: string; childr
   );
 };
 
-const Header = () => {
+/** `showBlog` is false when content/blog has no posts, so the nav doesn't link to an empty page. */
+const Header = ({ showBlog = true }: { showBlog?: boolean }) => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -66,13 +67,15 @@ const Header = () => {
               >
                 <span className="pointer-events-none">Events</span>
               </NavLink>
-              <NavLink
-                href="/blog"
-                isActive={activeRoutes['/blog']}
-                className={activeRoutes['/blog'] ? 'text-brand-teal border-b-2 border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-brand-teal hover:border-b-2 hover:border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors'}
-              >
-                <span className="pointer-events-none">Blog</span>
-              </NavLink>
+              {showBlog && (
+                <NavLink
+                  href="/blog"
+                  isActive={activeRoutes['/blog']}
+                  className={activeRoutes['/blog'] ? 'text-brand-teal border-b-2 border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-brand-teal hover:border-b-2 hover:border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors'}
+                >
+                  <span className="pointer-events-none">Blog</span>
+                </NavLink>
+              )}
               <NavLink
                 href="/contact"
                 isActive={activeRoutes['/contact']}
@@ -136,13 +139,15 @@ const Header = () => {
                   >
                     Events
                   </Link>
-                  <Link
-                    href="/blog"
-                    className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Blog
-                  </Link>
+                  {showBlog && (
+                    <Link
+                      href="/blog"
+                      className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Blog
+                    </Link>
+                  )}
                   <Link
                     href="/contact"
                     className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
