@@ -38,6 +38,7 @@ export function ResponsiveAdSlot({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only mount flag; ad components aren't rendered yet (see Prompt 17)
     setMounted(true);
 
     const checkMobile = () => {

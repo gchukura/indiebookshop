@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "check": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "eslint .",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -45,11 +47,14 @@
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1012.0",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^20.19.43",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "autoprefixer": "^10.4.20",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.1.4",
     "playwright": "^1.58.2",
     "postcss": "^8.4.47",
     "sharp": "^0.34.5",

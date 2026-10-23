@@ -11,7 +11,7 @@ export default function NotFound() {
           Page Not Found
         </h1>
         <p className="text-gray-600 mb-8">
-          We couldn't find the page you're looking for. The bookshop may have moved or the link might be outdated.
+          We couldn’t find the page you’re looking for. The bookshop may have moved or the link might be outdated.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button asChild variant="outline" className="flex items-center gap-2">

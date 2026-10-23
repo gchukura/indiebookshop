@@ -23,14 +23,13 @@ export default function HeroSearch() {
   const [locating, setLocating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const boxRef = useRef<HTMLFormElement>(null);
+  // Only show results while the query is long enough to have produced them
+  const visible = query.trim().length >= 2 ? suggestions : [];
 
   // Debounced fetch; ignores responses for stale queries
   useEffect(() => {
     const q = query.trim();
-    if (q.length < 2) {
-      setSuggestions([]);
-      return;
-    }
+    if (q.length < 2) return; // shorter queries show nothing (see `visible` above)
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       try {
@@ -66,22 +65,22 @@ export default function HeroSearch() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const q = query.trim();
-    if (active >= 0 && suggestions[active]) return go(suggestions[active].href);
+    if (active >= 0 && visible[active]) return go(visible[active].href);
     if (!q) return go('/directory');
     // An exact name match ("Portland, OR", "Powell's Books") goes straight to its page
-    const exact = suggestions.find(s => s.label.toLowerCase() === q.toLowerCase());
+    const exact = visible.find(s => s.label.toLowerCase() === q.toLowerCase());
     go(exact ? exact.href : `/directory?q=${encodeURIComponent(q)}`);
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!suggestions.length) return;
+    if (!visible.length) return;
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setOpen(true);
-      setActive(i => (i + 1) % suggestions.length);
+      setActive(i => (i + 1) % visible.length);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setActive(i => (i <= 0 ? suggestions.length - 1 : i - 1));
+      setActive(i => (i <= 0 ? visible.length - 1 : i - 1));
     } else if (e.key === 'Escape') {
       setOpen(false);
       setActive(-1);
@@ -109,7 +108,7 @@ export default function HeroSearch() {
     );
   };
 
-  const showList = open && suggestions.length > 0;
+  const showList = open && visible.length > 0;
 
   return (
     <form ref={boxRef} onSubmit={submit} role="search" className="w-full max-w-2xl">
@@ -141,7 +140,7 @@ export default function HeroSearch() {
               role="listbox"
               className="absolute z-20 mt-2 w-full bg-white rounded-lg shadow-lg border border-border overflow-hidden text-left"
             >
-              {suggestions.map((s, i) => (
+              {visible.map((s, i) => (
                 <li
                   key={s.href}
                   id={`${listId}-${i}`}

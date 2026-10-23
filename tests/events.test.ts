@@ -28,7 +28,11 @@ describe('events', () => {
 
   it('builds Event JSON-LD with the shop as location', () => {
     const shop = { id: 1, name: 'Test Books', slug: null, street: '1 Main St', city: 'Austin', state: 'Texas', zip: '78701' } as Bookstore;
-    const ld = eventJsonLd(ev(9, '2026-11-08', '7:30'), shop) as Record<string, any>;
+    const ld = eventJsonLd(ev(9, '2026-11-08', '7:30'), shop) as {
+      startDate: string;
+      location: { address: { addressRegion: string } };
+      organizer: { url: string };
+    };
     expect(ld.startDate).toBe('2026-11-08T07:30');
     expect(ld.location.address.addressRegion).toBe('TX');
     expect(ld.organizer.url).toBe('https://www.indiebookshop.com/bookshop/test-books');

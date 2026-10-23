@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { MapPin } from 'lucide-react';
-import Map, { Marker, NavigationControl } from 'react-map-gl/mapbox';
+import Map, { Marker, NavigationControl, type MapRef, type MarkerEvent, type ViewStateChangeEvent } from 'react-map-gl/mapbox';
 import Supercluster from 'supercluster';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -37,7 +37,7 @@ type DirectoryMapProps = {
 };
 
 export default function DirectoryMap({ initialCenter, shops, mapboxToken, hoveredId, selectedId, onPinClick }: DirectoryMapProps) {
-  const mapRef = useRef<{ getMap: () => any } | null>(null);
+  const mapRef = useRef<MapRef>(null);
   const [viewState, setViewState] = useState<typeof DEFAULT_VIEW & { transitionDuration?: number }>(() =>
     initialCenter ? { ...DEFAULT_VIEW, latitude: initialCenter.lat, longitude: initialCenter.lng, zoom: 9 } : DEFAULT_VIEW
   );
@@ -93,9 +93,9 @@ export default function DirectoryMap({ initialCenter, shops, mapboxToken, hovere
 
   return (
     <Map
-      ref={mapRef as any}
+      ref={mapRef}
       {...viewState}
-      onMove={(evt: any) => evt.viewState && setViewState(evt.viewState)}
+      onMove={(evt: ViewStateChangeEvent) => setViewState(evt.viewState)}
       onMoveEnd={updateBounds}
       onLoad={() => setTimeout(updateBounds, 100)}
       mapboxAccessToken={mapboxToken}
@@ -104,9 +104,10 @@ export default function DirectoryMap({ initialCenter, shops, mapboxToken, hovere
     >
       <NavigationControl position="bottom-right" />
 
-      {clusters.map((cluster: any) => {
+      {clusters.map(cluster => {
         const [longitude, latitude] = cluster.geometry.coordinates;
-        const { cluster: isCluster, point_count: pointCount, bookshopId } = cluster.properties;
+        const props = cluster.properties as { cluster?: boolean; point_count?: number; bookshopId?: number };
+        const { cluster: isCluster, point_count: pointCount, bookshopId } = props;
 
         if (isCluster) {
           return (
@@ -114,9 +115,9 @@ export default function DirectoryMap({ initialCenter, shops, mapboxToken, hovere
               key={`cluster-${cluster.id}`}
               longitude={longitude}
               latitude={latitude}
-              onClick={(e: any) => {
+              onClick={(e: MarkerEvent<MouseEvent>) => {
                 e.originalEvent.stopPropagation();
-                handleClusterClick(cluster.id, longitude, latitude);
+                handleClusterClick(cluster.id as number, longitude, latitude);
               }}
             >
               <div className="cursor-pointer">
@@ -135,9 +136,9 @@ export default function DirectoryMap({ initialCenter, shops, mapboxToken, hovere
             key={`bookshop-${bookshopId}`}
             longitude={longitude}
             latitude={latitude}
-            onClick={(e: any) => {
+            onClick={(e: MarkerEvent<MouseEvent>) => {
               e.originalEvent.stopPropagation();
-              onPinClick(bookshopId);
+              onPinClick(bookshopId!);
             }}
           >
             <div className={`cursor-pointer transition-transform ${isSelected ? 'scale-125' : isHovered ? 'scale-110' : ''}`}>

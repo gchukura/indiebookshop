@@ -37,8 +37,9 @@ export function AdSenseSlot({
 
     try {
       // Push the ad
-      if (typeof window !== 'undefined' && (window as any).adsbygoogle) {
-        (window as any).adsbygoogle.push({});
+      const w = window as unknown as { adsbygoogle?: unknown[] };
+      if (typeof window !== 'undefined' && w.adsbygoogle) {
+        w.adsbygoogle.push({});
         isLoaded.current = true;
       }
     } catch (error) {

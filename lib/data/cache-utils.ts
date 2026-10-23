@@ -59,7 +59,7 @@ export function safeMapValues<K, V>(map: Map<K, V> | Record<string, V> | undefin
  * Ensure Maps are properly reconstituted after cache serialization
  * Next.js cache may serialize Maps to plain objects - this handles both cases
  */
-export function ensureMapsAreMaps<T extends Record<string, any>>(obj: T): T {
+export function ensureMapsAreMaps<T extends Record<string, unknown>>(obj: T): T {
   // If the object has properties that should be Maps but are plain objects,
   // we need to handle them gracefully. Rather than converting back to Maps
   // (which adds overhead), we use the safe* helper functions above.
