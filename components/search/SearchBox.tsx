@@ -4,19 +4,28 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Crosshair, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { Suggestion } from '@/lib/data/suggest';
+import { cn } from '@/lib/utils';
+import type { Suggestion } from '@/lib/data/search';
 
 const TYPE_LABEL: Record<Suggestion['type'], string> = { state: 'State', city: 'City', shop: 'Bookshop' };
 
+type SearchBoxProps = {
+  /** "hero": large, with a Search button and "Use my location". "compact": header-sized. */
+  variant?: 'hero' | 'compact';
+  defaultValue?: string;
+  /** Called after navigating (e.g. to close the mobile menu). */
+  onNavigate?: () => void;
+};
+
 /**
- * Homepage search: suggestions from /api/suggest as you type. Picking one goes
- * to its page; free text goes to /directory?q=; "Use my location" goes to the
- * directory sorted by distance.
+ * Search with suggestions from /api/suggest as you type. Picking one goes to its
+ * page; free text goes to /search?q=; "Use my location" goes to /near-me.
  */
-export default function HeroSearch() {
+export default function SearchBox({ variant = 'hero', defaultValue = '', onNavigate }: SearchBoxProps) {
+  const hero = variant === 'hero';
   const router = useRouter();
   const listId = useId();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(defaultValue);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
@@ -60,16 +69,17 @@ export default function HeroSearch() {
   const go = (href: string) => {
     setOpen(false);
     router.push(href);
+    onNavigate?.();
   };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const q = query.trim();
     if (active >= 0 && visible[active]) return go(visible[active].href);
-    if (!q) return go('/directory');
+    if (!q) return go('/search');
     // An exact name match ("Portland, OR", "Powell's Books") goes straight to its page
     const exact = visible.find(s => s.label.toLowerCase() === q.toLowerCase());
-    go(exact ? exact.href : `/directory?q=${encodeURIComponent(q)}`);
+    go(exact ? exact.href : `/search?q=${encodeURIComponent(q)}`);
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -97,8 +107,7 @@ export default function HeroSearch() {
     navigator.geolocation.getCurrentPosition(
       pos => {
         const { latitude, longitude } = pos.coords;
-        // TODO(near-me): route to /near-me once that page exists
-        go(`/directory?lat=${latitude.toFixed(4)}&lng=${longitude.toFixed(4)}`);
+        go(`/near-me?lat=${latitude.toFixed(4)}&lng=${longitude.toFixed(4)}`);
       },
       () => {
         setLocating(false);
@@ -111,10 +120,13 @@ export default function HeroSearch() {
   const showList = open && visible.length > 0;
 
   return (
-    <form ref={boxRef} onSubmit={submit} role="search" className="w-full max-w-2xl">
-      <div className="flex flex-col sm:flex-row gap-3">
+    <form ref={boxRef} onSubmit={submit} role="search" className={hero ? 'w-full max-w-2xl' : 'w-full'}>
+      <div className={hero ? 'flex flex-col sm:flex-row gap-3' : 'flex'}>
         <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
+          <Search
+            className={cn('absolute top-1/2 -translate-y-1/2 text-gray-400', hero ? 'left-4 w-5 h-5' : 'left-3 w-4 h-4')}
+            aria-hidden="true"
+          />
           <input
             type="search"
             value={query}
@@ -124,7 +136,7 @@ export default function HeroSearch() {
             }}
             onFocus={() => setOpen(true)}
             onKeyDown={onKeyDown}
-            placeholder="City, state, or bookshop name"
+            placeholder={hero ? 'City, state, or bookshop name' : 'Search bookshops'}
             aria-label="Search bookshops by city, state, or name"
             role="combobox"
             aria-expanded={showList}
@@ -132,13 +144,19 @@ export default function HeroSearch() {
             aria-autocomplete="list"
             aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
             autoComplete="off"
-            className="w-full h-14 pl-12 pr-4 rounded-full border border-input bg-white text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className={cn(
+              'w-full rounded-full border border-input bg-white focus:outline-none focus:ring-2 focus:ring-ring',
+              hero ? 'h-14 pl-12 pr-4 text-base shadow-sm' : 'h-10 pl-9 pr-3 text-sm'
+            )}
           />
           {showList && (
             <ul
               id={listId}
               role="listbox"
-              className="absolute z-20 mt-2 w-full bg-white rounded-lg shadow-lg border border-border overflow-hidden text-left"
+              className={cn(
+                'absolute z-50 mt-2 bg-white rounded-lg shadow-lg border border-border overflow-hidden text-left',
+                hero ? 'w-full' : 'w-full min-w-[18rem] right-0'
+              )}
             >
               {visible.map((s, i) => (
                 <li
@@ -163,26 +181,30 @@ export default function HeroSearch() {
             </ul>
           )}
         </div>
-        <Button type="submit" className="h-14 px-8 text-base">
-          Search
-        </Button>
-      </div>
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-        <button
-          type="button"
-          onClick={useLocation}
-          disabled={locating}
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-teal hover:underline disabled:opacity-60"
-        >
-          <Crosshair className="w-4 h-4" aria-hidden="true" />
-          {locating ? 'Finding you…' : 'Use my location'}
-        </button>
-        {message && (
-          <p className="text-sm text-gray-600" role="status">
-            {message}
-          </p>
+        {hero && (
+          <Button type="submit" className="h-14 px-8 text-base">
+            Search
+          </Button>
         )}
       </div>
+      {hero && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
+          <button
+            type="button"
+            onClick={useLocation}
+            disabled={locating}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-teal hover:underline disabled:opacity-60"
+          >
+            <Crosshair className="w-4 h-4" aria-hidden="true" />
+            {locating ? 'Finding you…' : 'Use my location'}
+          </button>
+          {message && (
+            <p className="text-sm text-gray-600" role="status">
+              {message}
+            </p>
+          )}
+        </div>
+      )}
     </form>
   );
 }

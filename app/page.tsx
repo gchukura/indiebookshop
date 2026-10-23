@@ -10,7 +10,7 @@ import { getLocationIndex } from '@/lib/data/locations';
 import { getFeatureIndex } from '@/lib/data/features';
 import { OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
 import BookshopCard from '@/components/bookshop/BookshopCard';
-import HeroSearch from '@/components/home/HeroSearch';
+import SearchBox from '@/components/search/SearchBox';
 import { BRAND } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -65,7 +65,7 @@ export default async function HomePage() {
           <p className="mt-4 mb-8 text-lg text-gray-700">
             Search {total.toLocaleString('en-US')} independent bookshops across the United States.
           </p>
-          <HeroSearch />
+          <SearchBox />
         </div>
       </section>
 
