@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
+import AdSlot from '@/components/ads/AdSlot';
+import { ADS_ENABLED } from '@/lib/ads';
 import LocationShops, { ShopGrid } from '@/components/location/LocationShops';
 import { getFeatureIndex } from '@/lib/data/features';
 import { featureIntro, toMetaDescription } from '@/lib/data/location-content';
@@ -70,6 +72,8 @@ export default async function FeaturePage({ params }: Props) {
           </nav>
         </header>
 
+        {ADS_ENABLED && <AdSlot name="location-intro" lazy={false} />}
+
         <LocationShops
           placeName={`the US with ${feature.phrase.toLowerCase()}`}
           shops={feature.shops}
@@ -77,7 +81,8 @@ export default async function FeaturePage({ params }: Props) {
           heading={`All ${feature.shops.length} bookshops, by state`}
         >
           <div className="space-y-10">
-            {feature.states.map(group => {
+            {feature.states.map((group, g) => {
+              const adOffset = feature.states.slice(0, g).reduce((n, s) => n + s.shops.length, 0);
               const statePage = byState[group.stateSlug]?.[feature.slug];
               return (
                 <section key={group.stateSlug} id={group.stateSlug} className="scroll-mt-24">
@@ -91,7 +96,7 @@ export default async function FeaturePage({ params }: Props) {
                     )}{' '}
                     <span className="text-base font-normal text-gray-500">({group.shops.length})</span>
                   </h3>
-                  <ShopGrid shops={group.shops} featureLinks={links} />
+                  <ShopGrid shops={group.shops} featureLinks={links} adOffset={adOffset} />
                 </section>
               );
             })}

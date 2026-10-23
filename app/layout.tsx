@@ -6,6 +6,8 @@ import Footer from '@/components/Footer';
 import { hasBlogPosts } from '@/lib/blog';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/Providers';
+import Script from 'next/script';
+import { ADS_ENABLED, ADSENSE_CLIENT } from '@/lib/ads';
 
 // Brand fonts, exposed as CSS variables consumed by tailwind.config.ts fontFamily
 const libreBaskerville = Libre_Baskerville({
@@ -63,6 +65,8 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  // AdSense site verification; only when ads are on (docs/ADS.md)
+  ...(ADS_ENABLED && { other: { 'google-adsense-account': ADSENSE_CLIENT } }),
 };
 
 export default function RootLayout({
@@ -72,10 +76,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${libreBaskerville.variable} ${openSans.variable}`}>
-      <head>
-        {/* AdSense script omitted until ad tech is implemented */}
-      </head>
       <body className="font-sans">
+        {ADS_ENABLED && (
+          <Script
+            id="adsense"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            strategy="lazyOnload"
+            crossOrigin="anonymous"
+          />
+        )}
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Header showBlog={hasBlogPosts()} />

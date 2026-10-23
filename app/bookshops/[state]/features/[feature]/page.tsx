@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
+import AdSlot from '@/components/ads/AdSlot';
+import { ADS_ENABLED } from '@/lib/ads';
 import LocationShops from '@/components/location/LocationShops';
 import { getFeatureIndex } from '@/lib/data/features';
 import { getLocationIndex } from '@/lib/data/locations';
@@ -73,6 +75,8 @@ export default async function StateFeaturePage({ params }: Props) {
           </h1>
           <p className="text-gray-700 leading-relaxed">{intro}</p>
         </header>
+
+        {ADS_ENABLED && <AdSlot name="location-intro" lazy={false} />}
 
         <LocationShops
           placeName={`${state.name} with ${feature.phrase.toLowerCase()}`}
