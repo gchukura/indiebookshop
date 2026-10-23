@@ -48,12 +48,12 @@ export default function BookshopCard({
   return (
     <article
       className={cn(
-        'bg-white rounded-lg shadow-md overflow-hidden group',
+        'relative bg-white rounded-lg shadow-md overflow-hidden group',
         compact ? 'flex gap-3 p-3' : 'transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg',
         className
       )}
     >
-      <Link href={href} className={cn('block shrink-0', compact && 'w-28 sm:w-32')} tabIndex={-1} aria-hidden="true">
+      <div className={cn('block shrink-0', compact && 'w-28 sm:w-32')}>
         <div className={cn('relative w-full aspect-[4/3] overflow-hidden bg-brand-cream', compact && 'rounded-md')}>
           <BookshopImage
             src={getBookshopImageUrl(bookshop)}
@@ -62,7 +62,7 @@ export default function BookshopCard({
             fallbackSrc={getPlaceholderUrl(bookshop.id, 'thumb')}
           />
         </div>
-      </Link>
+      </div>
       <div className={cn('min-w-0', compact ? 'flex-1' : 'p-4 md:p-5')}>
         <h3
           className={cn(
@@ -70,7 +70,8 @@ export default function BookshopCard({
             compact ? 'text-base mb-0.5' : 'text-base md:text-lg mb-1'
           )}
         >
-          <Link href={href} className="hover:text-brand-orange">
+          {/* Stretched over the whole card, so the card is one large tap target */}
+          <Link href={href} className="hover:text-brand-orange after:absolute after:inset-0 after:content-['']">
             {bookshop.name}
           </Link>
         </h3>
@@ -90,7 +91,7 @@ export default function BookshopCard({
             ) : null}
           </div>
         )}
-        <FeatureChips featureIds={bookshop.featureIds} links={featureLinks} limit={3} className={compact ? 'mt-2' : 'mt-3'} />
+        <FeatureChips featureIds={bookshop.featureIds} links={featureLinks} limit={3} asLabels className={compact ? 'mt-2' : 'mt-3'} />
       </div>
     </article>
   );

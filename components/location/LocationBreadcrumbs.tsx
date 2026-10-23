@@ -11,7 +11,7 @@ export default function LocationBreadcrumbs({ items }: { items: Crumb[] }) {
     <>
       <BreadcrumbSchema items={items.map(c => ({ name: c.name, url: `${SITE}${c.href}` }))} />
       <nav aria-label="Breadcrumb" className="bg-white border-b border-gray-200">
-        <ol className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+        <ol className="max-w-7xl mx-auto px-4 py-1 flex flex-wrap items-center gap-x-2 text-sm">
           {items.map((crumb, i) => {
             const last = i === items.length - 1;
             return (
@@ -20,7 +20,7 @@ export default function LocationBreadcrumbs({ items }: { items: Crumb[] }) {
                 {last ? (
                   <span className="text-gray-700" aria-current="page">{crumb.name}</span>
                 ) : (
-                  <Link href={crumb.href} className="text-brand-teal hover:underline">
+                  <Link href={crumb.href} className="inline-flex min-h-[44px] min-w-[44px] items-center text-brand-teal hover:underline">
                     {crumb.name}
                   </Link>
                 )}

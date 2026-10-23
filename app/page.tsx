@@ -80,11 +80,10 @@ export default async function HomePage() {
       <Section id="states" title="Browse by state" description="Every state with independent bookshops in the directory.">
         <ul className="columns-2 sm:columns-3 lg:columns-5 gap-x-8">
           {states.map(state => (
-            <li key={state.slug} className="break-inside-avoid py-1">
-              <Link href={`/bookshops/${state.slug}`} className="text-brand-teal hover:underline">
-                {state.name}
-              </Link>{' '}
-              <span className="text-sm text-gray-500">{state.shops.length}</span>
+            <li key={state.slug} className="break-inside-avoid">
+              <Link href={`/bookshops/${state.slug}`} className="inline-flex min-h-[44px] items-center gap-1.5 text-brand-teal hover:underline">
+                {state.name} <span className="text-sm text-gray-500">{state.shops.length}</span>
+              </Link>
             </li>
           ))}
         </ul>
@@ -97,10 +96,10 @@ export default async function HomePage() {
               <li key={feature.slug}>
                 <Link
                   href={`/bookshops/features/${feature.slug}`}
-                  className="inline-flex items-center gap-2 rounded-full bg-brand-cream px-4 py-2 text-brand-brown hover:bg-brand-teal hover:text-white transition-colors"
+                  className="group inline-flex min-h-[44px] items-center gap-2 rounded-full bg-brand-cream px-4 text-brand-brown hover:bg-brand-teal hover:text-white transition-colors"
                 >
                   <span className="font-semibold">{feature.name}</span>
-                  <span className="text-sm opacity-75">{feature.shops.length}</span>
+                  <span className="text-sm text-gray-600 group-hover:text-white">{feature.shops.length}</span>
                 </Link>
               </li>
             ))}

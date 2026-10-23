@@ -115,7 +115,7 @@ export default async function SubmitPage({ searchParams }: Props) {
               <p className="font-sans text-sm text-gray-700 mb-4">
                 Want to add events for your bookshop? Submit events to our calendar once your bookshop is listed.
               </p>
-              <Link href="/submit-event">
+              <Link href="/submit-event" className="block">
                 <Button className="w-full rounded-md">
                   Submit an Event
                 </Button>

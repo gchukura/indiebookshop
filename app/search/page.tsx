@@ -60,12 +60,12 @@ export default async function SearchPage({ searchParams }: Props) {
               <li key={place.href}>
                 <Link
                   href={place.href}
-                  className="flex items-center gap-3 rounded-lg bg-brand-cream px-5 py-4 text-brand-brown hover:bg-brand-teal hover:text-white transition-colors"
+                  className="group flex items-center gap-3 rounded-lg bg-brand-cream px-5 py-4 text-brand-brown hover:bg-brand-teal hover:text-white transition-colors"
                 >
                   <MapPin className="w-5 h-5 shrink-0" aria-hidden="true" />
                   <span>
                     <span className="font-semibold">Browse all bookshops in {place.label}</span>{' '}
-                    <span className="text-sm opacity-75">({place.count})</span>
+                    <span className="text-sm text-gray-600 group-hover:text-white">({place.count})</span>
                   </span>
                 </Link>
               </li>

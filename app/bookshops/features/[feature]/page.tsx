@@ -58,13 +58,12 @@ export default async function FeaturePage({ params }: Props) {
           </h1>
           <p className="text-gray-700 leading-relaxed">{intro}</p>
           <nav aria-label="Jump to state" className="mt-4">
-            <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+            <ul className="flex flex-wrap gap-x-4 text-sm">
               {feature.states.map(group => (
                 <li key={group.stateSlug}>
-                  <a href={`#${group.stateSlug}`} className="text-brand-teal hover:underline">
-                    {group.stateName}
-                  </a>{' '}
-                  <span className="text-gray-500">({group.shops.length})</span>
+                  <a href={`#${group.stateSlug}`} className="inline-flex min-h-[44px] items-center gap-1 text-brand-teal hover:underline">
+                    {group.stateName} <span className="text-gray-500">({group.shops.length})</span>
+                  </a>
                 </li>
               ))}
             </ul>
@@ -84,7 +83,7 @@ export default async function FeaturePage({ params }: Props) {
                 <section key={group.stateSlug} id={group.stateSlug} className="scroll-mt-24">
                   <h3 className="font-serif text-xl font-bold text-brand-brown mb-4">
                     {statePage ? (
-                      <Link href={`/bookshops/${group.stateSlug}/features/${feature.slug}`} className="hover:text-brand-orange">
+                      <Link href={`/bookshops/${group.stateSlug}/features/${feature.slug}`} className="inline-flex min-h-[44px] items-center hover:text-brand-orange">
                         {group.stateName}
                       </Link>
                     ) : (

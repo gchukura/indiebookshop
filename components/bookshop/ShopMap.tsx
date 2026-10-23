@@ -157,7 +157,7 @@ const ShopMap = ({ latitude, longitude, mapboxToken }: ShopMapProps) => {
             <p className="text-sm text-gray-600 mb-3">{mapError}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-3 py-1.5 bg-brand-teal hover:bg-brand-teal-hover text-white rounded-md text-xs font-medium transition-colors"
+              className="min-h-[44px] px-4 bg-brand-teal hover:bg-brand-teal-hover text-white rounded-md text-sm font-medium transition-colors"
             >
               Refresh Page
             </button>
