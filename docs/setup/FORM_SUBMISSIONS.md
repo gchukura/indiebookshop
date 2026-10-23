@@ -19,7 +19,7 @@ Both are attempted every time and each fails soft: a SendGrid error or a missing
 
 ## The `Submissions` tab (create it once)
 
-The app does **not** create this tab. Add it to the spreadsheet with this header row:
+The app does **not** create this tab. It was added to the production spreadsheet on 2026-10-23 (along with the `Newsletter` tab: `email | source | subscribed_at`, which the footer signup appends to). For a new spreadsheet, add it with this header row:
 
 | A | B | C | D | E |
 |---|---|---|---|---|
