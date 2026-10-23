@@ -22,3 +22,31 @@ export function distanceKm(a: LatLng, b: LatLng): number {
 }
 
 export const kmToMiles = (km: number) => km * 0.621371;
+
+/** Haversine distance in miles. */
+export function haversineMiles(a: LatLng, b: LatLng): number {
+  return kmToMiles(distanceKm(a, b));
+}
+
+/**
+ * The `n` shops nearest to a point, within `radiusMiles` if given, sorted by
+ * distance. Shops without coordinates are skipped. ~3,000 shops is a trivial
+ * in-memory scan.
+ */
+export function nearest<T extends Pick<Bookstore, 'latitude' | 'longitude'>>(
+  shops: T[],
+  lat: number,
+  lng: number,
+  n: number,
+  radiusMiles = Infinity
+): Array<{ shop: T; miles: number }> {
+  const origin = { lat, lng };
+  const hits: Array<{ shop: T; miles: number }> = [];
+  for (const shop of shops) {
+    const at = shopCoordinates(shop);
+    if (!at) continue;
+    const miles = haversineMiles(origin, at);
+    if (miles <= radiusMiles) hits.push({ shop, miles });
+  }
+  return hits.sort((a, b) => a.miles - b.miles).slice(0, n);
+}

@@ -49,3 +49,16 @@ describe('nearestBookstores', () => {
     expect(nearestBookstores(all, all[4], 6).map(n => [n.shop.id, n.miles])).toEqual([[1, undefined], [2, undefined], [3, undefined]]);
   });
 });
+
+describe('nearest', () => {
+  it('sorts by miles, honours the radius, skips shops without coordinates', async () => {
+    const { nearest, haversineMiles } = await import('@/lib/data/geo');
+    const at = (id: number, lat: string | null, lng: string | null) => ({ id, latitude: lat, longitude: lng });
+    const shops = [at(1, '36.17', '-86.77'), at(2, '35.96', '-83.92'), at(3, null, null), at(4, '36.16', '-86.78')];
+    expect(nearest(shops, 36.16, -86.78, 10).map(h => h.shop.id)).toEqual([4, 1, 2]);
+    expect(nearest(shops, 36.16, -86.78, 10, 25).map(h => h.shop.id)).toEqual([4, 1]);
+    expect(nearest(shops, 36.16, -86.78, 1)).toHaveLength(1);
+    // Nashville → Knoxville is ~160 miles
+    expect(haversineMiles({ lat: 36.16, lng: -86.78 }, { lat: 35.96, lng: -83.92 })).toBeGreaterThan(150);
+  });
+});

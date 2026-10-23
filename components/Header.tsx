@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle } from "@/components/ui/sheet";
-import { Menu, X } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
+import SearchBox from "@/components/search/SearchBox";
 import Logo from "@/components/Logo";
 
 // Optimized NavLink component - uses Next.js Link for efficient navigation
@@ -86,6 +87,17 @@ const Header = ({ showBlog = true }: { showBlog?: boolean }) => {
             </nav>
           </div>
           <div className="flex items-center space-x-3">
+            {/* Search: inline on wide screens, an icon on tablets, in the menu on phones */}
+            <div className="hidden lg:block w-56 xl:w-64">
+              <SearchBox variant="compact" />
+            </div>
+            <Link
+              href="/search"
+              aria-label="Search bookshops"
+              className="hidden md:flex lg:hidden items-center justify-center w-11 h-11 rounded-full text-gray-600 hover:text-brand-teal hover:bg-gray-100"
+            >
+              <Search className="w-5 h-5" aria-hidden="true" />
+            </Link>
             {/* Only show buttons on desktop */}
             <div className="hidden md:flex space-x-3">
               <Link href="/submit">
@@ -117,7 +129,10 @@ const Header = ({ showBlog = true }: { showBlog?: boolean }) => {
                 <SheetDescription className="sr-only">
                   Main navigation menu for IndieBookShop.com
                 </SheetDescription>
-                <nav className="flex flex-col gap-2 mt-8">
+                <div className="mt-8 px-1">
+                  <SearchBox variant="compact" onNavigate={() => setIsMenuOpen(false)} />
+                </div>
+                <nav className="flex flex-col gap-2 mt-4">
                   <Link
                     href="/directory"
                     className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
