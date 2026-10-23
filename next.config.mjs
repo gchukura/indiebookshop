@@ -13,6 +13,10 @@ const nextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
 
+  // Bundle next-mdx-remote so its JSX uses Next's React, not the copy in
+  // node_modules (otherwise blog posts fail with "React Element from an older version").
+  transpilePackages: ['next-mdx-remote'],
+
   // Pages can wait up to ~60s at build time for the Sheets read quota to reset
   // (lib/google-sheets-client.ts retries 429s after 20s and 40s), so allow more
   // than the default 60s per page before Next retries it.

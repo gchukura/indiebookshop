@@ -3,6 +3,7 @@ import { Libre_Baskerville, Open_Sans } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { hasBlogPosts } from '@/lib/blog';
 import { Toaster } from '@/components/ui/toaster';
 import { Providers } from '@/components/Providers';
 
@@ -86,11 +87,11 @@ export default function RootLayout({
       <body className="font-sans">
         <Providers>
           <div className="flex flex-col min-h-screen">
-            <Header />
+            <Header showBlog={hasBlogPosts()} />
             <main className="flex-grow flex flex-col min-h-0">
               {children}
             </main>
-            <Footer />
+            <Footer showBlog={hasBlogPosts()} />
             <Toaster />
           </div>
         </Providers>
