@@ -42,7 +42,7 @@ export default function LazyShopsMap({ shops, title, mapboxToken }: { shops: Map
       {visible ? (
         <ShopsMap shops={shops} mapboxToken={mapboxToken} />
       ) : (
-        <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">Loading map…</div>
+        <div className="w-full h-full flex items-center justify-center text-sm text-gray-600">Loading map…</div>
       )}
     </div>
   );

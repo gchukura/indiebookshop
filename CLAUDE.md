@@ -28,6 +28,7 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 | `SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL` | contact, submit, events emails | for forms |
 | `R2_PUBLIC_URL` | `next.config.mjs` rewrite `/photos/*` → R2 bucket (build time) | for photos |
 | `GOOGLE_PLACES_API_KEY`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | `scripts/fetch-google-photos.mjs` only (run locally) | no |
+| `NEXT_PUBLIC_ADSENSE_ENABLED`, `NEXT_PUBLIC_ADSENSE_SLOT_{LOCATION_INTRO,LOCATION_LIST,SHOP_INLINE,SHOP_RAIL}` | `lib/ads.ts` (build time). Ads and the AdSense script render only when the flag is `true`; see `docs/ADS.md` | no |
 | `USE_FIXTURE_DATA=1` | `lib/google-sheets-client.ts` reads `tests/fixtures/bookstores.json` instead of the Sheet (tests, CI without secrets, offline builds). Cache keys include the data source | no |
 
 ## Routes
@@ -89,7 +90,8 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - `components/bookshop/BookshopCard.tsx` — the one shop card (`size="compact"` for lists, optional `distanceMiles`); used by home, directory, location/feature pages, and nearby lists
 - `components/BookshopImage.tsx`, forms `BookshopSubmissionForm.tsx`, `EventSubmissionForm.tsx`
 - `components/ui/` — shadcn primitives. `components/Providers.tsx` wraps the app in React Query (`lib/queryClient.ts`); used by the events page and the two forms.
-- Imported by nothing (candidates for removal): `components/StateFlag.tsx`, `components/ads/*` (AdSense, not rendered).
+- Ads: `components/ads/AdSlot.tsx` + `lib/ads.ts`, off unless `NEXT_PUBLIC_ADSENSE_ENABLED=true` (see `docs/ADS.md`).
+- Imported by nothing (candidate for removal): `components/StateFlag.tsx`.
 
 ## Brand
 - Colors: brown `#5F4B32` (headings), teal `#2A6B7C` (primary actions), orange `#E16D3D` (accent/CTAs), cream `#F7F3E8` (section backgrounds), with hover shades for teal and orange.

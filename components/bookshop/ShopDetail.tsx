@@ -5,6 +5,8 @@ import LocationBreadcrumbs, { type Crumb } from '@/components/location/LocationB
 import { LocalBusinessSchema } from '@/components/StructuredData';
 import BookshopCard from '@/components/bookshop/BookshopCard';
 import FeatureChips from '@/components/bookshop/FeatureChips';
+import AdSlot from '@/components/ads/AdSlot';
+import { ADS_ENABLED } from '@/lib/ads';
 import LazyShopMap from '@/components/bookshop/LazyShopMap';
 import PhotoGallery from '@/components/bookshop/PhotoGallery';
 import { HoursTable, OpenStatusBadge } from '@/components/bookshop/ShopHours';
@@ -187,6 +189,8 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
                 <FeatureChips featureIds={b.featureIds} links={featureLinks} className={about ? 'mt-4' : ''} />
               </section>
             )}
+            {/* Between About and Hours on phones (the sidebar stacks below) */}
+            {ADS_ENABLED && <AdSlot name="shop-inline" lazy={false} />}
           </div>
 
           {/* Sidebar: hours, map */}
@@ -216,6 +220,11 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
                   </a>
                 )}
               </section>
+            )}
+            {ADS_ENABLED && (
+              <div className="hidden lg:block sticky top-28">
+                <AdSlot name="shop-rail" variant="rail" />
+              </div>
             )}
           </aside>
 
