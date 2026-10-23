@@ -43,7 +43,8 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 | `/about` | static server page | |
 | `/blog`, `/blog/[slug]` | `app/blog/**` + `lib/blog.ts` | MDX posts in `content/blog/*.mdx` (YAML frontmatter: title, date, description, slug, cover?) compiled with `next-mdx-remote/rsc` (bundled via `transpilePackages` so it uses Next's React). Invalid frontmatter fails the build. `/blog` 404s and the Header/Footer/About hide the Blog link when there are no posts (`hasBlogPosts()`). `Article` JSON-LD; posts are in the sitemap |
 | `/events` | `app/events/page.tsx` (server, `revalidate=3600`) | upcoming events from the cached Events tab (`getAllUpcomingEvents`, helpers in `lib/data/events.ts`), grouped by day, linked to shops, `Event` JSON-LD per item; empty state links to `/submit-event`. The homepage shows the next 3 |
-| `/submit`, `/submit-event`, `/contact` | client pages with forms | |
+| `/submit` | `app/submit/page.tsx` (server) + `components/BookshopSubmissionForm.tsx` | `?edit=<slug>` → "Suggest an edit for {name}", prefilled, posts `mode=edit` + `bookshopId` |
+| `/submit-event`, `/contact` | client pages with forms | |
 | `/sitemap.xml`, `/robots.txt` | `app/sitemap.ts`, `app/robots.ts` | static pages, `/bookshops` pages (state 0.8 / city 0.7 / county 0.6), and every shop |
 | `not-found`, `error`, `loading` | `app/*.tsx` | |
 
@@ -106,5 +107,7 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - Once brand tokens exist in `globals.css`/`tailwind.config.ts`, no new hard-coded hex colors. Use the token classes.
 - Mapbox/`mapbox-gl` is ~1.6 MB, so load map components with `next/dynamic({ ssr: false })` — never a static import, or it also loads on every page that prefetches a link to that route.
 - Keep the 2 MB `unstable_cache` limit in mind for anything you cache.
+- Share images: `opengraph-image.tsx` files (rendered by `lib/og.tsx` with the static brand TTFs in `public/fonts/`) for the site default, shops, states, cities, counties, features, state + feature, and blog posts; shop/place images render on first request and are cached. A page that sets its own `openGraph` replaces the inherited image, so general pages pass `DEFAULT_OG_IMAGE` from `lib/seo.ts`. There is no `og-default.jpg`.
+- Submissions: `/submit?edit=<slug>` prefills the form for "Suggest an edit"; the API emails only changed fields and appends every submission to the Sheet's `Submissions` tab (must exist — see `docs/setup/FORM_SUBMISSIONS.md`; fails soft).
 - Page titles go through `lib/seo.ts` (`fitTitle`/`placeTitle`): ≤ 60 characters, brand "IndieBookShop". `tests/site.test.ts` checks every generated page.
 - Before you finish, run `npm run lint`, `npm run check`, `npm test`, and `npm run build`.

@@ -1,26 +1,69 @@
-'use client';
-
-import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import BookshopSubmissionForm from '@/components/BookshopSubmissionForm';
+import BookshopSubmissionForm, { type EditableShop } from '@/components/BookshopSubmissionForm';
 import { Button } from '@/components/ui/button';
+import { getBookstoreBySlugFull } from '@/lib/data/bookstore-data';
+import { getBookstoreSlug } from '@/lib/data/slug';
+import { getStateDisplayName } from '@/lib/state-utils';
 
-export default function SubmitPage() {
+type Props = { searchParams: Promise<{ edit?: string }> };
+
+/** ?edit=<slug> → the shop's current details, to prefill "Suggest an edit". */
+async function loadEditShop(slug: string | undefined): Promise<EditableShop | null> {
+  if (!slug) return null;
+  const shop = await getBookstoreBySlugFull(slug).catch(() => null);
+  if (!shop) return null;
+  return {
+    id: shop.id,
+    slug: getBookstoreSlug(shop),
+    name: shop.name,
+    street: shop.street ?? '',
+    city: shop.city ?? '',
+    // The form's state picker uses full names
+    state: getStateDisplayName(shop.state) || shop.state,
+    zip: shop.zip ?? '',
+    phone: shop.formattedPhone || shop.phone || '',
+    website: shop.website ?? '',
+    description: shop.description ?? '',
+    featureIds: shop.featureIds ?? [],
+  };
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const shop = await loadEditShop((await searchParams).edit);
+  return shop
+    ? { title: `Suggest an edit: ${shop.name}`, robots: { index: false, follow: true } }
+    : { title: 'Submit a Bookshop' };
+}
+
+export default async function SubmitPage({ searchParams }: Props) {
+  const editShop = await loadEditShop((await searchParams).edit);
+
   return (
     <div className="container-site py-8">
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-brand-brown mb-4">
-          Submit an Independent Bookshop
+          {editShop ? `Suggest an edit for ${editShop.name}` : 'Submit an Independent Bookshop'}
         </h1>
         <p className="font-sans text-base md:text-lg text-gray-700 mb-6">
-          Help us grow our directory of independent bookshops across America. Submit a new bookshop or suggest updates to an existing one.
+          {editShop ? (
+            <>
+              Change anything that’s out of date below. We’ll review your suggestion before updating{' '}
+              <Link href={`/bookshop/${editShop.slug}`} className="text-brand-teal hover:underline">
+                the listing
+              </Link>
+              .
+            </>
+          ) : (
+            'Help us grow our directory of independent bookshops across America. Submit a new bookshop or suggest updates to an existing one.'
+          )}
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <BookshopSubmissionForm />
+            <BookshopSubmissionForm editShop={editShop} />
           </div>
         </div>
 

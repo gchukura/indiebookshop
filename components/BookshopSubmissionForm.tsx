@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -95,9 +97,26 @@ const submissionFormSchema = z.object({
 
 type SubmissionFormValues = z.infer<typeof submissionFormSchema>;
 
-export const BookshopSubmissionForm = () => {
+/** A listed shop's current details, for "Suggest an edit" (/submit?edit=<slug>). */
+export type EditableShop = {
+  id: number;
+  slug: string;
+  name: string;
+  street: string;
+  city: string;
+  /** Full state name, matching the state picker. */
+  state: string;
+  zip: string;
+  phone: string;
+  website: string;
+  description: string;
+  featureIds: number[];
+};
+
+export const BookshopSubmissionForm = ({ editShop = null }: { editShop?: EditableShop | null }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFeatures, setSelectedFeatures] = useState<number[]>([]);
+  const [submitted, setSubmitted] = useState(false);
+  const [selectedFeatures, setSelectedFeatures] = useState<number[]>(editShop?.featureIds ?? []);
   const [bookshopSearchOpen, setBookshopSearchOpen] = useState(false);
   const { toast } = useToast();
 
@@ -107,21 +126,21 @@ export const BookshopSubmissionForm = () => {
   });
 
 
-  // Default values for the form
+  // Default values for the form; "Suggest an edit" starts from the shop's current details
   const defaultValues: Partial<SubmissionFormValues> = {
-    submissionType: "new",
+    submissionType: editShop ? "change" : "new",
     submitterName: "",
     submitterEmail: "",
-    name: "",
-    street: "",
-    city: "",
-    state: "",
-    zip: "",
-    description: "",
-    website: "",
-    phone: "",
+    name: editShop?.name ?? "",
+    street: editShop?.street ?? "",
+    city: editShop?.city ?? "",
+    state: editShop?.state ?? "",
+    zip: editShop?.zip ?? "",
+    description: editShop?.description ?? "",
+    website: editShop?.website ?? "",
+    phone: editShop?.phone ?? "",
     hours: "",
-    hasPhysicalStore: true,
+    hasPhysicalStore: editShop ? Boolean(editShop.street) : true,
   };
 
   const form = useForm<SubmissionFormValues>({
@@ -144,7 +163,7 @@ export const BookshopSubmissionForm = () => {
         .map((b) => ({ id: b.id, name: b.name, city: b.city, state: b.state }))
         .sort((a, b) => a.name.localeCompare(b.name));
     },
-    enabled: submissionType === "change",
+    enabled: submissionType === "change" && !editShop,
   });
 
   const selectedBookshop = bookshops.find(b => 
@@ -153,11 +172,11 @@ export const BookshopSubmissionForm = () => {
 
   // Form submission handler
   const onSubmit = async (data: SubmissionFormValues, honeypot: string) => {
-    console.log("Form submission started", data);
     setIsSubmitting(true);
+    setSubmitted(false);
     try {
       // Prepare the submission data
-      const isNewSubmission = data.submissionType === "new";
+      const isNewSubmission = !editShop && data.submissionType === "new";
       const bookshopData = {
         name: data.name,
         // Only include address fields if hasPhysicalStore is true
@@ -172,13 +191,6 @@ export const BookshopSubmissionForm = () => {
         featureIds: selectedFeatures.join(","),
       };
 
-      console.log("Sending submission to API:", {
-        submitterEmail: data.submitterEmail,
-        submitterName: data.submitterName,
-        isNewSubmission,
-        bookshopData,
-      });
-
       // Send submission to the API
       const response = await apiRequest(
         "POST",
@@ -187,27 +199,21 @@ export const BookshopSubmissionForm = () => {
           submitterEmail: data.submitterEmail,
           submitterName: data.submitterName,
           isNewSubmission,
-          existingBookshopName: !isNewSubmission ? data.existingBookshopName : undefined,
+          existingBookshopName: !isNewSubmission && !editShop ? data.existingBookshopName : undefined,
+          // "Suggest an edit": the API compares against this shop's current data
+          mode: editShop ? "edit" : undefined,
+          bookshopId: editShop?.id,
           bookstoreData: bookshopData, // Note: backend expects 'bookstoreData', not 'bookshopData'
           website_url: honeypot,
         }
       );
 
-      console.log("API response received:", response.status);
+      await response.json();
+      setSubmitted(true);
 
-      // Parse response to get message
-      const result = await response.json();
-      console.log("API response data:", result);
-
-      // Show success message - COMMENTED OUT: Users don't need to see this notification
-      // toast({
-      //   title: "Submission Successful",
-      //   description: result.message || "Thank you for your submission! We'll review it shortly.",
-      // });
-
-      // Reset the form
+      // Reset the form (back to the shop's details when suggesting an edit)
       form.reset(defaultValues);
-      setSelectedFeatures([]);
+      setSelectedFeatures(editShop?.featureIds ?? []);
     } catch (error) {
       console.error("Submission error:", error);
       // Show error message with more details
@@ -236,10 +242,17 @@ export const BookshopSubmissionForm = () => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Submit a Bookshop</CardTitle>
+        <CardTitle>{editShop ? "Suggest an edit" : "Submit a Bookshop"}</CardTitle>
         <CardDescription>
-          Help us grow our directory of independent bookshops by submitting a new bookshop or suggesting changes to an existing one.
+          {editShop
+            ? `The form shows what we have for ${editShop.name} now. Change what's wrong and send it; we'll review it before updating the listing.`
+            : "Help us grow our directory of independent bookshops by submitting a new bookshop or suggesting changes to an existing one."}
         </CardDescription>
+        {submitted && (
+          <p role="status" className="mt-4 rounded-md bg-brand-cream px-4 py-3 text-sm text-brand-brown">
+            Thanks! We&apos;ve received your {editShop ? "suggestion" : "submission"} and will review it shortly.
+          </p>
+        )}
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -265,40 +278,42 @@ export const BookshopSubmissionForm = () => {
             className="space-y-6"
           >
             <HoneypotField />
-            {/* Submission Type Selection */}
-            <FormField
-              control={form.control}
-              name="submissionType"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>What would you like to do?</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="new" id="new" />
-                        <label htmlFor="new" className="font-sans text-body-sm font-semibold peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Submit a new bookshop
-                        </label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="change" id="change" />
-                        <label htmlFor="change" className="font-sans text-body-sm font-semibold peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Suggest changes to an existing bookshop
-                        </label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Submission Type Selection (not shown when suggesting an edit to a known shop) */}
+            {!editShop && (
+              <FormField
+                control={form.control}
+                name="submissionType"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>What would you like to do?</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="new" id="new" />
+                          <label htmlFor="new" className="font-sans text-body-sm font-semibold peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Submit a new bookshop
+                          </label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="change" id="change" />
+                          <label htmlFor="change" className="font-sans text-body-sm font-semibold peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Suggest changes to an existing bookshop
+                          </label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             {/* If updating, ask for existing bookshop name */}
-            {submissionType === "change" && (
+            {submissionType === "change" && !editShop && (
               <FormField
                 control={form.control}
                 name="existingBookshopName"
@@ -606,7 +621,7 @@ export const BookshopSubmissionForm = () => {
                 // Let the form handle submission
               }}
             >
-              {isSubmitting ? "Submitting..." : "Submit Bookshop"}
+              {isSubmitting ? "Submitting..." : editShop ? "Send suggestion" : "Submit Bookshop"}
             </Button>
           </form>
         </Form>

@@ -1,4 +1,4 @@
-import { Globe, MapPin, Navigation, Phone, Star } from 'lucide-react';
+import { Globe, MapPin, Navigation, Pencil, Phone, Star } from 'lucide-react';
 import Link from 'next/link';
 import type { Bookstore, Event } from '@/shared/schema';
 import LocationBreadcrumbs, { type Crumb } from '@/components/location/LocationBreadcrumbs';
@@ -148,6 +148,15 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
             )}
             {hasHours && <OpenStatusBadge opening={b.openingHoursJson} timeZone={timeZone} />}
           </div>
+          <p className="mt-4 text-sm">
+            <Link
+              href={`/submit?edit=${encodeURIComponent(canonicalSlug)}`}
+              className="inline-flex items-center gap-1.5 text-gray-600 hover:text-brand-teal hover:underline"
+            >
+              <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
+              Suggest an edit
+            </Link>
+          </p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
