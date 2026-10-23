@@ -5,6 +5,7 @@ import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import LocationShops from '@/components/location/LocationShops';
 import PlaceLinks from '@/components/location/PlaceLinks';
 import { getFeatureNames, getLocationIndex } from '@/lib/data/locations';
+import { getFeatureIndex } from '@/lib/data/features';
 import { nearestCities } from '@/lib/data/location-index';
 import { cityIntro, toMetaDescription } from '@/lib/data/location-content';
 import { countyToSlug } from '@/lib/data/location-slugs';
@@ -24,8 +25,8 @@ async function load(params: Props['params']) {
   const state = (await getLocationIndex()).statesBySlug[stateSlug];
   const city = state?.citiesBySlug[citySlug];
   if (!state || !city) notFound();
-  const { features, names } = await getFeatureNames();
-  return { state, city, featureNames: names, intro: cityIntro(state, city, features) };
+  const [{ features }, { links }] = await Promise.all([getFeatureNames(), getFeatureIndex()]);
+  return { state, city, featureLinks: links, intro: cityIntro(state, city, features) };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CityPage({ params }: Props) {
-  const { state, city, featureNames, intro } = await load(params);
+  const { state, city, featureLinks, intro } = await load(params);
   const county = city.county ? state.countiesBySlug[countyToSlug(city.county)] : undefined;
 
   return (
@@ -70,7 +71,7 @@ export default async function CityPage({ params }: Props) {
           )}
         </header>
 
-        <LocationShops placeName={`${city.name}, ${state.name}`} shops={city.shops} featureNames={featureNames} />
+        <LocationShops placeName={`${city.name}, ${state.name}`} shops={city.shops} featureLinks={featureLinks} />
 
         <PlaceLinks
           title={`Nearby cities in ${state.name}`}

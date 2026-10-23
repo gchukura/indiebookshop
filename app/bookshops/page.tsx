@@ -40,6 +40,11 @@ export default async function BookshopsIndexPage() {
             Independent Bookshops by State
           </h1>
           <p className="text-gray-700 leading-relaxed">{intro}</p>
+          <p className="mt-3 text-sm">
+            <Link href="/bookshops/features" className="text-[#2A6B7C] hover:underline">
+              Or browse by feature: cafés, used books, children’s sections, and more →
+            </Link>
+          </p>
         </header>
         <section className="bg-white rounded-lg shadow-md p-6">
           <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">

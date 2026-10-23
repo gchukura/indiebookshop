@@ -125,7 +125,7 @@ export default function DirectoryClient({
     if (selectedCounty !== 'all') params.set('county', selectedCounty.split(LOCATION_DELIMITER)[0]);
     if (selectedFeatures.length) params.set('features', [...selectedFeatures].sort((a, b) => a - b).join(','));
     if (mobileView === 'map') params.set('view', 'map');
-    const query = params.toString();
+    const query = params.toString().replace(/%2C/g, ','); // keep features=1,2 readable
     const url = `${window.location.pathname}${query ? `?${query}` : ''}`;
     if (url !== `${window.location.pathname}${window.location.search}`) {
       window.history.replaceState(window.history.state, '', url);

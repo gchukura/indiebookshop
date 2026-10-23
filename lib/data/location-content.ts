@@ -5,6 +5,7 @@
 
 import type { Bookstore, Feature } from '@/shared/schema';
 import type { CityLocation, CountyLocation, StateLocation } from './location-index';
+import type { FeaturePage, StateFeaturePage } from './feature-index';
 import { countyToSlug } from './location-slugs';
 
 /** "A", "A and B", "A, B and C". */
@@ -91,4 +92,21 @@ export function toMetaDescription(text: string, max = 160): string {
   if (text.length <= max) return text;
   const cut = text.slice(0, max - 1);
   return `${cut.slice(0, cut.lastIndexOf(' '))}…`;
+}
+
+export function featureIntro(feature: FeaturePage): string {
+  const n = feature.shops.length;
+  const top = feature.states.slice(0, 3);
+  let text = `${shopCount(n).replace(/^one/, 'One')} in the IndieBookShop directory ${n === 1 ? 'has' : 'have'} ${feature.phrase.toLowerCase()}`;
+  if (feature.states.length === 1) text += `, all in ${top[0].stateName}.`;
+  else text += `, across ${feature.states.length} states. The most are in ${joinList(top.map(s => `${s.stateName} (${s.shops.length})`))}.`;
+  return text;
+}
+
+export function stateFeatureIntro(page: StateFeaturePage, state: StateLocation): string {
+  const n = page.shops.length;
+  const cities = new Map<string, number>();
+  for (const shop of page.shops) cities.set(shop.city, (cities.get(shop.city) ?? 0) + 1);
+  const top = [...cities].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3).map(([c]) => c);
+  return `${n} of the ${state.shops.length.toLocaleString('en-US')} independent bookshops in ${state.name} ${n === 1 ? 'has' : 'have'} ${page.feature.phrase.toLowerCase()}, in ${joinList(top)}${cities.size > 3 ? ' and more' : ''}.`;
 }

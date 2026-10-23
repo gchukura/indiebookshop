@@ -5,6 +5,7 @@ import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import LocationShops from '@/components/location/LocationShops';
 import PlaceLinks from '@/components/location/PlaceLinks';
 import { getFeatureNames, getLocationIndex } from '@/lib/data/locations';
+import { getFeatureIndex } from '@/lib/data/features';
 import { countyIntro, toMetaDescription } from '@/lib/data/location-content';
 import { cityToSlug } from '@/lib/data/location-slugs';
 
@@ -23,8 +24,8 @@ async function load(params: Props['params']) {
   const state = (await getLocationIndex()).statesBySlug[stateSlug];
   const county = state?.countiesBySlug[countySlug];
   if (!state || !county) notFound();
-  const { features, names } = await getFeatureNames();
-  return { state, county, featureNames: names, intro: countyIntro(state, county, features) };
+  const [{ features }, { links }] = await Promise.all([getFeatureNames(), getFeatureIndex()]);
+  return { state, county, featureLinks: links, intro: countyIntro(state, county, features) };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -41,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CountyPage({ params }: Props) {
-  const { state, county, featureNames, intro } = await load(params);
+  const { state, county, featureLinks, intro } = await load(params);
   const cityLinks = county.cityNames.flatMap(name => {
     const city = state.citiesBySlug[cityToSlug(name)];
     return city ? [{ name: city.name, href: `/bookshops/${state.slug}/${city.slug}`, count: city.shops.length }] : [];
@@ -65,7 +66,7 @@ export default async function CountyPage({ params }: Props) {
           <p className="text-gray-700 leading-relaxed">{intro}</p>
         </header>
 
-        <LocationShops placeName={`${county.displayName}, ${state.name}`} shops={county.shops} featureNames={featureNames} />
+        <LocationShops placeName={`${county.displayName}, ${state.name}`} shops={county.shops} featureLinks={featureLinks} />
 
         <PlaceLinks title={`Cities in ${county.displayName}`} links={cityLinks} />
         <p className="text-sm">

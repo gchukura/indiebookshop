@@ -15,12 +15,15 @@ const SingleLocationMap = dynamic(() => import('@/components/SingleLocationMap')
 import { getBookshopImageUrl, getBookshopPhotoUrl, getPlaceholderUrl } from '@/lib/bookshop-image';
 import BookshopImage from '@/components/BookshopImage';
 import { getBookstoreDescription } from '@/lib/data/bookstore-content';
+import type { FeatureLink } from '@/lib/data/feature-index';
+import FeatureChips from '@/components/bookshop/FeatureChips';
 
 type BookshopDetailClientProps = {
   bookstore: Bookstore;
   canonicalSlug: string;
   relatedBookshops?: Bookstore[];
   mapboxToken: string;
+  featureLinks: Record<number, FeatureLink>;
 };
 
 interface GoogleReview {
@@ -30,7 +33,7 @@ interface GoogleReview {
   time: number;
 }
 
-export default function BookshopDetailClient({ bookstore, canonicalSlug, relatedBookshops = [], mapboxToken }: BookshopDetailClientProps) {
+export default function BookshopDetailClient({ bookstore, canonicalSlug, relatedBookshops = [], mapboxToken, featureLinks }: BookshopDetailClientProps) {
   // Real descriptions only; the template sentence is for meta tags
   const description = getBookstoreDescription(bookstore);
   const displayDescription = description.source === 'template' ? undefined : description.text;
@@ -138,6 +141,8 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                   {bookstore.googleReviewCount && <span className="text-gray-600 ml-1">({bookstore.googleReviewCount.toLocaleString()} reviews)</span>}
                 </div>
               )}
+
+              <FeatureChips featureIds={bookstore.featureIds} links={featureLinks} className="mb-4" />
 
               {/* Description */}
               {displayDescription && (

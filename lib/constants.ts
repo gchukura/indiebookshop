@@ -9,18 +9,6 @@ export const COLORS = {
   dark: "#333333",       // Dark text
 };
 
-// Feature constants
-export const FEATURES = [
-  { id: 1, name: "Events" },
-  { id: 2, name: "Café" },
-  { id: 3, name: "Used Books" },
-  { id: 4, name: "Rare Books" },
-  { id: 5, name: "Children's Books" },
-  { id: 6, name: "Local Authors" },
-  { id: 7, name: "Art Books" },
-  { id: 8, name: "Book Club" },
-];
-
 // Title and descriptions for SEO
 export const SEO = {
   home: {
