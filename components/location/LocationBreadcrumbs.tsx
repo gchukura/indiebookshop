@@ -20,7 +20,7 @@ export default function LocationBreadcrumbs({ items }: { items: Crumb[] }) {
                 {last ? (
                   <span className="text-gray-700" aria-current="page">{crumb.name}</span>
                 ) : (
-                  <Link href={crumb.href} className="text-[#2A6B7C] hover:underline">
+                  <Link href={crumb.href} className="text-brand-teal hover:underline">
                     {crumb.name}
                   </Link>
                 )}

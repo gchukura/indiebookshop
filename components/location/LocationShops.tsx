@@ -31,7 +31,7 @@ export default function LocationShops({ placeName, shops, featureLinks, heading,
         items={shops.map(s => ({ name: s.name, url: `${SITE}/bookshop/${getBookstoreSlug(s)}` }))}
       />
       <LazyShopsMap shops={toMapShops(shops)} title={`Map of bookshops in ${placeName}`} mapboxToken={getMapboxToken()} />
-      <h2 id="shops-heading" className="font-serif text-2xl font-bold text-[#5F4B32]">
+      <h2 id="shops-heading" className="font-serif text-2xl font-bold text-brand-brown">
         {heading ?? (shops.length === 1 ? 'The bookshop' : `All ${shops.length} bookshops`)}
       </h2>
       {children ?? <ShopGrid shops={shops} featureLinks={featureLinks} />}

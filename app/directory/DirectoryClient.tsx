@@ -49,7 +49,7 @@ type DirectoryClientProps = {
 function MapPlaceholder({ message = 'Loading map...' }: { message?: string }) {
   return (
     <div className="flex flex-col items-center justify-center h-full bg-gray-50 p-6 text-center">
-      <Loader2 className="w-12 h-12 text-[#2A6B7C] animate-spin mb-4" />
+      <Loader2 className="w-12 h-12 text-brand-teal animate-spin mb-4" />
       <p className="text-gray-600 font-sans text-sm">{message}</p>
     </div>
   );
@@ -254,7 +254,7 @@ export default function DirectoryClient({
           type="button"
           onClick={() => setMobileView('map')}
           className={`flex-1 py-3 px-4 rounded-lg font-sans text-sm font-semibold transition-colors min-h-[44px] ${
-            mobileView === 'map' ? 'bg-[#2A6B7C] text-white shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-200'
+            mobileView === 'map' ? 'bg-brand-teal text-white shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-200'
           }`}
           aria-pressed={mobileView === 'map'}
           aria-label="Show map view"
@@ -265,7 +265,7 @@ export default function DirectoryClient({
           type="button"
           onClick={() => setMobileView('list')}
           className={`flex-1 py-3 px-4 rounded-lg font-sans text-sm font-semibold transition-colors min-h-[44px] ${
-            mobileView === 'list' ? 'bg-[#2A6B7C] text-white shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-200'
+            mobileView === 'list' ? 'bg-brand-teal text-white shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-200'
           }`}
           aria-pressed={mobileView === 'list'}
           aria-label="Show list view"
@@ -278,7 +278,7 @@ export default function DirectoryClient({
       <div className="flex md:hidden flex-shrink-0 px-3 py-2 bg-white border-b border-gray-200">
         <div className="relative w-full max-w-xl mx-auto bg-gray-50 rounded-full shadow-sm">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <Input type="text" placeholder="Search state, city, or bookshop name..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-12 pr-4 py-3 font-sans text-base rounded-full border-0 bg-transparent focus:ring-2 focus:ring-[#2A6B7C]" />
+          <Input type="text" placeholder="Search state, city, or bookshop name..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-12 pr-4 py-3 font-sans text-base rounded-full border-0 bg-transparent focus:ring-2 focus:ring-brand-teal" />
         </div>
       </div>
 
@@ -305,7 +305,7 @@ export default function DirectoryClient({
         <div className="hidden md:block absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-xl px-4">
           <div className="relative bg-white rounded-full shadow-lg">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <Input type="text" placeholder="Search state, city, or bookshop name..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-12 pr-4 py-4 font-sans text-base rounded-full border-0 focus:ring-2 focus:ring-[#2A6B7C]" />
+            <Input type="text" placeholder="Search state, city, or bookshop name..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-12 pr-4 py-4 font-sans text-base rounded-full border-0 focus:ring-2 focus:ring-brand-teal" />
           </div>
         </div>
       </div>
@@ -373,7 +373,7 @@ export default function DirectoryClient({
                             onClick={() => toggleFeature(feature.id)}
                             aria-pressed={active}
                             className={`px-3 py-1.5 rounded-full border font-sans text-xs font-semibold transition-colors ${
-                              active ? 'bg-[#2A6B7C] border-[#2A6B7C] text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-[#2A6B7C]'
+                              active ? 'bg-brand-teal border-brand-teal text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-brand-teal'
                             }`}
                           >
                             {feature.name}
@@ -385,7 +385,7 @@ export default function DirectoryClient({
                 )}
 
                 {activeFilterCount > 0 && (
-                  <button onClick={clearFilters} className="w-full font-sans text-sm text-[#2A6B7C] hover:underline flex items-center justify-center gap-1 py-1">
+                  <button onClick={clearFilters} className="w-full font-sans text-sm text-brand-teal hover:underline flex items-center justify-center gap-1 py-1">
                     <X className="w-4 h-4" />
                     Clear all filters
                   </button>
@@ -404,10 +404,10 @@ export default function DirectoryClient({
                       onMouseEnter={() => setHoveredBookshopId(bookshop.id)}
                       onMouseLeave={() => setHoveredBookshopId(null)}
                       onClick={() => handlePinClick(bookshop.id)}
-                      className={`bg-white border-2 rounded-lg p-4 cursor-pointer transition-all ${selectedBookshopId === bookshop.id ? 'border-[#E16D3D] shadow-md' : hoveredBookshopId === bookshop.id ? 'border-[#2A6B7C] shadow-sm' : 'border-gray-200'}`}
+                      className={`bg-white border-2 rounded-lg p-4 cursor-pointer transition-all ${selectedBookshopId === bookshop.id ? 'border-brand-orange shadow-md' : hoveredBookshopId === bookshop.id ? 'border-brand-teal shadow-sm' : 'border-gray-200'}`}
                     >
                       <Link href={`/bookshop/${getBookstoreSlug(bookshop)}`} onClick={(e: React.MouseEvent) => e.stopPropagation()} className="block">
-                        <h3 className="font-serif font-bold text-base text-[#5F4B32] mb-1 hover:text-[#2A6B7C]">{bookshop.name}</h3>
+                        <h3 className="font-serif font-bold text-base text-brand-brown mb-1 hover:text-brand-teal">{bookshop.name}</h3>
                       </Link>
                       {(bookshop.city || bookshop.state) && (
                         <div className="flex items-start text-xs text-gray-600 mb-2">
@@ -419,7 +419,7 @@ export default function DirectoryClient({
                         </div>
                       )}
                       {bookshop.description && <p className="font-sans text-xs text-gray-700 line-clamp-2 mb-2">{bookshop.description}</p>}
-                      <Link href={`/bookshop/${getBookstoreSlug(bookshop)}`} className="font-sans text-xs text-[#2A6B7C] hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
+                      <Link href={`/bookshop/${getBookstoreSlug(bookshop)}`} className="font-sans text-xs text-brand-teal hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
                         View details →
                       </Link>
                     </div>

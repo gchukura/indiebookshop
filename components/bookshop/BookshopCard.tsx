@@ -29,8 +29,8 @@ export default function BookshopCard({ bookshop, featureLinks = {} }: BookshopCa
         </div>
       </Link>
       <div className="p-4 md:p-5">
-        <h3 className="font-serif font-bold text-base md:text-lg text-[#5F4B32] mb-1 leading-tight line-clamp-2">
-          <Link href={href} className="hover:text-[#E16D3D]">
+        <h3 className="font-serif font-bold text-base md:text-lg text-brand-brown mb-1 leading-tight line-clamp-2">
+          <Link href={href} className="hover:text-brand-orange">
             {bookshop.name}
           </Link>
         </h3>

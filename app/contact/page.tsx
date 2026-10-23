@@ -107,10 +107,10 @@ export default function ContactPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="py-6 md:py-8 lg:py-10 bg-[#F7F3E8]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-6 md:py-8 lg:py-10 bg-brand-cream">
+        <div className="container-site">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-[#5F4B32] mb-4 md:mb-6">
+            <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold text-brand-brown mb-4 md:mb-6">
               Get in Touch
             </h1>
             <p className="font-sans text-sm md:text-base text-gray-700 leading-relaxed">
@@ -122,37 +122,37 @@ export default function ContactPage() {
 
       {/* Before You Contact Section */}
       <section className="py-6 md:py-8 lg:py-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container-site">
           <div className="max-w-3xl mx-auto">
-            <div className="bg-white rounded-lg shadow-sm border-l-4 border-[#2A6B7C] p-6 md:p-8 lg:p-10">
-              <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#5F4B32] mb-4 md:mb-6">
+            <div className="bg-white rounded-lg shadow-sm border-l-4 border-brand-teal p-6 md:p-8 lg:p-10">
+              <h2 className="font-serif text-2xl md:text-3xl font-bold text-brand-brown mb-4 md:mb-6">
                 Looking for Something Specific?
               </h2>
               <div className="space-y-3 font-sans text-sm md:text-base text-gray-700">
                 <p className="flex items-start">
-                  <span className="text-[#E16D3D] font-semibold mr-2">→</span>
+                  <span className="text-brand-orange font-semibold mr-2">→</span>
                   <span>
                     <strong>Add a bookshop:</strong>{' '}
-                    <Link href="/submit" className="text-[#2A6B7C] underline hover:text-[#E16D3D] transition-colors">
+                    <Link href="/submit" className="text-brand-teal underline hover:text-brand-orange transition-colors">
                       Use our submission form
                     </Link>
                   </span>
                 </p>
                 <p className="flex items-start">
-                  <span className="text-[#E16D3D] font-semibold mr-2">→</span>
+                  <span className="text-brand-orange font-semibold mr-2">→</span>
                   <span>
                     <strong>Submit an event:</strong>{' '}
-                    <Link href="/submit-event" className="text-[#2A6B7C] underline hover:text-[#E16D3D] transition-colors">
+                    <Link href="/submit-event" className="text-brand-teal underline hover:text-brand-orange transition-colors">
                       Share your bookshop event
                     </Link>
                   </span>
                 </p>
                 {/* FAQ no longer on site
                 <p className="flex items-start">
-                  <span className="text-[#E16D3D] font-semibold mr-2">→</span>
+                  <span className="text-brand-orange font-semibold mr-2">→</span>
                   <span>
                     <strong>Common questions:</strong>{' '}
-                    <Link href="/about#faq" className="text-[#2A6B7C] underline hover:text-[#E16D3D] transition-colors">
+                    <Link href="/about#faq" className="text-brand-teal underline hover:text-brand-orange transition-colors">
                       Check our FAQ
                     </Link>
                   </span>
@@ -166,11 +166,11 @@ export default function ContactPage() {
 
       {/* Contact Form Section */}
       <section className="py-6 md:py-8 lg:py-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container-site">
           <div className="max-w-3xl mx-auto">
             <div className="bg-white rounded-lg shadow-sm p-6 md:p-8 lg:p-10">
               <div className="mb-6 md:mb-8">
-                <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#5F4B32] mb-3 md:mb-4">
+                <h2 className="font-serif text-2xl md:text-3xl font-bold text-brand-brown mb-3 md:mb-4">
                   Send Us a Message
                 </h2>
                 <p className="font-sans text-sm md:text-base text-gray-600">
@@ -212,7 +212,7 @@ export default function ContactPage() {
                     onChange={(e) => handleChange('name', e.target.value)}
                     placeholder="Enter your name" 
                     required
-                    className="font-sans border border-gray-300 rounded-lg focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0"
+                    className="font-sans border border-gray-300 rounded-lg focus:border-brand-teal focus:ring-brand-teal focus:ring-2 focus:ring-offset-0"
                   />
                 </div>
 
@@ -227,7 +227,7 @@ export default function ContactPage() {
                     onChange={(e) => handleChange('email', e.target.value)}
                     placeholder="your.email@example.com" 
                     required
-                    className="font-sans border border-gray-300 rounded-lg focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0"
+                    className="font-sans border border-gray-300 rounded-lg focus:border-brand-teal focus:ring-brand-teal focus:ring-2 focus:ring-offset-0"
                   />
                 </div>
 
@@ -240,7 +240,7 @@ export default function ContactPage() {
                     onValueChange={(value) => handleChange('reason', value)}
                     required
                   >
-                    <SelectTrigger className="font-sans border border-gray-300 rounded-lg focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0">
+                    <SelectTrigger className="font-sans border border-gray-300 rounded-lg focus:border-brand-teal focus:ring-brand-teal focus:ring-2 focus:ring-offset-0">
                       <SelectValue placeholder="Select a reason" />
                     </SelectTrigger>
                     <SelectContent>
@@ -265,7 +265,7 @@ export default function ContactPage() {
                     onChange={(e) => handleChange('subject', e.target.value)}
                     placeholder="Brief summary of your message" 
                     required
-                    className="font-sans border border-gray-300 rounded-lg focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0"
+                    className="font-sans border border-gray-300 rounded-lg focus:border-brand-teal focus:ring-brand-teal focus:ring-2 focus:ring-offset-0"
                   />
                 </div>
 
@@ -278,7 +278,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={(e) => handleChange('message', e.target.value)}
                     placeholder="Tell us more about your inquiry..." 
-                    className="h-40 font-sans border border-gray-300 rounded-lg focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0 resize-none" 
+                    className="h-40 font-sans border border-gray-300 rounded-lg focus:border-brand-teal focus:ring-brand-teal focus:ring-2 focus:ring-offset-0 resize-none" 
                     required
                   />
                   <p className="text-xs text-gray-500 font-sans">
@@ -296,7 +296,8 @@ export default function ContactPage() {
                 <Button 
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white rounded-full px-6 py-3 min-h-[44px] font-semibold w-full text-base md:text-sm transition-colors"
+                  variant="accent"
+                  className="px-6 py-3 min-h-[44px] w-full text-base md:text-sm"
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'}
                 </Button>
@@ -307,19 +308,19 @@ export default function ContactPage() {
       </section>
 
       {/* Alternative Contact Methods Section */}
-      <section className="py-6 md:py-8 lg:py-10 bg-[#F7F3E8]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-6 md:py-8 lg:py-10 bg-brand-cream">
+        <div className="container-site">
           <div className="max-w-3xl mx-auto">
-            <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#5F4B32] mb-6 md:mb-8 text-center">
+            <h2 className="font-serif text-2xl md:text-3xl font-bold text-brand-brown mb-6 md:mb-8 text-center">
               Other Ways to Reach Us
             </h2>
             
             <div className="grid md:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
               <div className="bg-white rounded-lg shadow-sm p-4 md:p-5 lg:p-6">
                 <div className="flex items-start mb-4">
-                  <Mail className="w-6 h-6 text-[#2A6B7C] mt-1 mr-3 flex-shrink-0" />
+                  <Mail className="w-6 h-6 text-brand-teal mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h3 className="font-serif text-xl md:text-2xl font-bold text-[#5F4B32] mb-2">
+                    <h3 className="font-serif text-xl md:text-2xl font-bold text-brand-brown mb-2">
                       Email Us Directly
                     </h3>
                     <p className="font-sans text-sm md:text-base text-gray-600 mb-3">
@@ -327,7 +328,7 @@ export default function ContactPage() {
                     </p>
                     <a 
                       href="mailto:info@bluestonebrands.com?subject=IndieBookShop Directory Inquiry" 
-                      className="font-sans text-[#2A6B7C] font-semibold hover:text-[#E16D3D] underline text-sm md:text-base break-all transition-colors"
+                      className="font-sans text-brand-teal font-semibold hover:text-brand-orange underline text-sm md:text-base break-all transition-colors"
                     >
                       info@bluestonebrands.com
                     </a>
@@ -337,9 +338,9 @@ export default function ContactPage() {
 
               <div className="bg-white rounded-lg shadow-sm p-4 md:p-5 lg:p-6">
                 <div className="flex items-start mb-4">
-                  <Clock className="w-6 h-6 text-[#2A6B7C] mt-1 mr-3 flex-shrink-0" />
+                  <Clock className="w-6 h-6 text-brand-teal mt-1 mr-3 flex-shrink-0" />
                   <div>
-                    <h3 className="font-serif text-xl md:text-2xl font-bold text-[#5F4B32] mb-2">
+                    <h3 className="font-serif text-xl md:text-2xl font-bold text-brand-brown mb-2">
                       Response Time
                     </h3>
                     <p className="font-sans text-sm md:text-base text-gray-700 leading-relaxed">
@@ -363,26 +364,26 @@ export default function ContactPage() {
 
       {/* Internal Links Section for SEO */}
       <section className="py-8 md:py-12 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+        <div className="container-site">
+          <div className="bg-brand-cream rounded-lg p-6 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-brown mb-6 text-center">
               Explore Our Directory
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link href="/" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Home</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Home</h3>
                 <p className="text-sm text-gray-600">Discover featured bookshops</p>
               </Link>
               <Link href="/directory" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Directory</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Directory</h3>
                 <p className="text-sm text-gray-600">Browse all bookshops</p>
               </Link>
               <Link href="/submit" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Submit Bookshop</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Submit Bookshop</h3>
                 <p className="text-sm text-gray-600">Add your bookshop</p>
               </Link>
               <Link href="/about" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">About</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">About</h3>
                 <p className="text-sm text-gray-600">Learn about us</p>
               </Link>
             </div>

@@ -54,7 +54,7 @@ export default async function StatePage({ params }: Props) {
       />
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         <header className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#5F4B32] mb-4">
+          <h1 className="font-serif text-3xl md:text-4xl font-bold text-brand-brown mb-4">
             Independent Bookshops in {state.name}
           </h1>
           <p className="text-gray-700 leading-relaxed">{intro}</p>
@@ -82,11 +82,11 @@ export default async function StatePage({ params }: Props) {
 
         {state.counties.length > 0 && (
           <section className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">Counties in {state.name}</h2>
+            <h2 className="font-serif text-2xl font-bold text-brand-brown mb-4">Counties in {state.name}</h2>
             <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-2">
               {state.counties.map(county => (
                 <li key={county.slug}>
-                  <Link href={`/bookshops/${state.slug}/county/${county.slug}`} className="text-[#2A6B7C] hover:underline">
+                  <Link href={`/bookshops/${state.slug}/county/${county.slug}`} className="text-brand-teal hover:underline">
                     {county.displayName}
                   </Link>{' '}
                   <span className="text-sm text-gray-500">({county.shops.length})</span>

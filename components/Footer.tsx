@@ -50,13 +50,13 @@ const Footer = () => {
     <>
       {/* Newsletter Section - Reserve space to prevent layout shifts */}
       <section
-        className="py-8 md:py-12 lg:py-16 bg-[#F7F3E8] text-[#5F4B32]"
+        className="py-8 md:py-12 lg:py-16 bg-brand-cream text-brand-brown"
         style={{
           minHeight: '280px',
           containIntrinsicSize: 'auto 280px'
         }}
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="container-site text-center">
           <h2
             className="text-xl md:text-2xl font-serif font-bold mb-3"
             style={{
@@ -81,7 +81,7 @@ const Footer = () => {
                 <input
                   type="email"
                   placeholder="Your email address"
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-[#2A6B7C] focus:ring-[#2A6B7C] focus:ring-2 focus:ring-offset-0"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-brand-teal focus:ring-brand-teal focus:ring-2 focus:ring-offset-0"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -90,7 +90,8 @@ const Footer = () => {
               </div>
               <Button
                 type="submit"
-                className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white px-4 py-2 h-full rounded-full min-h-[44px]"
+                variant="accent"
+                className="px-4 py-2 h-full min-h-[44px]"
                 disabled={isSubmitting}
                 style={{ minHeight: '44px' }}
               >
@@ -103,13 +104,13 @@ const Footer = () => {
 
       {/* Footer - Reserve space to prevent layout shifts */}
       <footer
-        className="bg-[#5F4B32] py-8 md:py-12"
+        className="bg-brand-brown py-8 md:py-12"
         style={{
           minHeight: '200px',
           containIntrinsicSize: 'auto 200px'
         }}
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container-site">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8">
             {/* Navigation Links */}
             <div>

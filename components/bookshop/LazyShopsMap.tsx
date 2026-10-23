@@ -37,7 +37,7 @@ export default function LazyShopsMap({ shops, title, mapboxToken }: { shops: Map
       ref={boxRef}
       role="region"
       aria-label={title}
-      className="w-full h-72 md:h-96 rounded-lg overflow-hidden bg-[#F7F3E8] border border-gray-200"
+      className="w-full h-72 md:h-96 rounded-lg overflow-hidden bg-brand-cream border border-gray-200"
     >
       {visible ? (
         <ShopsMap shops={shops} mapboxToken={mapboxToken} />

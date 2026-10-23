@@ -37,7 +37,7 @@ const Header = () => {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container-site">
         <div className="flex justify-between h-20 md:h-24">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
@@ -47,7 +47,7 @@ const Header = () => {
               <NavLink
                 href="/directory"
                 isActive={activeRoutes['/directory']}
-                className={activeRoutes['/directory'] ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors'}
+                className={activeRoutes['/directory'] ? 'text-brand-teal border-b-2 border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-brand-teal hover:border-b-2 hover:border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors'}
               >
                 <span className="pointer-events-none">Directory</span>
               </NavLink>
@@ -55,28 +55,28 @@ const Header = () => {
               <NavLink
                 href="/about"
                 isActive={activeRoutes['/about']}
-                className={activeRoutes['/about'] ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors'}
+                className={activeRoutes['/about'] ? 'text-brand-teal border-b-2 border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-brand-teal hover:border-b-2 hover:border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors'}
               >
                 <span className="pointer-events-none">About</span>
               </NavLink>
               <NavLink
                 href="/events"
                 isActive={activeRoutes['/events']}
-                className={activeRoutes['/events'] ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors'}
+                className={activeRoutes['/events'] ? 'text-brand-teal border-b-2 border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-brand-teal hover:border-b-2 hover:border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors'}
               >
                 <span className="pointer-events-none">Events</span>
               </NavLink>
               <NavLink
                 href="/blog"
                 isActive={activeRoutes['/blog']}
-                className={activeRoutes['/blog'] ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors'}
+                className={activeRoutes['/blog'] ? 'text-brand-teal border-b-2 border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-brand-teal hover:border-b-2 hover:border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors'}
               >
                 <span className="pointer-events-none">Blog</span>
               </NavLink>
               <NavLink
                 href="/contact"
                 isActive={activeRoutes['/contact']}
-                className={activeRoutes['/contact'] ? 'text-[#2A6B7C] border-b-2 border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-[#2A6B7C] hover:border-b-2 hover:border-[#E16D3D] font-sans text-body font-semibold px-1 py-2 transition-colors'}
+                className={activeRoutes['/contact'] ? 'text-brand-teal border-b-2 border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors' : 'text-gray-700 hover:text-brand-teal hover:border-b-2 hover:border-brand-orange font-sans text-body font-semibold px-1 py-2 transition-colors'}
               >
                 <span className="pointer-events-none">Contact</span>
               </NavLink>
@@ -86,12 +86,12 @@ const Header = () => {
             {/* Only show buttons on desktop */}
             <div className="hidden md:flex space-x-3">
               <Link href="/submit">
-                <Button className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white rounded-full min-h-[44px]">
+                <Button variant="accent" className="min-h-[44px]">
                   Add Bookshop
                 </Button>
               </Link>
               <Link href="/submit-event">
-                <Button className="bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white rounded-full min-h-[44px]">
+                <Button className="min-h-[44px]">
                   Add Event
                 </Button>
               </Link>
@@ -99,7 +99,7 @@ const Header = () => {
             {/* Mobile menu control */}
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-[#2A6B7C]">
+                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-brand-teal">
                   {isMenuOpen ? (
                     <X className="h-6 w-6" />
                   ) : (
@@ -156,7 +156,7 @@ const Header = () => {
                     className="w-full mb-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <Button className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white w-full rounded-full min-h-[44px]">
+                    <Button variant="accent" className="w-full min-h-[44px]">
                       Add Bookshop
                     </Button>
                   </Link>
@@ -165,7 +165,7 @@ const Header = () => {
                     className="w-full"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <Button className="bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white w-full rounded-full min-h-[44px]">
+                    <Button className="w-full min-h-[44px]">
                       Add Event
                     </Button>
                   </Link>

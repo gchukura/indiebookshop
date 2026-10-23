@@ -82,9 +82,12 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - Imported by nothing (candidates for removal): `components/StateFlag.tsx`, `components/ads/*` (AdSense, not rendered).
 
 ## Brand
-- Colors: brown `#5F4B32` (headings), teal `#2A6B7C` (primary actions), orange `#E16D3D` (accent/CTAs), cream `#F7F3E8` (section backgrounds). Hover shades in use: `#1d5a6a` (teal), `#d06a4f` (orange). Also in `lib/constants.ts` `COLORS`.
-- Today these are hard-coded hex classes (`text-[#5F4B32]`); `app/globals.css` still has the default shadcn slate theme, so `bg-primary` is navy, not brand.
-- Fonts: Libre Baskerville (`font-serif`, headings) and Open Sans (`font-sans`, body) per `tailwind.config.ts`. `app/layout.tsx` currently loads only Inter via `next/font`, so the brand fonts don't actually load.
+- Colors: brown `#5F4B32` (headings), teal `#2A6B7C` (primary actions), orange `#E16D3D` (accent/CTAs), cream `#F7F3E8` (section backgrounds), with hover shades for teal and orange.
+- Tokens: `app/globals.css` defines `--brand-brown`, `--brand-teal(-hover)`, `--brand-orange(-hover)`, `--brand-cream` (RGB channels) and maps the shadcn theme to them: `primary` = teal, `accent` = orange, `secondary` = brown, `muted` = cream, `border`/`input` = warm gray, `ring` = teal, `--radius` = 0.75rem. `.dark` is still shadcn's default.
+- Tailwind classes: `text-brand-brown`, `bg-brand-teal hover:bg-brand-teal-hover`, `bg-brand-orange hover:bg-brand-orange-hover`, `bg-brand-cream`, and opacity forms like `bg-brand-teal/5`. Hex values are only allowed where a class can't be used (Mapbox paint colors → `lib/constants.ts` `COLORS`; `app/icon.svg`).
+- Buttons (`components/ui/button.tsx`): `variant="default"` is the teal pill, `variant="accent"` the orange pill; `outline`/`ghost` hover to cream. For a link styled as a button use `cn(buttonVariants({ variant }), …)`. `cn()` knows the custom type scale, so `text-lg` overrides `text-body`.
+- Layout: `.container-site` (max-w-6xl, responsive side padding) for page sections.
+- Fonts: Libre Baskerville (`font-serif`, headings) and Open Sans (`font-sans`, body), loaded with `next/font` in `app/layout.tsx`.
 - Type scale tokens in tailwind: `text-display`, `text-h1`…`text-h4`, `text-body-lg`, `text-body`, `text-body-sm`, `text-label`, `text-meta`.
 
 ## Conventions

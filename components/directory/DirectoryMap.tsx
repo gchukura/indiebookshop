@@ -116,7 +116,7 @@ export default function DirectoryMap({ shops, mapboxToken, hoveredId, selectedId
               }}
             >
               <div className="cursor-pointer">
-                <div className="relative bg-[#2A6B7C] rounded-full flex items-center justify-center shadow-lg hover:bg-[#1d5a6a] transition-colors" style={{ width: 50, height: 50 }}>
+                <div className="relative bg-brand-teal rounded-full flex items-center justify-center shadow-lg hover:bg-brand-teal-hover transition-colors" style={{ width: 50, height: 50 }}>
                   <span className="font-sans font-bold text-white">{pointCount}</span>
                 </div>
               </div>
@@ -137,7 +137,7 @@ export default function DirectoryMap({ shops, mapboxToken, hoveredId, selectedId
             }}
           >
             <div className={`cursor-pointer transition-transform ${isSelected ? 'scale-125' : isHovered ? 'scale-110' : ''}`}>
-              <MapPin className={`w-8 h-8 ${isSelected ? 'text-[#E16D3D]' : isHovered ? 'text-[#2A6B7C]' : 'text-[#5F4B32]'}`} fill="currentColor" />
+              <MapPin className={`w-8 h-8 ${isSelected ? 'text-brand-orange' : isHovered ? 'text-brand-teal' : 'text-brand-brown'}`} fill="currentColor" />
             </div>
           </Marker>
         );

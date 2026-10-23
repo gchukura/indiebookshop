@@ -31,6 +31,18 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        brand: {
+          brown: "rgb(var(--brand-brown) / <alpha-value>)",
+          teal: {
+            DEFAULT: "rgb(var(--brand-teal) / <alpha-value>)",
+            hover: "rgb(var(--brand-teal-hover) / <alpha-value>)",
+          },
+          orange: {
+            DEFAULT: "rgb(var(--brand-orange) / <alpha-value>)",
+            hover: "rgb(var(--brand-orange-hover) / <alpha-value>)",
+          },
+          cream: "rgb(var(--brand-cream) / <alpha-value>)",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
