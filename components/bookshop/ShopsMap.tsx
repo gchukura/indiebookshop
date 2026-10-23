@@ -93,7 +93,7 @@ export default function ShopsMap({ shops, mapboxToken }: { shops: MapShop[]; map
   }, [shops, mapboxToken]);
 
   if (error) {
-    return <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">{error}</div>;
+    return <div className="w-full h-full flex items-center justify-center text-sm text-gray-600">{error}</div>;
   }
   return <div ref={containerRef} className="w-full h-full" />;
 }
