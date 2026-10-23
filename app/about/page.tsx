@@ -32,10 +32,10 @@ export default function AboutPage() {
   return (
     <>
       {/* Hero/Intro Section */}
-      <section className="w-full py-6 md:py-8 lg:py-10 bg-[#F7F3E8]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full py-6 md:py-8 lg:py-10 bg-brand-cream">
+        <div className="container-site">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-brand-brown mb-6 text-center">
               About IndieBookshop.com
             </h1>
             <div className="prose prose-lg prose-p:text-gray-700 mx-auto">
@@ -55,10 +55,10 @@ export default function AboutPage() {
 
       {/* Our Story Section */}
       <section className="py-8 md:py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container-site">
           <div className="bg-white rounded-lg p-6 md:p-8">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-brown mb-6 text-center">
                 Our Story
               </h2>
 
@@ -75,7 +75,7 @@ export default function AboutPage() {
                   What started as a passion project has grown into the largest independent bookshop directory in America. Through dedicated manual research and compilation, we've built a database of over 3,000 bookshops. We've spent countless hours researching, verifying, and cataloging independent bookshops - from beloved neighborhood shops to hidden gems in small towns.
                 </p>
 
-                <div className="bg-[#F7F3E8] border-l-4 border-[#E16D3D] p-6 my-8 rounded-r-lg flex items-center">
+                <div className="bg-brand-cream border-l-4 border-brand-orange p-6 my-8 rounded-r-lg flex items-center">
                   <p className="text-lg md:text-xl italic text-gray-700 mb-0">
                     "We've spent countless hours researching and cataloging independent bookshops - from beloved neighborhood shops to hidden gems in small towns."
                   </p>
@@ -92,10 +92,10 @@ export default function AboutPage() {
 
       {/* Why It Matters Section */}
       <section className="py-8 md:py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
+        <div className="container-site">
+          <div className="bg-brand-cream rounded-lg p-6 md:p-8">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-brown mb-6 text-center">
                 Why Independent Bookshops Matter
               </h2>
               <p className="text-base md:text-lg text-gray-700 mb-8 text-center max-w-3xl mx-auto">
@@ -105,9 +105,9 @@ export default function AboutPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="flex flex-col">
                   <div className="flex items-start mb-4">
-                    <Heart className="w-6 h-6 text-[#E16D3D] mr-3 mt-1 flex-shrink-0" />
+                    <Heart className="w-6 h-6 text-brand-orange mr-3 mt-1 flex-shrink-0" />
                     <div>
-                      <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Community Anchors</h3>
+                      <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Community Anchors</h3>
                       <p className="text-sm md:text-base text-gray-700">
                         Indie bookshops create welcoming gathering spaces for book clubs, author events, and literary discussions that bring readers together and strengthen community bonds.
                       </p>
@@ -117,9 +117,9 @@ export default function AboutPage() {
                 
                 <div className="flex flex-col">
                   <div className="flex items-start mb-4">
-                    <Heart className="w-6 h-6 text-[#E16D3D] mr-3 mt-1 flex-shrink-0" />
+                    <Heart className="w-6 h-6 text-brand-orange mr-3 mt-1 flex-shrink-0" />
                     <div>
-                      <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Local Economic Impact</h3>
+                      <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Local Economic Impact</h3>
                       <p className="text-sm md:text-base text-gray-700">
                         When you buy from an independent bookshop, your money stays within the local economy.
                       </p>
@@ -129,9 +129,9 @@ export default function AboutPage() {
                 
                 <div className="flex flex-col">
                   <div className="flex items-start mb-4">
-                    <Heart className="w-6 h-6 text-[#E16D3D] mr-3 mt-1 flex-shrink-0" />
+                    <Heart className="w-6 h-6 text-brand-orange mr-3 mt-1 flex-shrink-0" />
                     <div>
-                      <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Champion Diverse Voices</h3>
+                      <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Champion Diverse Voices</h3>
                       <p className="text-sm md:text-base text-gray-700">
                         Independent booksellers have the freedom to stock a broader range of books, amplify marginalized voices, and champion debut authors that are often overlooked by large retailers.
                       </p>
@@ -141,9 +141,9 @@ export default function AboutPage() {
                 
                 <div className="flex flex-col">
                   <div className="flex items-start mb-4">
-                    <Heart className="w-6 h-6 text-[#E16D3D] mr-3 mt-1 flex-shrink-0" />
+                    <Heart className="w-6 h-6 text-brand-orange mr-3 mt-1 flex-shrink-0" />
                     <div>
-                      <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Expert Curation</h3>
+                      <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Expert Curation</h3>
                       <p className="text-sm md:text-base text-gray-700">
                         Thoughtful recommendations from people who remember your personal preferences - books you loved to read, genres you want to avoid.
                       </p>
@@ -158,17 +158,17 @@ export default function AboutPage() {
 
       {/* What Makes Us Different Section */}
       <section className="py-8 md:py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container-site">
           <div className="bg-white rounded-lg p-6 md:p-8">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-brown mb-6 text-center">
                 What Makes Us Different
               </h2>
               <div className="space-y-8">
                 <div className="flex items-start">
-                  <Map className="w-6 h-6 text-[#E16D3D] mr-4 mt-1 flex-shrink-0" />
+                  <Map className="w-6 h-6 text-brand-orange mr-4 mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">
+                    <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">
                       More Than a Map
                     </h3>
                     <p className="text-sm md:text-base text-gray-700">
@@ -178,9 +178,9 @@ export default function AboutPage() {
                 </div>
                 
                 <div className="flex items-start">
-                  <Search className="w-6 h-6 text-[#E16D3D] mr-4 mt-1 flex-shrink-0" />
+                  <Search className="w-6 h-6 text-brand-orange mr-4 mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">
+                    <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">
                       Manually Researched
                     </h3>
                     <p className="text-sm md:text-base text-gray-700">
@@ -190,9 +190,9 @@ export default function AboutPage() {
                 </div>
                 
                 <div className="flex items-start">
-                  <Shield className="w-6 h-6 text-[#E16D3D] mr-4 mt-1 flex-shrink-0" />
+                  <Shield className="w-6 h-6 text-brand-orange mr-4 mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">
+                    <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">
                       Built by Book Lovers
                     </h3>
                     <p className="text-sm md:text-base text-gray-700">
@@ -202,9 +202,9 @@ export default function AboutPage() {
                 </div>
                 
                 <div className="flex items-start">
-                  <Users className="w-6 h-6 text-[#E16D3D] mr-4 mt-1 flex-shrink-0" />
+                  <Users className="w-6 h-6 text-brand-orange mr-4 mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">
+                    <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">
                       Community-Driven
                     </h3>
                     <p className="text-sm md:text-base text-gray-700">
@@ -222,10 +222,10 @@ export default function AboutPage() {
 
       {/* Join Our Mission Section */}
       <section className="py-8 md:py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
+        <div className="container-site">
+          <div className="bg-brand-cream rounded-lg p-6 md:p-8">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+              <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-brown mb-6 text-center">
                 Help Us Grow
               </h2>
               <p className="text-base md:text-lg text-gray-700 mb-8 text-center">
@@ -233,12 +233,12 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4">
               <Link href="/submit" className="w-full sm:w-auto">
-                <Button className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white rounded-full px-8 py-4 min-h-[56px] w-full sm:w-auto font-semibold">
+                <Button variant="accent" className="px-8 py-4 min-h-[56px] w-full sm:w-auto">
                   Add a Bookshop
                 </Button>
               </Link>
               <Link href="/contact" className="w-full sm:w-auto">
-                <Button className="bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white rounded-full px-8 py-4 min-h-[56px] w-full sm:w-auto font-semibold">
+                <Button className="px-8 py-4 min-h-[56px] w-full sm:w-auto">
                   Contact Us
                 </Button>
               </Link>
@@ -250,26 +250,26 @@ export default function AboutPage() {
 
       {/* Internal Links Section for SEO */}
       <section className="py-8 md:py-12 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+        <div className="container-site">
+          <div className="bg-brand-cream rounded-lg p-6 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-brown mb-6 text-center">
               Explore Our Directory
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link href="/" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Home</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Home</h3>
                 <p className="text-sm text-gray-600">Discover featured bookshops</p>
               </Link>
               <Link href="/directory" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Directory</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Directory</h3>
                 <p className="text-sm text-gray-600">Browse all bookshops</p>
               </Link>
               <Link href="/events" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Events</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Events</h3>
                 <p className="text-sm text-gray-600">Find bookshop events</p>
               </Link>
               <Link href="/blog" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Blog</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Blog</h3>
                 <p className="text-sm text-gray-600">Read bookshop stories</p>
               </Link>
             </div>

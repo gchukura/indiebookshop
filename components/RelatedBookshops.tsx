@@ -78,7 +78,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
     <div className="bg-gradient-to-br from-stone-50 to-white rounded-lg shadow-md border border-stone-200 p-4 sm:p-6 md:p-8 lg:p-10">
       {/* Section Header */}
       <div className="mb-4 sm:mb-6 md:mb-8">
-        <h2 className="font-serif text-xl sm:text-2xl md:text-3xl text-[#5F4B32] font-bold">
+        <h2 className="font-serif text-xl sm:text-2xl md:text-3xl text-brand-brown font-bold">
           Other bookshops nearby
         </h2>
       </div>
@@ -96,7 +96,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
               href={`/bookshop/${slug}`}
               className="group block"
             >
-              <div className="relative bg-white border-2 border-stone-200 hover:border-[#E16D3D] rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 sm:hover:-translate-y-1 sm:hover:scale-[1.02] h-full flex flex-col">
+              <div className="relative bg-white border-2 border-stone-200 hover:border-brand-orange rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 sm:hover:-translate-y-1 sm:hover:scale-[1.02] h-full flex flex-col">
                 {/* Bookshop Image Thumbnail — the shop's photo, else its placeholder */}
                 <div className="relative w-full h-32 overflow-hidden bg-stone-100">
                   <BookshopImage
@@ -120,13 +120,13 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
                 {/* Card Content */}
                 <div className="p-4 sm:p-5 md:p-6 flex flex-col flex-grow">
                   {/* Bookshop Name */}
-                  <h3 className="font-serif text-lg sm:text-xl md:text-2xl text-[#5F4B32] font-bold mb-2 group-hover:text-[#E16D3D] transition-colors">
+                  <h3 className="font-serif text-lg sm:text-xl md:text-2xl text-brand-brown font-bold mb-2 group-hover:text-brand-orange transition-colors">
                     {bookshop.name}
                   </h3>
 
                   {/* Location */}
                   <div className="flex items-start gap-2 text-sm text-stone-600 mb-4 flex-grow">
-                    <MapPin className="w-4 h-4 flex-shrink-0 text-[#2A6B7C] mt-0.5" aria-hidden="true" />
+                    <MapPin className="w-4 h-4 flex-shrink-0 text-brand-teal mt-0.5" aria-hidden="true" />
                     <span>
                       {bookshop.city}
                       {showStateName && `, ${bookshop.state}`}
@@ -134,7 +134,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
                   </div>
 
                   {/* View Details Link */}
-                  <div className="flex items-center gap-2 text-sm font-semibold text-[#2A6B7C] group-hover:text-[#E16D3D] transition-colors mt-auto">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-brand-teal group-hover:text-brand-orange transition-colors mt-auto">
                     View details
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                   </div>
@@ -149,7 +149,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
       <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-stone-200 text-center">
         <Link
           href={`/directory?state=${currentBookshop.state}`}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-[#2A6B7C] border-2 border-[#2A6B7C] text-[#2A6B7C] hover:text-white rounded-lg font-semibold transition-all duration-300 hover:shadow-lg group"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-brand-teal border-2 border-brand-teal text-brand-teal hover:text-white rounded-lg font-semibold transition-all duration-300 hover:shadow-lg group"
         >
           See all bookshops in {currentBookshop.state}
           <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />

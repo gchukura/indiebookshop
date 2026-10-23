@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { COLORS } from '@/lib/constants';
 
 export type MapShop = { name: string; slug: string; lat: number; lng: number };
 
-const TEAL = '#2A6B7C';
+// Mapbox paint properties need plain color strings, not Tailwind classes
+const TEAL = COLORS.secondary;
 
 /** Mapbox map with one dot per shop, fitted to the shops. Loaded only via LazyShopsMap. */
 export default function ShopsMap({ shops, mapboxToken }: { shops: MapShop[]; mapboxToken: string }) {

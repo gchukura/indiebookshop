@@ -7,11 +7,11 @@ export default function PlaceLinks({ title, links }: { title: string; links: Pla
   if (!links.length) return null;
   return (
     <section className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">{title}</h2>
+      <h2 className="font-serif text-2xl font-bold text-brand-brown mb-4">{title}</h2>
       <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-2">
         {links.map(link => (
           <li key={link.href}>
-            <Link href={link.href} className="text-[#2A6B7C] hover:underline">
+            <Link href={link.href} className="text-brand-teal hover:underline">
               {link.name}
             </Link>{' '}
             <span className="text-sm text-gray-500">({link.count})</span>

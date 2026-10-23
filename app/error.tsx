@@ -20,8 +20,8 @@ export default function Error({
   return (
     <div className="min-h-[60vh] flex items-center justify-center px-4">
       <div className="text-center max-w-md">
-        <AlertCircle className="w-16 h-16 text-[#E16D3D] mx-auto mb-6" />
-        <h1 className="font-serif text-3xl font-bold text-[#5F4B32] mb-4">
+        <AlertCircle className="w-16 h-16 text-brand-orange mx-auto mb-6" />
+        <h1 className="font-serif text-3xl font-bold text-brand-brown mb-4">
           Something went wrong
         </h1>
         <p className="text-gray-600 mb-8">
@@ -36,7 +36,7 @@ export default function Error({
             <RotateCcw className="w-4 h-4" />
             Try again
           </Button>
-          <Button asChild className="bg-[#2A6B7C] hover:bg-[#1d5a6a]">
+          <Button asChild className="rounded-md">
             <Link href="/" className="flex items-center gap-2">
               <Home className="w-4 h-4" />
               Go home

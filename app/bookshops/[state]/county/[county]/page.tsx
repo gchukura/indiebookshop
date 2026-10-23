@@ -60,7 +60,7 @@ export default async function CountyPage({ params }: Props) {
       />
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         <header className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#5F4B32] mb-4">
+          <h1 className="font-serif text-3xl md:text-4xl font-bold text-brand-brown mb-4">
             Independent Bookshops in {county.displayName}, {state.name}
           </h1>
           <p className="text-gray-700 leading-relaxed">{intro}</p>
@@ -70,7 +70,7 @@ export default async function CountyPage({ params }: Props) {
 
         <PlaceLinks title={`Cities in ${county.displayName}`} links={cityLinks} />
         <p className="text-sm">
-          <Link href={`/bookshops/${state.slug}`} className="text-[#2A6B7C] hover:underline">
+          <Link href={`/bookshops/${state.slug}`} className="text-brand-teal hover:underline">
             All {state.shops.length.toLocaleString('en-US')} bookshops in {state.name} →
           </Link>
         </p>

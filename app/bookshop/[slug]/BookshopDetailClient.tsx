@@ -102,7 +102,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
           <nav className="flex items-center space-x-2 text-sm">
             {crumbs.map(crumb => (
               <React.Fragment key={crumb.href}>
-                <Link href={crumb.href} className="text-[#2A6B7C] hover:underline">
+                <Link href={crumb.href} className="text-brand-teal hover:underline">
                   {crumb.name}
                 </Link>
                 <span className="text-gray-400">/</span>
@@ -120,11 +120,11 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
           <div className="lg:col-span-2 space-y-6">
             {/* Header */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#5F4B32] mb-4">{bookstore.name}</h1>
+              <h1 className="font-serif text-3xl md:text-4xl font-bold text-brand-brown mb-4">{bookstore.name}</h1>
 
               {/* Location */}
               <div className="flex items-start text-gray-700 mb-4">
-                <MapPin className="w-5 h-5 mr-2 mt-1 flex-shrink-0 text-[#2A6B7C]" />
+                <MapPin className="w-5 h-5 mr-2 mt-1 flex-shrink-0 text-brand-teal" />
                 <div>
                   {bookstore.street && <div>{bookstore.street}</div>}
                   <div>
@@ -154,14 +154,14 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
 
             {/* Contact Info */}
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">Contact Information</h2>
+              <h2 className="font-serif text-2xl font-bold text-brand-brown mb-4">Contact Information</h2>
 
               <div className="space-y-3">
                 {/* Phone */}
                 {bookstore.phone && (
                   <div className="flex items-center">
-                    <Phone className="w-5 h-5 mr-3 text-[#2A6B7C]" />
-                    <a href={`tel:${bookstore.phone}`} className="text-[#2A6B7C] hover:underline">
+                    <Phone className="w-5 h-5 mr-3 text-brand-teal" />
+                    <a href={`tel:${bookstore.phone}`} className="text-brand-teal hover:underline">
                       {bookstore.formattedPhone || bookstore.phone}
                     </a>
                   </div>
@@ -170,8 +170,8 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                 {/* Website */}
                 {bookstore.website && (
                   <div className="flex items-center">
-                    <Globe className="w-5 h-5 mr-3 text-[#2A6B7C]" />
-                    <a href={bookstore.website} target="_blank" rel="noopener noreferrer" className="text-[#2A6B7C] hover:underline flex items-center">
+                    <Globe className="w-5 h-5 mr-3 text-brand-teal" />
+                    <a href={bookstore.website} target="_blank" rel="noopener noreferrer" className="text-brand-teal hover:underline flex items-center">
                       Visit Website
                       <span className="ml-1 text-xs">↗</span>
                     </a>
@@ -181,8 +181,8 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                 {/* Google Maps */}
                 {bookstore.googleMapsUrl && (
                   <div className="flex items-center">
-                    <MapPin className="w-5 h-5 mr-3 text-[#2A6B7C]" />
-                    <a href={bookstore.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-[#2A6B7C] hover:underline flex items-center">
+                    <MapPin className="w-5 h-5 mr-3 text-brand-teal" />
+                    <a href={bookstore.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="text-brand-teal hover:underline flex items-center">
                       View on Google Maps
                       <span className="ml-1 text-xs">↗</span>
                     </a>
@@ -194,7 +194,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             {/* Hours */}
             {bookstore.openingHoursJson?.weekday_text && (
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">Hours</h2>
+                <h2 className="font-serif text-2xl font-bold text-brand-brown mb-4">Hours</h2>
                 <div className="space-y-2">
                   {bookstore.openingHoursJson.weekday_text.map((hours, index) => (
                     <div key={index} className="text-gray-700">
@@ -240,14 +240,14 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             {/* Google Reviews */}
             {googleReviews.length > 0 && (
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-4">Customer Reviews</h2>
+                <h2 className="font-serif text-2xl font-bold text-brand-brown mb-4">Customer Reviews</h2>
                 
                 <div className="space-y-6">
                   {googleReviews.slice(0, 5).map((review, index) => (
                     <div key={index} className={index < Math.min(googleReviews.length, 5) - 1 ? 'border-b border-gray-200 pb-6' : ''}>
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <p className="font-semibold text-[#5F4B32]">{review.author_name}</p>
+                          <p className="font-semibold text-brand-brown">{review.author_name}</p>
                           <p className="text-xs text-gray-500">{formatReviewTime(review.time)}</p>
                         </div>
                         <div className="flex items-center gap-1">
@@ -270,7 +270,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                       href={`https://www.google.com/maps/place/?q=place_id:${bookstore.googlePlaceId}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-[#2A6B7C] hover:text-[#E16D3D] transition-colors"
+                      className="inline-flex items-center gap-2 text-sm font-medium text-brand-teal hover:text-brand-orange transition-colors"
                     >
                       Read all reviews on Google
                       <ExternalLink className="w-4 h-4" />
@@ -286,7 +286,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             {/* Map */}
             {bookstore.latitude && bookstore.longitude && (
               <div className="bg-white rounded-lg shadow-md p-4">
-                <h3 className="font-serif text-xl font-bold text-[#5F4B32] mb-4">Location</h3>
+                <h3 className="font-serif text-xl font-bold text-brand-brown mb-4">Location</h3>
                 <div className="aspect-square rounded-lg overflow-hidden bg-gray-200">
                   <SingleLocationMap
                     latitude={bookstore.latitude}
@@ -302,7 +302,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                     href={bookstore.googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-3 block w-full text-center py-2 px-4 bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white rounded-lg font-semibold transition-colors text-sm"
+                    className="mt-3 block w-full text-center py-2 px-4 bg-brand-teal hover:bg-brand-teal-hover text-white rounded-lg font-semibold transition-colors text-sm"
                   >
                     Get Directions
                   </a>
@@ -311,11 +311,11 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             )}
 
             {/* CTA */}
-            <div className="bg-[#2A6B7C] text-white rounded-lg shadow-md p-6">
+            <div className="bg-brand-teal text-white rounded-lg shadow-md p-6">
               <h3 className="font-serif text-xl font-bold mb-3">Support This Bookshop</h3>
               <p className="text-sm mb-4 opacity-90">Independent bookshops are the heart of local communities. Visit, shop, and help keep them thriving!</p>
               {bookstore.website && (
-                <a href={bookstore.website} target="_blank" rel="noopener noreferrer" className="block w-full bg-white text-[#2A6B7C] text-center py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                <a href={bookstore.website} target="_blank" rel="noopener noreferrer" className="block w-full bg-white text-brand-teal text-center py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
                   Visit Their Website
                 </a>
               )}
@@ -326,7 +326,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
         {/* Related Bookshops */}
         {relatedBookshops.length > 0 && (
           <div className="mt-12">
-            <h2 className="font-serif text-2xl font-bold text-[#5F4B32] mb-6">
+            <h2 className="font-serif text-2xl font-bold text-brand-brown mb-6">
               {bookstore.city ? `More Bookshops in ${bookstore.city}, ${bookstore.state}` : `More Bookshops in ${bookstore.state}`}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
@@ -347,9 +347,9 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                     />
                   </div>
                   <div className="p-6">
-                    <h3 className="font-serif text-lg font-bold text-[#5F4B32] mb-2">{shop.name}</h3>
+                    <h3 className="font-serif text-lg font-bold text-brand-brown mb-2">{shop.name}</h3>
                     <div className="flex items-start text-sm text-gray-600 mb-2">
-                      <MapPin className="w-4 h-4 mr-1 mt-0.5 flex-shrink-0 text-[#2A6B7C]" />
+                      <MapPin className="w-4 h-4 mr-1 mt-0.5 flex-shrink-0 text-brand-teal" />
                       <span>
                         {shop.city}, {shop.state}
                       </span>
@@ -370,7 +370,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             </div>
             {bookstore.state && (
               <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                <Link href={crumbs[2]?.href ?? '/directory'} className="text-[#2A6B7C] hover:underline font-semibold text-lg">
+                <Link href={crumbs[2]?.href ?? '/directory'} className="text-brand-teal hover:underline font-semibold text-lg">
                   Browse all bookshops in {stateName} →
                 </Link>
               </div>

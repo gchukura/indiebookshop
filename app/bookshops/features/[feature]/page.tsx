@@ -52,7 +52,7 @@ export default async function FeaturePage({ params }: Props) {
       />
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         <header className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#5F4B32] mb-4">
+          <h1 className="font-serif text-3xl md:text-4xl font-bold text-brand-brown mb-4">
             Independent Bookshops with {feature.phrase}
           </h1>
           <p className="text-gray-700 leading-relaxed">{intro}</p>
@@ -60,7 +60,7 @@ export default async function FeaturePage({ params }: Props) {
             <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
               {feature.states.map(group => (
                 <li key={group.stateSlug}>
-                  <a href={`#${group.stateSlug}`} className="text-[#2A6B7C] hover:underline">
+                  <a href={`#${group.stateSlug}`} className="text-brand-teal hover:underline">
                     {group.stateName}
                   </a>{' '}
                   <span className="text-gray-500">({group.shops.length})</span>
@@ -81,9 +81,9 @@ export default async function FeaturePage({ params }: Props) {
               const statePage = byState[group.stateSlug]?.[feature.slug];
               return (
                 <section key={group.stateSlug} id={group.stateSlug} className="scroll-mt-24">
-                  <h3 className="font-serif text-xl font-bold text-[#5F4B32] mb-4">
+                  <h3 className="font-serif text-xl font-bold text-brand-brown mb-4">
                     {statePage ? (
-                      <Link href={`/bookshops/${group.stateSlug}/features/${feature.slug}`} className="hover:text-[#E16D3D]">
+                      <Link href={`/bookshops/${group.stateSlug}/features/${feature.slug}`} className="hover:text-brand-orange">
                         {group.stateName}
                       </Link>
                     ) : (

@@ -28,16 +28,16 @@ const BookWormMascot = () => {
         <div className="w-20 h-20 bg-[#8BC48B] rounded-full absolute -bottom-6 left-4"></div>
         <div className="w-16 h-16 bg-[#9BD09B] rounded-full absolute -bottom-12 left-10"></div>
         <div className="absolute -top-4 -right-8 transform -rotate-12">
-          <div className="w-14 h-16 bg-[#2A6B7C] rounded-r-sm relative">
+          <div className="w-14 h-16 bg-brand-teal rounded-r-sm relative">
             <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#235A69]"></div>
-            <div className="absolute left-3 top-3 right-2 h-1.5 bg-[#F7F3E8]"></div>
-            <div className="absolute left-3 top-6 right-2 h-1.5 bg-[#F7F3E8]"></div>
-            <div className="absolute left-3 top-9 right-2 h-1.5 bg-[#F7F3E8]"></div>
+            <div className="absolute left-3 top-3 right-2 h-1.5 bg-brand-cream"></div>
+            <div className="absolute left-3 top-6 right-2 h-1.5 bg-brand-cream"></div>
+            <div className="absolute left-3 top-9 right-2 h-1.5 bg-brand-cream"></div>
           </div>
-          <div className="w-14 h-14 bg-[#E16D3D] rounded-r-sm absolute -top-3 -right-3 transform -rotate-6">
+          <div className="w-14 h-14 bg-brand-orange rounded-r-sm absolute -top-3 -right-3 transform -rotate-6">
             <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#C6582B]"></div>
-            <div className="absolute left-3 top-3 right-2 h-1.5 bg-[#F7F3E8]"></div>
-            <div className="absolute left-3 top-6 right-2 h-1.5 bg-[#F7F3E8]"></div>
+            <div className="absolute left-3 top-3 right-2 h-1.5 bg-brand-cream"></div>
+            <div className="absolute left-3 top-6 right-2 h-1.5 bg-brand-cream"></div>
           </div>
         </div>
       </div>
@@ -48,10 +48,10 @@ const BookWormMascot = () => {
 export default function BlogPage() {
   return (
     <>
-      <section className="w-full py-6 md:py-8 lg:py-10 bg-[#F7F3E8]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full py-6 md:py-8 lg:py-10 bg-brand-cream">
+        <div className="container-site">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-4 text-center">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-brand-brown mb-4 text-center">
               Independent Bookshop Blog
             </h1>
             <p className="font-sans text-sm md:text-base text-gray-700 text-center mb-8 md:mb-12 leading-relaxed">
@@ -63,10 +63,10 @@ export default function BlogPage() {
                 <BookWormMascot />
               </div>
               <div className="md:w-3/4 max-w-xl">
-                <blockquote className="italic text-xl md:text-2xl mb-3 text-[#5F4B32] font-serif leading-relaxed">
+                <blockquote className="italic text-xl md:text-2xl mb-3 text-brand-brown font-serif leading-relaxed">
                   "Better to remain silent and be thought a fool than to speak and remove all doubt."
                 </blockquote>
-                <p className="font-sans text-[#2A6B7C] font-medium text-base md:text-lg mb-4">
+                <p className="font-sans text-brand-teal font-medium text-base md:text-lg mb-4">
                   — Abraham Lincoln
                 </p>
                 <p className="font-sans text-sm md:text-base text-gray-700">
@@ -81,26 +81,26 @@ export default function BlogPage() {
 
       {/* Internal Links Section for SEO */}
       <section className="py-8 md:py-12 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+        <div className="container-site">
+          <div className="bg-brand-cream rounded-lg p-6 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-brown mb-6 text-center">
               Explore Our Directory
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link href="/" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Home</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Home</h3>
                 <p className="text-sm text-gray-600">Discover featured bookshops</p>
               </Link>
               <Link href="/directory" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Directory</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Directory</h3>
                 <p className="text-sm text-gray-600">Browse all bookshops</p>
               </Link>
               <Link href="/events" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Events</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Events</h3>
                 <p className="text-sm text-gray-600">Find bookshop events</p>
               </Link>
               <Link href="/about" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">About</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">About</h3>
                 <p className="text-sm text-gray-600">Learn about us</p>
               </Link>
             </div>

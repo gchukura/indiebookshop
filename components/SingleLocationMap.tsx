@@ -3,10 +3,8 @@
 import { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { COLORS } from '@/lib/constants';
 
-const COLORS = {
-  secondary: '#2A6B7C', // Teal
-};
 
 interface SingleLocationMapProps {
   latitude?: string | null;
@@ -139,7 +137,7 @@ const SingleLocationMap = ({ latitude, longitude, mapboxToken }: SingleLocationM
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center p-4">
-          <div className="text-[#2A6B7C] text-4xl mb-2">📍</div>
+          <div className="text-brand-teal text-4xl mb-2">📍</div>
           <p className="text-sm">Location data not available</p>
         </div>
       </div>
@@ -159,7 +157,7 @@ const SingleLocationMap = ({ latitude, longitude, mapboxToken }: SingleLocationM
             <p className="text-sm text-gray-600 mb-3">{mapError}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-3 py-1.5 bg-[#2A6B7C] hover:bg-[#1d5a6a] text-white rounded-md text-xs font-medium transition-colors"
+              className="px-3 py-1.5 bg-brand-teal hover:bg-brand-teal-hover text-white rounded-md text-xs font-medium transition-colors"
             >
               Refresh Page
             </button>
@@ -171,7 +169,7 @@ const SingleLocationMap = ({ latitude, longitude, mapboxToken }: SingleLocationM
       {!mapError && !mapLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-50">
           <div className="text-center p-4 bg-white rounded-md shadow-md">
-            <div className="text-[#2A6B7C] text-4xl mb-2">📍</div>
+            <div className="text-brand-teal text-4xl mb-2">📍</div>
             <p className="font-medium">Store Location</p>
             <p className="text-sm text-gray-600 mb-2">Loading map...</p>
           </div>

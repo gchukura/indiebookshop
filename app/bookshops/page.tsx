@@ -36,12 +36,12 @@ export default async function BookshopsIndexPage() {
       <LocationBreadcrumbs items={[{ name: 'Home', href: '/' }, { name: 'Bookshops', href: '/bookshops' }]} />
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         <header className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#5F4B32] mb-4">
+          <h1 className="font-serif text-3xl md:text-4xl font-bold text-brand-brown mb-4">
             Independent Bookshops by State
           </h1>
           <p className="text-gray-700 leading-relaxed">{intro}</p>
           <p className="mt-3 text-sm">
-            <Link href="/bookshops/features" className="text-[#2A6B7C] hover:underline">
+            <Link href="/bookshops/features" className="text-brand-teal hover:underline">
               Or browse by feature: cafés, used books, children’s sections, and more →
             </Link>
           </p>
@@ -52,9 +52,9 @@ export default async function BookshopsIndexPage() {
               <li key={state.slug}>
                 <Link
                   href={`/bookshops/${state.slug}`}
-                  className="flex items-center justify-between gap-2 border-2 border-gray-200 hover:border-[#2A6B7C] rounded-lg px-3 py-2 transition-colors"
+                  className="flex items-center justify-between gap-2 border-2 border-gray-200 hover:border-brand-teal rounded-lg px-3 py-2 transition-colors"
                 >
-                  <span className="font-semibold text-[#5F4B32]">{state.name}</span>
+                  <span className="font-semibold text-brand-brown">{state.name}</span>
                   <span className="text-sm text-gray-500">{state.shops.length}</span>
                 </Link>
               </li>

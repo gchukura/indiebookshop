@@ -123,13 +123,13 @@ export function EventsClient() {
                 {badge.label}
               </span>
               
-              <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-[#5F4B32] mb-1 break-words">
+              <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-brand-brown mb-1 break-words">
                 {event.title}
               </h3>
             </div>
             
             <div className="text-right ml-4 flex-shrink-0">
-              <div className="text-2xl font-serif font-bold text-[#E16D3D]">
+              <div className="text-2xl font-serif font-bold text-brand-orange">
                 {format(eventDate, 'd')}
               </div>
               <div className="text-xs md:text-sm text-gray-600 uppercase font-sans">
@@ -147,7 +147,7 @@ export function EventsClient() {
             {bookshop && (
               <div className="flex items-center">
                 <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                <Link href={`/bookshop/${bookshopSlug}`} className="text-[#2A6B7C] hover:underline">
+                <Link href={`/bookshop/${bookshopSlug}`} className="text-brand-teal hover:underline">
                   {bookshop.name}
                 </Link>
               </div>
@@ -166,10 +166,10 @@ export function EventsClient() {
 
   return (
     <>
-      <section className="w-full py-6 md:py-8 lg:py-10 bg-[#F7F3E8]">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="w-full py-6 md:py-8 lg:py-10 bg-brand-cream">
+        <div className="container-site">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-[#5F4B32] mb-4 md:mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-brand-brown mb-4 md:mb-6">
               Literary Events at Independent Bookshops
             </h1>
             <p className="font-sans text-sm md:text-base text-gray-700 leading-relaxed">
@@ -181,7 +181,7 @@ export function EventsClient() {
       </section>
 
       <section className="py-8 md:py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container-site">
           {eventsLoading || bookshopsLoading ? (
             <div className="text-center py-10">
               <p className="font-sans text-base text-gray-700">Loading events...</p>
@@ -196,7 +196,7 @@ export function EventsClient() {
                     </label>
                     <div className="relative">
                       <select 
-                        className="w-full border border-gray-200 rounded-md p-2 pr-8 appearance-none bg-white font-sans text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] focus:border-transparent"
+                        className="w-full border border-gray-200 rounded-md p-2 pr-8 appearance-none bg-white font-sans text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent"
                         value={locationFilter}
                         onChange={(e) => setLocationFilter(e.target.value)}
                       >
@@ -215,7 +215,7 @@ export function EventsClient() {
                     </label>
                     <div className="relative">
                       <select 
-                        className="w-full border border-gray-200 rounded-md p-2 pr-8 appearance-none bg-white font-sans text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] focus:border-transparent"
+                        className="w-full border border-gray-200 rounded-md p-2 pr-8 appearance-none bg-white font-sans text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent"
                         value={eventTypeFilter}
                         onChange={(e) => setEventTypeFilter(e.target.value)}
                       >
@@ -238,7 +238,7 @@ export function EventsClient() {
                     </label>
                     <div className="relative">
                       <select 
-                        className="w-full border border-gray-200 rounded-md p-2 pr-8 appearance-none bg-white font-sans text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-[#2A6B7C] focus:border-transparent"
+                        className="w-full border border-gray-200 rounded-md p-2 pr-8 appearance-none bg-white font-sans text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-brand-teal focus:border-transparent"
                         defaultValue="upcoming"
                       >
                         <option value="upcoming">Upcoming</option>
@@ -253,7 +253,7 @@ export function EventsClient() {
 
               <div className="max-w-4xl mx-auto">
                 <div className="mb-8">
-                  <h2 className="font-serif text-2xl md:text-3xl font-bold text-[#5F4B32]">
+                  <h2 className="font-serif text-2xl md:text-3xl font-bold text-brand-brown">
                     Upcoming Events
                     {filteredEvents.length > 0 && (
                       <span className="font-sans text-lg font-normal text-gray-600 ml-2">
@@ -293,7 +293,7 @@ export function EventsClient() {
                           </Button>
                         )}
                         <Link href="/submit-event">
-                          <Button className="bg-[#E16D3D] hover:bg-[#d06a4f] text-white rounded-full px-8 py-4 min-h-[56px] font-semibold">
+                          <Button variant="accent" className="px-8 py-4 min-h-[56px]">
                             Add an Event
                           </Button>
                         </Link>
@@ -308,26 +308,26 @@ export function EventsClient() {
       </section>
 
       <section className="py-8 md:py-12 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-[#F7F3E8] rounded-lg p-6 md:p-8">
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-[#5F4B32] mb-6 text-center">
+        <div className="container-site">
+          <div className="bg-brand-cream rounded-lg p-6 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-brand-brown mb-6 text-center">
               Explore More
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link href="/" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Home</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Home</h3>
                 <p className="text-sm text-gray-600">Discover featured bookshops</p>
               </Link>
               <Link href="/directory" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Directory</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Directory</h3>
                 <p className="text-sm text-gray-600">Browse all bookshops</p>
               </Link>
               <Link href="/submit-event" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Submit Event</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Submit Event</h3>
                 <p className="text-sm text-gray-600">Add your event</p>
               </Link>
               <Link href="/blog" className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                <h3 className="font-serif font-bold text-lg text-[#5F4B32] mb-2">Blog</h3>
+                <h3 className="font-serif font-bold text-lg text-brand-brown mb-2">Blog</h3>
                 <p className="text-sm text-gray-600">Read bookshop stories</p>
               </Link>
             </div>

@@ -33,7 +33,7 @@ export default async function FeaturesIndexPage() {
       />
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         <header className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="font-serif text-3xl md:text-4xl font-bold text-[#5F4B32] mb-4">
+          <h1 className="font-serif text-3xl md:text-4xl font-bold text-brand-brown mb-4">
             Independent Bookshops by Feature
           </h1>
           <p className="text-gray-700 leading-relaxed">{INTRO}</p>
