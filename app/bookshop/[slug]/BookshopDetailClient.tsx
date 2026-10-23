@@ -4,7 +4,8 @@ import React from 'react';
 import { MapPin, Phone, Globe, Star, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { Bookstore } from '@/shared/schema';
-import { getStateAbbrev } from '@/lib/state-utils';
+import { getStateAbbrev, getStateDisplayName } from '@/lib/state-utils';
+import { cityPath, hasStatePage, statePath } from '@/lib/data/location-slugs';
 import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/StructuredData';
 import SingleLocationMap from '@/components/SingleLocationMap';
 import { getBookshopImageUrl, getBookshopPhotoUrl, getPlaceholderUrl } from '@/lib/bookshop-image';
@@ -53,30 +54,33 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
     return `${Math.floor(diffDays / 365)} years ago`;
   };
 
-  // Breadcrumb schema items
-  const breadcrumbItems = [
-    { name: 'Home', url: 'https://www.indiebookshop.com' },
-    { name: 'Directory', url: 'https://www.indiebookshop.com/directory' },
+  // Breadcrumbs: Home › Bookshops › State › City › Shop. US shops link to the
+  // /bookshops location pages; other regions fall back to the directory filters.
+  const usState = hasStatePage(bookstore.state);
+  const stateAbbrev = getStateAbbrev(bookstore.state);
+  const stateName = getStateDisplayName(bookstore.state) || bookstore.state;
+  const crumbs = [
+    { name: 'Home', href: '/' },
+    usState ? { name: 'Bookshops', href: '/bookshops' } : { name: 'Directory', href: '/directory' },
   ];
-
   if (bookstore.state) {
-    breadcrumbItems.push({
-      name: bookstore.state,
-      url: `https://www.indiebookshop.com/directory?state=${encodeURIComponent(getStateAbbrev(bookstore.state))}`,
+    crumbs.push({
+      name: stateName,
+      href: usState ? statePath(bookstore.state) : `/directory?state=${encodeURIComponent(stateAbbrev)}`,
     });
   }
-
   if (bookstore.city && bookstore.state) {
-    breadcrumbItems.push({
+    crumbs.push({
       name: bookstore.city,
-      url: `https://www.indiebookshop.com/directory?state=${encodeURIComponent(getStateAbbrev(bookstore.state))}&city=${encodeURIComponent(bookstore.city)}`,
+      href: usState
+        ? cityPath(bookstore.city, bookstore.state)
+        : `/directory?state=${encodeURIComponent(stateAbbrev)}&city=${encodeURIComponent(bookstore.city)}`,
     });
   }
-
-  breadcrumbItems.push({
-    name: bookstore.name,
-    url: `https://www.indiebookshop.com/bookshop/${canonicalSlug}`,
-  });
+  const breadcrumbItems = [
+    ...crumbs.map(c => ({ name: c.name, url: `https://www.indiebookshop.com${c.href === '/' ? '' : c.href}` })),
+    { name: bookstore.name, url: `https://www.indiebookshop.com/bookshop/${canonicalSlug}` },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -88,30 +92,14 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <nav className="flex items-center space-x-2 text-sm">
-            <Link href="/" className="text-[#2A6B7C] hover:underline">
-              Home
-            </Link>
-            <span className="text-gray-400">/</span>
-            <Link href="/directory" className="text-[#2A6B7C] hover:underline">
-              Directory
-            </Link>
-            <span className="text-gray-400">/</span>
-            {bookstore.state && (
-              <>
-                <Link href={`/directory?state=${encodeURIComponent(getStateAbbrev(bookstore.state))}`} className="text-[#2A6B7C] hover:underline">
-                  {bookstore.state}
+            {crumbs.map(crumb => (
+              <React.Fragment key={crumb.href}>
+                <Link href={crumb.href} className="text-[#2A6B7C] hover:underline">
+                  {crumb.name}
                 </Link>
                 <span className="text-gray-400">/</span>
-              </>
-            )}
-            {bookstore.city && bookstore.state && (
-              <>
-                <Link href={`/directory?state=${encodeURIComponent(getStateAbbrev(bookstore.state))}&city=${encodeURIComponent(bookstore.city)}`} className="text-[#2A6B7C] hover:underline">
-                  {bookstore.city}
-                </Link>
-                <span className="text-gray-400">/</span>
-              </>
-            )}
+              </React.Fragment>
+            ))}
             <span className="text-gray-700">{bookstore.name}</span>
           </nav>
         </div>
@@ -371,8 +359,8 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
             </div>
             {bookstore.state && (
               <div className="bg-white rounded-lg shadow-md p-6 text-center">
-                <Link href={`/directory?state=${encodeURIComponent(getStateAbbrev(bookstore.state))}`} className="text-[#2A6B7C] hover:underline font-semibold text-lg">
-                  Browse all bookshops in {bookstore.state} →
+                <Link href={crumbs[2]?.href ?? '/directory'} className="text-[#2A6B7C] hover:underline font-semibold text-lg">
+                  Browse all bookshops in {stateName} →
                 </Link>
               </div>
             )}

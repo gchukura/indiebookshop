@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { getFeaturedBookstores, getPopularBookstores, getStates } from '@/lib/data/bookstore-data';
+import { getFeaturedBookstores, getPopularBookstores } from '@/lib/data/bookstore-data';
+import { getLocationIndex } from '@/lib/data/locations';
 import { getBookstoreSlug } from '@/lib/data/slug';
-import { getStateDisplayName } from '@/lib/state-utils';
 import { getBookshopImageUrl, getPlaceholderUrl } from '@/lib/bookshop-image';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -48,7 +48,7 @@ export default async function HomePage() {
   const [featuredBookshops, popularBookshops, states] = await Promise.all([
     getFeaturedBookstores(6),
     getPopularBookstores(6),
-    getStates(),
+    getLocationIndex().then(index => index.states),
   ]);
 
   return (
@@ -308,14 +308,14 @@ export default async function HomePage() {
 
               <h3 className="text-xl font-serif font-bold text-[#5F4B32] mb-4">United States</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-                {states.slice(0, 51).map((abbrev) => {
-                  const stateName = getStateDisplayName(abbrev) || abbrev;
-                  const flagUrl = getStateImageUrl(abbrev);
+                {states.map((state) => {
+                  const stateName = state.name;
+                  const flagUrl = getStateImageUrl(state.abbrev);
 
                   return (
                     <Link
-                      key={abbrev}
-                      href={`/directory?state=${encodeURIComponent(abbrev)}`}
+                      key={state.abbrev}
+                      href={`/bookshops/${state.slug}`}
                       className="bg-white border-2 border-gray-200 hover:border-[#2A6B7C] rounded-lg p-3 transition-all hover:shadow-md flex items-center gap-2"
                     >
                       <img
@@ -332,16 +332,14 @@ export default async function HomePage() {
                 })}
               </div>
 
-              {states.length > 51 && (
-                <div className="text-center mt-6">
-                  <Link
-                    href="/directory"
-                    className="text-[#2A6B7C] hover:text-[#1d5a6a] font-semibold underline"
-                  >
-                    View all {states.length} regions →
-                  </Link>
-                </div>
-              )}
+              <div className="text-center mt-6">
+                <Link
+                  href="/bookshops"
+                  className="text-[#2A6B7C] hover:text-[#1d5a6a] font-semibold underline"
+                >
+                  All states with shop counts →
+                </Link>
+              </div>
             </div>
           </div>
         </div>

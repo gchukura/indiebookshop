@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { getProcessedBookstoreData } from '@/lib/data/bookstore-data';
 import { getBookstoreSlug } from '@/lib/data/slug';
+import { getLocationIndex } from '@/lib/data/locations';
 
 /**
  * Generate comprehensive sitemap.xml for SEO
@@ -72,15 +73,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
 
     // ===========================================
-    // STATE-FILTERED DIRECTORY PAGES
+    // LOCATION PAGES (/bookshops/...)
+    // These replace the old /directory?state= entries.
     // ===========================================
 
-    const stateDirectoryPages: MetadataRoute.Sitemap = data.states.map((state) => ({
-      url: `${baseUrl}/directory?state=${encodeURIComponent(state)}`,
+    const { states } = await getLocationIndex();
+    const page = (path: string, priority: number) => ({
+      url: `${baseUrl}${path}`,
       lastModified,
       changeFrequency: 'weekly' as const,
-      priority: 0.75,
-    }));
+      priority,
+    });
+    const statePages: MetadataRoute.Sitemap = [
+      page('/bookshops', 0.8),
+      ...states.map(s => page(`/bookshops/${s.slug}`, 0.8)),
+    ];
+    const cityPages: MetadataRoute.Sitemap = states.flatMap(s =>
+      s.cities.map(c => page(`/bookshops/${s.slug}/${c.slug}`, 0.7))
+    );
+    const countyPages: MetadataRoute.Sitemap = states.flatMap(s =>
+      s.counties.map(c => page(`/bookshops/${s.slug}/county/${c.slug}`, 0.6))
+    );
 
     // ===========================================
     // BOOKSHOP DETAIL PAGES (deduplicated by slug)
@@ -108,11 +121,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // COMBINE ALL PAGES
     // ===========================================
 
-    console.log(`[Sitemap] Generated: ${staticPages.length} static, ${stateDirectoryPages.length} state directories, ${bookshopPages.length} bookshops`);
+    console.log(`[Sitemap] Generated: ${staticPages.length} static, ${statePages.length} state, ${cityPages.length} city, ${countyPages.length} county, ${bookshopPages.length} bookshops`);
 
     return [
       ...staticPages,
-      ...stateDirectoryPages,
+      ...statePages,
+      ...cityPages,
+      ...countyPages,
       ...bookshopPages,
     ];
   } catch (error) {

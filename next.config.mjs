@@ -13,6 +13,11 @@ const nextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
 
+  // Pages can wait up to ~60s at build time for the Sheets read quota to reset
+  // (lib/google-sheets-client.ts retries 429s after 20s and 40s), so allow more
+  // than the default 60s per page before Next retries it.
+  staticPageGenerationTimeout: 180,
+
   // Shop photos are stored in Cloudflare R2 and served same-origin at /photos/...
   // so they're cached by Vercel's CDN instead of hitting the rate-limited r2.dev URL.
   async rewrites() {
@@ -37,21 +42,9 @@ const nextConfig = {
         destination: '/submit',
         permanent: true,
       },
-      {
-        source: '/directory/state/:state',
-        destination: '/directory?state=:state',
-        permanent: true,
-      },
-      {
-        source: '/directory/city/:state/:city',
-        destination: '/directory?state=:state&city=:city',
-        permanent: true,
-      },
-      {
-        source: '/directory/county/:state/:county',
-        destination: '/directory?state=:state&county=:county',
-        permanent: true,
-      },
+      // /directory/{state,city,county}/... are handled by route handlers in
+      // app/directory/{state,city,county}/ — they map raw names like "CA" or
+      // "San Francisco" to the /bookshops slugs, which a static rule can't do.
       {
         source: '/directory/category/:featureId',
         destination: '/directory?features=:featureId',

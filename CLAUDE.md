@@ -31,16 +31,17 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 |---|---|---|
 | `/` | `app/page.tsx` | server, `revalidate=3600`; featured, popular, browse-by-state |
 | `/directory` | `app/directory/page.tsx` + `DirectoryClient.tsx` | server page reads `?state&city&county&features`, client list + Mapbox map |
-| `/bookshop/[slug]` | `app/bookshop/[slug]/page.tsx` + `BookshopDetailClient.tsx` | all slugs via `generateStaticParams`, `dynamicParams=true`, `revalidate=86400`; numeric id / non-canonical slug → client-side `router.replace` |
+| `/bookshops`, `/bookshops/[state]`, `/bookshops/[state]/[city]`, `/bookshops/[state]/county/[county]` | `app/bookshops/**/page.tsx` | server-rendered location pages (US states + DC only), all params via `generateStaticParams`, `dynamicParams=false`, `revalidate=3600`. Data from `getLocationIndex()` (`lib/data/locations.ts` → `lib/data/location-index.ts`); slugs from `lib/data/location-slugs.ts`; intro text from `lib/data/location-content.ts`. UI in `components/location/` and `components/bookshop/` (`BookshopCard`, `LazyShopsMap`) |
+| `/bookshop/[slug]` | `app/bookshop/[slug]/page.tsx` + `BookshopDetailClient.tsx` | all slugs via `generateStaticParams`, `dynamicParams=true`, `revalidate=86400`; non-canonical slug → `permanentRedirect`. Breadcrumbs link to the `/bookshops` pages |
 | `/about`, `/blog` | static server pages | blog is a placeholder |
 | `/events` | `app/events/page.tsx` (`'use client'`) + `EventsClient.tsx` | fetches `GET /api/events` and `/api/bookstores`, neither exists (only `POST /api/events`) |
 | `/submit`, `/submit-event`, `/contact` | client pages with forms | |
-| `/sitemap.xml`, `/robots.txt` | `app/sitemap.ts`, `app/robots.ts` | sitemap still emits `/state/`, `/city/`, `/county/`, `/features/` URLs that have no routes (404) |
+| `/sitemap.xml`, `/robots.txt` | `app/sitemap.ts`, `app/robots.ts` | static pages, `/bookshops` pages (state 0.8 / city 0.7 / county 0.6), and every shop |
 | `not-found`, `error`, `loading` | `app/*.tsx` | |
 
 API (`app/api/`): `bookstores/filter` (GET, listing data), `bookstores/submit` (POST → SendGrid), `bookstores/[id]/events` (GET), `events` (POST → SendGrid), `contact` (POST → `lib/contact-email.ts`), `newsletter-signup` (POST → appends to Sheet "Newsletter" tab), `features` (GET), `config` (GET Mapbox token).
 
-Redirects: `next.config.mjs` maps `/bookstore/:id`, `/submit-bookshop`, `/directory/{state,city,county,category}/...` to current URLs; `vercel.json` redirects apex → `www`.
+Redirects: `next.config.mjs` maps `/bookstore/:id`, `/submit-bookshop`, `/directory/category/...`. The old `/directory/state/:state`, `/directory/city/[:state/]:city`, `/directory/county/:state/:county` URLs are route handlers in `app/directory/{state,city,county}/` (308 to the `/bookshops` page, via `lib/data/legacy-location-redirect.ts`), because they hold raw names like `CA` or `San Francisco`. `/directory?state=` is not redirected — the directory's own filters use it. `vercel.json` redirects apex → `www`.
 
 ## Data flow
 ```
@@ -53,6 +54,7 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - **Two caches, on purpose:**
   1. **Listing cache** — `getCachedRawBookstores = unstable_cache(getBookstoresFromSheets(true), revalidate 3600)`. Each record is `toListingBookstore(fullRow)`: only `LISTING_FIELDS` (id, name, slug, city, state, county, imageUrl, live, lat/lng, featureIds, googleRating, googleReviewCount) plus the description cut to 150 chars. Other fields are absent (undefined), not null. That keeps the payload ~0.75 MB, under Vercel's **2 MB unstable_cache entry limit**. It lives in Vercel's shared Data Cache, so it survives cold starts. `getProcessedBookstoreData()` (wrapped in React `cache()` plus a 1h module-level memo) builds on this and powers home, directory, sitemap, filter API, related shops.
   2. **Full cache** — `fetchFullBookstoreData()` calls `getBookstoresFromSheets(false)` and keeps all columns in a module-level variable (1h TTL). No size limit, but per-Lambda: a cold detail-page render fetches the whole Sheet. Used only by `getBookstoreBySlugFull` and `getBookstoreById` (detail pages).
+- Build-time Sheets quota: prerendering ~4,400 pages can exceed the per-minute read quota. During `next build` only, `lib/google-sheets-client.ts` retries a 429 after 20s and 40s, and `next.config.mjs` sets `staticPageGenerationTimeout: 180` so a waiting page isn't timed out.
 - Don't add detail fields to `LISTING_FIELDS` without measuring the payload — the limit is 2 MB. Detail data must come from the full cache.
 - `ProcessedBookstoreData` indexes: `byId`, `bySlug` (lowercased), `byState` (key = lowercase state abbrev), `byCity`/`byCounty` (key = `makeCityKey(place, state)` → `"<place>|<st>"` lowercased, from `lib/data/location-key.ts`), `byFeature` (feature id string), plus `popular` (top 15 by rating then review count). Nothing is shuffled.
 - Featured: `getFeaturedBookstores` → `pickFeaturedBookstores` (`lib/data/featured.ts`), seeded by days since epoch (UTC), so it's stable within a day and rotates daily. Tiers: rating ≥ 4.5 with a photo, then other ≥ 4.5, then any.

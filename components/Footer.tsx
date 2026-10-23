@@ -133,6 +133,14 @@ const Footer = () => {
                 </li>
                 <li>
                   <Link
+                    href="/bookshops"
+                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                  >
+                    Bookshops by State
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/events"
                     className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                   >
