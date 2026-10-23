@@ -27,6 +27,8 @@ export type DirectoryMapShop = { id: number; latitude: string | null; longitude:
 type Bounds = { north: number; south: number; east: number; west: number };
 
 type DirectoryMapProps = {
+  /** Start zoomed in here (the visitor's location) instead of the whole US. */
+  initialCenter?: { lat: number; lng: number } | null;
   shops: DirectoryMapShop[];
   mapboxToken: string;
   hoveredId: number | null;
@@ -34,9 +36,11 @@ type DirectoryMapProps = {
   onPinClick: (id: number) => void;
 };
 
-export default function DirectoryMap({ shops, mapboxToken, hoveredId, selectedId, onPinClick }: DirectoryMapProps) {
+export default function DirectoryMap({ initialCenter, shops, mapboxToken, hoveredId, selectedId, onPinClick }: DirectoryMapProps) {
   const mapRef = useRef<{ getMap: () => any } | null>(null);
-  const [viewState, setViewState] = useState<typeof DEFAULT_VIEW & { transitionDuration?: number }>(DEFAULT_VIEW);
+  const [viewState, setViewState] = useState<typeof DEFAULT_VIEW & { transitionDuration?: number }>(() =>
+    initialCenter ? { ...DEFAULT_VIEW, latitude: initialCenter.lat, longitude: initialCenter.lng, zoom: 9 } : DEFAULT_VIEW
+  );
   const [bounds, setBounds] = useState<Bounds | null>(null);
 
   const clusterIndex = useMemo(() => {

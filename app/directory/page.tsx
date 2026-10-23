@@ -11,6 +11,11 @@ type SearchParams = {
   city?: string;
   county?: string;
   features?: string;
+  /** Free-text search from the homepage */
+  q?: string;
+  /** "Use my location" from the homepage: list sorted by distance */
+  lat?: string;
+  lng?: string;
 };
 
 type Props = {
