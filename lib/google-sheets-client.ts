@@ -7,6 +7,8 @@
  * Supabase is no longer used. Contact emails are sent directly via SendGrid.
  */
 
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { google } from 'googleapis';
 import { Bookstore, Feature, Event } from '@/shared/schema';
 import { rowToRecord, parseBookstoreRow, parseLive, toListingBookstore } from '@/lib/data/bookstore-row';
@@ -88,6 +90,37 @@ async function withBuildQuotaRetry<T>(read: () => Promise<T>): Promise<T> {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Reading tabs (Google Sheets, or the committed fixture with USE_FIXTURE_DATA=1)
+// ---------------------------------------------------------------------------
+
+type Tab = 'Bookstores' | 'Features' | 'Events';
+type TabValues = { header: string[]; rows: string[][] };
+
+const DATA_RANGES: Record<Tab, string> = { Bookstores: 'A2:ZZZ', Features: 'A2:Z', Events: 'A2:G' };
+
+/** Fixture of ~200 real rows (scripts/export-fixture.ts) for CI and offline builds without Sheet credentials. */
+const USE_FIXTURE_DATA = process.env.USE_FIXTURE_DATA === '1';
+export const FIXTURE_PATH = path.join(process.cwd(), 'tests', 'fixtures', 'bookstores.json');
+
+async function readTab(tab: Tab): Promise<TabValues> {
+  if (USE_FIXTURE_DATA) {
+    const fixture = JSON.parse(await readFile(FIXTURE_PATH, 'utf8')) as Partial<Record<Tab, TabValues>>;
+    return fixture[tab] ?? { header: [], rows: [] };
+  }
+  const sheets = buildSheetsClient();
+  const [headerRes, dataRes] = await withBuildQuotaRetry(() =>
+    Promise.all([
+      sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `${tab}!1:1` }),
+      sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `${tab}!${DATA_RANGES[tab]}` }),
+    ])
+  );
+  return {
+    header: (headerRes.data.values?.[0] ?? []) as string[],
+    rows: (dataRes.data.values ?? []) as string[][],
+  };
+}
+
 function col(row: string[], colMap: Record<string, number>, field: string): string {
   const idx = colMap[field];
   return idx !== undefined && idx < row.length ? String(row[idx] ?? '').trim() : '';
@@ -119,23 +152,7 @@ function buildColMap(headerRow: string[]): Record<string, number> {
  *                     pages and the module-level full-data cache.
  */
 export async function getBookstoresFromSheets(listingOnly = false): Promise<Bookstore[]> {
-  const sheets = buildSheetsClient();
-
-  const [headerRes, dataRes] = await withBuildQuotaRetry(() =>
-    Promise.all([
-      sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'Bookstores!1:1',
-      }),
-      sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'Bookstores!A2:ZZZ',
-      }),
-    ])
-  );
-
-  const headerRow: string[] = headerRes.data.values?.[0] ?? [];
-  const rows: string[][] = (dataRes.data.values ?? []) as string[][];
+  const { header: headerRow, rows } = await readTab('Bookstores');
 
   if (!headerRow.length || !rows.length) {
     console.warn('[GoogleSheets] Bookstores sheet returned no data');
@@ -168,23 +185,7 @@ export async function getBookstoresFromSheets(listingOnly = false): Promise<Book
 }
 
 export async function getFeaturesFromSheets(): Promise<Feature[]> {
-  const sheets = buildSheetsClient();
-
-  const [headerRes, dataRes] = await withBuildQuotaRetry(() =>
-    Promise.all([
-      sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'Features!1:1',
-      }),
-      sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'Features!A2:Z',
-      }),
-    ])
-  );
-
-  const headerRow: string[] = headerRes.data.values?.[0] ?? [];
-  const rows: string[][] = (dataRes.data.values ?? []) as string[][];
+  const { header: headerRow, rows } = await readTab('Features');
 
   if (!rows.length) return [];
 
@@ -213,27 +214,14 @@ export async function getFeaturesFromSheets(): Promise<Feature[]> {
 }
 
 export async function getEventsFromSheets(bookshopId?: number): Promise<Event[]> {
-  const sheets = buildSheetsClient();
-
-  let headerRes, dataRes;
+  let headerRow: string[];
+  let rows: string[][];
   try {
-    [headerRes, dataRes] = await Promise.all([
-      sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'Events!1:1',
-      }),
-      sheets.spreadsheets.values.get({
-        spreadsheetId: SPREADSHEET_ID,
-        range: 'Events!A2:G',
-      }),
-    ]);
+    ({ header: headerRow, rows } = await readTab('Events'));
   } catch {
     // Events sheet may not exist — not an error
     return [];
   }
-
-  const headerRow: string[] = headerRes.data.values?.[0] ?? [];
-  const rows: string[][] = (dataRes.data.values ?? []) as string[][];
 
   if (!rows.length) return [];
 
