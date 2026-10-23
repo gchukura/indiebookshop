@@ -21,20 +21,6 @@ export const FEATURES = [
   { id: 8, name: "Book Club" },
 ];
 
-// States with bookstores
-export const STATES = [
-  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
-  "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho",
-  "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
-  "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
-  "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada",
-  "New Hampshire", "New Jersey", "New Mexico", "New York",
-  "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
-  "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
-  "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
-  "West Virginia", "Wisconsin", "Wyoming"
-];
-
 // Title and descriptions for SEO
 export const SEO = {
   home: {
@@ -144,6 +130,3 @@ export const SHEET_HEIGHTS = {
   half: "h-[50vh]",
   full: "h-[90vh]",
 } as const;
-
-// Location delimiter for city/county filters (prevents issues with commas in names)
-export const LOCATION_DELIMITER = "|||" as const;

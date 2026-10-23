@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
-import { getFilteredBookstores, getStates, getStateDisplayName } from '@/lib/data/bookstore-data';
+import { getFilteredBookstores, getStates } from '@/lib/data/bookstore-data';
+import { getStateDisplayName } from '@/lib/state-utils';
 import DirectoryClient, { DirectoryBookstore } from './DirectoryClient';
 
 type SearchParams = {

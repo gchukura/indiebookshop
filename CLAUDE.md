@@ -13,7 +13,7 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 - Type-check: `npm run check` (`tsc -p tsconfig.json --noEmit`)
 - `node scripts/fetch-google-photos.mjs` — fetch Google photos into R2 for shops that lack one (see Photos below)
 - `npx tsx scripts/test-interactive-elements.ts [url]` — Playwright smoke test of buttons, search, and forms
-- No test runner or linter configured yet.
+- `npm test` — Vitest unit tests in `tests/` (`vitest.config.ts` maps `@/`). No linter configured yet.
 
 ## Env vars (`.env.local`)
 | Var | Used by | Required |
@@ -49,24 +49,25 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
   → lib/data/bookstore-data.ts    caches + processBookstoreData → indexes
   → server pages / API routes     (client components get data as props or via /api/*)
 ```
-- The Sheets client maps header names (lowercased) to columns, skips rows with no name or `#ERROR` cells, drops `live=false`, parses `feature_ids` (`{1,2}`, `[1,2]` or `1,2`), JSON columns, and booleans. Rows are cast `as unknown as Bookstore` — no runtime validation.
+- Each Bookstores row is mapped header → cell (`rowToRecord`) and parsed by the zod schema in `lib/data/bookstore-row.ts`. Blank rows and `live=false` rows are skipped silently. Rows with a missing/non-numeric id, no name, or a `#ERROR` value in name/city/state are skipped and logged once as `[GoogleSheets] skipped N invalid rows: …`. A malformed JSON or number cell just becomes null. The schema coerces `feature_ids` (`{1,2}`, `[1,2]` or `1,2`), JSON columns, numbers, and booleans, and turns `imageurl` into a `/photos/...` path.
 - **Two caches, on purpose:**
-  1. **Listing cache** — `getCachedRawBookstores = unstable_cache(getBookstoresFromSheets(true), revalidate 3600)`. Detail-only fields (street, zip, phone, website, reviews, hours, google_*, AI description) are nulled and description cut to 150 chars so the payload fits Vercel's **2 MB unstable_cache entry limit**. It lives in Vercel's shared Data Cache, so it survives cold starts. `getProcessedBookstoreData()` (wrapped in React `cache()` plus a 1h module-level memo) builds on this and powers home, directory, sitemap, filter API, related shops.
+  1. **Listing cache** — `getCachedRawBookstores = unstable_cache(getBookstoresFromSheets(true), revalidate 3600)`. Each record is `toListingBookstore(fullRow)`: only `LISTING_FIELDS` (id, name, slug, city, state, county, imageUrl, live, lat/lng, featureIds, googleRating, googleReviewCount) plus the description cut to 150 chars. Other fields are absent (undefined), not null. That keeps the payload ~0.75 MB, under Vercel's **2 MB unstable_cache entry limit**. It lives in Vercel's shared Data Cache, so it survives cold starts. `getProcessedBookstoreData()` (wrapped in React `cache()` plus a 1h module-level memo) builds on this and powers home, directory, sitemap, filter API, related shops.
   2. **Full cache** — `fetchFullBookstoreData()` calls `getBookstoresFromSheets(false)` and keeps all columns in a module-level variable (1h TTL). No size limit, but per-Lambda: a cold detail-page render fetches the whole Sheet. Used only by `getBookstoreBySlugFull` and `getBookstoreById` (detail pages).
-- Don't add detail fields to the listing record — it will blow the 2 MB limit. Detail data must come from the full cache.
-- `ProcessedBookstoreData` indexes: `byId`, `bySlug` (lowercased), `byState` (key = lowercase state abbrev), `byCity`/`byCounty` (key = `` `${name}-${st}` `` lowercased — breaks for hyphenated names in `getCitiesWithState`), `byFeature` (feature id string), plus `featured` (random 8), `popular` (top 15 by rating then review count). `getFeaturedBookstores` reshuffles on every call.
-- Slugs: `bookstore.slug` from the Sheet, else `generateSlugFromName(name)`. State conversion: `lib/state-utils.ts` (`getStateAbbrev`, `getStateDisplayName`).
-- Photos (see `docs/PHOTO_PIPELINE.md`): one Google photo per shop, fetched once by `scripts/fetch-google-photos.mjs` into R2 as `photos/<id>-<hash>.webp` (1200px) plus `-400.webp`. The Sheet's `imageurl` holds the r2.dev URL; the Sheets client turns it into a same-origin `/photos/...` path (served via the rewrite) and drops any other host. `photo_attribution`/`photo_attribution_url` hold the photographer credit shown on detail pages. Shops without a photo get a generic placeholder from `public/placeholders/` picked by `id % 18`. In `lib/bookshop-image.ts`: `getBookshopImageUrl` (photo or placeholder, for display) and `getBookshopPhotoUrl` (real photo or null — use this for og:image and JSON-LD, never placeholders). `googlePhotos` is always null (legacy references expired).
+- Don't add detail fields to `LISTING_FIELDS` without measuring the payload — the limit is 2 MB. Detail data must come from the full cache.
+- `ProcessedBookstoreData` indexes: `byId`, `bySlug` (lowercased), `byState` (key = lowercase state abbrev), `byCity`/`byCounty` (key = `makeCityKey(place, state)` → `"<place>|<st>"` lowercased, from `lib/data/location-key.ts`), `byFeature` (feature id string), plus `popular` (top 15 by rating then review count). Nothing is shuffled.
+- Featured: `getFeaturedBookstores` → `pickFeaturedBookstores` (`lib/data/featured.ts`), seeded by days since epoch (UTC), so it's stable within a day and rotates daily. Tiers: rating ≥ 4.5 with a photo, then other ≥ 4.5, then any.
+- Slugs: `getBookstoreSlug(b)` / `generateSlugFromName(name)` in `lib/data/slug.ts` (the only copy). State conversion: `lib/state-utils.ts` only (`getStateAbbrev`, `getStateDisplayName`, `US_STATE_NAMES`).
+- Photos (see `docs/PHOTO_PIPELINE.md`): one Google photo per shop, fetched once by `scripts/fetch-google-photos.mjs` into R2 as `photos/<id>-<hash>.webp` (1200px) plus `-400.webp`. The Sheet's `imageurl` holds the r2.dev URL; the Sheets client turns it into a same-origin `/photos/...` path (served via the rewrite) and drops any other host. `photo_attribution`/`photo_attribution_url` hold the photographer credit shown on detail pages. Shops without a photo get a generic placeholder from `public/placeholders/` picked by `id % 18`. In `lib/bookshop-image.ts`: `getBookshopImageUrl` (photo or placeholder, for display) and `getBookshopPhotoUrl` (real photo or null — use this for og:image and JSON-LD, never placeholders).
 
 ## Bookstore type
 `Bookstore` is a plain TypeScript type in `shared/schema.ts`. `Feature`, `Event`, and zod `insert*Schema`s live there too. Fields and their Sheet columns (`Bookstores` tab):
 - Core: `id`, `name`, `slug`, `street`, `city`, `state`, `zip`, `county`, `description`, `imageUrl` (`imageurl`), `photoAttribution`, `photoAttributionUrl`, `website`, `phone`, `live`
 - Location: `latitude`/`longitude` — strings, from `lat_numeric`/`lng_numeric`, else `latitude`/`longitude`
 - `featureIds` (`feature_ids`) → ids in the `Features` tab (id, name, slug, description, keywords, icon)
-- Google Places enrichment: `googlePlaceId`, `googleRating` (string), `googleReviewCount`, `googleDescription`, `googlePhotos` (null for now), `googleReviews` (JSON), `googlePriceLevel`, `googleDataUpdatedAt`, `googleMapsUrl`, `googleTypes` (JSON), `formattedAddressGoogle`, `businessStatus`, `formattedPhone`, `websiteVerified`, `contactDataFetchedAt`
-- Hours: `openingHoursJson` and `hours` both come from `opening_hours_json` (`{ open_now, weekday_text[], periods[] }`)
+- Google Places enrichment: `googlePlaceId`, `googleRating` (string), `googleReviewCount`, `googleDescription`, `googleReviews` (JSON), `googlePriceLevel`, `googleDataUpdatedAt`, `googleMapsUrl`, `googleTypes` (JSON), `formattedAddressGoogle`, `businessStatus`, `formattedPhone`, `websiteVerified`, `contactDataFetchedAt`
+- Hours: `openingHoursJson` from `opening_hours_json` (`{ open_now, weekday_text[], periods[] }`)
 - AI copy: `aiGeneratedDescription`, `descriptionSource`, `descriptionGeneratedAt`, `descriptionValidated`
-- Description priority on detail pages: `description` → `googleDescription` → validated `aiGeneratedDescription` → template. This logic is duplicated in `page.tsx` generateMetadata and `BookshopDetailClient.tsx`.
+- Description priority: `getBookstoreDescription(b)` in `lib/data/bookstore-content.ts` → `{ text, source }`: `description` → `googleDescription` → validated `aiGeneratedDescription` → template. Metadata uses the text; the detail page and the JSON-LD leave out `source: 'template'`.
 
 `Event` (`Events` tab): `id, bookshopId, title, description, date, time`.
 
@@ -75,7 +76,7 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - `components/StructuredData.tsx` — JSON-LD (`LocalBusinessSchema`, `BreadcrumbSchema`, etc.)
 - `components/BookshopImage.tsx`, `RelatedBookshops.tsx`, `SingleLocationMap.tsx` (Mapbox), forms `BookshopSubmissionForm.tsx`, `EventSubmissionForm.tsx`
 - `components/ui/` — shadcn primitives. `components/Providers.tsx` wraps the app in React Query (`lib/queryClient.ts`); used by the events page, the two forms, and `RelatedBookshops`.
-- Imported by nothing (candidates for removal): `lib/seo-utils.ts`, `lib/bookstore-content-utils.ts`, `components/templates/`, `components/StateFlag.tsx`, `components/ads/*` (AdSense, not rendered).
+- Imported by nothing (candidates for removal): `components/StateFlag.tsx`, `components/ads/*` (AdSense, not rendered).
 
 ## Brand
 - Colors: brown `#5F4B32` (headings), teal `#2A6B7C` (primary actions), orange `#E16D3D` (accent/CTAs), cream `#F7F3E8` (section backgrounds). Hover shades in use: `#1d5a6a` (teal), `#d06a4f` (orange). Also in `lib/constants.ts` `COLORS`.
@@ -90,4 +91,4 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - Once brand tokens exist in `globals.css`/`tailwind.config.ts`, no new hard-coded hex colors. Use the token classes.
 - Mapbox/`mapbox-gl` is heavy, so load map components with `next/dynamic({ ssr: false })`.
 - Keep the 2 MB `unstable_cache` limit in mind for anything you cache.
-- Before you finish, run `npm run check` and `npm run build`.
+- Before you finish, run `npm run check`, `npm test`, and `npm run build`.

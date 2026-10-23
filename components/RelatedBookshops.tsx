@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowRight, MapPin } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Bookstore } from '@/shared/schema';
-import { generateSlugFromName } from '@/shared/utils';
+import { getBookstoreSlug } from '@/lib/data/slug';
 import { getBookshopImageUrl, getPlaceholderUrl } from '@/lib/bookshop-image';
 import BookshopImage from './BookshopImage';
 
@@ -86,7 +86,7 @@ const RelatedBookshops: React.FC<RelatedBookshopsProps> = ({
       {/* Bookshop Cards Grid */}
       <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {relatedBookshops.map((bookshop) => {
-          const slug = (bookshop.slug || generateSlugFromName(bookshop.name)) || String(bookshop.id);
+          const slug = getBookstoreSlug(bookshop) || String(bookshop.id);
           const isSameCity = bookshop.city === currentBookshop.city;
           const imageUrl = getBookshopImageUrl(bookshop);
 

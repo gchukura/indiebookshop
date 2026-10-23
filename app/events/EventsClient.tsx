@@ -8,7 +8,7 @@ import { Event, Bookstore as Bookshop } from '@/shared/schema';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { generateSlugFromName } from '@/shared/utils';
+import { getBookstoreSlug } from '@/lib/data/slug';
 
 // This will need to be implemented or imported from the old client
 // For now, creating a placeholder
@@ -99,7 +99,7 @@ export function EventsClient() {
 
   const EventCard = ({ event }: { event: Event }) => {
     const bookshop = getBookshop(event.bookshopId);
-    const bookshopSlug = bookshop ? (bookshop.slug || generateSlugFromName(bookshop.name)) : '';
+    const bookshopSlug = bookshop ? getBookstoreSlug(bookshop) : '';
     
     let eventDate: Date;
     try {

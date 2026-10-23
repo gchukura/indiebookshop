@@ -1,34 +1,32 @@
 import { z } from "zod";
 
-// Shapes of the rows read from the Google Sheet (see lib/google-sheets-client.ts).
-// Nullable fields mirror the Sheet: any column can be empty.
+// Shapes of the rows read from the Google Sheet. Bookstore rows are parsed and
+// coerced by lib/data/bookstore-row.ts; empty cells become null.
 
 export type Bookstore = {
   id: number;
   name: string;
   slug: string | null;  // From the Sheet, else generated from name
-  street: string;
+  street: string | null;
   city: string;
   state: string;
-  zip: string;
+  zip: string | null;
   county: string | null;
-  description: string;
+  description: string | null;
   imageUrl: string | null;  // Same-origin /photos/... path (R2), see lib/bookshop-image.ts
   photoAttribution: string | null;  // Photographer name for imageUrl (Google Places author)
   photoAttributionUrl: string | null;
   website: string | null;
   phone: string | null;
-  hours: Record<string, string> | null;
   latitude: string | null;
   longitude: string | null;
-  featureIds: number[] | null;
-  live: boolean | null;
+  featureIds: number[];
+  live: boolean;
   // Google Places API enrichment fields
   googlePlaceId: string | null;
   googleRating: string | null;  // Stored as text to match latitude/longitude pattern
   googleReviewCount: number | null;
   googleDescription: string | null;
-  googlePhotos: Array<{ photo_reference: string }> | null;
   googleReviews: Array<{
     author_name: string;
     rating: number;
@@ -36,10 +34,10 @@ export type Bookstore = {
     time: number;
   }> | null;
   googlePriceLevel: number | null;
-  googleDataUpdatedAt: Date | null;
+  googleDataUpdatedAt: string | null;
   // Google Places contact & basic data fields
   formattedPhone: string | null;
-  websiteVerified: string | null;
+  websiteVerified: boolean | null;
   openingHoursJson: {
     open_now: boolean;
     weekday_text: string[];
@@ -52,10 +50,10 @@ export type Bookstore = {
   googleTypes: string[] | null;
   formattedAddressGoogle: string | null;
   businessStatus: string | null;
-  contactDataFetchedAt: Date | null;
+  contactDataFetchedAt: string | null;
   // AI-generated description fields
   aiGeneratedDescription: string | null;
-  descriptionGeneratedAt: Date | null;
+  descriptionGeneratedAt: string | null;
   descriptionValidated: boolean | null;
   descriptionSource: string | null;  // 'ai' | 'template' | 'manual'
 };

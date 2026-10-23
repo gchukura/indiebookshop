@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import { notFound, permanentRedirect, unstable_rethrow } from 'next/navigation';
-import { getBookstoreBySlugFull, getBookstoreById, getAllBookstores, getRelatedBookstores, generateSlugFromName } from '@/lib/data/bookstore-data';
+import { getBookstoreBySlugFull, getBookstoreById, getAllBookstores, getRelatedBookstores } from '@/lib/data/bookstore-data';
+import { getBookstoreSlug } from '@/lib/data/slug';
+import { getBookstoreDescription } from '@/lib/data/bookstore-content';
 import BookshopDetailClient from './BookshopDetailClient';
 import { getBookshopPhotoUrl } from '@/lib/bookshop-image';
 
@@ -20,7 +22,7 @@ export async function generateStaticParams() {
       .filter((bookstore) => bookstore && bookstore.name) // Filter out invalid entries
       .map((bookstore) => ({
         // Use slug from database (more efficient than generating)
-        slug: bookstore.slug || generateSlugFromName(bookstore.name),
+        slug: getBookstoreSlug(bookstore),
       }))
       .filter((param) => param.slug); // Filter out empty slugs
   } catch (error) {
@@ -58,23 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       };
     }
 
-    // Priority-based description:
-    // 1. description field from bookstores table
-    // 2. Google description (whenever present)
-    // 3. AI-generated description (if validated)
-    // 4. Fallback template
-    let description = '';
-
-    if (bookstore.description && bookstore.description.trim().length > 0) {
-      description = bookstore.description.trim();
-    } else if (bookstore.googleDescription && bookstore.googleDescription.trim().length > 0) {
-      description = bookstore.googleDescription.trim();
-    } else if (bookstore.aiGeneratedDescription && bookstore.descriptionValidated === true) {
-      description = bookstore.aiGeneratedDescription;
-    } else {
-      const location = bookstore.city && bookstore.state ? `${bookstore.city}, ${bookstore.state}` : bookstore.city || bookstore.state || 'America';
-      description = `${bookstore.name} is an independent bookstore in ${location}. Discover this local indie bookshop, browse their curated selection, and support independent bookselling in your community.`;
-    }
+    let description = getBookstoreDescription(bookstore).text;
 
     // Add rating if available
     const hasRating = bookstore.googleRating && bookstore.googleReviewCount !== null && bookstore.googleReviewCount !== undefined;
@@ -175,7 +161,7 @@ export default async function BookshopPage({ params }: Props) {
     }
 
     // Numeric IDs, ID-prefixed slugs and case variants all 308 to the canonical lowercase slug
-    const canonicalSlug = (bookstore.slug || generateSlugFromName(bookstore.name)).toLowerCase();
+    const canonicalSlug = getBookstoreSlug(bookstore).toLowerCase();
     if (canonicalSlug && decodedSlug !== canonicalSlug) {
       permanentRedirect(`/bookshop/${canonicalSlug}`);
     }

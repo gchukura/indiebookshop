@@ -9,7 +9,7 @@
 
 import { google } from 'googleapis';
 import { Bookstore, Feature, Event } from '@/shared/schema';
-import { toPhotoPath } from '@/lib/bookshop-image';
+import { rowToRecord, parseBookstoreRow, parseLive, toListingBookstore } from '@/lib/data/bookstore-row';
 
 const SPREADSHEET_ID =
   process.env.GOOGLE_SHEETS_ID || '1Qa3AW5Zmu0X4yT3fXjmoU62Drqz0oMKRsXsm3a7JiQs';
@@ -67,57 +67,6 @@ function col(row: string[], colMap: Record<string, number>, field: string): stri
   return idx !== undefined && idx < row.length ? String(row[idx] ?? '').trim() : '';
 }
 
-function isSheetError(val: string): boolean {
-  return val.startsWith('#');
-}
-
-function parseJsonField(value: string): any {
-  if (!value) return null;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return null;
-  }
-}
-
-function parseBoolField(value: string): boolean | null {
-  const v = value.toLowerCase();
-  if (!v) return null;
-  return v === 'true' || v === '1';
-}
-
-function parseLive(value: string): boolean {
-  const v = value.toLowerCase().trim();
-  // Missing / empty → default live
-  if (!v) return true;
-  return !(v === 'false' || v === '0' || v === 'no');
-}
-
-/**
- * Parse feature_ids from the various formats a CSV export may produce:
- *   PostgreSQL array literal: {1,2,3}
- *   JSON array:               [1,2,3]
- *   Comma-separated:          1,2,3
- */
-function parseFeatureIds(raw: string): number[] {
-  if (!raw) return [];
-  // Normalise PostgreSQL {…} → JSON […]
-  const normalised = raw.replace(/^\{/, '[').replace(/\}$/, ']');
-  try {
-    const parsed = JSON.parse(normalised);
-    if (Array.isArray(parsed)) {
-      return parsed.map(Number).filter(n => !isNaN(n));
-    }
-  } catch {
-    // fall through to comma split
-  }
-  return raw
-    .replace(/[{}[\]]/g, '')
-    .split(',')
-    .map(s => parseInt(s.trim(), 10))
-    .filter(n => !isNaN(n));
-}
-
 /**
  * Build a column-index map from a header row.
  * Lowercases and trims all header names.
@@ -165,128 +114,27 @@ export async function getBookstoresFromSheets(listingOnly = false): Promise<Book
     return [];
   }
 
-  const colMap = buildColMap(headerRow);
-
   const bookstores: Bookstore[] = [];
+  const skipped: string[] = [];
 
   for (const row of rows) {
-    if (!row.length || !row[0]) continue;
+    // Blank rows are padding, not errors
+    if (!row.some(cell => String(cell ?? '').trim())) continue;
 
-    const get = (field: string) => col(row, colMap, field);
+    const record = rowToRecord(headerRow, row);
+    if (!parseLive(record.live)) continue;
 
-    const name = get('name');
-    const city = get('city');
-    const state = get('state');
-
-    if (!name || isSheetError(name) || isSheetError(city) || isSheetError(state)) {
+    const parsed = parseBookstoreRow(record);
+    if (!parsed.ok) {
+      skipped.push(parsed.reason);
       continue;
     }
-
-    const live = parseLive(get('live'));
-    if (!live) continue;
-
-    const featureRaw = get('feature_ids') || get('featureids') || get('featureids');
-    const featureIds = parseFeatureIds(featureRaw);
-
-    // Coordinates: prefer numeric columns if present
-    const latitude = get('lat_numeric') || get('latitude') || null;
-    const longitude = get('lng_numeric') || get('longitude') || null;
-
-    // Only R2 photos are served (as same-origin /photos/... paths); anything
-    // else, like the dead Supabase Storage URLs, is dropped.
-    const imageUrl = toPhotoPath(get('image_url') || get('imageurl'));
-
-    if (listingOnly) {
-      // Stripped listing record — fits inside Vercel's 2 MB unstable_cache limit.
-      // Detail-page-only fields are nulled; directory cards only need the fields below.
-      bookstores.push({
-        id: parseInt(get('id') || '0', 10),
-        name,
-        slug: get('slug') || null,
-        street: null,
-        city,
-        state,
-        zip: null,
-        county: get('county') || null,
-        description: (get('description') || '').slice(0, 150),
-        imageUrl,
-        website: null,
-        phone: null,
-        live,
-        latitude: latitude || null,
-        longitude: longitude || null,
-        featureIds,
-        googlePlaceId: null,
-        googleRating: get('google_rating') || null,
-        googleReviewCount: parseInt(get('google_review_count') || '0', 10) || null,
-        googleDescription: null,
-        googlePhotos: null,
-        photoAttribution: null,
-        photoAttributionUrl: null,
-        googleReviews: null,
-        googlePriceLevel: null,
-        googleDataUpdatedAt: null,
-        googleMapsUrl: null,
-        googleTypes: null,
-        formattedAddressGoogle: null,
-        businessStatus: null,
-        formattedPhone: null,
-        websiteVerified: null,
-        contactDataFetchedAt: null,
-        openingHoursJson: null,
-        hours: null,
-        aiGeneratedDescription: null,
-        descriptionSource: null,
-        descriptionGeneratedAt: null,
-        descriptionValidated: null,
-      } as unknown as Bookstore);
-    } else {
-      // Full record — all columns included for detail pages.
-      // Not stored in unstable_cache; held in a module-level memory cache instead.
-      bookstores.push({
-        id: parseInt(get('id') || '0', 10),
-        name,
-        slug: get('slug') || null,
-        street: get('street') || null,
-        city,
-        state,
-        zip: get('zip') || null,
-        county: get('county') || null,
-        description: get('description') || null,
-        imageUrl,
-        website: get('website') || null,
-        phone: get('phone') || null,
-        live,
-        latitude: latitude || null,
-        longitude: longitude || null,
-        featureIds,
-        googlePlaceId: get('google_place_id') || null,
-        googleRating: get('google_rating') || null,
-        googleReviewCount: parseInt(get('google_review_count') || '0', 10) || null,
-        googleDescription: get('google_description') || null,
-        googlePhotos: null, // legacy photo_reference values have expired; photos come from imageUrl
-        photoAttribution: get('photo_attribution') || null,
-        photoAttributionUrl: get('photo_attribution_url') || null,
-        googleReviews: parseJsonField(get('google_reviews')),
-        googlePriceLevel: get('google_price_level') || null,
-        googleDataUpdatedAt: get('google_data_updated_at') || null,
-        googleMapsUrl: get('google_maps_url') || null,
-        googleTypes: parseJsonField(get('google_types')),
-        formattedAddressGoogle: get('formatted_address_google') || null,
-        businessStatus: get('business_status') || null,
-        formattedPhone: get('formatted_phone') || null,
-        websiteVerified: parseBoolField(get('website_verified')),
-        contactDataFetchedAt: get('contact_data_fetched_at') || null,
-        openingHoursJson: parseJsonField(get('opening_hours_json')),
-        hours: parseJsonField(get('opening_hours_json')),
-        aiGeneratedDescription: get('ai_generated_description') || null,
-        descriptionSource: get('description_source') || null,
-        descriptionGeneratedAt: get('description_generated_at') || null,
-        descriptionValidated: parseBoolField(get('description_validated')),
-      } as unknown as Bookstore);
-    }
+    bookstores.push(listingOnly ? toListingBookstore(parsed.bookstore) : parsed.bookstore);
   }
 
+  if (skipped.length) {
+    console.warn(`[GoogleSheets] skipped ${skipped.length} invalid rows: ${skipped.slice(0, 5).join('; ')}`);
+  }
   console.log(`[GoogleSheets] Loaded ${bookstores.length} live bookstores (listingOnly=${listingOnly})`);
   return bookstores;
 }

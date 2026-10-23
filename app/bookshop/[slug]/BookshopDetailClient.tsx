@@ -9,6 +9,7 @@ import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/StructuredDa
 import SingleLocationMap from '@/components/SingleLocationMap';
 import { getBookshopImageUrl, getBookshopPhotoUrl, getPlaceholderUrl } from '@/lib/bookshop-image';
 import BookshopImage from '@/components/BookshopImage';
+import { getBookstoreDescription } from '@/lib/data/bookstore-content';
 
 type BookshopDetailClientProps = {
   bookstore: Bookstore;
@@ -24,12 +25,9 @@ interface GoogleReview {
 }
 
 export default function BookshopDetailClient({ bookstore, canonicalSlug, relatedBookshops = [] }: BookshopDetailClientProps) {
-  // Priority-based description for UI display (bookstores.description first)
-  const displayDescription =
-    (bookstore.description && bookstore.description.trim().length > 0 && bookstore.description.trim()) ||
-    (bookstore.googleDescription && bookstore.googleDescription.trim().length > 0 && bookstore.googleDescription.trim()) ||
-    (bookstore.aiGeneratedDescription && bookstore.descriptionValidated && bookstore.aiGeneratedDescription) ||
-    undefined;
+  // Real descriptions only; the template sentence is for meta tags
+  const description = getBookstoreDescription(bookstore);
+  const displayDescription = description.source === 'template' ? undefined : description.text;
 
   // The shop's own photo (credited to its Google author), else a generic placeholder
   const hasOwnPhoto = Boolean(getBookshopPhotoUrl(bookstore));

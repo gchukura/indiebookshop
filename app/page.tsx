@@ -1,5 +1,7 @@
 import Link from 'next/link';
-import { getFeaturedBookstores, getPopularBookstores, getStates, generateSlugFromName, getStateDisplayName } from '@/lib/data/bookstore-data';
+import { getFeaturedBookstores, getPopularBookstores, getStates } from '@/lib/data/bookstore-data';
+import { getBookstoreSlug } from '@/lib/data/slug';
+import { getStateDisplayName } from '@/lib/state-utils';
 import { getBookshopImageUrl, getPlaceholderUrl } from '@/lib/bookshop-image';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -192,7 +194,7 @@ export default async function HomePage() {
                   return (
                   <Link
                     key={bookshop.id}
-                    href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`}
+                    href={`/bookshop/${getBookstoreSlug(bookshop)}`}
                     className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block group"
                   >
                     <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
@@ -251,7 +253,7 @@ export default async function HomePage() {
                   return (
                   <Link
                     key={bookshop.id}
-                    href={`/bookshop/${bookshop.slug || generateSlugFromName(bookshop.name)}`}
+                    href={`/bookshop/${getBookstoreSlug(bookshop)}`}
                     className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block group"
                   >
                     <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">

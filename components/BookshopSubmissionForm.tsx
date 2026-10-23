@@ -22,7 +22,7 @@ import {
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Feature } from "@/shared/schema";
-import { STATES } from "@/lib/constants";
+import { US_STATE_NAMES } from "@/lib/state-utils";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -484,7 +484,7 @@ export const BookshopSubmissionForm = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {STATES.map((state) => (
+                            {US_STATE_NAMES.map((state) => (
                               <SelectItem key={state} value={state}>
                                 {state}
                               </SelectItem>
