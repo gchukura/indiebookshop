@@ -1,0 +1,46 @@
+name: IndexNow
+
+# After each production deploy, submits sitemap URLs that were added or removed
+# since the last run to IndexNow (Bing etc.). The previous URL list is kept in
+# the Actions cache; the first run (or one after the cache expires) only saves it.
+
+on:
+  deployment_status:
+  schedule:
+    - cron: '30 9 * * *' # after the nightly deploy, in case no deployment event arrives
+  workflow_dispatch:
+
+concurrency:
+  group: indexnow
+  cancel-in-progress: false
+
+jobs:
+  submit:
+    if: >-
+      github.event_name != 'deployment_status' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Restore previous URL list
+        uses: actions/cache/restore@v4
+        with:
+          path: .indexnow-urls.txt
+          key: indexnow-urls-${{ github.run_id }}
+          restore-keys: indexnow-urls-
+
+      - name: Submit new and removed URLs
+        run: node scripts/indexnow.mjs --diff .indexnow-urls.txt
+
+      - name: Save URL list
+        uses: actions/cache/save@v4
+        with:
+          path: .indexnow-urls.txt
+          key: indexnow-urls-${{ github.run_id }}
