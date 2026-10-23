@@ -32,6 +32,8 @@ export const RATE_LIMITS = {
   submit: { name: 'submit', limit: 5, windowMs: TEN_MINUTES },
   events: { name: 'events', limit: 5, windowMs: TEN_MINUTES },
   newsletter: { name: 'newsletter', limit: 3, windowMs: TEN_MINUTES },
+  // Search-as-you-type: generous, but caps scripted scraping
+  suggest: { name: 'suggest', limit: 60, windowMs: 60 * 1000 },
 } satisfies Record<string, RateLimitConfig>;
 
 type LimitResult = { success: boolean; retryAfterSeconds: number };

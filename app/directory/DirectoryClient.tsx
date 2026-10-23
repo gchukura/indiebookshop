@@ -2,13 +2,15 @@
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Search, MapPin, Loader2, ChevronRight, X } from 'lucide-react';
+import { Search, MapPin, Loader2, ChevronRight, X, Crosshair } from 'lucide-react';
+import Link from 'next/link';
 import { getStateAbbrev, getStateDisplayName } from '@/lib/state-utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import BookshopCard from '@/components/bookshop/BookshopCard';
 import type { FeatureLink } from '@/lib/data/feature-index';
 import { distanceKm, kmToMiles, shopCoordinates } from '@/lib/data/geo';
+import { searchShops } from '@/lib/data/search';
 
 // react-map-gl + mapbox-gl (~1.6 MB) load only once the map area is on screen
 const DirectoryMap = dynamic(() => import('@/components/directory/DirectoryMap'), {
@@ -60,6 +62,19 @@ function MapPlaceholder({ message = 'Loading map...' }: { message?: string }) {
       <Loader2 className="w-12 h-12 text-brand-teal animate-spin mb-4" />
       <p className="text-gray-600 font-sans text-sm">{message}</p>
     </div>
+  );
+}
+
+/** Crosshair button to /near-me, which asks for the visitor's location. */
+function NearMeLink({ className = '' }: { className?: string }) {
+  return (
+    <Link
+      href="/near-me"
+      className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 font-sans text-sm font-semibold text-brand-teal hover:text-brand-teal-hover ${className}`}
+    >
+      <Crosshair className="w-4 h-4" aria-hidden="true" />
+      Near me
+    </Link>
   );
 }
 
@@ -166,15 +181,9 @@ export default function DirectoryClient({
   const filteredBookstores = useMemo(() => {
     let filtered = initialBookstores;
 
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter((b) => {
-        const name = b.name.toLowerCase();
-        const city = b.city?.toLowerCase() || '';
-        const state = b.state?.toLowerCase() || '';
-        return name.includes(query) || city.includes(query) || state.includes(query);
-      });
+    // Search: same matcher and ranking as /search and the search boxes
+    if (searchQuery.trim()) {
+      filtered = searchShops(filtered, searchQuery);
     }
 
     // State filter (compare using canonical abbreviation)
@@ -304,11 +313,12 @@ export default function DirectoryClient({
       </div>
 
       {/* Mobile: search bar below toggle */}
-      <div className="flex md:hidden flex-shrink-0 px-3 py-2 bg-white border-b border-gray-200">
-        <div className="relative w-full max-w-xl mx-auto bg-gray-50 rounded-full shadow-sm">
+      <div className="flex md:hidden flex-shrink-0 gap-2 px-3 py-2 bg-white border-b border-gray-200">
+        <div className="relative flex-1 bg-gray-50 rounded-full shadow-sm">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <Input type="text" placeholder="Search state, city, or bookshop name..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-12 pr-4 py-3 font-sans text-base rounded-full border-0 bg-transparent focus:ring-2 focus:ring-brand-teal" />
         </div>
+        <NearMeLink className="bg-gray-50 shadow-sm" />
       </div>
 
       {/* Map: fills remaining space below toggle+search (mobile); full viewport area (desktop) */}
@@ -332,11 +342,12 @@ export default function DirectoryClient({
         )}
 
         {/* Search Bar — desktop only (mobile has search below toggle) */}
-        <div className="hidden md:block absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-xl px-4">
-          <div className="relative bg-white rounded-full shadow-lg">
+        <div className="hidden md:flex gap-2 absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-xl px-4">
+          <div className="relative flex-1 bg-white rounded-full shadow-lg">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <Input type="text" placeholder="Search state, city, or bookshop name..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-12 pr-4 py-4 font-sans text-base rounded-full border-0 focus:ring-2 focus:ring-brand-teal" />
           </div>
+          <NearMeLink className="bg-white shadow-lg" />
         </div>
       </div>
 
