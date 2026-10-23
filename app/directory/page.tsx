@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { getAllBookstores, getStates } from '@/lib/data/bookstore-data';
 import { getFeatureNames } from '@/lib/data/locations';
 import { getMapboxToken } from '@/lib/mapbox';
+import { getFeatureIndex } from '@/lib/data/features';
 import { getStateDisplayName } from '@/lib/state-utils';
 import DirectoryClient, { DirectoryBookstore } from './DirectoryClient';
 
@@ -86,10 +87,11 @@ export default async function DirectoryPage({ searchParams }: Props) {
 
   // Every shop goes to the client, which applies the ?state/city/county/features
   // filters itself — so changing a filter never needs a server round trip.
-  const [bookstoresFull, states, { features }] = await Promise.all([
+  const [bookstoresFull, states, { features }, featureLinks] = await Promise.all([
     getAllBookstores(),
     getStates(),
     getFeatureNames(),
+    getFeatureIndex().then(f => f.links).catch(() => ({})),
   ]);
 
   // Slim down to only the fields DirectoryClient actually uses.
@@ -103,7 +105,9 @@ export default async function DirectoryPage({ searchParams }: Props) {
     county: b.county ?? null,
     latitude: b.latitude ?? null,
     longitude: b.longitude ?? null,
-    description: b.description || '',
+    imageUrl: b.imageUrl ?? null,
+    googleRating: b.googleRating ?? null,
+    googleReviewCount: b.googleReviewCount ?? null,
     featureIds: b.featureIds ?? [],
   }));
 
@@ -127,6 +131,7 @@ export default async function DirectoryPage({ searchParams }: Props) {
         initialBookstores={bookstores}
         initialStates={states}
         features={features.map(f => ({ id: f.id, name: f.name }))}
+        featureLinks={featureLinks}
         mapboxToken={getMapboxToken()}
         initialFilters={resolvedParams}
       />
