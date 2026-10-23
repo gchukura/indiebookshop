@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 import { notFound, permanentRedirect, unstable_rethrow } from 'next/navigation';
-import { getBookstoreBySlugFull, getBookstoreById, getAllBookstores, getRelatedBookstores } from '@/lib/data/bookstore-data';
+import { getBookstoreBySlugFull, getBookstoreById, getAllBookstores, getNearbyBookstores, getUpcomingEvents } from '@/lib/data/bookstore-data';
 import { getBookstoreSlug } from '@/lib/data/slug';
 import { getBookstoreDescription } from '@/lib/data/bookstore-content';
-import BookshopDetailClient from './BookshopDetailClient';
+import ShopDetail from '@/components/bookshop/ShopDetail';
 import { getMapboxToken } from '@/lib/mapbox';
 import { getFeatureIndex } from '@/lib/data/features';
 import { getBookshopPhotoUrl } from '@/lib/bookshop-image';
@@ -168,20 +168,21 @@ export default async function BookshopPage({ params }: Props) {
       permanentRedirect(`/bookshop/${canonicalSlug}`);
     }
 
-    // Fetch related bookshops for internal linking
-    const [relatedBookshops, featureLinks] = await Promise.all([
-      getRelatedBookstores(bookstore, 6),
-      // Chips are optional; a failed features read shouldn't fail the page
+    const [nearby, events, featureLinks] = await Promise.all([
+      getNearbyBookstores(bookstore, 6),
+      // Events and chips are optional; a failed read shouldn't fail the page
+      getUpcomingEvents(bookstore.id).catch(() => []),
       getFeatureIndex().then(f => f.links).catch(() => ({})),
     ]);
 
     return (
-      <BookshopDetailClient
+      <ShopDetail
         bookstore={bookstore}
         canonicalSlug={canonicalSlug}
-        relatedBookshops={relatedBookshops}
-        mapboxToken={getMapboxToken()}
+        nearby={nearby}
+        events={events}
         featureLinks={featureLinks}
+        mapboxToken={getMapboxToken()}
       />
     );
   } catch (error) {

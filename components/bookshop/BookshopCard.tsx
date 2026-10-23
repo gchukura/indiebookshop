@@ -26,6 +26,7 @@ type BookshopCardProps = {
 };
 
 function formatDistance(miles: number): string {
+  if (miles < 0.1) return '< 0.1 mi away';
   return miles < 10 ? `${miles.toFixed(1)} mi away` : `${Math.round(miles)} mi away`;
 }
 

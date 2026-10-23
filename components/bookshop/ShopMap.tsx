@@ -6,14 +6,14 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { COLORS } from '@/lib/constants';
 
 
-interface SingleLocationMapProps {
+interface ShopMapProps {
   latitude?: string | null;
   longitude?: string | null;
   /** Public Mapbox token, passed from the server page. */
   mapboxToken: string;
 }
 
-const SingleLocationMap = ({ latitude, longitude, mapboxToken }: SingleLocationMapProps) => {
+const ShopMap = ({ latitude, longitude, mapboxToken }: ShopMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -43,7 +43,7 @@ const SingleLocationMap = ({ latitude, longitude, mapboxToken }: SingleLocationM
         const token = mapboxToken;
         if (!token) {
           setMapError('Map is temporarily unavailable.');
-          console.error('Mapbox access token is missing in SingleLocationMap');
+          console.error('Mapbox access token is missing in ShopMap');
           return;
         }
         
@@ -80,7 +80,7 @@ const SingleLocationMap = ({ latitude, longitude, mapboxToken }: SingleLocationM
         
         mapInstance.on('error', (e) => {
           setMapError('Map failed to load. Please refresh the page to try again.');
-          console.error('Mapbox map error in SingleLocationMap', e.error);
+          console.error('Mapbox map error in ShopMap', e.error);
         });
         
         // Add navigation controls
@@ -179,4 +179,4 @@ const SingleLocationMap = ({ latitude, longitude, mapboxToken }: SingleLocationM
   );
 };
 
-export default SingleLocationMap;
+export default ShopMap;
