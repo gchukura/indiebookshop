@@ -7,8 +7,9 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 - Root report `*.md` files (legacy notes).
 
 ## Commands
-- `npm run dev` — dev server
-- `npm run build` (= `next build`; needs Sheet credentials, it fetches data and prerenders every shop)
+- `npm run dev` — dev server (runs `export-sheet` first)
+- `npm run build` (= `next build`, after `prebuild` runs `export-sheet`; needs Sheet credentials, then prerenders every shop from the snapshot in ~30s)
+- `npm run export-sheet` — `scripts/export-sheet.ts`: reads the Sheet once, checks it (`lib/data/sheet-snapshot.ts`), writes `.data/sheet.json` (gitignored). Skipped with `USE_FIXTURE_DATA=1`
 - `npm run start` — serve the build
 - Type-check: `npm run check` (`tsc -p tsconfig.json --noEmit`)
 - `node scripts/fetch-google-photos.mjs` — fetch Google photos into R2 for shops that lack one (see Photos below)
@@ -22,14 +23,14 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 ## Env vars (`.env.local`)
 | Var | Used by | Required |
 |---|---|---|
-| `GOOGLE_SERVICE_ACCOUNT_CREDENTIALS` | `lib/google-sheets-client.ts` — single-line JSON with `client_email`, `private_key` | yes |
+| `GOOGLE_SERVICE_ACCOUNT_CREDENTIALS` | `lib/google-sheets-client.ts` — single-line JSON with `client_email`, `private_key`. Read access at build (`export-sheet`); write access at runtime for the newsletter and submissions forms only | yes |
 | `GOOGLE_SHEETS_ID` | Sheet id (falls back to a hard-coded id) | recommended |
 | `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` (or `MAPBOX_ACCESS_TOKEN`) | `lib/mapbox.ts#getMapboxToken()`, read on the server and passed as a prop to every map | for maps |
 | `SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL` | contact, submit, events emails | for forms |
 | `R2_PUBLIC_URL` | `next.config.mjs` rewrite `/photos/*` → R2 bucket (build time) | for photos |
 | `GOOGLE_PLACES_API_KEY`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | `scripts/fetch-google-photos.mjs` only (run locally) | no |
 | `NEXT_PUBLIC_ADSENSE_ENABLED`, `NEXT_PUBLIC_ADSENSE_SLOT_{LOCATION_INTRO,LOCATION_LIST,SHOP_INLINE,SHOP_RAIL}` | `lib/ads.ts` (build time). Ads and the AdSense script render only when the flag is `true`; see `docs/ADS.md` | no |
-| `USE_FIXTURE_DATA=1` | `lib/google-sheets-client.ts` reads `tests/fixtures/bookstores.json` instead of the Sheet (tests, CI without secrets, offline builds). Cache keys include the data source | no |
+| `USE_FIXTURE_DATA=1` | `lib/google-sheets-client.ts` reads `tests/fixtures/bookstores.json` instead of the snapshot (tests, CI without secrets, offline builds) | no |
 
 ## Routes
 | Route | File | Notes |
@@ -55,17 +56,18 @@ Redirects: `proxy.ts` 308s mixed-case `/bookshop/…` and `/bookshops/…` URLs 
 
 ## Data flow
 ```
-Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
-  → lib/google-sheets-client.ts   getBookstoresFromSheets(listingOnly), getFeaturesFromSheets, getEventsFromSheets, appendNewsletterSignup
-  → lib/data/bookstore-data.ts    caches + processBookstoreData → indexes
+Google Sheet (tabs: Bookstores, Features, Events; forms append to Newsletter, Submissions)
+  → scripts/export-sheet.ts       at build/dev start: one read, checked, → .data/sheet.json
+  → lib/google-sheets-client.ts   reads the snapshot: getBookstoresFromSheets(listingOnly), getFeaturesFromSheets, getEventsFromSheets
+  → lib/data/bookstore-data.ts    once-per-process memos + processBookstoreData → indexes
   → server pages / API routes     (client components get data as props or via /api/*)
 ```
 - Each Bookstores row is mapped header → cell (`rowToRecord`) and parsed by the zod schema in `lib/data/bookstore-row.ts`. Blank rows and `live=false` rows are skipped silently. Rows with a missing/non-numeric id, no name, or a `#ERROR` value in name/city/state are skipped and logged once as `[GoogleSheets] skipped N invalid rows: …`. A malformed JSON or number cell just becomes null. The schema coerces `feature_ids` (`{1,2}`, `[1,2]` or `1,2`), JSON columns, numbers, and booleans, and turns `imageurl` into a `/photos/...` path.
-- **Two caches, on purpose:**
-  1. **Listing cache** — `getCachedRawBookstores = unstable_cache(getBookstoresFromSheets(true), revalidate 3600)`. Each record is `toListingBookstore(fullRow)`: only `LISTING_FIELDS` (id, name, slug, city, state, county, imageUrl, live, lat/lng, featureIds, googleRating, googleReviewCount) plus the description cut to 150 chars. Other fields are absent (undefined), not null. That keeps the payload ~0.75 MB, under Vercel's **2 MB unstable_cache entry limit**. It lives in Vercel's shared Data Cache, so it survives cold starts. `getProcessedBookstoreData()` (wrapped in React `cache()` plus a 1h module-level memo) builds on this and powers home, directory, sitemap, filter API, related shops.
-  2. **Full cache** — `fetchFullBookstoreData()` calls `getBookstoresFromSheets(false)` and keeps all columns in a module-level variable (1h TTL). No size limit, but per-Lambda: a cold detail-page render fetches the whole Sheet. Used only by `getBookstoreBySlugFull` and `getBookstoreById` (detail pages).
-- Build-time Sheets quota: prerendering ~4,400 pages can exceed the per-minute read quota. During `next build` only, `lib/google-sheets-client.ts` retries a 429 after 20s and 40s, and `next.config.mjs` sets `staticPageGenerationTimeout: 180` so a waiting page isn't timed out.
-- Don't add detail fields to `LISTING_FIELDS` without measuring the payload — the limit is 2 MB. Detail data must come from the full cache.
+- **The site never reads the Sheets API while serving.** Each deploy is a snapshot of the Sheet (`.data/sheet.json`, ~14 MB, shipped to every server function via `outputFileTracingIncludes` in `next.config.mjs`). Sheet edits go live on the next deploy: the Sheet's Apps Script "Publish" menu and hourly auto-publish (`scripts/apps-script/publish.gs`), the nightly `.github/workflows/nightly-deploy.yml`, or a merge. Setup: `docs/setup/PUBLISHING.md`. Background: `docs/DATA_SOURCE_OPTIONS.md` (option A).
+- If the export fails or `checkSnapshot` rejects it (< 1,000 valid shops, > 5% invalid rows, missing `id`/`name`/`city`/`state` column, empty Features), the build fails and the previous deploy keeps serving.
+- `lib/data/bookstore-data.ts` reads each thing once per server process (`once()`) and keeps it: the listing records (`getBookstoresFromSheets(true)` → `toListingBookstore`: only `LISTING_FIELDS` plus the description cut to 150 chars; other fields are undefined), the full records (`getBookstoresFromSheets(false)`, for `getBookstoreBySlugFull`/`getBookstoreById`), features, and events. `getProcessedBookstoreData()` (also React `cache()`) builds the indexes from the listing records and powers home, directory, location pages, sitemap, search, and the filter API. There's no `unstable_cache` and no TTL.
+- Keep listing data small: pages and client props that list many shops use the listing records (the directory sends all ~2,200 to the browser). Detail fields come from the full records.
+- Page `revalidate` values remain only so date-based content (weekly featured shops, upcoming events) refreshes between deploys; regenerated pages read the same snapshot.
 - `ProcessedBookstoreData` indexes: `byId`, `bySlug` (lowercased), `byState` (key = lowercase state abbrev), `byCity`/`byCounty` (key = `makeCityKey(place, state)` → `"<place>|<st>"` lowercased, from `lib/data/location-key.ts`), `byFeature` (feature id string), plus `popular` (top 15 by rating then review count). Nothing is shuffled.
 - Search: `lib/data/search.ts` is the only matcher — `/search`, `/api/suggest` (homepage + Header `SearchBox`), and the directory's `?q=` all use it. Every query word must start a word of the shop's name, city, state, or county (accents/apostrophes ignored, generic words like "bookstores in" dropped); exact name > name > city/state > other.
 - Featured: `getFeaturedBookstores` → `pickFeaturedBookstores` (`lib/data/featured.ts`), seeded by days since epoch (UTC), so it's stable within a day and rotates daily. Tiers: rating ≥ 4.5 with a photo, then other ≥ 4.5, then any.
@@ -109,7 +111,7 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - Path aliases: `@/*` → repo root, `@shared/*` → `shared/`.
 - Once brand tokens exist in `globals.css`/`tailwind.config.ts`, no new hard-coded hex colors. Use the token classes.
 - Mapbox/`mapbox-gl` is ~1.6 MB, so load map components with `next/dynamic({ ssr: false })` — never a static import, or it also loads on every page that prefetches a link to that route.
-- Keep the 2 MB `unstable_cache` limit in mind for anything you cache.
+- Never read the Sheets API from a page or API route; add data to the export/snapshot instead.
 - Share images: `opengraph-image.tsx` files (rendered by `lib/og.tsx` with the static brand TTFs in `public/fonts/`) for the site default, shops, states, cities, counties, features, state + feature, and blog posts; shop/place images render on first request and are cached. A page that sets its own `openGraph` replaces the inherited image, so general pages pass `DEFAULT_OG_IMAGE` from `lib/seo.ts`. There is no `og-default.jpg`.
 - Submissions: `/submit?edit=<slug>` prefills the form for "Suggest an edit"; the API emails only changed fields and appends every submission to the Sheet's `Submissions` tab (must exist — see `docs/setup/FORM_SUBMISSIONS.md`; fails soft).
 - Page titles go through `lib/seo.ts` (`fitTitle`/`placeTitle`): ≤ 60 characters, brand "IndieBookShop". `tests/site.test.ts` checks every generated page.

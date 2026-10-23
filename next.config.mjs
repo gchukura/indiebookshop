@@ -17,10 +17,11 @@ const nextConfig = {
   // node_modules (otherwise blog posts fail with "React Element from an older version").
   transpilePackages: ['next-mdx-remote'],
 
-  // Pages can wait up to ~60s at build time for the Sheets read quota to reset
-  // (lib/google-sheets-client.ts retries 429s after 20s and 40s), so allow more
-  // than the default 60s per page before Next retries it.
-  staticPageGenerationTimeout: 180,
+  // The Sheet snapshot (scripts/export-sheet.ts) is read with fs at runtime, which
+  // file tracing can't see, so ship it with every server function explicitly
+  outputFileTracingIncludes: {
+    '/**': ['./.data/sheet.json'],
+  },
 
   // Shop photos are stored in Cloudflare R2 and served same-origin at /photos/...
   // so they're cached by Vercel's CDN instead of hitting the rate-limited r2.dev URL.

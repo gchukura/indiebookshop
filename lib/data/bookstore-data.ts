@@ -1,9 +1,8 @@
 // lib/data/bookstore-data.ts
-// Centralized data processing layer with strategic caching
+// Centralized data layer: reads the build-time Sheet snapshot and builds the indexes
 // Single processing function that powers all pages efficiently
 
 import { cache } from 'react';
-import { unstable_cache } from 'next/cache';
 import { getBookstoresFromSheets, getEventsFromSheets, getFeaturesFromSheets } from '@/lib/google-sheets-client';
 import { Bookstore, Event, Feature } from '@/shared/schema';
 import { getStateAbbrev, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
@@ -14,71 +13,47 @@ import { daysSinceEpoch, pickFeaturedBookstores } from './featured';
 import { nearestBookstores, type NearbyShop } from './nearby';
 import { upcomingEvents } from './events';
 
-// Part of every unstable_cache key, so fixture data (USE_FIXTURE_DATA=1) and Sheet
-// data never share a cache entry (e.g. a local fixture build followed by a real one)
-const DATA_SOURCE = process.env.USE_FIXTURE_DATA === '1' ? 'fixture' : 'sheet';
-
-// In-memory cache for the *processed* result (avoids re-processing on warm Lambda instances)
-let processedDataCache: ProcessedBookstoreData | null = null;
-let cacheTimestamp: number = 0;
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
-
 /**
- * Fetch stripped listing rows from Google Sheets, cached in Vercel's shared
- * Data Cache (survives cold starts, shared across Lambda instances).
- * Detail-page-only fields are omitted so the payload stays under the 2 MB limit.
+ * The data is the Sheet snapshot taken at build time (.data/sheet.json), fixed for
+ * the life of a deployment, so each read below runs once per server process and is
+ * kept. A failed read isn't kept, so the next call retries.
  */
-const getCachedRawBookstores = unstable_cache(
-  () => getBookstoresFromSheets(true), // listingOnly=true — strips detail fields
-  ['bookstores-raw', DATA_SOURCE],
-  { revalidate: 3600 } // 1 hour
-);
+function once<T>(load: () => Promise<T>): () => Promise<T> {
+  let promise: Promise<T> | null = null;
+  return () =>
+    (promise ??= load().catch(err => {
+      promise = null;
+      throw err;
+    }));
+}
 
-/** Features tab (id → name), cached like the listing so pages don't each read the Sheet. */
-export const getFeatures = unstable_cache(
-  async (): Promise<Feature[]> => getFeaturesFromSheets(),
-  ['features', DATA_SOURCE],
-  { revalidate: 3600 }
-);
+/** Listing fields only (LISTING_FIELDS): powers home, directory, location pages, sitemap, search. */
+const getListingBookstores = once(() => getBookstoresFromSheets(true));
 
-/** Events tab, cached so detail pages don't each read the Sheet. */
-const getCachedEvents = unstable_cache(async (): Promise<Event[]> => getEventsFromSheets(), ['events', DATA_SOURCE], {
-  revalidate: 3600,
-});
+/** Every column, for shop detail pages. */
+const fetchFullBookstoreData = once(() => getBookstoresFromSheets(false));
+
+/** Features tab (id → name). */
+export const getFeatures = once((): Promise<Feature[]> => getFeaturesFromSheets());
+
+/** Events tab. */
+const getAllEvents = once((): Promise<Event[]> => getEventsFromSheets());
 
 /** A shop's events from today on, soonest first (undated ones last). */
 export async function getUpcomingEvents(bookshopId: number): Promise<Event[]> {
-  const events = (await getCachedEvents()).filter(e => e.bookshopId === bookshopId);
+  const events = (await getAllEvents()).filter(e => e.bookshopId === bookshopId);
   return upcomingEvents(events, new Date().toISOString().slice(0, 10));
 }
 
 /** Every shop's events from today on, soonest first. */
 export async function getAllUpcomingEvents(): Promise<Event[]> {
-  return upcomingEvents(await getCachedEvents(), new Date().toISOString().slice(0, 10));
+  return upcomingEvents(await getAllEvents(), new Date().toISOString().slice(0, 10));
 }
 
 /** The nearest shops by distance (miles), or same-state shops when the shop has no coordinates. */
 export async function getNearbyBookstores(bookstore: Bookstore, limit: number = 6): Promise<NearbyShop[]> {
   const data = await getProcessedBookstoreData();
   return nearestBookstores(data.all, bookstore, limit);
-}
-
-/**
- * Full bookstore data for detail pages — all columns included.
- * Stored in module-level memory only (no unstable_cache) so there is no 2 MB limit.
- */
-let fullDataCache: Bookstore[] | null = null;
-let fullDataTimestamp = 0;
-
-async function fetchFullBookstoreData(): Promise<Bookstore[]> {
-  const now = Date.now();
-  if (fullDataCache && (now - fullDataTimestamp) < CACHE_TTL_MS) {
-    return fullDataCache;
-  }
-  console.log('[BookstoreData] Fetching full bookstore data for detail pages...');
-  fullDataCache = await getBookstoresFromSheets(false); // listingOnly=false — all columns
-  fullDataTimestamp = now;
-  return fullDataCache;
 }
 
 // ===========================================
@@ -89,7 +64,7 @@ export interface ProcessedBookstoreData {
   // All bookstores (for sitemap, etc.)
   all: Bookstore[];
 
-  // Lookup Maps (serialized as objects by cache)
+  // Lookup objects
   byId: Record<number, Bookstore>;
   byCity: Record<string, Bookstore[]>;
   byState: Record<string, Bookstore[]>;
@@ -109,20 +84,6 @@ export interface ProcessedBookstoreData {
   // Stats
   totalCount: number;
   lastUpdated: string;
-}
-
-// ===========================================
-// RAW DATA FETCHING
-// ===========================================
-
-/**
- * Fetch all bookstore data from Google Sheets.
- * The Sheets client loads every column in a single API call; the
- * in-memory TTL cache means this runs at most once per hour.
- */
-async function fetchAllBookstoreData(): Promise<Bookstore[]> {
-  // getCachedRawBookstores hits Vercel's shared Data Cache — no Sheets API call on cache hit
-  return getCachedRawBookstores();
 }
 
 // ===========================================
@@ -235,33 +196,11 @@ function processBookstoreData(bookstores: Bookstore[]): ProcessedBookstoreData {
 // MAIN CACHED FUNCTION
 // ===========================================
 
-/**
- * Main function that powers all pages
- * Uses in-memory cache to avoid unstable_cache 2MB limit
- * React cache() provides request deduplication
- */
-export const getProcessedBookstoreData = cache(
-  async (): Promise<ProcessedBookstoreData> => {
-    const now = Date.now();
+/** Processed once per server process (see once() above); React cache() dedupes within a request. */
+const loadProcessedBookstoreData = once(async () => processBookstoreData(await getListingBookstores()));
 
-    // Return cached data if still valid
-    if (processedDataCache && (now - cacheTimestamp) < CACHE_TTL_MS) {
-      console.log('[BookstoreData] Returning cached data');
-      return processedDataCache;
-    }
-
-    console.log('[BookstoreData] Fetching and processing all bookstore data...');
-    const bookstores = await fetchAllBookstoreData();
-    const processed = processBookstoreData(bookstores);
-    console.log(`[BookstoreData] Processed ${processed.totalCount} bookstores`);
-
-    // Update in-memory cache
-    processedDataCache = processed;
-    cacheTimestamp = now;
-
-    return processed;
-  }
-);
+/** Main function that powers all pages. */
+export const getProcessedBookstoreData = cache((): Promise<ProcessedBookstoreData> => loadProcessedBookstoreData());
 
 // ===========================================
 // HELPER FUNCTIONS (use shared cache)
@@ -331,7 +270,6 @@ export async function getBookstoreBySlug(slug: string): Promise<Bookstore | null
 
 /**
  * Get bookstore by slug with full details (contact info, reviews, hours, etc.).
- * Uses the full-data cache which is NOT subject to the unstable_cache 2 MB limit.
  */
 export async function getBookstoreBySlugFull(slug: string): Promise<Bookstore | null> {
   const bookstores = await fetchFullBookstoreData();

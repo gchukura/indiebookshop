@@ -21,6 +21,9 @@
  * Review the CSV before applying: delete rows you don't want tagged, or edit
  * the `feature_ids` cell (ids separated by ";"). Rows not in the CSV are left
  * as they are. Applying replaces each listed row's feature_ids.
+ *
+ * Reads shops through lib/google-sheets-client.ts, i.e. from .data/sheet.json:
+ * run `npm run export-sheet` first so it sees the current Sheet.
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';

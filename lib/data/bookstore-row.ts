@@ -198,9 +198,9 @@ const LISTING_DESCRIPTION_LENGTH = 150;
 
 /**
  * Listing record derived from a full row by picking LISTING_FIELDS plus a cut
- * description, so the whole list fits in Vercel's 2 MB unstable_cache entry
- * (~0.75 MB for 2,165 shops; writing the other fields as null took ~1.9 MB).
- * Detail-only fields are absent (undefined) — read them from the full cache.
+ * description (~0.75 MB for 2,165 shops vs ~8.8 MB with every column), for pages
+ * and client props that list many shops — the directory sends all of them to the
+ * browser. Detail-only fields are absent (undefined) — read them from the full records.
  */
 export function toListingBookstore(full: Bookstore): Bookstore {
   const listing: Record<string, unknown> = {};
