@@ -9,6 +9,9 @@
   --brand-teal-hover: 29 90 106;
   --brand-orange: 225 109 61;       /* accent / CTAs */
   --brand-orange-hover: 208 106 79;
+  /* Darker orange for white text (4.5:1); the brand orange is 3.25:1 */
+  --brand-orange-strong: 194 85 42;        /* #C2552A */
+  --brand-orange-strong-hover: 168 74 34;  /* #A84A22 */
   --brand-cream: 247 243 232;       /* section backgrounds */
 
   /* shadcn theme (HSL) mapped to the brand */
@@ -24,7 +27,7 @@
   --secondary-foreground: 0 0% 100%;
   --muted: 44 48.4% 93.9%;               /* cream */
   --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 17.6 73.2% 56.1%;            /* orange */
+  --accent: 17 64.4% 46.3%;              /* strong orange #C2552A, readable with white text */
   --accent-foreground: 0 0% 100%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
