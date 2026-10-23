@@ -4,6 +4,7 @@ import LazyShopsMap from '@/components/bookshop/LazyShopsMap';
 import { ItemListSchema } from '@/components/StructuredData';
 import { toMapShops } from '@/lib/data/location-index';
 import { getBookstoreSlug } from '@/lib/data/slug';
+import { getMapboxToken } from '@/lib/mapbox';
 
 const SITE = 'https://www.indiebookshop.com';
 
@@ -23,7 +24,7 @@ export default function LocationShops({ placeName, shops, featureNames }: Locati
         name={`Independent bookshops in ${placeName}`}
         items={shops.map(s => ({ name: s.name, url: `${SITE}/bookshop/${getBookstoreSlug(s)}` }))}
       />
-      <LazyShopsMap shops={toMapShops(shops)} title={`Map of bookshops in ${placeName}`} />
+      <LazyShopsMap shops={toMapShops(shops)} title={`Map of bookshops in ${placeName}`} mapboxToken={getMapboxToken()} />
       <h2 id="shops-heading" className="font-serif text-2xl font-bold text-[#5F4B32]">
         {shops.length === 1 ? 'The bookshop' : `All ${shops.length} bookshops`}
       </h2>

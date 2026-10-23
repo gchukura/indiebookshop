@@ -11,9 +11,11 @@ const COLORS = {
 interface SingleLocationMapProps {
   latitude?: string | null;
   longitude?: string | null;
+  /** Public Mapbox token, passed from the server page. */
+  mapboxToken: string;
 }
 
-const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
+const SingleLocationMap = ({ latitude, longitude, mapboxToken }: SingleLocationMapProps) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -37,21 +39,12 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
     // Track if component is still mounted
     let isMounted = true;
     
-    // Create async function to fetch token and initialize map
+    // Initialize the map with the token passed from the server
     const initMap = async () => {
       try {
-        // Fetch the MapBox token from server
-        const response = await fetch('/api/config');
-        
-        if (!response.ok) {
-          throw new Error(`Failed to load map configuration (${response.status})`);
-        }
-        
-        const config = await response.json();
-        const token = config.mapboxAccessToken;
-        
+        const token = mapboxToken;
         if (!token) {
-          setMapError('Map is temporarily unavailable. Please refresh the page to try again.');
+          setMapError('Map is temporarily unavailable.');
           console.error('Mapbox access token is missing in SingleLocationMap');
           return;
         }
@@ -139,7 +132,7 @@ const SingleLocationMap = ({ latitude, longitude }: SingleLocationMapProps) => {
         mapRef.current = null;
       }
     };
-  }, [latitude, longitude]);
+  }, [latitude, longitude, mapboxToken]);
 
   // If no coordinates are available, show a message
   if (!latitude || !longitude) {

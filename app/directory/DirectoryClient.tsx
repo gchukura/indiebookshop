@@ -1,45 +1,19 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { Search, MapPin, Crosshair, Loader2, AlertCircle, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
-import Map from 'react-map-gl/mapbox';
-import { Marker, NavigationControl } from 'react-map-gl/mapbox';
-import Supercluster from 'supercluster';
+import dynamic from 'next/dynamic';
+import { Search, MapPin, Loader2, ChevronRight, X } from 'lucide-react';
 import Link from 'next/link';
 import { getStateAbbrev, getStateDisplayName } from '@/lib/state-utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getBookstoreSlug } from '@/lib/data/slug';
-import 'mapbox-gl/dist/mapbox-gl.css';
 
-// Constants for map and clustering
-const DIRECTORY_MAP = {
-  DEFAULT_VIEW: {
-    longitude: -98.5795,
-    latitude: 39.8283,
-    zoom: 4,
-    pitch: 0,
-    bearing: 0,
-  },
-  TRANSITION_DURATION: 1000,
-  GEOLOCATION_ZOOM: 12,
-  MAX_AUTO_ZOOM: 14,
-  BOUNDS_PADDING_PERCENT: 0.1,
-  MINIMUM_BOUNDS_SPAN: 0.5,
-  BOUNDS_PADDING: {
-    top: 100,
-    bottom: 100,
-    left: { expanded: 450, collapsed: 100 },
-    right: 100,
-  },
-};
-
-const CLUSTER_CONFIG = {
-  radius: 60,
-  maxZoom: 16,
-  minZoom: 0,
-  expansionMaxZoom: 18,
-};
+// react-map-gl + mapbox-gl (~1.6 MB) load only once the map area is on screen
+const DirectoryMap = dynamic(() => import('@/components/directory/DirectoryMap'), {
+  ssr: false,
+  loading: () => <MapPlaceholder />,
+});
 
 const LOCATION_DELIMITER = '|';
 
@@ -54,11 +28,15 @@ export interface DirectoryBookstore {
   latitude: string | null;
   longitude: string | null;
   description: string;
+  featureIds: number[];
 }
 
 type DirectoryClientProps = {
+  /** Every shop; filtering happens here so filter changes need no server round trip. */
   initialBookstores: DirectoryBookstore[];
   initialStates: string[];
+  features: Array<{ id: number; name: string }>;
+  mapboxToken: string;
   initialFilters: {
     state?: string;
     city?: string;
@@ -68,67 +46,100 @@ type DirectoryClientProps = {
   };
 };
 
+function MapPlaceholder({ message = 'Loading map...' }: { message?: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center h-full bg-gray-50 p-6 text-center">
+      <Loader2 className="w-12 h-12 text-[#2A6B7C] animate-spin mb-4" />
+      <p className="text-gray-600 font-sans text-sm">{message}</p>
+    </div>
+  );
+}
+
+/** "Berkeley|CA" for the shop whose city matches `name` (case-insensitive) in that state, else 'all'. */
+function initialPlace(
+  shops: DirectoryBookstore[],
+  name: string | undefined,
+  stateAbbrev: string,
+  placeOf: (b: DirectoryBookstore) => string | null
+): string {
+  if (!name || !stateAbbrev) return 'all';
+  const wanted = name.trim().toLowerCase();
+  const match = shops.find(b => getStateAbbrev(b.state) === stateAbbrev && placeOf(b)?.trim().toLowerCase() === wanted);
+  const place = match && placeOf(match);
+  return place ? `${place}${LOCATION_DELIMITER}${stateAbbrev}` : 'all';
+}
+
+function parseFeatureParam(value: string | undefined): number[] {
+  return (value ?? '')
+    .split(',')
+    .map(v => parseInt(v.trim(), 10))
+    .filter(n => !Number.isNaN(n));
+}
+
 export default function DirectoryClient({
   initialBookstores,
   initialStates,
+  features,
+  mapboxToken,
   initialFilters,
 }: DirectoryClientProps) {
-  // State management
+  // Filters start from the URL (?state=CA&city=Berkeley&county=Alameda&features=1,2)
+  const initialState = getStateAbbrev(initialFilters.state) || 'all';
   const [searchQuery, setSearchQuery] = useState('');
-  // Use canonical state abbreviation so filter comparisons and dropdown always match
-  const [selectedState, setSelectedState] = useState<string>(() => {
-    if (initialFilters.state && initialBookstores.length > 0 && initialBookstores[0].state) {
-      return getStateAbbrev(initialBookstores[0].state);
-    }
-    return getStateAbbrev(initialFilters.state) || 'all';
-  });
-  const [selectedCity, setSelectedCity] = useState<string>(() => {
-    if (initialFilters.city && initialFilters.state && initialBookstores.length > 0 && initialBookstores[0].city && initialBookstores[0].state) {
-      const stateAbbrev = getStateAbbrev(initialBookstores[0].state);
-      return `${initialBookstores[0].city}${LOCATION_DELIMITER}${stateAbbrev}`;
-    }
-    return 'all';
-  });
-  const [selectedCounty, setSelectedCounty] = useState<string>('all');
+  const [selectedState, setSelectedState] = useState<string>(initialState);
+  const [selectedCity, setSelectedCity] = useState<string>(() =>
+    initialPlace(initialBookstores, initialFilters.city, initialState === 'all' ? '' : initialState, b => b.city)
+  );
+  const [selectedCounty, setSelectedCounty] = useState<string>(() =>
+    initialPlace(initialBookstores, initialFilters.county, initialState === 'all' ? '' : initialState, b => b.county)
+  );
+  const [selectedFeatures, setSelectedFeatures] = useState<number[]>(() => parseFeatureParam(initialFilters.features));
   const [hoveredBookshopId, setHoveredBookshopId] = useState<number | null>(null);
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [mobileView, setMobileView] = useState<'map' | 'list'>(initialFilters.view === 'map' ? 'map' : 'list');
-  const [mapboxToken, setMapboxToken] = useState<string | null>(null);
-  const [notification, setNotification] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
-  const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
 
-  const mapRef = useRef<{ getMap: () => any } | null>(null);
-  const [viewState, setViewState] = useState(DIRECTORY_MAP.DEFAULT_VIEW);
-
-  // Fetch Mapbox token
+  // Load the map once its area is visible: immediately on desktop, after
+  // tapping "Map" on mobile (the area is display:none until then).
+  const mapAreaRef = useRef<HTMLDivElement>(null);
+  const [mapWanted, setMapWanted] = useState(false);
   useEffect(() => {
-    // Try to get token from environment first (more efficient)
-    const envToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
-    if (envToken) {
-      setMapboxToken(envToken);
-      return;
-    }
-
-    // Fallback to API route if env var not available
-    const fetchToken = async () => {
-      try {
-        const response = await fetch('/api/config');
-        if (!response.ok) {
-          console.error('Failed to load map configuration');
-          return;
-        }
-        const config = await response.json();
-        if (config.mapboxAccessToken) {
-          setMapboxToken(config.mapboxAccessToken);
-        } else {
-          console.error('Mapbox token not available in response');
-        }
-      } catch (error) {
-        console.error('Error fetching Mapbox token:', error);
+    const area = mapAreaRef.current;
+    if (!area || mapWanted) return;
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting)) {
+        setMapWanted(true);
+        observer.disconnect();
       }
-    };
-    fetchToken();
+    });
+    observer.observe(area);
+    return () => observer.disconnect();
+  }, [mapWanted]);
+
+  // Keep the URL in sync so filtered views are shareable. history.replaceState
+  // (not router.replace) avoids refetching the server payload on every change.
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (selectedState !== 'all') params.set('state', selectedState);
+    if (selectedCity !== 'all') params.set('city', selectedCity.split(LOCATION_DELIMITER)[0]);
+    if (selectedCounty !== 'all') params.set('county', selectedCounty.split(LOCATION_DELIMITER)[0]);
+    if (selectedFeatures.length) params.set('features', [...selectedFeatures].sort((a, b) => a - b).join(','));
+    if (mobileView === 'map') params.set('view', 'map');
+    const query = params.toString();
+    const url = `${window.location.pathname}${query ? `?${query}` : ''}`;
+    if (url !== `${window.location.pathname}${window.location.search}`) {
+      window.history.replaceState(window.history.state, '', url);
+    }
+  }, [selectedState, selectedCity, selectedCounty, selectedFeatures, mobileView]);
+
+  const changeState = useCallback((abbrev: string) => {
+    setSelectedState(abbrev);
+    setSelectedCity('all');
+    setSelectedCounty('all');
+  }, []);
+
+  const toggleFeature = useCallback((id: number) => {
+    setSelectedFeatures(prev => (prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]));
   }, []);
 
   // Filter bookstores
@@ -163,8 +174,13 @@ export default function DirectoryClient({
       filtered = filtered.filter((b) => b.county === county && getStateAbbrev(b.state) === stateAbbrev);
     }
 
+    // Feature filter: shops must have every selected feature
+    if (selectedFeatures.length) {
+      filtered = filtered.filter((b) => selectedFeatures.every((id) => b.featureIds.includes(id)));
+    }
+
     return filtered;
-  }, [initialBookstores, searchQuery, selectedState, selectedCity, selectedCounty]);
+  }, [initialBookstores, searchQuery, selectedState, selectedCity, selectedCounty, selectedFeatures]);
 
   // Get unique cities and counties (use state abbrev in key so option values are consistent)
   const cities = useMemo(() => {
@@ -193,82 +209,11 @@ export default function DirectoryClient({
     return Array.from(countySet).sort();
   }, [initialBookstores, selectedState]);
 
-  // Create cluster index
-  const { clusterInstance, points } = useMemo(() => {
-    const supercluster = new Supercluster({
-      radius: CLUSTER_CONFIG.radius,
-      maxZoom: CLUSTER_CONFIG.maxZoom,
-      minZoom: CLUSTER_CONFIG.minZoom,
-    });
-
-    const geoPoints = filteredBookstores
-      .filter((b) => {
-        const lat = b.latitude ? parseFloat(b.latitude) : null;
-        const lon = b.longitude ? parseFloat(b.longitude) : null;
-        return lat !== null && lon !== null && !isNaN(lat) && !isNaN(lon);
-      })
-      .map((b) => {
-        const lat = parseFloat(b.latitude!);
-        const lon = parseFloat(b.longitude!);
-        return {
-          type: 'Feature' as const,
-          properties: {
-            cluster: false,
-            bookshopId: b.id,
-            bookshop: b,
-          },
-          geometry: {
-            type: 'Point' as const,
-            coordinates: [lon, lat],
-          },
-        };
-      });
-
-    supercluster.load(geoPoints);
-
-    return { clusterInstance: supercluster, points: geoPoints };
-  }, [filteredBookstores]);
-
-  // Get clusters for current map view
-  const clusters = useMemo(() => {
-    if (!mapBounds || !clusterInstance) return [];
-
-    return clusterInstance.getClusters([mapBounds.west, mapBounds.south, mapBounds.east, mapBounds.north], Math.floor(viewState.zoom));
-  }, [clusterInstance, mapBounds, viewState.zoom]);
-
-  // Update map bounds
-  const updateMapBounds = useCallback(() => {
-    if (!mapRef.current) return;
-
-    try {
-      const map = mapRef.current.getMap();
-      if (!map || !map.getBounds) return;
-
-      const bounds = map.getBounds();
-      setMapBounds({
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-        east: bounds.getEast(),
-        west: bounds.getWest(),
-      });
-    } catch (error) {
-      // Map not fully initialized
-    }
-  }, []);
-
-  // Handle map movement
-  const handleMapMove = useCallback((evt: any) => {
-    if (evt.viewState) {
-      setViewState(evt.viewState);
-    }
-  }, []);
-
-  // Handle map load
-  const handleMapLoad = useCallback(() => {
-    setTimeout(() => {
-      updateMapBounds();
-    }, 100);
-  }, [updateMapBounds]);
+  // Feature chips: only features at least one shop has
+  const availableFeatures = useMemo(() => {
+    const used = new Set(initialBookstores.flatMap((b) => b.featureIds));
+    return features.filter((f) => used.has(f.id));
+  }, [initialBookstores, features]);
 
   // Handle pin click
   const handlePinClick = useCallback((bookshopId: number) => {
@@ -286,71 +231,23 @@ export default function DirectoryClient({
     }, 300);
   }, [isPanelCollapsed]);
 
-  // Handle cluster click
-  const handleClusterClick = useCallback((clusterId: number, longitude: number, latitude: number) => {
-    if (!clusterInstance) return;
-
-    try {
-      const expansionZoom = Math.min(clusterInstance.getClusterExpansionZoom(clusterId), CLUSTER_CONFIG.expansionMaxZoom);
-
-      setViewState((prev) => ({
-        ...prev,
-        longitude,
-        latitude,
-        zoom: expansionZoom,
-        transitionDuration: DIRECTORY_MAP.TRANSITION_DURATION,
-      }));
-    } catch (error) {
-      setViewState((prev) => ({
-        ...prev,
-        longitude,
-        latitude,
-        zoom: Math.min(prev.zoom + 2, CLUSTER_CONFIG.expansionMaxZoom),
-        transitionDuration: DIRECTORY_MAP.TRANSITION_DURATION,
-      }));
-    }
-  }, [clusterInstance]);
-
   // Clear filters
   const clearFilters = useCallback(() => {
-    window.location.href = '/directory';
-  }, []);
-
-  // Visible bookstores in current map bounds
-  const visibleBookshops = useMemo(() => {
-    if (!mapBounds) return filteredBookstores;
-
-    return filteredBookstores.filter((b) => {
-      const lat = b.latitude ? parseFloat(b.latitude) : null;
-      const lon = b.longitude ? parseFloat(b.longitude) : null;
-
-      if (!lat || !lon || isNaN(lat) || isNaN(lon)) return false;
-
-      return lat >= mapBounds.south && lat <= mapBounds.north && lon >= mapBounds.west && lon <= mapBounds.east;
-    });
-  }, [filteredBookstores, mapBounds]);
+    setSearchQuery('');
+    changeState('all');
+    setSelectedFeatures([]);
+  }, [changeState]);
 
   const activeFilterCount = useMemo(() => {
-    let count = 0;
+    let count = selectedFeatures.length;
     if (selectedState !== 'all') count++;
     if (selectedCity !== 'all') count++;
     if (selectedCounty !== 'all') count++;
     return count;
-  }, [selectedState, selectedCity, selectedCounty]);
+  }, [selectedState, selectedCity, selectedCounty, selectedFeatures]);
 
   return (
     <div className="relative flex-1 min-h-0 flex flex-col md:block w-full">
-      {/* Notification Toast */}
-      {notification && (
-        <div
-          className={`absolute top-24 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full shadow-lg font-sans text-sm font-semibold ${
-            notification.type === 'error' ? 'bg-red-500 text-white' : notification.type === 'success' ? 'bg-green-500 text-white' : 'bg-[#2A6B7C] text-white'
-          }`}
-        >
-          {notification.message}
-        </div>
-      )}
-
       {/* Mobile: Map | List toggle — locked at top */}
       <div className="flex md:hidden flex-shrink-0 gap-0 p-2 bg-gray-100 border-b border-gray-200">
         <button
@@ -387,72 +284,21 @@ export default function DirectoryClient({
 
       {/* Map: fills remaining space below toggle+search (mobile); full viewport area (desktop) */}
       <div
+        ref={mapAreaRef}
         className={`overflow-hidden flex-1 min-h-0 w-full ${mobileView === 'list' ? 'hidden md:block' : ''} md:absolute md:inset-0 md:right-0 md:bottom-0 md:left-0 md:top-0 md:w-full md:h-full md:min-h-0`}
       >
-        {mapboxToken ? (
-          <Map
-            ref={mapRef as any}
-            {...viewState}
-            onMove={handleMapMove}
-            onMoveEnd={updateMapBounds}
-            onLoad={handleMapLoad}
-            mapboxAccessToken={mapboxToken}
-            mapStyle="mapbox://styles/mapbox/streets-v12"
-            style={{ width: '100%', height: '100%' }}
-          >
-            <NavigationControl position="bottom-right" />
-
-            {/* Render clusters and pins */}
-            {clusters.map((cluster: any) => {
-              const [longitude, latitude] = cluster.geometry.coordinates;
-              const { cluster: isCluster, point_count: pointCount, bookshopId, bookshop } = cluster.properties;
-
-              if (isCluster) {
-                return (
-                  <Marker
-                    key={`cluster-${cluster.id}`}
-                    longitude={longitude}
-                    latitude={latitude}
-                    onClick={(e: any) => {
-                      e.originalEvent.stopPropagation();
-                      handleClusterClick(cluster.id, longitude, latitude);
-                    }}
-                  >
-                    <div className="cursor-pointer">
-                      <div className="relative bg-[#2A6B7C] rounded-full flex items-center justify-center shadow-lg hover:bg-[#1d5a6a] transition-colors" style={{ width: 50, height: 50 }}>
-                        <span className="font-sans font-bold text-white">{pointCount}</span>
-                      </div>
-                    </div>
-                  </Marker>
-                );
-              }
-
-              const isHovered = hoveredBookshopId === bookshopId;
-              const isSelected = selectedBookshopId === bookshopId;
-
-              return (
-                <Marker
-                  key={`bookshop-${bookshopId}`}
-                  longitude={longitude}
-                  latitude={latitude}
-                  onClick={(e: any) => {
-                    e.originalEvent.stopPropagation();
-                    handlePinClick(bookshopId);
-                  }}
-                >
-                  <div className={`cursor-pointer transition-transform ${isSelected ? 'scale-125' : isHovered ? 'scale-110' : ''}`}>
-                    <MapPin className={`w-8 h-8 ${isSelected ? 'text-[#E16D3D]' : isHovered ? 'text-[#2A6B7C]' : 'text-[#5F4B32]'}`} fill="currentColor" />
-                  </div>
-                </Marker>
-              );
-            })}
-          </Map>
+        {!mapboxToken ? (
+          <MapPlaceholder message="Map is unavailable right now." />
+        ) : mapWanted ? (
+          <DirectoryMap
+            shops={filteredBookstores}
+            mapboxToken={mapboxToken}
+            hoveredId={hoveredBookshopId}
+            selectedId={selectedBookshopId}
+            onPinClick={handlePinClick}
+          />
         ) : (
-          <div className="flex flex-col items-center justify-center h-full bg-gray-50 p-6 text-center">
-            <Loader2 className="w-12 h-12 text-[#2A6B7C] animate-spin mb-4" />
-            <p className="text-gray-600 font-sans text-sm">Loading map...</p>
-            <p className="text-gray-400 font-sans text-xs mt-2">If the map doesn't load, the Mapbox token may need to be configured.</p>
-          </div>
+          <MapPlaceholder />
         )}
 
         {/* Search Bar — desktop only (mobile has search below toggle) */}
@@ -485,7 +331,7 @@ export default function DirectoryClient({
                 <h3 className="font-sans text-sm font-semibold text-gray-700">Location</h3>
 
                 {/* State Filter (initialStates are abbrevs; display full name) */}
-                <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-sans text-sm">
+                <select value={selectedState} onChange={(e) => changeState(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-sans text-sm">
                   <option value="all">All States</option>
                   {initialStates.map((abbrev) => (
                     <option key={abbrev} value={abbrev}>
@@ -513,6 +359,30 @@ export default function DirectoryClient({
                     </option>
                   ))}
                 </select>
+
+                {availableFeatures.length > 0 && (
+                  <>
+                    <h3 className="font-sans text-sm font-semibold text-gray-700 pt-1">Features</h3>
+                    <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by feature">
+                      {availableFeatures.map((feature) => {
+                        const active = selectedFeatures.includes(feature.id);
+                        return (
+                          <button
+                            key={feature.id}
+                            type="button"
+                            onClick={() => toggleFeature(feature.id)}
+                            aria-pressed={active}
+                            className={`px-3 py-1.5 rounded-full border font-sans text-xs font-semibold transition-colors ${
+                              active ? 'bg-[#2A6B7C] border-[#2A6B7C] text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-[#2A6B7C]'
+                            }`}
+                          >
+                            {feature.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
 
                 {activeFilterCount > 0 && (
                   <button onClick={clearFilters} className="w-full font-sans text-sm text-[#2A6B7C] hover:underline flex items-center justify-center gap-1 py-1">

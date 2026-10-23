@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
-import { getFilteredBookstores, getStates } from '@/lib/data/bookstore-data';
+import { getAllBookstores, getStates } from '@/lib/data/bookstore-data';
+import { getFeatureNames } from '@/lib/data/locations';
+import { getMapboxToken } from '@/lib/mapbox';
 import { getStateDisplayName } from '@/lib/state-utils';
 import DirectoryClient, { DirectoryBookstore } from './DirectoryClient';
 
@@ -82,24 +84,16 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default async function DirectoryPage({ searchParams }: Props) {
   const resolvedParams = await searchParams;
 
-  // Parse features from comma-separated string to number array
-  const features = resolvedParams.features
-    ? resolvedParams.features.split(',').map(f => parseInt(f.trim(), 10)).filter(n => !isNaN(n))
-    : undefined;
-
-  // Fetch initial data server-side
-  const [bookstoresFull, states] = await Promise.all([
-    getFilteredBookstores({
-      state: resolvedParams.state,
-      city: resolvedParams.city,
-      county: resolvedParams.county,
-      features,
-    }),
+  // Every shop goes to the client, which applies the ?state/city/county/features
+  // filters itself — so changing a filter never needs a server round trip.
+  const [bookstoresFull, states, { features }] = await Promise.all([
+    getAllBookstores(),
     getStates(),
+    getFeatureNames(),
   ]);
 
   // Slim down to only the fields DirectoryClient actually uses.
-  // This reduces the RSC payload from ~12 MB to ~500 KB.
+  // This keeps the RSC payload around ~500 KB.
   const bookstores: DirectoryBookstore[] = bookstoresFull.map((b) => ({
     id: b.id,
     name: b.name,
@@ -110,6 +104,7 @@ export default async function DirectoryPage({ searchParams }: Props) {
     latitude: b.latitude ?? null,
     longitude: b.longitude ?? null,
     description: b.description || '',
+    featureIds: b.featureIds ?? [],
   }));
 
   // Generate page title based on filters (state may be abbrev; show full name when available)
@@ -131,6 +126,8 @@ export default async function DirectoryPage({ searchParams }: Props) {
       <DirectoryClient
         initialBookstores={bookstores}
         initialStates={states}
+        features={features.map(f => ({ id: f.id, name: f.name }))}
+        mapboxToken={getMapboxToken()}
         initialFilters={resolvedParams}
       />
     </div>
