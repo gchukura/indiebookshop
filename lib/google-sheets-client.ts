@@ -1,8 +1,9 @@
 /**
  * Google Sheets client for the Next.js data layer.
  *
- * READ  — bookstore directory, features, events (readonly scope)
- * WRITE — newsletter signups appended to a "Newsletter" tab (readwrite scope)
+ * READ  — bookstore directory, features, events: from the build-time snapshot
+ *         (.data/sheet.json); the API is read only by scripts/export-sheet.ts
+ * WRITE — newsletter signups and form submissions appended to the Sheet (readwrite scope)
  *
  * Supabase is no longer used. Contact emails are sent directly via SendGrid.
  */
@@ -38,7 +39,7 @@ function parseCredentials() {
   return creds;
 }
 
-/** Read-only client — used for bookstore directory reads. */
+/** Read-only client — used by fetchSheetTabsFromApi (the build-time export). */
 function buildSheetsClient() {
   const creds = parseCredentials();
   const auth = new google.auth.JWT({
@@ -61,64 +62,72 @@ function buildSheetsWriteClient() {
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const IS_BUILD = process.env.NEXT_PHASE === 'phase-production-build';
-const BUILD_RETRY_DELAYS_MS = [20_000, 40_000]; // see staticPageGenerationTimeout in next.config.mjs
-
-function isQuotaError(err: unknown): boolean {
-  const e = err as { code?: number; status?: number };
-  return e?.code === 429 || e?.status === 429;
-}
-
-/**
- * During `next build`, retries a Sheets read that hit the per-minute read quota
- * (the quota resets each minute; prerendering thousands of pages can exceed it).
- * At runtime it fails immediately, as before, rather than holding a request open.
- */
-async function withBuildQuotaRetry<T>(read: () => Promise<T>): Promise<T> {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await read();
-    } catch (err) {
-      const delay = BUILD_RETRY_DELAYS_MS[attempt];
-      if (!IS_BUILD || !isQuotaError(err) || delay === undefined) throw err;
-      console.warn(`[GoogleSheets] Read quota exceeded during build; retrying in ${delay / 1000}s`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Reading tabs (Google Sheets, or the committed fixture with USE_FIXTURE_DATA=1)
+// Reading tabs: from the snapshot taken at build time (.data/sheet.json, written
+// by scripts/export-sheet.ts), or the committed fixture with USE_FIXTURE_DATA=1.
+// The site never reads the Sheets API at runtime; only the form routes write to it.
 // ---------------------------------------------------------------------------
 
 type Tab = 'Bookstores' | 'Features' | 'Events';
 type TabValues = { header: string[]; rows: string[][] };
+export type SheetSnapshot = Partial<Record<Tab, TabValues>> & { exportedAt?: string };
 
+const TABS: Tab[] = ['Bookstores', 'Features', 'Events'];
 const DATA_RANGES: Record<Tab, string> = { Bookstores: 'A2:ZZZ', Features: 'A2:Z', Events: 'A2:G' };
 
 /** Fixture of ~200 real rows (scripts/export-fixture.ts) for CI and offline builds without Sheet credentials. */
 const USE_FIXTURE_DATA = process.env.USE_FIXTURE_DATA === '1';
 export const FIXTURE_PATH = path.join(process.cwd(), 'tests', 'fixtures', 'bookstores.json');
+/** Snapshot of the Sheet for this build/deployment. Gitignored; shipped to the server functions via outputFileTracingIncludes. */
+export const SNAPSHOT_PATH = path.join(process.cwd(), '.data', 'sheet.json');
 
-async function readTab(tab: Tab): Promise<TabValues> {
-  if (USE_FIXTURE_DATA) {
-    const fixture = JSON.parse(await readFile(FIXTURE_PATH, 'utf8')) as Partial<Record<Tab, TabValues>>;
-    return fixture[tab] ?? { header: [], rows: [] };
-  }
+/** Reads every tab from the Sheets API (scripts/export-sheet.ts only). A missing Events tab is empty. */
+export async function fetchSheetTabsFromApi(): Promise<SheetSnapshot> {
   const sheets = buildSheetsClient();
-  const [headerRes, dataRes] = await withBuildQuotaRetry(() =>
-    Promise.all([
+  const readOne = async (tab: Tab): Promise<TabValues> => {
+    const [headerRes, dataRes] = await Promise.all([
       sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `${tab}!1:1` }),
       sheets.spreadsheets.values.get({ spreadsheetId: SPREADSHEET_ID, range: `${tab}!${DATA_RANGES[tab]}` }),
-    ])
-  );
-  return {
-    header: (headerRes.data.values?.[0] ?? []) as string[],
-    rows: (dataRes.data.values ?? []) as string[][],
+    ]);
+    return {
+      header: (headerRes.data.values?.[0] ?? []) as string[],
+      rows: (dataRes.data.values ?? []) as string[][],
+    };
   };
+  const snapshot: SheetSnapshot = { exportedAt: new Date().toISOString() };
+  for (const tab of TABS) {
+    try {
+      snapshot[tab] = await readOne(tab);
+    } catch (err) {
+      if (tab !== 'Events') throw err;
+      snapshot[tab] = { header: [], rows: [] }; // Events tab may not exist
+    }
+  }
+  return snapshot;
+}
+
+// Parsed once per server process; the snapshot can't change during a deployment
+let snapshotPromise: Promise<SheetSnapshot> | null = null;
+
+function loadSnapshot(): Promise<SheetSnapshot> {
+  snapshotPromise ??= (async () => {
+    const file = USE_FIXTURE_DATA ? FIXTURE_PATH : SNAPSHOT_PATH;
+    try {
+      return JSON.parse(await readFile(file, 'utf8')) as SheetSnapshot;
+    } catch (err) {
+      snapshotPromise = null;
+      if ((err as NodeJS.ErrnoException).code === 'ENOENT' && !USE_FIXTURE_DATA) {
+        throw new Error(
+          `${SNAPSHOT_PATH} not found. It's written by \`npm run export-sheet\`, which runs before \`npm run build\` and \`npm run dev\`.`
+        );
+      }
+      throw err;
+    }
+  })();
+  return snapshotPromise;
+}
+
+async function readTab(tab: Tab): Promise<TabValues> {
+  return (await loadSnapshot())[tab] ?? { header: [], rows: [] };
 }
 
 function col(row: string[], colMap: Record<string, number>, field: string): string {
@@ -143,13 +152,11 @@ function buildColMap(headerRow: string[]): Record<string, number> {
 // ---------------------------------------------------------------------------
 
 /**
- * Fetch bookstores from Google Sheets.
+ * Bookstores from the snapshot, parsed and validated.
  *
- * @param listingOnly  When true, strips detail-page-only fields so the result
- *                     fits inside Vercel's 2 MB unstable_cache limit (used for
- *                     the directory listing and /api/bookstores/filter).
- *                     When false (default), all columns are returned for detail
- *                     pages and the module-level full-data cache.
+ * @param listingOnly  When true, keeps only the listing fields (LISTING_FIELDS), so
+ *                     pages and client props that list many shops stay small.
+ *                     When false (default), all columns are returned (detail pages).
  */
 export async function getBookstoresFromSheets(listingOnly = false): Promise<Bookstore[]> {
   const { header: headerRow, rows } = await readTab('Bookstores');
@@ -214,14 +221,7 @@ export async function getFeaturesFromSheets(): Promise<Feature[]> {
 }
 
 export async function getEventsFromSheets(bookshopId?: number): Promise<Event[]> {
-  let headerRow: string[];
-  let rows: string[][];
-  try {
-    ({ header: headerRow, rows } = await readTab('Events'));
-  } catch {
-    // Events sheet may not exist — not an error
-    return [];
-  }
+  const { header: headerRow, rows } = await readTab('Events');
 
   if (!rows.length) return [];
 

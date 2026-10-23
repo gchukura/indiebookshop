@@ -8,6 +8,9 @@ attached_assets/
 
 # Next.js
 /.next/
+
+# Sheet snapshot written by scripts/export-sheet.ts before each build/dev
+/.data/
 /out/
 next-env.d.ts
 
