@@ -11,6 +11,7 @@ import type { Bookstore } from '@/shared/schema';
 import { STATE_ABBREV_TO_FULL, getStateAbbrev } from '@/lib/state-utils';
 import { splitCityKey } from './location-key';
 import { getBookstoreSlug } from './slug';
+import { distanceKm } from './geo';
 import {
   cityToSlug,
   countyDisplayName,
@@ -177,15 +178,6 @@ export function buildLocationIndex({ byState, byCity, byCounty }: IndexInput): L
   states.sort((a, b) => a.name.localeCompare(b.name));
 
   return { states, statesBySlug: Object.fromEntries(states.map(s => [s.slug, s])) };
-}
-
-/** Great-circle distance in km. */
-function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
-  const rad = (d: number) => (d * Math.PI) / 180;
-  const dLat = rad(b.lat - a.lat);
-  const dLng = rad(b.lng - a.lng);
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
-  return 6371 * 2 * Math.asin(Math.sqrt(h));
 }
 
 /** Other cities in the same state, nearest first (cities without coordinates last). */

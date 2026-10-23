@@ -3,11 +3,11 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Search, MapPin, Loader2, ChevronRight, X } from 'lucide-react';
-import Link from 'next/link';
 import { getStateAbbrev, getStateDisplayName } from '@/lib/state-utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getBookstoreSlug } from '@/lib/data/slug';
+import BookshopCard from '@/components/bookshop/BookshopCard';
+import type { FeatureLink } from '@/lib/data/feature-index';
 
 // react-map-gl + mapbox-gl (~1.6 MB) load only once the map area is on screen
 const DirectoryMap = dynamic(() => import('@/components/directory/DirectoryMap'), {
@@ -27,7 +27,9 @@ export interface DirectoryBookstore {
   county: string | null;
   latitude: string | null;
   longitude: string | null;
-  description: string;
+  imageUrl: string | null;
+  googleRating: string | null;
+  googleReviewCount: number | null;
   featureIds: number[];
 }
 
@@ -36,6 +38,8 @@ type DirectoryClientProps = {
   initialBookstores: DirectoryBookstore[];
   initialStates: string[];
   features: Array<{ id: number; name: string }>;
+  /** Feature id → chip name and feature page link, for the cards. */
+  featureLinks: Record<number, FeatureLink>;
   mapboxToken: string;
   initialFilters: {
     state?: string;
@@ -80,6 +84,7 @@ export default function DirectoryClient({
   initialBookstores,
   initialStates,
   features,
+  featureLinks,
   mapboxToken,
   initialFilters,
 }: DirectoryClientProps) {
@@ -404,24 +409,9 @@ export default function DirectoryClient({
                       onMouseEnter={() => setHoveredBookshopId(bookshop.id)}
                       onMouseLeave={() => setHoveredBookshopId(null)}
                       onClick={() => handlePinClick(bookshop.id)}
-                      className={`bg-white border-2 rounded-lg p-4 cursor-pointer transition-all ${selectedBookshopId === bookshop.id ? 'border-brand-orange shadow-md' : hoveredBookshopId === bookshop.id ? 'border-brand-teal shadow-sm' : 'border-gray-200'}`}
+                      className={`rounded-lg border-2 cursor-pointer transition-all ${selectedBookshopId === bookshop.id ? 'border-brand-orange' : hoveredBookshopId === bookshop.id ? 'border-brand-teal' : 'border-transparent'}`}
                     >
-                      <Link href={`/bookshop/${getBookstoreSlug(bookshop)}`} onClick={(e: React.MouseEvent) => e.stopPropagation()} className="block">
-                        <h3 className="font-serif font-bold text-base text-brand-brown mb-1 hover:text-brand-teal">{bookshop.name}</h3>
-                      </Link>
-                      {(bookshop.city || bookshop.state) && (
-                        <div className="flex items-start text-xs text-gray-600 mb-2">
-                          <MapPin className="w-3 h-3 mr-1 mt-0.5" />
-                          <span>
-                            {bookshop.city && `${bookshop.city}, `}
-                            {bookshop.state}
-                          </span>
-                        </div>
-                      )}
-                      {bookshop.description && <p className="font-sans text-xs text-gray-700 line-clamp-2 mb-2">{bookshop.description}</p>}
-                      <Link href={`/bookshop/${getBookstoreSlug(bookshop)}`} className="font-sans text-xs text-brand-teal hover:underline font-medium" onClick={(e) => e.stopPropagation()}>
-                        View details →
-                      </Link>
+                      <BookshopCard bookshop={bookshop} featureLinks={featureLinks} size="compact" className="shadow-sm" />
                     </div>
                   ))}
                 </div>

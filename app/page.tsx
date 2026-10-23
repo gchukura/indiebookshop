@@ -3,12 +3,11 @@ import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { getFeaturedBookstores, getPopularBookstores } from '@/lib/data/bookstore-data';
 import { getLocationIndex } from '@/lib/data/locations';
-import { getBookstoreSlug } from '@/lib/data/slug';
-import { getBookshopImageUrl, getPlaceholderUrl } from '@/lib/bookshop-image';
 import { MapPin, Map, Sparkles } from 'lucide-react';
 import type { Metadata } from 'next';
 import { OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
-import BookshopImage from '@/components/BookshopImage';
+import BookshopCard from '@/components/bookshop/BookshopCard';
+import { getFeatureIndex } from '@/lib/data/features';
 
 export const metadata: Metadata = {
   title: 'IndiebookShop.com - Discover Independent Bookshops Across America',
@@ -47,10 +46,11 @@ const getStateImageUrl = (abbreviation: string): string => {
 };
 
 export default async function HomePage() {
-  const [featuredBookshops, popularBookshops, states] = await Promise.all([
+  const [featuredBookshops, popularBookshops, states, featureLinks] = await Promise.all([
     getFeaturedBookstores(6),
     getPopularBookstores(6),
     getLocationIndex().then(index => index.states),
+    getFeatureIndex().then(f => f.links).catch(() => ({})),
   ]);
 
   return (
@@ -191,42 +191,9 @@ export default async function HomePage() {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                {featuredBookshops.map((bookshop) => {
-                  const thumbUrl = getBookshopImageUrl(bookshop);
-                  return (
-                  <Link
-                    key={bookshop.id}
-                    href={`/bookshop/${getBookstoreSlug(bookshop)}`}
-                    className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block group"
-                  >
-                    <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
-                      <BookshopImage
-                        src={thumbUrl}
-                        alt={`${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        fallbackSrc={getPlaceholderUrl(bookshop.id, 'thumb')}
-                      />
-                    </div>
-                    <div className="p-4 md:p-5">
-                      <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-brand-brown mb-2 hover:text-brand-orange leading-tight line-clamp-2">
-                        {bookshop.name}
-                      </h3>
-                      <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4">
-                        {bookshop.city}, {bookshop.state}
-                      </p>
-                      {bookshop.googleRating && (
-                        <div className="flex items-center gap-1 text-sm mb-3">
-                          <span className="text-yellow-600">★</span>
-                          <span className="text-gray-700">{bookshop.googleRating}</span>
-                          {bookshop.googleReviewCount && (
-                            <span className="text-gray-500">({bookshop.googleReviewCount})</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                  );
-                })}
+                {featuredBookshops.map((bookshop) => (
+                  <BookshopCard key={bookshop.id} bookshop={bookshop} featureLinks={featureLinks} />
+                ))}
               </div>
             </div>
           </div>
@@ -250,42 +217,9 @@ export default async function HomePage() {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                {popularBookshops.map((bookshop) => {
-                  const thumbUrl = getBookshopImageUrl(bookshop);
-                  return (
-                  <Link
-                    key={bookshop.id}
-                    href={`/bookshop/${getBookstoreSlug(bookshop)}`}
-                    className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg block group"
-                  >
-                    <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
-                      <BookshopImage
-                        src={thumbUrl}
-                        alt={`${bookshop.name} in ${bookshop.city}, ${bookshop.state}`}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        fallbackSrc={getPlaceholderUrl(bookshop.id, 'thumb')}
-                      />
-                    </div>
-                    <div className="p-4 md:p-5">
-                      <h3 className="font-serif font-bold text-base md:text-lg lg:text-xl text-brand-brown mb-2 hover:text-brand-orange leading-tight line-clamp-2">
-                        {bookshop.name}
-                      </h3>
-                      <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4">
-                        {bookshop.city}, {bookshop.state}
-                      </p>
-                      {bookshop.googleRating && (
-                        <div className="flex items-center gap-1 text-sm">
-                          <span className="text-yellow-600">★</span>
-                          <span className="text-gray-700">{bookshop.googleRating}</span>
-                          {bookshop.googleReviewCount && (
-                            <span className="text-gray-500">({bookshop.googleReviewCount})</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                  );
-                })}
+                {popularBookshops.map((bookshop) => (
+                  <BookshopCard key={bookshop.id} bookshop={bookshop} featureLinks={featureLinks} />
+                ))}
               </div>
             </div>
           </div>

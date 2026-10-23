@@ -33,7 +33,7 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 | `/directory` | `app/directory/page.tsx` + `DirectoryClient.tsx` | server page sends every shop (slim fields + `featureIds`), the features list, and the Mapbox token; the client filters by `?state&city&county&features` (features = shops with all selected) and keeps the URL in sync with `history.replaceState` (not `router.replace`, which would refetch the payload). The map (`components/directory/DirectoryMap.tsx`) is `next/dynamic` and loads only when its area is visible (desktop, or after tapping Map on mobile) |
 | `/bookshops`, `/bookshops/[state]`, `/bookshops/[state]/[city]`, `/bookshops/[state]/county/[county]` | `app/bookshops/**/page.tsx` | server-rendered location pages (US states + DC only), all params via `generateStaticParams`, `dynamicParams=false`, `revalidate=3600`. Data from `getLocationIndex()` (`lib/data/locations.ts` → `lib/data/location-index.ts`); slugs from `lib/data/location-slugs.ts`; intro text from `lib/data/location-content.ts`. UI in `components/location/` and `components/bookshop/` (`BookshopCard`, `LazyShopsMap`) |
 | `/bookshops/features`, `/bookshops/features/[feature]`, `/bookshops/[state]/features/[feature]` | `app/bookshops/features/**`, `app/bookshops/[state]/features/[feature]/page.tsx` | feature pages from `getFeatureIndex()` (`lib/data/features.ts` → `lib/data/feature-index.ts`): a feature gets a page at ≥3 US shops, a state + feature page at ≥3 shops in that state. Same components as location pages; the feature page groups shops by state with a jump list. `dynamicParams=false`, so a new feature/state/city only gets a page on the next deploy |
-| `/bookshop/[slug]` | `app/bookshop/[slug]/page.tsx` + `BookshopDetailClient.tsx` | all slugs via `generateStaticParams`, `dynamicParams=true`, `revalidate=86400`; non-canonical slug → `permanentRedirect`. Breadcrumbs link to the `/bookshops` pages |
+| `/bookshop/[slug]` | `app/bookshop/[slug]/page.tsx` → `components/bookshop/ShopDetail.tsx` (server) | all slugs via `generateStaticParams`, `dynamicParams=true`, `revalidate=86400`; non-canonical slug → `permanentRedirect`. Client islands only: `PhotoGallery`, `LazyShopMap` → `ShopMap` (Mapbox), and `ShopHours` (`OpenStatusBadge`/`HoursTable` read the current time in the shop's zone from `lib/data/timezones.ts` after mount, since the page is static). Nearby = 6 nearest by distance (`lib/data/nearby.ts`); events from the cached Events tab (`getUpcomingEvents`) |
 | `/about`, `/blog` | static server pages | blog is a placeholder |
 | `/events` | `app/events/page.tsx` (`'use client'`) + `EventsClient.tsx` | fetches `GET /api/events` and `/api/bookstores`, neither exists (only `POST /api/events`) |
 | `/submit`, `/submit-event`, `/contact` | client pages with forms | |
@@ -77,8 +77,9 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 ## Key files
 - `components/Header.tsx`, `Footer.tsx` (client; footer posts the newsletter form), `Logo.tsx`
 - `components/StructuredData.tsx` — JSON-LD (`LocalBusinessSchema`, `BreadcrumbSchema`, etc.)
-- `components/BookshopImage.tsx`, `RelatedBookshops.tsx`, `SingleLocationMap.tsx` (Mapbox), forms `BookshopSubmissionForm.tsx`, `EventSubmissionForm.tsx`
-- `components/ui/` — shadcn primitives. `components/Providers.tsx` wraps the app in React Query (`lib/queryClient.ts`); used by the events page, the two forms, and `RelatedBookshops`.
+- `components/bookshop/BookshopCard.tsx` — the one shop card (`size="compact"` for lists, optional `distanceMiles`); used by home, directory, location/feature pages, and nearby lists
+- `components/BookshopImage.tsx`, forms `BookshopSubmissionForm.tsx`, `EventSubmissionForm.tsx`
+- `components/ui/` — shadcn primitives. `components/Providers.tsx` wraps the app in React Query (`lib/queryClient.ts`); used by the events page and the two forms.
 - Imported by nothing (candidates for removal): `components/StateFlag.tsx`, `components/ads/*` (AdSense, not rendered).
 
 ## Brand

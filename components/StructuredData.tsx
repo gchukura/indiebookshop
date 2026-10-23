@@ -2,6 +2,7 @@ import React from 'react';
 import { Bookstore } from '@/shared/schema';
 import { getBookshopPhotoUrl } from '@/lib/bookshop-image';
 import { getBookstoreDescription } from '@/lib/data/bookstore-content';
+import { openingHoursSpecification } from '@/lib/data/shop-hours';
 
 type LocalBusinessSchemaProps = {
   bookstore: Bookstore;
@@ -37,7 +38,7 @@ export function LocalBusinessSchema({ bookstore }: LocalBusinessSchemaProps) {
           }
         : undefined,
     image: photoUrl ? `https://www.indiebookshop.com${photoUrl}` : undefined,
-    telephone: bookstore.phone,
+    telephone: bookstore.formattedPhone || bookstore.phone,
     url: bookstore.website,
     priceRange: bookstore.googlePriceLevel ? '$'.repeat(bookstore.googlePriceLevel) : undefined,
     aggregateRating:
@@ -49,19 +50,7 @@ export function LocalBusinessSchema({ bookstore }: LocalBusinessSchemaProps) {
             bestRating: 5,
           }
         : undefined,
-    openingHoursSpecification: bookstore.openingHoursJson?.weekday_text
-      ? bookstore.openingHoursJson.weekday_text.map((hours) => {
-          const [day, time] = hours.split(': ');
-          const timeRange = time && time !== 'Closed' ? time.split('–') : null;
-
-          return {
-            '@type': 'OpeningHoursSpecification',
-            dayOfWeek: day,
-            opens: timeRange ? timeRange[0]?.trim() : undefined,
-            closes: timeRange ? timeRange[1]?.trim() : undefined,
-          };
-        })
-      : undefined,
+    openingHoursSpecification: openingHoursSpecification(bookstore.openingHoursJson?.periods),
   };
 
   // Remove undefined values
