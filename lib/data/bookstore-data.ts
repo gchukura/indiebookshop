@@ -4,8 +4,8 @@
 
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
-import { getBookstoresFromSheets } from '@/lib/google-sheets-client';
-import { Bookstore } from '@/shared/schema';
+import { getBookstoresFromSheets, getFeaturesFromSheets } from '@/lib/google-sheets-client';
+import { Bookstore, Feature } from '@/shared/schema';
 import { getStateAbbrev, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 import { safeMapGet, safeMapKeys } from './cache-utils';
 import { getBookstoreSlug } from './slug';
@@ -26,6 +26,13 @@ const getCachedRawBookstores = unstable_cache(
   () => getBookstoresFromSheets(true), // listingOnly=true — strips detail fields
   ['bookstores-raw'],
   { revalidate: 3600 } // 1 hour
+);
+
+/** Features tab (id → name), cached like the listing so pages don't each read the Sheet. */
+export const getFeatures = unstable_cache(
+  async (): Promise<Feature[]> => getFeaturesFromSheets(),
+  ['features'],
+  { revalidate: 3600 }
 );
 
 /**

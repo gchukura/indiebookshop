@@ -62,6 +62,32 @@ function buildSheetsWriteClient() {
 // Helpers
 // ---------------------------------------------------------------------------
 
+const IS_BUILD = process.env.NEXT_PHASE === 'phase-production-build';
+const BUILD_RETRY_DELAYS_MS = [20_000, 40_000]; // see staticPageGenerationTimeout in next.config.mjs
+
+function isQuotaError(err: unknown): boolean {
+  const e = err as { code?: number; status?: number };
+  return e?.code === 429 || e?.status === 429;
+}
+
+/**
+ * During `next build`, retries a Sheets read that hit the per-minute read quota
+ * (the quota resets each minute; prerendering thousands of pages can exceed it).
+ * At runtime it fails immediately, as before, rather than holding a request open.
+ */
+async function withBuildQuotaRetry<T>(read: () => Promise<T>): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await read();
+    } catch (err) {
+      const delay = BUILD_RETRY_DELAYS_MS[attempt];
+      if (!IS_BUILD || !isQuotaError(err) || delay === undefined) throw err;
+      console.warn(`[GoogleSheets] Read quota exceeded during build; retrying in ${delay / 1000}s`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+}
+
 function col(row: string[], colMap: Record<string, number>, field: string): string {
   const idx = colMap[field];
   return idx !== undefined && idx < row.length ? String(row[idx] ?? '').trim() : '';
@@ -95,16 +121,18 @@ function buildColMap(headerRow: string[]): Record<string, number> {
 export async function getBookstoresFromSheets(listingOnly = false): Promise<Bookstore[]> {
   const sheets = buildSheetsClient();
 
-  const [headerRes, dataRes] = await Promise.all([
-    sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Bookstores!1:1',
-    }),
-    sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Bookstores!A2:ZZZ',
-    }),
-  ]);
+  const [headerRes, dataRes] = await withBuildQuotaRetry(() =>
+    Promise.all([
+      sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'Bookstores!1:1',
+      }),
+      sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'Bookstores!A2:ZZZ',
+      }),
+    ])
+  );
 
   const headerRow: string[] = headerRes.data.values?.[0] ?? [];
   const rows: string[][] = (dataRes.data.values ?? []) as string[][];
@@ -142,16 +170,18 @@ export async function getBookstoresFromSheets(listingOnly = false): Promise<Book
 export async function getFeaturesFromSheets(): Promise<Feature[]> {
   const sheets = buildSheetsClient();
 
-  const [headerRes, dataRes] = await Promise.all([
-    sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Features!1:1',
-    }),
-    sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Features!A2:Z',
-    }),
-  ]);
+  const [headerRes, dataRes] = await withBuildQuotaRetry(() =>
+    Promise.all([
+      sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'Features!1:1',
+      }),
+      sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: 'Features!A2:Z',
+      }),
+    ])
+  );
 
   const headerRow: string[] = headerRes.data.values?.[0] ?? [];
   const rows: string[][] = (dataRes.data.values ?? []) as string[][];

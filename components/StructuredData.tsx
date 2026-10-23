@@ -89,6 +89,26 @@ export function BreadcrumbSchema({ items }: { items: Array<{ name: string; url: 
 }
 
 /**
+ * Schema.org ItemList of bookshops, for location pages.
+ */
+export function ItemListSchema({ name, items }: { name: string; items: Array<{ name: string; url: string }> }) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name,
+    numberOfItems: items.length,
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      url: item.url,
+    })),
+  };
+
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+}
+
+/**
  * Generate Schema.org Organization structured data for homepage
  * Helps search engines understand the business/organization
  */
