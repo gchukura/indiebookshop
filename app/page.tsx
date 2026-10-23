@@ -3,7 +3,9 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { getFeaturedBookstores, getPopularBookstores, getTotalBookstoreCount } from '@/lib/data/bookstore-data';
+import { getAllUpcomingEvents, getFeaturedBookstores, getPopularBookstores, getProcessedBookstoreData, getTotalBookstoreCount } from '@/lib/data/bookstore-data';
+import { eventDay, formatEventDay } from '@/lib/data/events';
+import { getBookstoreSlug } from '@/lib/data/slug';
 import { getLocationIndex } from '@/lib/data/locations';
 import { getFeatureIndex } from '@/lib/data/features';
 import { OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
@@ -38,12 +40,14 @@ function Section({ id, title, description, children }: { id: string; title: stri
 }
 
 export default async function HomePage() {
-  const [total, featured, topRated, { states }, { index: featureIndex, links: featureLinks }] = await Promise.all([
+  const [total, featured, topRated, { states }, { index: featureIndex, links: featureLinks }, nextEvents, data] = await Promise.all([
     getTotalBookstoreCount(),
     getFeaturedBookstores(6, 'week'),
     getPopularBookstores(6),
     getLocationIndex(),
     getFeatureIndex().catch(() => ({ index: { features: [], bySlug: {}, byState: {} }, links: {} })),
+    getAllUpcomingEvents().then(events => events.slice(0, 3)).catch(() => []),
+    getProcessedBookstoreData(),
   ]);
 
   return (
@@ -123,9 +127,40 @@ export default async function HomePage() {
           <div className="rounded-lg bg-brand-cream p-6 md:p-8">
             <h2 className="font-serif text-2xl font-bold text-brand-brown">Hosting an event?</h2>
             <p className="mt-2 mb-5 text-gray-700">Tell readers about author visits, readings, and book clubs at your shop.</p>
-            <Link href="/submit-event" className={cn(buttonVariants(), 'px-6')}>
-              Submit an event
-            </Link>
+            {nextEvents.length > 0 && (
+              <ul className="mb-5 space-y-3">
+                {nextEvents.map(event => {
+                  const shop = data.byId[event.bookshopId];
+                  const day = eventDay(event);
+                  return (
+                    <li key={event.id} className="border-l-4 border-brand-orange pl-3">
+                      <p className="font-semibold text-brand-brown">{event.title}</p>
+                      <p className="text-sm text-gray-600">
+                        {day ? formatEventDay(day) : event.date}
+                        {shop && (
+                          <>
+                            {' · '}
+                            <Link href={`/bookshop/${getBookstoreSlug(shop)}`} className="text-brand-teal hover:underline">
+                              {shop.name}
+                            </Link>
+                          </>
+                        )}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            <div className="flex flex-wrap items-center gap-4">
+              <Link href="/submit-event" className={cn(buttonVariants(), 'px-6')}>
+                Submit an event
+              </Link>
+              {nextEvents.length > 0 && (
+                <Link href="/events" className="text-sm font-semibold text-brand-teal hover:underline">
+                  All upcoming events →
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </section>

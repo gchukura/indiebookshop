@@ -12,6 +12,7 @@ import { getBookstoreSlug } from './slug';
 import { makeCityKey } from './location-key';
 import { daysSinceEpoch, pickFeaturedBookstores } from './featured';
 import { nearestBookstores, type NearbyShop } from './nearby';
+import { upcomingEvents } from './events';
 
 // In-memory cache for the *processed* result (avoids re-processing on warm Lambda instances)
 let processedDataCache: ProcessedBookstoreData | null = null;
@@ -41,17 +42,15 @@ const getCachedEvents = unstable_cache(async (): Promise<Event[]> => getEventsFr
   revalidate: 3600,
 });
 
-/**
- * A shop's events from today on, soonest first. Events whose date can't be
- * parsed are kept (listed last) rather than hidden.
- */
+/** A shop's events from today on, soonest first (undated ones last). */
 export async function getUpcomingEvents(bookshopId: number): Promise<Event[]> {
   const events = (await getCachedEvents()).filter(e => e.bookshopId === bookshopId);
-  const today = new Date().toISOString().slice(0, 10);
-  const time = (e: Event) => Date.parse(e.date);
-  return events
-    .filter(e => Number.isNaN(time(e)) || new Date(time(e)).toISOString().slice(0, 10) >= today)
-    .sort((a, b) => (time(a) || Infinity) - (time(b) || Infinity));
+  return upcomingEvents(events, new Date().toISOString().slice(0, 10));
+}
+
+/** Every shop's events from today on, soonest first. */
+export async function getAllUpcomingEvents(): Promise<Event[]> {
+  return upcomingEvents(await getCachedEvents(), new Date().toISOString().slice(0, 10));
 }
 
 /** The nearest shops by distance (miles), or same-state shops when the shop has no coordinates. */
