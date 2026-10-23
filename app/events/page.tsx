@@ -8,7 +8,7 @@ import { getAllUpcomingEvents, getProcessedBookstoreData } from '@/lib/data/book
 import { eventJsonLd, formatEventDay, groupEventsByDay } from '@/lib/data/events';
 import { getBookstoreSlug } from '@/lib/data/slug';
 import { getStateAbbrev } from '@/lib/state-utils';
-import { BRAND } from '@/lib/seo';
+import { BRAND, DEFAULT_OG_IMAGE } from '@/lib/seo';
 
 export const revalidate = 3600;
 
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: { absolute: `Bookshop Events | ${BRAND}` },
   description: DESCRIPTION,
   alternates: { canonical: 'https://www.indiebookshop.com/events' },
-  openGraph: { title: 'Bookshop Events | IndieBookShop', description: DESCRIPTION, url: 'https://www.indiebookshop.com/events', type: 'website' },
+  openGraph: { title: 'Bookshop Events | IndieBookShop', description: DESCRIPTION, url: 'https://www.indiebookshop.com/events', type: 'website', images: [DEFAULT_OG_IMAGE] },
 };
 
 export default async function EventsPage() {

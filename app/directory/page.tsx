@@ -4,7 +4,7 @@ import { getFeatureNames } from '@/lib/data/locations';
 import { getMapboxToken } from '@/lib/mapbox';
 import { getFeatureIndex } from '@/lib/data/features';
 import { getStateAbbrev, getStateDisplayName } from '@/lib/state-utils';
-import { BRAND, fitTitle } from '@/lib/seo';
+import { BRAND, DEFAULT_OG_IMAGE, fitTitle } from '@/lib/seo';
 import DirectoryClient, { DirectoryBookstore } from './DirectoryClient';
 
 type SearchParams = {
@@ -39,6 +39,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       title: { absolute: fitTitle([`Independent Bookshops in ${city}, ${stateName} | ${BRAND}`, `Bookshops in ${city}, ${stateAbbrev} | ${BRAND}`, `Bookshops in ${city}, ${stateAbbrev}`]) },
       description: `Find independent bookstores in ${city}, ${state}. Browse local bookshops with events, author signings, and curated selections.`,
       openGraph: {
+        images: [DEFAULT_OG_IMAGE],
         title: `Indie Bookshops in ${city}, ${state}`,
         description: `Discover ${city}'s best independent bookstores. Support local businesses and find your next great read.`,
         url: `https://www.indiebookshop.com/directory?state=${state}&city=${city}`,
@@ -52,6 +53,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       title: { absolute: fitTitle([`Independent Bookshops in ${county}, ${stateName} | ${BRAND}`, `Bookshops in ${county}, ${stateAbbrev} | ${BRAND}`, `Bookshops in ${county}, ${stateAbbrev}`]) },
       description: `Directory of independent bookstores in ${county}, ${state}. Find local bookshops near you.`,
       openGraph: {
+        images: [DEFAULT_OG_IMAGE],
         title: `Indie Bookshops in ${county}, ${state}`,
         description: `Browse independent bookstores throughout ${county}, ${state}.`,
         url: `https://www.indiebookshop.com/directory?state=${state}&county=${county}`,
@@ -65,6 +67,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       title: { absolute: fitTitle([`Independent Bookshops in ${stateName} | ${BRAND}`, `Bookshops in ${stateName} | ${BRAND}`]) },
       description: `Comprehensive directory of independent bookstores in ${state}. Find local bookshops across ${state} with events, signings, and unique book selections.`,
       openGraph: {
+        images: [DEFAULT_OG_IMAGE],
         title: `Indie Bookshops in ${state}`,
         description: `Discover independent bookstores throughout ${state}. Support local businesses and find your next great read.`,
         url: `https://www.indiebookshop.com/directory?state=${state}`,
@@ -77,6 +80,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     title: { absolute: `Bookshop Directory | ${BRAND}` },
     description: 'Browse our complete directory of 3,000+ independent bookshops across America. Find indie bookstores by location, features, and more.',
     openGraph: {
+      images: [DEFAULT_OG_IMAGE],
       title: 'Independent Bookshop Directory',
       description: 'Discover 3,000+ independent bookstores across America. Filter by location and features.',
       url: 'https://www.indiebookshop.com/directory',

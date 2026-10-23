@@ -8,7 +8,6 @@ import { getMapboxToken } from '@/lib/mapbox';
 import { BRAND, fitTitle } from '@/lib/seo';
 import { getStateAbbrev } from '@/lib/state-utils';
 import { getFeatureIndex } from '@/lib/data/features';
-import { getBookshopPhotoUrl } from '@/lib/bookshop-image';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -82,11 +81,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description = lastSpace > 280 ? truncated.substring(0, lastSpace) + '...' : truncated + '...';
     }
 
-    // The shop's own photo only (never a placeholder), else the site default
-    const photoUrl = getBookshopPhotoUrl(bookstore);
-    const ogImage = photoUrl
-      ? [{ url: photoUrl, alt: `${bookstore.name} in ${bookstore.city}, ${bookstore.state}` }]
-      : [{ url: 'https://www.indiebookshop.com/og-default.jpg', width: 1200, height: 630, alt: 'IndiebookShop.com - Discover Independent Bookstores' }];
+    // Share images come from ./opengraph-image.tsx (file convention)
 
     return {
       title: {
@@ -101,7 +96,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       openGraph: {
         title: `${bookstore.name} - Indie Bookshop`,
         description: description.slice(0, 160),
-        images: ogImage,
         type: 'website',
         url: `https://www.indiebookshop.com/bookshop/${decodedSlug}`,
       },
@@ -109,7 +103,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         card: 'summary_large_image',
         title: `${bookstore.name} - Indie Bookshop`,
         description: description.slice(0, 160),
-        images: ogImage,
       },
       alternates: {
         canonical: `https://www.indiebookshop.com/bookshop/${decodedSlug}`,

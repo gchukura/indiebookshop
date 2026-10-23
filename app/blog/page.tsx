@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import { formatPostDate, getAllPosts } from '@/lib/blog';
-import { BRAND } from '@/lib/seo';
+import { BRAND, DEFAULT_OG_IMAGE } from '@/lib/seo';
 
 const DESCRIPTION = 'Guides and stories about independent bookshops across the United States, and how to get the most out of the directory.';
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: { absolute: `Blog | ${BRAND}` },
   description: DESCRIPTION,
   alternates: { canonical: 'https://www.indiebookshop.com/blog' },
-  openGraph: { title: 'Blog | IndieBookShop', description: DESCRIPTION, url: 'https://www.indiebookshop.com/blog', type: 'website' },
+  openGraph: { title: 'Blog | IndieBookShop', description: DESCRIPTION, url: 'https://www.indiebookshop.com/blog', type: 'website', images: [DEFAULT_OG_IMAGE] },
 };
 
 export default async function BlogIndexPage() {
