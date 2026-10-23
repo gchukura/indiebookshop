@@ -32,3 +32,6 @@ next-env.d.ts
 
 # TypeScript incremental build info
 *.tsbuildinfo
+
+# Feature tag review files (scripts/tag-features.ts)
+features-review*.csv
