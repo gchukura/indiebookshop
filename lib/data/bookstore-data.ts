@@ -4,13 +4,14 @@
 
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
-import { getBookstoresFromSheets, getFeaturesFromSheets } from '@/lib/google-sheets-client';
-import { Bookstore, Feature } from '@/shared/schema';
+import { getBookstoresFromSheets, getEventsFromSheets, getFeaturesFromSheets } from '@/lib/google-sheets-client';
+import { Bookstore, Event, Feature } from '@/shared/schema';
 import { getStateAbbrev, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
 import { safeMapGet, safeMapKeys } from './cache-utils';
 import { getBookstoreSlug } from './slug';
 import { makeCityKey } from './location-key';
 import { daysSinceEpoch, pickFeaturedBookstores } from './featured';
+import { nearestBookstores, type NearbyShop } from './nearby';
 
 // In-memory cache for the *processed* result (avoids re-processing on warm Lambda instances)
 let processedDataCache: ProcessedBookstoreData | null = null;
@@ -34,6 +35,30 @@ export const getFeatures = unstable_cache(
   ['features'],
   { revalidate: 3600 }
 );
+
+/** Events tab, cached so detail pages don't each read the Sheet. */
+const getCachedEvents = unstable_cache(async (): Promise<Event[]> => getEventsFromSheets(), ['events'], {
+  revalidate: 3600,
+});
+
+/**
+ * A shop's events from today on, soonest first. Events whose date can't be
+ * parsed are kept (listed last) rather than hidden.
+ */
+export async function getUpcomingEvents(bookshopId: number): Promise<Event[]> {
+  const events = (await getCachedEvents()).filter(e => e.bookshopId === bookshopId);
+  const today = new Date().toISOString().slice(0, 10);
+  const time = (e: Event) => Date.parse(e.date);
+  return events
+    .filter(e => Number.isNaN(time(e)) || new Date(time(e)).toISOString().slice(0, 10) >= today)
+    .sort((a, b) => (time(a) || Infinity) - (time(b) || Infinity));
+}
+
+/** The nearest shops by distance (miles), or same-state shops when the shop has no coordinates. */
+export async function getNearbyBookstores(bookstore: Bookstore, limit: number = 6): Promise<NearbyShop[]> {
+  const data = await getProcessedBookstoreData();
+  return nearestBookstores(data.all, bookstore, limit);
+}
 
 /**
  * Full bookstore data for detail pages — all columns included.
@@ -380,39 +405,6 @@ export async function getFeaturedBookstores(count: number = 8): Promise<Bookstor
 export async function getPopularBookstores(limit: number = 15): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
   return data.popular.slice(0, limit);
-}
-
-/**
- * Get related bookstores (same city > same state > random)
- */
-export async function getRelatedBookstores(bookstore: Bookstore, limit: number = 6): Promise<Bookstore[]> {
-  const data = await getProcessedBookstoreData();
-
-  // Try same city first
-  if (bookstore.city && bookstore.state) {
-    const cityBookstores = (safeMapGet(data.byCity, makeCityKey(bookstore.city, bookstore.state)) || [])
-      .filter(b => b.id !== bookstore.id);
-
-    if (cityBookstores.length >= 3) {
-      return cityBookstores.slice(0, limit);
-    }
-  }
-
-  // Fall back to same state
-  if (bookstore.state) {
-    const stateAbbrev = getStateAbbrev(bookstore.state);
-    const stateBookstores = (safeMapGet(data.byState, stateAbbrev.toLowerCase()) || [])
-      .filter(b => b.id !== bookstore.id);
-
-    if (stateBookstores.length > 0) {
-      return stateBookstores.slice(0, limit);
-    }
-  }
-
-  // Last resort: today's featured shops
-  return pickFeaturedBookstores(data.all, limit + 1, daysSinceEpoch())
-    .filter(b => b.id !== bookstore.id)
-    .slice(0, limit);
 }
 
 /**
