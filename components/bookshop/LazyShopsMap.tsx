@@ -10,7 +10,7 @@ const ShopsMap = dynamic(() => import('./ShopsMap'), { ssr: false });
  * Reserves space for the shops map and loads Mapbox only once the box scrolls
  * near the viewport, so pages that are never scrolled don't pay for it.
  */
-export default function LazyShopsMap({ shops, title }: { shops: MapShop[]; title: string }) {
+export default function LazyShopsMap({ shops, title, mapboxToken }: { shops: MapShop[]; title: string; mapboxToken: string }) {
   const boxRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -40,7 +40,7 @@ export default function LazyShopsMap({ shops, title }: { shops: MapShop[]; title
       className="w-full h-72 md:h-96 rounded-lg overflow-hidden bg-[#F7F3E8] border border-gray-200"
     >
       {visible ? (
-        <ShopsMap shops={shops} />
+        <ShopsMap shops={shops} mapboxToken={mapboxToken} />
       ) : (
         <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">Loading map…</div>
       )}

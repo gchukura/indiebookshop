@@ -25,7 +25,7 @@ Live at https://www.indiebookshop.com.
 | `/submit`, `/submit-event`, `/contact` | Forms (email via SendGrid) |
 | `/sitemap.xml`, `/robots.txt` | Generated from the data |
 
-API routes live in `app/api/`: `bookstores/filter`, `bookstores/submit`, `bookstores/[id]/events`, `events`, `contact`, `newsletter-signup`, `features`, and `config`.
+API routes live in `app/api/`: `bookstores/filter`, `bookstores/submit`, `bookstores/[id]/events`, `events`, `contact`, `newsletter-signup`, and `features`.
 
 ## Setup
 

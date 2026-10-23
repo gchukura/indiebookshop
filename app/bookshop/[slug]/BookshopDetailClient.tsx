@@ -7,15 +7,23 @@ import { Bookstore } from '@/shared/schema';
 import { getStateAbbrev, getStateDisplayName } from '@/lib/state-utils';
 import { cityPath, hasStatePage, statePath } from '@/lib/data/location-slugs';
 import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/StructuredData';
-import SingleLocationMap from '@/components/SingleLocationMap';
+import dynamic from 'next/dynamic';
+
+// mapbox-gl is ~1.6 MB; load it only on the client, after the page renders.
+// (A static import also pulled it into every page that prefetches a shop link.)
+const SingleLocationMap = dynamic(() => import('@/components/SingleLocationMap'), { ssr: false });
 import { getBookshopImageUrl, getBookshopPhotoUrl, getPlaceholderUrl } from '@/lib/bookshop-image';
 import BookshopImage from '@/components/BookshopImage';
 import { getBookstoreDescription } from '@/lib/data/bookstore-content';
+import type { FeatureLink } from '@/lib/data/feature-index';
+import FeatureChips from '@/components/bookshop/FeatureChips';
 
 type BookshopDetailClientProps = {
   bookstore: Bookstore;
   canonicalSlug: string;
   relatedBookshops?: Bookstore[];
+  mapboxToken: string;
+  featureLinks: Record<number, FeatureLink>;
 };
 
 interface GoogleReview {
@@ -25,7 +33,7 @@ interface GoogleReview {
   time: number;
 }
 
-export default function BookshopDetailClient({ bookstore, canonicalSlug, relatedBookshops = [] }: BookshopDetailClientProps) {
+export default function BookshopDetailClient({ bookstore, canonicalSlug, relatedBookshops = [], mapboxToken, featureLinks }: BookshopDetailClientProps) {
   // Real descriptions only; the template sentence is for meta tags
   const description = getBookstoreDescription(bookstore);
   const displayDescription = description.source === 'template' ? undefined : description.text;
@@ -133,6 +141,8 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                   {bookstore.googleReviewCount && <span className="text-gray-600 ml-1">({bookstore.googleReviewCount.toLocaleString()} reviews)</span>}
                 </div>
               )}
+
+              <FeatureChips featureIds={bookstore.featureIds} links={featureLinks} className="mb-4" />
 
               {/* Description */}
               {displayDescription && (
@@ -281,6 +291,7 @@ export default function BookshopDetailClient({ bookstore, canonicalSlug, related
                   <SingleLocationMap
                     latitude={bookstore.latitude}
                     longitude={bookstore.longitude}
+                    mapboxToken={mapboxToken}
                   />
                 </div>
                 <p className="text-sm text-gray-600 mt-2">

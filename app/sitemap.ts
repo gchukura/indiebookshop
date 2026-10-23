@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { getProcessedBookstoreData } from '@/lib/data/bookstore-data';
 import { getBookstoreSlug } from '@/lib/data/slug';
 import { getLocationIndex } from '@/lib/data/locations';
+import { getFeatureIndex } from '@/lib/data/features';
 
 /**
  * Generate comprehensive sitemap.xml for SEO
@@ -95,6 +96,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       s.counties.map(c => page(`/bookshops/${s.slug}/county/${c.slug}`, 0.6))
     );
 
+    // Feature pages (/bookshops/features/...) and state + feature pages
+    const { index: featureIndex } = await getFeatureIndex();
+    const featurePages: MetadataRoute.Sitemap = [
+      page('/bookshops/features', 0.7),
+      ...featureIndex.features.map(f => page(`/bookshops/features/${f.slug}`, 0.7)),
+      ...Object.entries(featureIndex.byState).flatMap(([state, features]) =>
+        Object.keys(features).map(feature => page(`/bookshops/${state}/features/${feature}`, 0.6))
+      ),
+    ];
+
     // ===========================================
     // BOOKSHOP DETAIL PAGES (deduplicated by slug)
     // ===========================================
@@ -121,13 +132,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // COMBINE ALL PAGES
     // ===========================================
 
-    console.log(`[Sitemap] Generated: ${staticPages.length} static, ${statePages.length} state, ${cityPages.length} city, ${countyPages.length} county, ${bookshopPages.length} bookshops`);
+    console.log(`[Sitemap] Generated: ${staticPages.length} static, ${statePages.length} state, ${cityPages.length} city, ${countyPages.length} county, ${featurePages.length} feature, ${bookshopPages.length} bookshops`);
 
     return [
       ...staticPages,
       ...statePages,
       ...cityPages,
       ...countyPages,
+      ...featurePages,
       ...bookshopPages,
     ];
   } catch (error) {

@@ -20,7 +20,7 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 |---|---|---|
 | `GOOGLE_SERVICE_ACCOUNT_CREDENTIALS` | `lib/google-sheets-client.ts` — single-line JSON with `client_email`, `private_key` | yes |
 | `GOOGLE_SHEETS_ID` | Sheet id (falls back to a hard-coded id) | recommended |
-| `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` (or `MAPBOX_ACCESS_TOKEN`) | `/api/config`, `DirectoryClient`, `SingleLocationMap` | for maps |
+| `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` (or `MAPBOX_ACCESS_TOKEN`) | `lib/mapbox.ts#getMapboxToken()`, read on the server and passed as a prop to every map | for maps |
 | `SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL` | contact, submit, events emails | for forms |
 | `R2_PUBLIC_URL` | `next.config.mjs` rewrite `/photos/*` → R2 bucket (build time) | for photos |
 | `GOOGLE_PLACES_API_KEY`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | `scripts/fetch-google-photos.mjs` only (run locally) | no |
@@ -30,8 +30,9 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 | Route | File | Notes |
 |---|---|---|
 | `/` | `app/page.tsx` | server, `revalidate=3600`; featured, popular, browse-by-state |
-| `/directory` | `app/directory/page.tsx` + `DirectoryClient.tsx` | server page reads `?state&city&county&features`, client list + Mapbox map |
+| `/directory` | `app/directory/page.tsx` + `DirectoryClient.tsx` | server page sends every shop (slim fields + `featureIds`), the features list, and the Mapbox token; the client filters by `?state&city&county&features` (features = shops with all selected) and keeps the URL in sync with `history.replaceState` (not `router.replace`, which would refetch the payload). The map (`components/directory/DirectoryMap.tsx`) is `next/dynamic` and loads only when its area is visible (desktop, or after tapping Map on mobile) |
 | `/bookshops`, `/bookshops/[state]`, `/bookshops/[state]/[city]`, `/bookshops/[state]/county/[county]` | `app/bookshops/**/page.tsx` | server-rendered location pages (US states + DC only), all params via `generateStaticParams`, `dynamicParams=false`, `revalidate=3600`. Data from `getLocationIndex()` (`lib/data/locations.ts` → `lib/data/location-index.ts`); slugs from `lib/data/location-slugs.ts`; intro text from `lib/data/location-content.ts`. UI in `components/location/` and `components/bookshop/` (`BookshopCard`, `LazyShopsMap`) |
+| `/bookshops/features`, `/bookshops/features/[feature]`, `/bookshops/[state]/features/[feature]` | `app/bookshops/features/**`, `app/bookshops/[state]/features/[feature]/page.tsx` | feature pages from `getFeatureIndex()` (`lib/data/features.ts` → `lib/data/feature-index.ts`): a feature gets a page at ≥3 US shops, a state + feature page at ≥3 shops in that state. Same components as location pages; the feature page groups shops by state with a jump list. `dynamicParams=false`, so a new feature/state/city only gets a page on the next deploy |
 | `/bookshop/[slug]` | `app/bookshop/[slug]/page.tsx` + `BookshopDetailClient.tsx` | all slugs via `generateStaticParams`, `dynamicParams=true`, `revalidate=86400`; non-canonical slug → `permanentRedirect`. Breadcrumbs link to the `/bookshops` pages |
 | `/about`, `/blog` | static server pages | blog is a placeholder |
 | `/events` | `app/events/page.tsx` (`'use client'`) + `EventsClient.tsx` | fetches `GET /api/events` and `/api/bookstores`, neither exists (only `POST /api/events`) |
@@ -39,7 +40,7 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 | `/sitemap.xml`, `/robots.txt` | `app/sitemap.ts`, `app/robots.ts` | static pages, `/bookshops` pages (state 0.8 / city 0.7 / county 0.6), and every shop |
 | `not-found`, `error`, `loading` | `app/*.tsx` | |
 
-API (`app/api/`): `bookstores/filter` (GET, listing data), `bookstores/submit` (POST → SendGrid), `bookstores/[id]/events` (GET), `events` (POST → SendGrid), `contact` (POST → `lib/contact-email.ts`), `newsletter-signup` (POST → appends to Sheet "Newsletter" tab), `features` (GET), `config` (GET Mapbox token).
+API (`app/api/`): `bookstores/filter` (GET, listing data), `bookstores/submit` (POST → SendGrid), `bookstores/[id]/events` (GET), `events` (POST → SendGrid), `contact` (POST → `lib/contact-email.ts`), `newsletter-signup` (POST → appends to Sheet "Newsletter" tab), `features` (GET). (`/api/config` was removed — maps get the token as a prop.)
 
 Redirects: `next.config.mjs` maps `/bookstore/:id`, `/submit-bookshop`, `/directory/category/...`. The old `/directory/state/:state`, `/directory/city/[:state/]:city`, `/directory/county/:state/:county` URLs are route handlers in `app/directory/{state,city,county}/` (308 to the `/bookshops` page, via `lib/data/legacy-location-redirect.ts`), because they hold raw names like `CA` or `San Francisco`. `/directory?state=` is not redirected — the directory's own filters use it. `vercel.json` redirects apex → `www`.
 
@@ -65,7 +66,7 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 `Bookstore` is a plain TypeScript type in `shared/schema.ts`. `Feature`, `Event`, and zod `insert*Schema`s live there too. Fields and their Sheet columns (`Bookstores` tab):
 - Core: `id`, `name`, `slug`, `street`, `city`, `state`, `zip`, `county`, `description`, `imageUrl` (`imageurl`), `photoAttribution`, `photoAttributionUrl`, `website`, `phone`, `live`
 - Location: `latitude`/`longitude` — strings, from `lat_numeric`/`lng_numeric`, else `latitude`/`longitude`
-- `featureIds` (`feature_ids`) → ids in the `Features` tab (id, name, slug, description, keywords, icon)
+- `featureIds` (`feature_ids`, JSON like `[1,2]`) → ids in the `Features` tab (only `id`, `name` columns exist; slugs come from the name). Tags were first proposed by `scripts/tag-features.ts` (from Google types, descriptions, reviews) and reviewed before writing. Chips (`components/bookshop/FeatureChips.tsx`) show on cards and detail pages, linking to the feature page when one exists
 - Google Places enrichment: `googlePlaceId`, `googleRating` (string), `googleReviewCount`, `googleDescription`, `googleReviews` (JSON), `googlePriceLevel`, `googleDataUpdatedAt`, `googleMapsUrl`, `googleTypes` (JSON), `formattedAddressGoogle`, `businessStatus`, `formattedPhone`, `websiteVerified`, `contactDataFetchedAt`
 - Hours: `openingHoursJson` from `opening_hours_json` (`{ open_now, weekday_text[], periods[] }`)
 - AI copy: `aiGeneratedDescription`, `descriptionSource`, `descriptionGeneratedAt`, `descriptionValidated`
@@ -91,6 +92,6 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - Import data through `@/lib/data/bookstore-data`, never call the Sheets client from pages directly (except events/features until they get cached getters).
 - Path aliases: `@/*` → repo root, `@shared/*` → `shared/`.
 - Once brand tokens exist in `globals.css`/`tailwind.config.ts`, no new hard-coded hex colors. Use the token classes.
-- Mapbox/`mapbox-gl` is heavy, so load map components with `next/dynamic({ ssr: false })`.
+- Mapbox/`mapbox-gl` is ~1.6 MB, so load map components with `next/dynamic({ ssr: false })` — never a static import, or it also loads on every page that prefetches a link to that route.
 - Keep the 2 MB `unstable_cache` limit in mind for anything you cache.
 - Before you finish, run `npm run check`, `npm test`, and `npm run build`.

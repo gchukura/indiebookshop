@@ -4,6 +4,8 @@ import { getBookstoreBySlugFull, getBookstoreById, getAllBookstores, getRelatedB
 import { getBookstoreSlug } from '@/lib/data/slug';
 import { getBookstoreDescription } from '@/lib/data/bookstore-content';
 import BookshopDetailClient from './BookshopDetailClient';
+import { getMapboxToken } from '@/lib/mapbox';
+import { getFeatureIndex } from '@/lib/data/features';
 import { getBookshopPhotoUrl } from '@/lib/bookshop-image';
 
 type Props = {
@@ -167,9 +169,21 @@ export default async function BookshopPage({ params }: Props) {
     }
 
     // Fetch related bookshops for internal linking
-    const relatedBookshops = await getRelatedBookstores(bookstore, 6);
+    const [relatedBookshops, featureLinks] = await Promise.all([
+      getRelatedBookstores(bookstore, 6),
+      // Chips are optional; a failed features read shouldn't fail the page
+      getFeatureIndex().then(f => f.links).catch(() => ({})),
+    ]);
 
-    return <BookshopDetailClient bookstore={bookstore} canonicalSlug={canonicalSlug} relatedBookshops={relatedBookshops} />;
+    return (
+      <BookshopDetailClient
+        bookstore={bookstore}
+        canonicalSlug={canonicalSlug}
+        relatedBookshops={relatedBookshops}
+        mapboxToken={getMapboxToken()}
+        featureLinks={featureLinks}
+      />
+    );
   } catch (error) {
     // Let Next's redirect/notFound signals through instead of turning them into a 404
     unstable_rethrow(error);

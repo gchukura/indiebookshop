@@ -5,6 +5,7 @@ import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import LocationShops from '@/components/location/LocationShops';
 import PlaceLinks from '@/components/location/PlaceLinks';
 import { getFeatureNames, getLocationIndex } from '@/lib/data/locations';
+import { getFeatureIndex } from '@/lib/data/features';
 import { stateIntro, toMetaDescription } from '@/lib/data/location-content';
 
 export const revalidate = 3600;
@@ -21,8 +22,9 @@ async function load(params: Props['params']) {
   const { state: stateSlug } = await params;
   const state = (await getLocationIndex()).statesBySlug[stateSlug];
   if (!state) notFound();
-  const { features, names } = await getFeatureNames();
-  return { state, featureNames: names, intro: stateIntro(state, features) };
+  const [{ features }, { index, links }] = await Promise.all([getFeatureNames(), getFeatureIndex()]);
+  const stateFeatures = Object.values(index.byState[state.slug] ?? {}).sort((a, b) => b.shops.length - a.shops.length);
+  return { state, featureLinks: links, stateFeatures, intro: stateIntro(state, features) };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -39,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function StatePage({ params }: Props) {
-  const { state, featureNames, intro } = await load(params);
+  const { state, featureLinks, stateFeatures, intro } = await load(params);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -67,7 +69,16 @@ export default async function StatePage({ params }: Props) {
           }))}
         />
 
-        <LocationShops placeName={state.name} shops={state.shops} featureNames={featureNames} />
+        <PlaceLinks
+          title={`Bookshops in ${state.name} by feature`}
+          links={stateFeatures.map(f => ({
+            name: f.feature.name,
+            href: `/bookshops/${state.slug}/features/${f.feature.slug}`,
+            count: f.shops.length,
+          }))}
+        />
+
+        <LocationShops placeName={state.name} shops={state.shops} featureLinks={featureLinks} />
 
         {state.counties.length > 0 && (
           <section className="bg-white rounded-lg shadow-md p-6">

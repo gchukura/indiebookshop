@@ -9,7 +9,7 @@ export type MapShop = { name: string; slug: string; lat: number; lng: number };
 const TEAL = '#2A6B7C';
 
 /** Mapbox map with one dot per shop, fitted to the shops. Loaded only via LazyShopsMap. */
-export default function ShopsMap({ shops }: { shops: MapShop[] }) {
+export default function ShopsMap({ shops, mapboxToken }: { shops: MapShop[]; mapboxToken: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -20,12 +20,10 @@ export default function ShopsMap({ shops }: { shops: MapShop[] }) {
 
     (async () => {
       try {
-        const res = await fetch('/api/config');
-        const token = res.ok ? (await res.json()).mapboxAccessToken : null;
-        if (!token) throw new Error('Mapbox token unavailable');
+        if (!mapboxToken) throw new Error('Mapbox token unavailable');
         if (cancelled || !containerRef.current) return;
 
-        mapboxgl.accessToken = token;
+        mapboxgl.accessToken = mapboxToken;
         const bounds = new mapboxgl.LngLatBounds();
         shops.forEach(s => bounds.extend([s.lng, s.lat]));
 
@@ -90,7 +88,7 @@ export default function ShopsMap({ shops }: { shops: MapShop[] }) {
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, [shops]);
+  }, [shops, mapboxToken]);
 
   if (error) {
     return <div className="w-full h-full flex items-center justify-center text-sm text-gray-500">{error}</div>;
