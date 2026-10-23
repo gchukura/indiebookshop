@@ -42,6 +42,8 @@ export default {
           orange: {
             DEFAULT: "rgb(var(--brand-orange) / <alpha-value>)",
             hover: "rgb(var(--brand-orange-hover) / <alpha-value>)",
+            strong: "rgb(var(--brand-orange-strong) / <alpha-value>)",
+            "strong-hover": "rgb(var(--brand-orange-strong-hover) / <alpha-value>)",
           },
           cream: "rgb(var(--brand-cream) / <alpha-value>)",
         },

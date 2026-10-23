@@ -6,6 +6,8 @@ interface LogoProps {
   height?: number;
   showDotCom?: boolean;
   className?: string;
+  /** Crop the empty margins so the wordmark stays readable at small heights (e.g. the 56px phone header). */
+  tight?: boolean;
 }
 
 // Logo color constants - matching the website theme
@@ -16,22 +18,25 @@ const LOGO_COLORS = {
   GRAY: COLORS.dark,           // Dark text color
 };
 
-const Logo = ({ width = 200, height = 60, showDotCom = true, className }: LogoProps) => {
-  // Calculate display dimensions while maintaining proportions
-  const originalAspectRatio = 600 / 200; // Increased width to accommodate larger text
-  const calculatedWidth = height * originalAspectRatio;
+// The artwork's bounding box inside the 600×200 canvas
+const TIGHT_VIEWBOX = { x: 50, y: 25, width: 465, height: 100 };
 
-  // Scale factor for fonts and positioning - keeps original SVG proportions
-  const scaleFactor = height / 60;
+const Logo = ({ height = 60, showDotCom = true, className, tight = false }: LogoProps) => {
+  // Calculate display dimensions while maintaining proportions
+  const viewBox = tight ? TIGHT_VIEWBOX : { x: 0, y: 0, width: 600, height: 200 };
+  const calculatedWidth = height * (viewBox.width / viewBox.height);
+
 
   return (
     <div style={{ width: calculatedWidth, height }} className={`flex items-center ${className || ''}`}>
       <svg
         width={calculatedWidth}
         height={height}
-        viewBox="0 0 600 200"
+        viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
         xmlns="http://www.w3.org/2000/svg"
         className="mr-2"
+        aria-hidden="true"
+        focusable="false"
       >
         {/* Book stack - keeping original proportions */}
         <g transform="translate(55, 20)">

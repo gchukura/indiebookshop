@@ -12,7 +12,7 @@ const buttonVariants = cva(
         // Brand teal pill — the primary call to action
         default: "rounded-full bg-primary text-primary-foreground hover:bg-brand-teal-hover",
         // Brand orange pill — secondary emphasis CTAs
-        accent: "rounded-full bg-accent text-accent-foreground hover:bg-brand-orange-hover",
+        accent: "rounded-full bg-accent text-accent-foreground hover:bg-brand-orange-strong-hover",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -23,10 +23,10 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
+        default: "h-11 px-4 py-2",
         sm: "h-9 px-3",
         lg: "h-11 px-8",
-        icon: "h-10 w-10",
+        icon: "h-11 w-11",
       },
     },
     defaultVariants: {

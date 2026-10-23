@@ -281,13 +281,13 @@ export default function ContactPage() {
                     className="h-40 font-sans border border-gray-300 rounded-lg focus:border-brand-teal focus:ring-brand-teal focus:ring-2 focus:ring-offset-0 resize-none" 
                     required
                   />
-                  <p className="text-xs text-gray-500 font-sans">
+                  <p className="text-sm text-gray-500 font-sans">
                     Please provide as much detail as possible to help us respond effectively.
                   </p>
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-4 md:p-6">
-                  <p className="text-xs md:text-sm text-gray-600 font-sans leading-relaxed">
+                  <p className="text-sm text-gray-600 font-sans leading-relaxed">
                     By submitting this form, you agree that we may use your email address to respond to your inquiry. 
                     We will never share your information with third parties or use it for marketing purposes.
                   </p>
@@ -328,7 +328,7 @@ export default function ContactPage() {
                     </p>
                     <a 
                       href="mailto:info@bluestonebrands.com?subject=IndieBookShop Directory Inquiry" 
-                      className="font-sans text-brand-teal font-semibold hover:text-brand-orange underline text-sm md:text-base break-all transition-colors"
+                      className="inline-flex min-h-[44px] items-center font-sans text-brand-teal font-semibold hover:text-brand-orange underline text-sm md:text-base break-all transition-colors"
                     >
                       info@bluestonebrands.com
                     </a>

@@ -134,7 +134,8 @@ export default async function DirectoryPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="h-full min-h-[calc(100vh-5rem)] min-h-[300px] flex flex-col">
+    // Phones: the page scrolls (sticky toolbar, list in flow). Desktop: a full-height map with a side panel.
+    <div className="md:h-[calc(100dvh-6rem)] md:min-h-[480px] md:flex md:flex-col">
       {/* H1 for SEO - Hidden but accessible */}
       <h1 className="sr-only">{pageTitle}</h1>
 

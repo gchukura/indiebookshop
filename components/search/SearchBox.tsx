@@ -193,7 +193,7 @@ export default function SearchBox({ variant = 'hero', defaultValue = '', onNavig
             type="button"
             onClick={useLocation}
             disabled={locating}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-teal hover:underline disabled:opacity-60"
+            className="inline-flex min-h-[44px] items-center gap-1.5 text-sm font-semibold text-brand-teal hover:underline disabled:opacity-60"
           >
             <Crosshair className="w-4 h-4" aria-hidden="true" />
             {locating ? 'Finding you…' : 'Use my location'}

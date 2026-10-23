@@ -116,11 +116,11 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
             {/* Navigation Links */}
             <div>
               <h3 className="font-serif font-bold text-white mb-4 text-sm md:text-base">Directory</h3>
-              <ul className="space-y-2">
+              <ul>
                 <li>
                   <Link
                     href="/"
-                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                   >
                     Home
                   </Link>
@@ -128,7 +128,7 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
                 <li>
                   <Link
                     href="/directory"
-                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                   >
                     Browse All Bookshops
                   </Link>
@@ -136,7 +136,7 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
                 <li>
                   <Link
                     href="/bookshops"
-                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                   >
                     Bookshops by State
                   </Link>
@@ -144,7 +144,7 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
                 <li>
                   <Link
                     href="/events"
-                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                   >
                     Events
                   </Link>
@@ -152,7 +152,7 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
                 <li>
                   <Link
                     href="/submit-bookshop"
-                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                   >
                     Submit a Bookshop
                   </Link>
@@ -162,11 +162,11 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
 
             <div>
               <h3 className="font-serif font-bold text-white mb-4 text-sm md:text-base">About</h3>
-              <ul className="space-y-2">
+              <ul>
                 <li>
                   <Link
                     href="/about"
-                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                   >
                     About Us
                   </Link>
@@ -174,7 +174,7 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
                 <li>
                   <Link
                     href="/contact"
-                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                   >
                     Contact
                   </Link>
@@ -183,7 +183,7 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
                   <li>
                     <Link
                       href="/blog"
-                      className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                      className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                     >
                       Blog
                     </Link>
@@ -194,11 +194,11 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
 
             <div>
               <h3 className="font-serif font-bold text-white mb-4 text-sm md:text-base">Resources</h3>
-              <ul className="space-y-2">
+              <ul>
                 <li>
                   <Link
                     href="/submit-event"
-                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                   >
                     Submit an Event
                   </Link>
@@ -208,7 +208,7 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
                     href="https://www.google.com/maps"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                   >
                     Find on Google Maps
                   </a>
@@ -218,11 +218,11 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
 
             <div>
               <h3 className="font-serif font-bold text-white mb-4 text-sm md:text-base">Connect</h3>
-              <ul className="space-y-2">
+              <ul>
                 <li>
                   <a
                     href="mailto:info@bluestonebrands.com"
-                    className="font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
                   >
                     Email Us
                   </a>

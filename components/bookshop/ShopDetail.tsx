@@ -111,7 +111,7 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
                     href={directionsUrl(b, address)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-brand-teal hover:underline whitespace-nowrap"
+                    className="inline-flex min-h-[44px] items-center gap-1 text-brand-teal hover:underline whitespace-nowrap"
                   >
                     <Navigation className="w-3.5 h-3.5" aria-hidden="true" />
                     Directions
@@ -122,7 +122,7 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
             {phone && (
               <li className="flex items-center gap-2">
                 <Phone className="w-5 h-5 shrink-0 text-brand-teal" aria-hidden="true" />
-                <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} className="text-brand-teal hover:underline">
+                <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} className="inline-flex min-h-[44px] items-center text-brand-teal hover:underline">
                   {phone}
                 </a>
               </li>
@@ -130,7 +130,7 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
             {b.website && (
               <li className="flex items-center gap-2">
                 <Globe className="w-5 h-5 shrink-0 text-brand-teal" aria-hidden="true" />
-                <a href={b.website} target="_blank" rel="noopener nofollow" className="text-brand-teal hover:underline">
+                <a href={b.website} target="_blank" rel="noopener nofollow" className="inline-flex min-h-[44px] items-center text-brand-teal hover:underline">
                   {websiteLabel(b.website)}
                 </a>
               </li>
@@ -138,7 +138,7 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
           </ul>
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
             {b.googleRating && (
-              <a href={reviews.length ? '#reviews' : undefined} className="flex items-center gap-1 text-gray-900">
+              <a href={reviews.length ? '#reviews' : undefined} className="flex min-h-[44px] items-center gap-1 text-gray-900">
                 <Star className="w-5 h-5 text-yellow-600 fill-current" aria-hidden="true" />
                 <span className="font-semibold">{b.googleRating}</span>
                 {b.googleReviewCount ? (
@@ -151,7 +151,7 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
           <p className="mt-4 text-sm">
             <Link
               href={`/submit?edit=${encodeURIComponent(canonicalSlug)}`}
-              className="inline-flex items-center gap-1.5 text-gray-600 hover:text-brand-teal hover:underline"
+              className="inline-flex min-h-[44px] items-center gap-1.5 text-gray-600 hover:text-brand-teal hover:underline"
             >
               <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
               Suggest an edit
@@ -167,6 +167,7 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
                 photos={[
                   {
                     src: photoUrl,
+                    thumbSrc: getBookshopPhotoUrl(b, 'thumb') ?? undefined,
                     alt: `${b.name} in ${b.city}, ${getStateAbbrev(b.state)}`,
                     credit: b.photoAttribution ? { name: b.photoAttribution, url: b.photoAttributionUrl } : null,
                   },
@@ -209,7 +210,7 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
                     href={b.googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-3 inline-block text-sm text-brand-teal hover:underline"
+                    className="mt-2 inline-flex min-h-[44px] items-center text-sm text-brand-teal hover:underline"
                   >
                     View on Google Maps
                   </a>
@@ -232,9 +233,9 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <p className="font-semibold text-brand-brown">{review.author_name}</p>
-                          <p className="text-xs text-gray-500">{reviewDate(review.time)}</p>
+                          <p className="text-sm text-gray-500">{reviewDate(review.time)}</p>
                         </div>
-                        <div className="flex items-center gap-1" aria-label={`${review.rating} out of 5 stars`}>
+                        <div className="flex items-center gap-1" role="img" aria-label={`${review.rating} out of 5 stars`}>
                           {[...Array(5)].map((_, s) => (
                             <Star
                               key={s}
@@ -253,7 +254,7 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
                     href={`https://www.google.com/maps/place/?q=place_id:${b.googlePlaceId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-6 inline-block text-sm font-medium text-brand-teal hover:text-brand-orange"
+                    className="mt-4 inline-flex min-h-[44px] items-center text-sm font-medium text-brand-teal hover:text-brand-orange"
                   >
                     Read all reviews on Google
                   </a>
@@ -293,7 +294,7 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
             </div>
             {cityCrumb && (
               <p className="mt-6 text-sm">
-                <Link href={cityCrumb.href} className="text-brand-teal hover:underline">
+                <Link href={cityCrumb.href} className="inline-flex min-h-[44px] items-center text-brand-teal hover:underline">
                   All bookshops in {b.city} →
                 </Link>
               </p>

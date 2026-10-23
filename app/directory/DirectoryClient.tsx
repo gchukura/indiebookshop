@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Search, MapPin, Loader2, ChevronRight, X, Crosshair } from 'lucide-react';
+import { Search, MapPin, Loader2, ChevronRight, X, Crosshair, SlidersHorizontal } from 'lucide-react';
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import Link from 'next/link';
 import { getStateAbbrev, getStateDisplayName } from '@/lib/state-utils';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,8 @@ const DirectoryMap = dynamic(() => import('@/components/directory/DirectoryMap')
 });
 
 const LOCATION_DELIMITER = '|';
+/** Shops rendered per "Show more"; the map always shows every match. */
+const LIST_PAGE_SIZE = 60;
 
 /** Lean bookstore type for the directory listing — only the fields DirectoryClient needs. */
 export interface DirectoryBookstore {
@@ -128,6 +131,7 @@ export default function DirectoryClient({
   const [selectedBookshopId, setSelectedBookshopId] = useState<number | null>(null);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
   const [mobileView, setMobileView] = useState<'map' | 'list'>(initialFilters.view === 'map' ? 'map' : 'list');
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Load the map once its area is visible: immediately on desktop, after
   // tapping "Map" on mobile (the area is display:none until then).
@@ -253,12 +257,26 @@ export default function DirectoryClient({
     return features.filter((f) => used.has(f.id));
   }, [initialBookstores, features]);
 
-  // Handle pin click
+  // Render the list in pages; the count resets whenever the filtered set changes
+  const listKey = `${searchQuery}|${selectedState}|${selectedCity}|${selectedCounty}|${selectedFeatures.join(',')}|${origin?.lat ?? ''}`;
+  const [listPage, setListPage] = useState({ key: listKey, count: LIST_PAGE_SIZE });
+  const shownCount = listPage.key === listKey ? listPage.count : LIST_PAGE_SIZE;
+  const shownBookstores = filteredBookstores.slice(0, shownCount);
+  const showMore = () => setListPage({ key: listKey, count: shownCount + LIST_PAGE_SIZE });
+
+  // Handle pin click: reveal the shop's card (on phones, switch to the list)
   const handlePinClick = useCallback((bookshopId: number) => {
     setSelectedBookshopId(bookshopId);
 
     if (isPanelCollapsed) {
       setIsPanelCollapsed(false);
+    }
+    if (window.matchMedia('(max-width: 767px)').matches) {
+      setMobileView('list');
+    }
+    const index = filteredBookstores.findIndex(b => b.id === bookshopId);
+    if (index >= shownCount) {
+      setListPage({ key: listKey, count: Math.ceil((index + 1) / LIST_PAGE_SIZE) * LIST_PAGE_SIZE });
     }
 
     setTimeout(() => {
@@ -267,7 +285,7 @@ export default function DirectoryClient({
         cardElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }, 300);
-  }, [isPanelCollapsed]);
+  }, [isPanelCollapsed, filteredBookstores, shownCount, listKey]);
 
   // Clear filters
   const clearFilters = useCallback(() => {
@@ -284,47 +302,189 @@ export default function DirectoryClient({
     return count;
   }, [selectedState, selectedCity, selectedCounty, selectedFeatures]);
 
-  return (
-    <div className="relative flex-1 min-h-0 flex flex-col md:block w-full">
-      {/* Mobile: Map | List toggle — locked at top */}
-      <div className="flex md:hidden flex-shrink-0 gap-0 p-2 bg-gray-100 border-b border-gray-200">
-        <button
-          type="button"
-          onClick={() => setMobileView('map')}
-          className={`flex-1 py-3 px-4 rounded-lg font-sans text-sm font-semibold transition-colors min-h-[44px] ${
-            mobileView === 'map' ? 'bg-brand-teal text-white shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-200'
-          }`}
-          aria-pressed={mobileView === 'map'}
-          aria-label="Show map view"
-        >
-          Map
-        </button>
-        <button
-          type="button"
-          onClick={() => setMobileView('list')}
-          className={`flex-1 py-3 px-4 rounded-lg font-sans text-sm font-semibold transition-colors min-h-[44px] ${
-            mobileView === 'list' ? 'bg-brand-teal text-white shadow-sm' : 'bg-transparent text-gray-600 hover:bg-gray-200'
-          }`}
-          aria-pressed={mobileView === 'list'}
-          aria-label="Show list view"
-        >
-          List
-        </button>
-      </div>
+  const searchInput = (className: string) => (
+    <Input
+      type="search"
+      placeholder="Search state, city, or bookshop name..."
+      aria-label="Search bookshops"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className={`w-full pl-12 pr-4 font-sans text-base rounded-full border-0 focus:ring-2 focus:ring-brand-teal ${className}`}
+    />
+  );
 
-      {/* Mobile: search bar below toggle */}
-      <div className="flex md:hidden flex-shrink-0 gap-2 px-3 py-2 bg-white border-b border-gray-200">
-        <div className="relative flex-1 bg-gray-50 rounded-full shadow-sm">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <Input type="text" placeholder="Search state, city, or bookshop name..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-12 pr-4 py-3 font-sans text-base rounded-full border-0 bg-transparent focus:ring-2 focus:ring-brand-teal" />
+  const selectClass = 'w-full min-h-[44px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-sans text-base md:text-sm';
+
+  // Location + feature filters: in the side panel on desktop, in a sheet on phones
+  const filters = (
+    <div className="space-y-3">
+      <h3 className="font-sans text-sm font-semibold text-gray-700">Location</h3>
+
+      {/* State Filter (initialStates are abbrevs; display full name) */}
+      <select value={selectedState} onChange={(e) => changeState(e.target.value)} aria-label="State" className={selectClass}>
+        <option value="all">All States</option>
+        {initialStates.map((abbrev) => (
+          <option key={abbrev} value={abbrev}>
+            {getStateDisplayName(abbrev) || abbrev}
+          </option>
+        ))}
+      </select>
+
+      {/* City Filter */}
+      <select value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} disabled={cities.length === 0} aria-label="City" className={selectClass}>
+        <option value="all">{selectedState === 'all' ? 'Select a state first' : 'All Cities'}</option>
+        {cities.map((city) => (
+          <option key={city} value={city}>
+            {city.replace(LOCATION_DELIMITER, ', ')}
+          </option>
+        ))}
+      </select>
+
+      {/* County Filter */}
+      <select value={selectedCounty} onChange={(e) => setSelectedCounty(e.target.value)} disabled={counties.length === 0} aria-label="County" className={selectClass}>
+        <option value="all">{selectedState === 'all' ? 'Select a state first' : 'All Counties'}</option>
+        {counties.map((county) => (
+          <option key={county} value={county}>
+            {county.replace(LOCATION_DELIMITER, ', ')}
+          </option>
+        ))}
+      </select>
+
+      {availableFeatures.length > 0 && (
+        <>
+          <h3 className="font-sans text-sm font-semibold text-gray-700 pt-1">Features</h3>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by feature">
+            {availableFeatures.map((feature) => {
+              const active = selectedFeatures.includes(feature.id);
+              return (
+                <button
+                  key={feature.id}
+                  type="button"
+                  onClick={() => toggleFeature(feature.id)}
+                  aria-pressed={active}
+                  className={`min-h-[44px] px-4 rounded-full border font-sans text-sm font-semibold transition-colors ${
+                    active ? 'bg-brand-teal border-brand-teal text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-brand-teal'
+                  }`}
+                >
+                  {feature.name}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {activeFilterCount > 0 && (
+        <button onClick={clearFilters} className="w-full min-h-[44px] font-sans text-sm text-brand-teal hover:underline flex items-center justify-center gap-1">
+          <X className="w-4 h-4" />
+          Clear all filters
+        </button>
+      )}
+    </div>
+  );
+
+  const resultsList = (
+    <>
+      {origin && filteredBookstores.length > 0 && (
+        <p className="px-4 pt-4 text-sm text-gray-600" role="status">
+          Sorted by distance from your location
+        </p>
+      )}
+      {filteredBookstores.length > 0 ? (
+        <div className="p-4 space-y-3">
+          <p className="font-sans text-sm text-gray-600">
+            {filteredBookstores.length.toLocaleString('en-US')} bookshop{filteredBookstores.length === 1 ? '' : 's'}
+          </p>
+          {shownBookstores.map((bookshop) => (
+            <div
+              key={bookshop.id}
+              id={`bookshop-${bookshop.id}`}
+              onMouseEnter={() => setHoveredBookshopId(bookshop.id)}
+              onMouseLeave={() => setHoveredBookshopId(null)}
+              onClick={() => handlePinClick(bookshop.id)}
+              className={`rounded-lg border-2 cursor-pointer transition-all ${selectedBookshopId === bookshop.id ? 'border-brand-orange' : hoveredBookshopId === bookshop.id ? 'border-brand-teal' : 'border-transparent'}`}
+            >
+              <BookshopCard bookshop={bookshop} featureLinks={featureLinks} size="compact" className="shadow-sm" />
+            </div>
+          ))}
+          {filteredBookstores.length > shownCount && (
+            <Button type="button" variant="outline" onClick={showMore} className="w-full min-h-[44px]">
+              Show more ({(filteredBookstores.length - shownCount).toLocaleString('en-US')} left)
+            </Button>
+          )}
         </div>
-        <NearMeLink className="bg-gray-50 shadow-sm" />
+      ) : (
+        <div className="p-6 text-center">
+          <MapPin className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+          <h3 className="font-serif text-lg font-bold text-gray-700 mb-2">No bookshops found</h3>
+          <p className="font-sans text-sm text-gray-600 mb-4">Try adjusting your filters or search query</p>
+          {(activeFilterCount > 0 || searchQuery) && (
+            <Button onClick={clearFilters} variant="outline" className="min-h-[44px]">
+              Clear filters
+            </Button>
+          )}
+        </div>
+      )}
+    </>
+  );
+
+  return (
+    <div className="relative w-full md:flex-1 md:min-h-0">
+      {/* Phones: sticky bar under the header with the view toggle, filters, and search */}
+      <div className="md:hidden sticky top-14 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div className="flex items-center gap-2 px-3 pt-2">
+          <div className="flex flex-1 rounded-lg bg-gray-100 p-1" role="group" aria-label="View">
+            {(['list', 'map'] as const).map((view) => (
+              <button
+                key={view}
+                type="button"
+                onClick={() => {
+                  setMobileView(view);
+                  // The map sits at the top of the page; don't leave it scrolled out of view
+                  window.scrollTo({ top: 0 });
+                }}
+                aria-pressed={mobileView === view}
+                className={`flex-1 min-h-[44px] rounded-md font-sans text-sm font-semibold transition-colors ${
+                  mobileView === view ? 'bg-brand-teal text-white shadow-sm' : 'text-gray-700'
+                }`}
+              >
+                {view === 'list' ? 'List' : 'Map'}
+              </button>
+            ))}
+          </div>
+          <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 min-h-[44px] px-3 rounded-lg border border-gray-300 font-sans text-sm font-semibold text-gray-700"
+              >
+                <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
+                Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+              </button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-2xl">
+              <SheetTitle className="font-serif text-xl text-brand-brown">Filters</SheetTitle>
+              <SheetDescription className="sr-only">Filter bookshops by location and features</SheetDescription>
+              <div className="mt-4">{filters}</div>
+              <Button type="button" onClick={() => setFiltersOpen(false)} className="mt-6 w-full min-h-[44px]">
+                Show {filteredBookstores.length.toLocaleString('en-US')} bookshop{filteredBookstores.length === 1 ? '' : 's'}
+              </Button>
+            </SheetContent>
+          </Sheet>
+        </div>
+        <div className="flex gap-2 px-3 py-2">
+          <div className="relative flex-1 bg-gray-50 rounded-full">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
+            {searchInput('min-h-[44px] bg-transparent')}
+          </div>
+          <NearMeLink className="min-h-[44px] bg-gray-50" />
+        </div>
       </div>
 
-      {/* Map: fills remaining space below toggle+search (mobile); full viewport area (desktop) */}
+      {/* Map: a screen-height box under the sticky bar (phones); the full area behind the panel (desktop) */}
       <div
         ref={mapAreaRef}
-        className={`overflow-hidden flex-1 min-h-0 w-full ${mobileView === 'list' ? 'hidden md:block' : ''} md:absolute md:inset-0 md:right-0 md:bottom-0 md:left-0 md:top-0 md:w-full md:h-full md:min-h-0`}
+        className={`overflow-hidden w-full h-[calc(100dvh-10.5rem)] md:h-full ${mobileView === 'list' ? 'hidden md:block' : ''} md:absolute md:inset-0`}
       >
         {!mapboxToken ? (
           <MapPlaceholder message="Map is unavailable right now." />
@@ -341,19 +501,19 @@ export default function DirectoryClient({
           <MapPlaceholder />
         )}
 
-        {/* Search Bar — desktop only (mobile has search below toggle) */}
+        {/* Search Bar — desktop only (phones have it in the sticky bar) */}
         <div className="hidden md:flex gap-2 absolute top-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-xl px-4">
           <div className="relative flex-1 bg-white rounded-full shadow-lg">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <Input type="text" placeholder="Search state, city, or bookshop name..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-12 pr-4 py-4 font-sans text-base rounded-full border-0 focus:ring-2 focus:ring-brand-teal" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
+            {searchInput('py-4')}
           </div>
           <NearMeLink className="bg-white shadow-lg" />
         </div>
       </div>
 
-      {/* List: full height when toggled (mobile) / left overlay (desktop) */}
+      {/* List: in the page flow on phones; a scrolling side panel on desktop */}
       <div
-        className={`flex-1 min-h-0 flex flex-col bg-white border-t border-gray-200 overflow-hidden md:flex-none md:absolute md:top-0 md:left-0 md:h-full md:border-t-0 md:shadow-2xl md:transition-all md:duration-300 md:z-20 ${isPanelCollapsed ? 'md:w-16' : 'md:w-96'} ${mobileView === 'map' ? 'hidden md:flex' : ''}`}
+        className={`bg-white md:absolute md:top-0 md:left-0 md:h-full md:flex md:flex-col md:shadow-2xl md:transition-all md:duration-300 md:z-20 ${isPanelCollapsed ? 'md:w-16' : 'md:w-96'} ${mobileView === 'map' ? 'hidden md:flex' : ''}`}
       >
         {/* Collapsed strip: desktop only */}
         {isPanelCollapsed && (
@@ -363,113 +523,14 @@ export default function DirectoryClient({
             </button>
           </div>
         )}
-        {/* Full panel: always on mobile; on desktop only when not collapsed */}
-        <div className={`h-full min-h-0 flex flex-col relative ${isPanelCollapsed ? 'md:hidden' : ''}`}>
+        <div className={`md:h-full md:min-h-0 md:flex md:flex-col relative ${isPanelCollapsed ? 'md:hidden' : ''}`}>
           <button onClick={() => setIsPanelCollapsed(true)} aria-label="Collapse bookshop list panel" className="hidden md:flex absolute top-1/2 -translate-y-1/2 right-0 translate-x-1/2 p-2 bg-white rounded-full border-2 shadow-lg z-30 hover:bg-gray-50 min-h-[44px] min-w-[44px] items-center justify-center" />
 
-          <div className="flex-shrink-0 p-4 md:p-6 border-b border-gray-200">
-              <div className="space-y-3">
-                <h3 className="font-sans text-sm font-semibold text-gray-700">Location</h3>
+          {/* Filters: desktop panel only (phones use the Filters sheet) */}
+          <div className="hidden md:block flex-shrink-0 p-6 border-b border-gray-200">{filters}</div>
 
-                {/* State Filter (initialStates are abbrevs; display full name) */}
-                <select value={selectedState} onChange={(e) => changeState(e.target.value)} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-sans text-sm">
-                  <option value="all">All States</option>
-                  {initialStates.map((abbrev) => (
-                    <option key={abbrev} value={abbrev}>
-                      {getStateDisplayName(abbrev) || abbrev}
-                    </option>
-                  ))}
-                </select>
-
-                {/* City Filter */}
-                <select value={selectedCity} onChange={(e) => setSelectedCity(e.target.value)} disabled={cities.length === 0} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-sans text-sm">
-                  <option value="all">{selectedState === 'all' ? 'Select a state first' : 'All Cities'}</option>
-                  {cities.map((city) => (
-                    <option key={city} value={city}>
-                      {city.replace(LOCATION_DELIMITER, ', ')}
-                    </option>
-                  ))}
-                </select>
-
-                {/* County Filter */}
-                <select value={selectedCounty} onChange={(e) => setSelectedCounty(e.target.value)} disabled={counties.length === 0} className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 font-sans text-sm">
-                  <option value="all">{selectedState === 'all' ? 'Select a state first' : 'All Counties'}</option>
-                  {counties.map((county) => (
-                    <option key={county} value={county}>
-                      {county.replace(LOCATION_DELIMITER, ', ')}
-                    </option>
-                  ))}
-                </select>
-
-                {availableFeatures.length > 0 && (
-                  <>
-                    <h3 className="font-sans text-sm font-semibold text-gray-700 pt-1">Features</h3>
-                    <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by feature">
-                      {availableFeatures.map((feature) => {
-                        const active = selectedFeatures.includes(feature.id);
-                        return (
-                          <button
-                            key={feature.id}
-                            type="button"
-                            onClick={() => toggleFeature(feature.id)}
-                            aria-pressed={active}
-                            className={`px-3 py-1.5 rounded-full border font-sans text-xs font-semibold transition-colors ${
-                              active ? 'bg-brand-teal border-brand-teal text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-brand-teal'
-                            }`}
-                          >
-                            {feature.name}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-
-                {activeFilterCount > 0 && (
-                  <button onClick={clearFilters} className="w-full font-sans text-sm text-brand-teal hover:underline flex items-center justify-center gap-1 py-1">
-                    <X className="w-4 h-4" />
-                    Clear all filters
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Scrollable List */}
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
-              {origin && filteredBookstores.length > 0 && (
-                <p className="px-4 pt-4 text-xs text-gray-600" role="status">
-                  Sorted by distance from your location
-                </p>
-              )}
-              {filteredBookstores.length > 0 ? (
-                <div className="p-4 space-y-3">
-                  {filteredBookstores.map((bookshop) => (
-                    <div
-                      key={bookshop.id}
-                      id={`bookshop-${bookshop.id}`}
-                      onMouseEnter={() => setHoveredBookshopId(bookshop.id)}
-                      onMouseLeave={() => setHoveredBookshopId(null)}
-                      onClick={() => handlePinClick(bookshop.id)}
-                      className={`rounded-lg border-2 cursor-pointer transition-all ${selectedBookshopId === bookshop.id ? 'border-brand-orange' : hoveredBookshopId === bookshop.id ? 'border-brand-teal' : 'border-transparent'}`}
-                    >
-                      <BookshopCard bookshop={bookshop} featureLinks={featureLinks} size="compact" className="shadow-sm" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-6 text-center">
-                  <MapPin className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                  <h3 className="font-serif text-lg font-bold text-gray-700 mb-2">No bookshops found</h3>
-                  <p className="font-sans text-sm text-gray-600 mb-4">Try adjusting your filters or search query</p>
-                  {(activeFilterCount > 0 || searchQuery) && (
-                    <Button onClick={clearFilters} variant="outline" size="sm" className="rounded-full">
-                      Clear filters
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+          <div className="md:flex-1 md:min-h-0 md:overflow-y-auto md:overscroll-contain">{resultsList}</div>
+        </div>
       </div>
     </div>
   );

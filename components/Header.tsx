@@ -40,10 +40,13 @@ const Header = ({ showBlog = true }: { showBlog?: boolean }) => {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container-site">
-        <div className="flex justify-between h-20 md:h-24">
+        <div className="flex justify-between h-14 md:h-24">
           <div className="flex items-center">
-            <Link href="/" className="flex-shrink-0 flex items-center">
-              <Logo height={90} width={90} className="md:h-[80px] md:w-auto" showDotCom={true} />
+            <Link href="/" className="flex-shrink-0 flex items-center min-h-[44px]">
+              <span className="sr-only">IndieBookShop home</span>
+              {/* The logo sizes itself with inline styles, so render one per breakpoint */}
+              <Logo height={40} tight className="md:hidden" showDotCom={true} />
+              <Logo height={80} className="hidden md:flex" showDotCom={true} />
             </Link>
             <nav className="hidden md:ml-10 md:flex md:space-x-8">
               <NavLink
@@ -86,15 +89,15 @@ const Header = ({ showBlog = true }: { showBlog?: boolean }) => {
               </NavLink>
             </nav>
           </div>
-          <div className="flex items-center space-x-3">
-            {/* Search: inline on wide screens, an icon on tablets, in the menu on phones */}
+          <div className="flex items-center space-x-1 md:space-x-3">
+            {/* Search: inline on wide screens, an icon on phones and tablets (also in the phone menu) */}
             <div className="hidden lg:block w-56 xl:w-64">
               <SearchBox variant="compact" />
             </div>
             <Link
               href="/search"
               aria-label="Search bookshops"
-              className="hidden md:flex lg:hidden items-center justify-center w-11 h-11 rounded-full text-gray-600 hover:text-brand-teal hover:bg-gray-100"
+              className="flex lg:hidden items-center justify-center w-11 h-11 rounded-full text-gray-600 hover:text-brand-teal hover:bg-gray-100"
             >
               <Search className="w-5 h-5" aria-hidden="true" />
             </Link>
@@ -114,7 +117,7 @@ const Header = ({ showBlog = true }: { showBlog?: boolean }) => {
             {/* Mobile menu control */}
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-brand-teal">
+                <Button variant="ghost" size="icon" className="h-11 w-11 text-gray-500 hover:text-brand-teal" aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}>
                   {isMenuOpen ? (
                     <X className="h-6 w-6" />
                   ) : (

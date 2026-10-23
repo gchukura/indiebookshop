@@ -38,7 +38,7 @@ export default async function BlogIndexPage() {
                   <time dateTime={post.date}>{formatPostDate(post.date)}</time>
                 </p>
                 <p className="mt-3 text-gray-700">{post.description}</p>
-                <Link href={`/blog/${post.slug}`} className="mt-3 inline-block text-sm font-semibold text-brand-teal hover:underline">
+                <Link href={`/blog/${post.slug}`} className="mt-2 inline-flex min-h-[44px] items-center text-sm font-semibold text-brand-teal hover:underline">
                   Read more →
                 </Link>
               </article>

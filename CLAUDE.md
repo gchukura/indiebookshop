@@ -46,11 +46,11 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 | `/submit` | `app/submit/page.tsx` (server) + `components/BookshopSubmissionForm.tsx` | `?edit=<slug>` → "Suggest an edit for {name}", prefilled, posts `mode=edit` + `bookshopId` |
 | `/submit-event`, `/contact` | client pages with forms | |
 | `/sitemap.xml`, `/robots.txt` | `app/sitemap.ts`, `app/robots.ts` | static pages, `/bookshops` pages (state 0.8 / city 0.7 / county 0.6), and every shop |
-| `not-found`, `error`, `loading` | `app/*.tsx` | |
+| `not-found`, `error` | `app/*.tsx` | There is deliberately **no `loading.tsx`**: a root one made every page stream a fallback (CLS 0.3, ~3s LCP delay) and turned redirects/404s into 200s |
 
 API (`app/api/`): `bookstores/filter` (GET, listing data), `bookstores/submit` (POST → SendGrid), `bookstores/[id]/events` (GET), `events` (POST → SendGrid), `contact` (POST → `lib/contact-email.ts`), `newsletter-signup` (POST → appends to Sheet "Newsletter" tab), `features` (GET), `suggest` (GET `?q=` → up to 8 places/shops from `lib/data/search.ts`, rate-limited 60/min, CDN-cached). (`/api/config` was removed — maps get the token as a prop.)
 
-Redirects: `next.config.mjs` maps `/bookstore/:id`, `/submit-bookshop`, `/directory/category/...`. The old `/directory/state/:state`, `/directory/city/[:state/]:city`, `/directory/county/:state/:county` URLs are route handlers in `app/directory/{state,city,county}/` (308 to the `/bookshops` page, via `lib/data/legacy-location-redirect.ts`), because they hold raw names like `CA` or `San Francisco`. `/directory?state=` is not redirected — the directory's own filters use it. `vercel.json` redirects apex → `www`.
+Redirects: `proxy.ts` 308s mixed-case `/bookshop/…` and `/bookshops/…` URLs to lowercase before rendering. `next.config.mjs` maps `/bookstore/:id`, `/submit-bookshop`, `/directory/category/...`. The old `/directory/state/:state`, `/directory/city/[:state/]:city`, `/directory/county/:state/:county` URLs are route handlers in `app/directory/{state,city,county}/` (308 to the `/bookshops` page, via `lib/data/legacy-location-redirect.ts`), because they hold raw names like `CA` or `San Francisco`. `/directory?state=` is not redirected — the directory's own filters use it. `vercel.json` redirects apex → `www`.
 
 ## Data flow
 ```
@@ -94,6 +94,7 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 ## Brand
 - Colors: brown `#5F4B32` (headings), teal `#2A6B7C` (primary actions), orange `#E16D3D` (accent/CTAs), cream `#F7F3E8` (section backgrounds), with hover shades for teal and orange.
 - Tokens: `app/globals.css` defines `--brand-brown`, `--brand-teal(-hover)`, `--brand-orange(-hover)`, `--brand-cream` (RGB channels) and maps the shadcn theme to them: `primary` = teal, `accent` = orange, `secondary` = brown, `muted` = cream, `border`/`input` = warm gray, `ring` = teal, `--radius` = 0.75rem. `.dark` is still shadcn's default.
+- White text on orange must use `bg-brand-orange-strong` (`#C2552A`, 4.5:1) — shadcn `accent` and `<Button variant="accent">` already do; the brand orange itself is 3.25:1 with white, so keep it for accents, borders, and large text.
 - Tailwind classes: `text-brand-brown`, `bg-brand-teal hover:bg-brand-teal-hover`, `bg-brand-orange hover:bg-brand-orange-hover`, `bg-brand-cream`, and opacity forms like `bg-brand-teal/5`. Hex values are only allowed where a class can't be used (Mapbox paint colors → `lib/constants.ts` `COLORS`; `app/icon.svg`).
 - Buttons (`components/ui/button.tsx`): `variant="default"` is the teal pill, `variant="accent"` the orange pill; `outline`/`ghost` hover to cream. For a link styled as a button use `cn(buttonVariants({ variant }), …)`. `cn()` knows the custom type scale, so `text-lg` overrides `text-body`.
 - Layout: `.container-site` (max-w-6xl, responsive side padding) for page sections.
@@ -110,4 +111,5 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - Share images: `opengraph-image.tsx` files (rendered by `lib/og.tsx` with the static brand TTFs in `public/fonts/`) for the site default, shops, states, cities, counties, features, state + feature, and blog posts; shop/place images render on first request and are cached. A page that sets its own `openGraph` replaces the inherited image, so general pages pass `DEFAULT_OG_IMAGE` from `lib/seo.ts`. There is no `og-default.jpg`.
 - Submissions: `/submit?edit=<slug>` prefills the form for "Suggest an edit"; the API emails only changed fields and appends every submission to the Sheet's `Submissions` tab (must exist — see `docs/setup/FORM_SUBMISSIONS.md`; fails soft).
 - Page titles go through `lib/seo.ts` (`fitTitle`/`placeTitle`): ≤ 60 characters, brand "IndieBookShop". `tests/site.test.ts` checks every generated page.
+- Mobile: interactive elements are at least 44×44 (`min-h-[44px]`; cards are one stretched link), body text at least 14px. `node scripts/mobile-audit.mjs <base-url> <out-dir>` screenshots every route type at iPhone 14 size and reports overflow, small tap targets, small text, and layout shift. The phone header is 56px (`top-14` for sticky bars below it).
 - Before you finish, run `npm run lint`, `npm run check`, `npm test`, and `npm run build`.

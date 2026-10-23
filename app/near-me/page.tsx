@@ -83,7 +83,7 @@ export default async function NearMePage({ searchParams }: Props) {
                 href={`/near-me?${coords}&radius=${r}`}
                 aria-current={r === radius ? 'true' : undefined}
                 className={cn(
-                  'rounded-full px-3 py-1 border transition-colors',
+                  'inline-flex min-h-[44px] items-center rounded-full px-4 border transition-colors',
                   r === radius ? 'bg-brand-teal border-brand-teal text-white' : 'border-input bg-white text-gray-700 hover:border-brand-teal'
                 )}
               >

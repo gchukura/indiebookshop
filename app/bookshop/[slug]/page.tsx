@@ -97,7 +97,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title: `${bookstore.name} - Indie Bookshop`,
         description: description.slice(0, 160),
         type: 'website',
-        url: `https://www.indiebookshop.com/bookshop/${decodedSlug}`,
+        url: `https://www.indiebookshop.com/bookshop/${getBookstoreSlug(bookstore).toLowerCase()}`,
       },
       twitter: {
         card: 'summary_large_image',
@@ -105,7 +105,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: description.slice(0, 160),
       },
       alternates: {
-        canonical: `https://www.indiebookshop.com/bookshop/${decodedSlug}`,
+        canonical: `https://www.indiebookshop.com/bookshop/${getBookstoreSlug(bookstore).toLowerCase()}`,
       },
     };
   } catch (error) {

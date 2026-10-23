@@ -7,23 +7,25 @@ type FeatureChipsProps = {
   links: Record<number, FeatureLink>;
   limit?: number;
   className?: string;
+  /** Plain labels instead of links (e.g. inside a card that is itself a link). */
+  asLabels?: boolean;
 };
 
 /** Feature tags, each linking to its /bookshops/features page when one exists. */
-export default function FeatureChips({ featureIds, links, limit, className = '' }: FeatureChipsProps) {
+export default function FeatureChips({ featureIds, links, limit, className = '', asLabels = false }: FeatureChipsProps) {
   const chips = (featureIds ?? []).map(id => links[id]).filter(Boolean).slice(0, limit);
   if (!chips.length) return null;
-  const chipClass = 'text-xs px-2 py-0.5 rounded-full bg-brand-cream text-brand-brown';
+  const chipClass = 'text-sm px-3 rounded-full bg-brand-cream text-brand-brown';
   return (
     <ul className={`flex flex-wrap gap-1.5 ${className}`} aria-label="Features">
       {chips.map(chip => (
         <li key={chip.name}>
-          {chip.href ? (
-            <Link href={chip.href} className={`${chipClass} inline-block hover:bg-brand-teal hover:text-white transition-colors`}>
+          {chip.href && !asLabels ? (
+            <Link href={chip.href} className={`${chipClass} inline-flex items-center min-h-[44px] hover:bg-brand-teal hover:text-white transition-colors`}>
               {chip.name}
             </Link>
           ) : (
-            <span className={`${chipClass} inline-block`}>{chip.name}</span>
+            <span className={`${chipClass} inline-block py-0.5`}>{chip.name}</span>
           )}
         </li>
       ))}
