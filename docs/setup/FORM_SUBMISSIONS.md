@@ -1,136 +1,46 @@
-# Form Submissions Setup
+# Form submissions
 
-This document explains how form submissions work and what environment variables need to be configured.
+`POST /api/bookstores/submit` handles three kinds of submission from `/submit`:
 
-## Overview
+| `mode` in the Sheet row | Comes from | Email subject |
+|---|---|---|
+| `new` | "Submit a new bookshop" | `Bookshop Submission: {name}` |
+| `change` | "Suggest changes to an existing bookshop" (free-form, picked from a list) | `Bookshop Submission: {name}` |
+| `edit` | "Suggest an edit" on a shop page → `/submit?edit=<slug>` (form prefilled) | `Edit suggestion: {name} (#{id})` |
 
-The application has two types of form submissions:
-1. **Bookstore Submissions** - Users can submit new bookstores or suggest changes to existing ones
-2. **Event Submissions** - Users can submit events for bookstores
+For `edit`, the route loads the shop's current data and emails only the fields that differ, as a before/after table (`lib/data/edit-diff.ts`). Formatting-only differences (state name vs abbreviation, phone punctuation, trailing slash on a website) don't count as changes.
 
-Both submissions are:
-- Saved to Supabase database
-- Sent via email notification to the admin using SendGrid
+## Where submissions go
 
-## Environment Variables Required
+1. **Email** to `info@bluestonebrands.com` via SendGrid (`SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL`). Reply-to is the submitter.
+2. **The Sheet's `Submissions` tab**, one row per submission, so nothing is lost if email fails.
 
-### For Vercel (Production)
+Both are attempted every time and each fails soft: a SendGrid error or a missing tab is logged, and the submitter still sees success.
 
-Add these environment variables in your Vercel project settings:
+## The `Submissions` tab (create it once)
 
-```bash
-# SendGrid Configuration
-SENDGRID_API_KEY=your_sendgrid_api_key_here
-SENDGRID_FROM_EMAIL=noreply@indiebookshop.com  # Must be a verified sender in SendGrid
-ADMIN_EMAIL=your_admin_email@example.com  # Where submission notifications are sent
+The app does **not** create this tab. It was added to the production spreadsheet on 2026-10-23 (along with the `Newsletter` tab: `email | source | subscribed_at`, which the footer signup appends to). For a new spreadsheet, add it with this header row:
 
-# Supabase Configuration
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here  # Server-side key (bypasses RLS)
+| A | B | C | D | E |
+|---|---|---|---|---|
+| `submitted_at` | `mode` | `bookshop_id` | `name` | `json_payload` |
+
+- `submitted_at`: ISO timestamp (UTC)
+- `mode`: `new`, `change`, or `edit`
+- `bookshop_id`: the shop's id for `edit` (blank for new shops)
+- `name`: the shop's name (for `edit`, its current name in the Sheet)
+- `json_payload`: everything submitted, as JSON (for `edit`: the submitter, the before/after changes, and free-text hours)
+
+The service account in `GOOGLE_SERVICE_ACCOUNT_CREDENTIALS` must have edit access to the spreadsheet (it already appends to the `Newsletter` tab).
+
+If the tab is missing, the server logs:
+
+```
+[GoogleSheets] Could not append to the "Submissions" tab (does it exist with headers submitted_at, mode, bookshop_id, name, json_payload?): …
 ```
 
-### For Local Development
+With `USE_FIXTURE_DATA=1` (tests, CI), nothing is written to the Sheet.
 
-Add these to your `.env` file in the project root:
+## Spam protection
 
-```bash
-# SendGrid Configuration
-SENDGRID_API_KEY=your_sendgrid_api_key_here
-SENDGRID_FROM_EMAIL=noreply@indiebookshop.com
-ADMIN_EMAIL=your_admin_email@example.com
-
-# Supabase Configuration
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
-```
-
-**Important Notes:**
-- `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are for **client-side** (browser)
-- `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are for **server-side** (form submissions)
-- The service role key bypasses Row Level Security (RLS) and allows server-side inserts
-- Keep the service role key secret - never commit it to git
-
-### How to Get the Service Role Key
-
-1. Go to Supabase Dashboard: https://supabase.com/dashboard
-2. Select your project
-3. Go to **Settings** → **API**
-4. Find **Project API keys**
-5. Copy the **`service_role`** key (NOT the `anon` key)
-   - ⚠️ **Important**: This key bypasses Row Level Security (RLS)
-   - Keep it secret - never commit it to git
-
-## Supabase Tables
-
-The submissions are saved to these Supabase tables:
-
-### `bookstores` table
-- New bookstore submissions are inserted with `live: false` (pending review)
-- Standard fields: `name`, `street`, `city`, `state`, `zip`, `description`, `website`, `phone`, `hours_json`, `feature_ids`, etc.
-- Note: The actual schema uses `imageUrl` (camelCase) and `hours_json` (jsonb) columns
-- Note: `submitter_email`, `submitter_name`, `submission_type` columns do NOT exist in the current schema (submissions are tracked via `live: false` status)
-
-### `events` table
-- Event submissions are inserted directly (no review process)
-- Fields: `bookshop_id`, `title`, `description`, `date`, `time`
-- See `supabase/create-events-table.sql` for the complete table schema
-
-## SendGrid Setup
-
-1. **Create a SendGrid account** (if you don't have one)
-2. **Verify your sender email** in SendGrid:
-   - Go to Settings > Sender Authentication
-   - Verify the email address you'll use for `SENDGRID_FROM_EMAIL`
-3. **Create an API Key**:
-   - Go to Settings > API Keys
-   - Create a new API key with "Full Access" or "Mail Send" permissions
-   - Copy the key and use it for `SENDGRID_API_KEY`
-
-## How It Works
-
-### Bookstore Submissions
-
-1. User fills out the submission form (`/submit` page)
-2. Form data is validated
-3. Submission is saved to Supabase `bookstores` table with `live: false`
-4. Email notification is sent to `ADMIN_EMAIL` via SendGrid
-5. Admin reviews and can manually set `live: true` in Supabase to publish
-
-### Event Submissions
-
-1. User fills out the event form
-2. Form data is validated
-3. Event is saved to Supabase `events` table
-4. Event is immediately visible (no review process)
-
-## Troubleshooting
-
-### Submissions not saving to Supabase
-- Check that `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are set correctly
-- Verify the service role key has permissions to insert into `bookstores` and `events` tables
-- Check server logs for Supabase errors
-
-### Emails not sending
-- Verify `SENDGRID_API_KEY` is set correctly
-- Ensure `SENDGRID_FROM_EMAIL` is a verified sender in SendGrid
-- Check SendGrid dashboard for email delivery status
-- Verify `ADMIN_EMAIL` is a valid email address
-
-### Forms showing errors
-- Check browser console for API errors
-- Verify all required environment variables are set
-- Check server logs for detailed error messages
-
-## Testing
-
-To test form submissions locally:
-
-1. Ensure all environment variables are set in `.env`
-2. Start the development server: `npm run dev`
-3. Navigate to `/submit` page
-4. Fill out and submit the form
-5. Check:
-   - Supabase dashboard to see if submission was saved
-   - Email inbox for notification email
-   - Server console for any errors
-
+The route is rate-limited (5 per 10 minutes per IP, `lib/rate-limit.ts`) and rejects honeypot hits (`website_url`, `lib/honeypot.ts`) with a fake success. See `docs/setup/RATE_LIMITING.md`.

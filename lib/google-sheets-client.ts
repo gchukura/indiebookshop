@@ -311,3 +311,44 @@ export async function appendNewsletterSignup(
     return 'error';
   }
 }
+
+// ---------------------------------------------------------------------------
+// Form submissions — appended to a "Submissions" tab so nothing is lost if the
+// notification email fails. The tab must exist with headers
+// submitted_at | mode | bookshop_id | name | json_payload
+// (see docs/setup/FORM_SUBMISSIONS.md).
+// ---------------------------------------------------------------------------
+
+export type SubmissionRow = {
+  mode: 'new' | 'change' | 'edit';
+  bookshopId: number | null;
+  name: string;
+  payload: unknown;
+};
+
+/** Appends one submission. Never throws: returns false (and logs) if the tab is missing or the write fails. */
+export async function appendSubmission(row: SubmissionRow): Promise<boolean> {
+  if (USE_FIXTURE_DATA) {
+    console.info('[GoogleSheets] Fixture mode: submission not written to the Sheet', row.mode, row.name);
+    return false;
+  }
+  try {
+    const sheets = buildSheetsWriteClient();
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Submissions!A:E',
+      valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: {
+        values: [[new Date().toISOString(), row.mode, row.bookshopId ?? '', row.name, JSON.stringify(row.payload)]],
+      },
+    });
+    return true;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(
+      `[GoogleSheets] Could not append to the "Submissions" tab (does it exist with headers submitted_at, mode, bookshop_id, name, json_payload?): ${message}`
+    );
+    return false;
+  }
+}

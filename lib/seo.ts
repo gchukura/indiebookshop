@@ -30,3 +30,10 @@ export function placeTitle(place: string, placeShort: string, count: number, pre
     `${short} ${placeShort} (${count})`,
   ]);
 }
+
+/**
+ * The site-wide share image (app/opengraph-image.tsx). Pages that set their own
+ * `openGraph` replace the inherited image, so general pages pass this explicitly;
+ * pages with their own opengraph-image.tsx don't need it.
+ */
+export const DEFAULT_OG_IMAGE = { url: '/opengraph-image', width: 1200, height: 630, alt: 'IndieBookShop — find your next independent bookshop' };

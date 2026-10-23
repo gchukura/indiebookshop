@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import PlaceLinks from '@/components/location/PlaceLinks';
 import { getFeatureIndex } from '@/lib/data/features';
-import { BRAND } from '@/lib/seo';
+import { BRAND, DEFAULT_OG_IMAGE } from '@/lib/seo';
 
 export const revalidate = 3600;
 
@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: title },
     description: INTRO,
     alternates: { canonical: CANONICAL },
-    openGraph: { title, description: INTRO, url: CANONICAL, type: 'website' },
+    openGraph: { title, description: INTRO, url: CANONICAL, type: 'website', images: [DEFAULT_OG_IMAGE] },
   };
 }
 
