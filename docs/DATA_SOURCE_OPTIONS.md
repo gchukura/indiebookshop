@@ -1,6 +1,6 @@
 # Data source and caching options
 
-Investigation for item D18 (2026-10-23). No app code was changed. All numbers were measured locally on an M-series Mac over home broadband against the live Sheet (2,165 live shops), unless marked as an estimate.
+Investigation for item D18 (2026-10-23). No app code was changed. Effort is given as Claude Code time plus the owner's own setup time (human-developer days in brackets). All numbers were measured locally on an M-series Mac over home broadband against the live Sheet (2,165 live shops), unless marked as an estimate.
 
 ## How it works today
 
@@ -53,7 +53,7 @@ Form writes (newsletter, submissions) still append to the Sheet at runtime, whic
 | Cost | $0 extra. Builds per day = publishes + 1. Hobby and Pro plans include far more build minutes than ~10 short builds/day (check the account's plan) |
 | Owner edits | Same Sheet. Changes go live when they click "Publish changes" (~2–3 min deploy) or at the daily rebuild, not within the hour |
 | Failure modes | Sheets down or quota → the **build** fails and the previous deploy stays live (today a runtime failure can serve errors or empty pages). Bad rows → caught by validation before deploy, with a clear build log. A forgotten publish → picked up by the daily build |
-| Effort | **1.5–2 days** (export script, client switch, revalidate cleanup, deploy hook + Apps Script, docs/tests) |
+| Effort | **~2–3 hours** with Claude Code, mostly build/verify cycles, plus ~15 min of owner setup (Vercel deploy hook, paste the Apps Script into the Sheet) [1.5–2 developer days]. `scripts/export-fixture.ts` and the `USE_FIXTURE_DATA` file path already do most of it |
 
 ### B. Sheet stays; processed JSON in Vercel Blob
 
@@ -66,7 +66,7 @@ At revalidate time (cron or on-demand), a route reads the Sheet, processes it, a
 | Cost | Pennies: <10 MB stored, a few thousand reads/month (Blob's included allowance covers it on Pro; check Hobby limits) |
 | Owner edits | Same Sheet. Live within the refresh interval (or on-demand via the same Apps Script button hitting a revalidate route) |
 | Failure modes | A refresh that fails keeps the last good blob. Runtime now depends on Blob instead of Sheets (more reliable, no quota). Bad rows are only noticed in logs |
-| Effort | **1–1.5 days**. Adds a write path, a secret, and a cron route. Pages stay ISR |
+| Effort | **~2 hours** plus creating a Blob store and token [1–1.5 developer days]. Adds a write path, a secret, and a cron route. Pages stay ISR |
 
 ### C. Back to Postgres (Neon or Supabase)
 
@@ -79,7 +79,7 @@ Load the Sheet into a `bookstores` table (the types in `shared/schema.ts` were d
 | Cost | Free tier fits (2,165 rows, <20 MB). Neon free: 0.5 GB, autosuspend adds ~300–500ms to the first query after idle; Supabase free pauses after a week of inactivity. Paid ≈ $19–25/month to avoid both |
 | Owner edits | Either (1) keep editing the Sheet and sync it to the DB (then this is option B with a database), or (2) edit in the Supabase/Neon table UI or a small admin page, which is less friendly than a Sheet for a non-developer |
 | Failure modes | DB outage or paused free tier → runtime errors. Schema migrations become part of every data change. Bad rows are blocked by constraints, which is good |
-| Effort | **4–6 days** (schema + migrations, import script, rewrite of the data layer and its tests, admin/edit flow, env + CI secrets). The repo removed its Supabase code in Prompt 4 |
+| Effort | **~1 day** with Claude Code plus provisioning the database and secrets [4–6 developer days]: schema + migrations, import script, data-layer rewrite and tests, an edit flow. The repo removed its Supabase code in Prompt 4 |
 
 ## Comparison
 
@@ -92,7 +92,7 @@ Load the Sheet into a `bookstores` table (the types in `shared/schema.ts` were d
 | Owner workflow | Sheet + "Publish" button | Sheet | Sheet + sync, or DB UI |
 | Bad data | blocked before deploy | logged | blocked by constraints |
 | Extra cost | $0 | ~$0 | $0–25/mo |
-| Effort | 1.5–2 days | 1–1.5 days | 4–6 days |
+| Effort (Claude Code) | ~2–3 h + 15 min owner | ~2 h | ~1 day |
 
 ## Recommendation: A (export at build, not committed, deploy on publish)
 
@@ -104,3 +104,5 @@ Load the Sheet into a `bookstores` table (the types in `shared/schema.ts` were d
 The trade-off is freshness: edits aren't live until a deploy (minutes) instead of within the hour. For a directory edited by hand a few times a week, that's acceptable, and the Publish button makes it faster than today when it's used.
 
 Choose B instead if edits must appear without a deploy. Choose C only if the site will gain user accounts, user-submitted data written directly to the database, or editing by several people with permissions.
+
+A smaller stopgap, if option A is put off: keep everything as is, but have the build read the Sheet once and share it between workers (~30–60 minutes). It fixes the build quota risk only.
