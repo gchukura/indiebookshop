@@ -35,3 +35,8 @@ next-env.d.ts
 
 # Feature tag review files (scripts/tag-features.ts)
 features-review*.csv
+!tests/fixtures/*.json
+
+# Playwright
+/playwright-report/
+/test-results/

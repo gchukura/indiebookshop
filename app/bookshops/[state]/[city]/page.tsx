@@ -8,6 +8,7 @@ import { getFeatureNames, getLocationIndex } from '@/lib/data/locations';
 import { getFeatureIndex } from '@/lib/data/features';
 import { nearestCities } from '@/lib/data/location-index';
 import { cityIntro, toMetaDescription } from '@/lib/data/location-content';
+import { placeTitle } from '@/lib/seo';
 import { countyToSlug } from '@/lib/data/location-slugs';
 
 export const revalidate = 3600;
@@ -31,7 +32,7 @@ async function load(params: Props['params']) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { state, city, intro } = await load(params);
-  const title = `Independent Bookshops in ${city.name}, ${state.name} (${city.shops.length}) | IndieBookShop`;
+  const title = placeTitle(`${city.name}, ${state.name}`, `${city.name}, ${state.abbrev}`, city.shops.length);
   const description = toMetaDescription(intro);
   const url = `https://www.indiebookshop.com/bookshops/${state.slug}/${city.slug}`;
   return {

@@ -63,7 +63,7 @@ export default function SubmitPage() {
               <li className="flex">
                 <div className="mr-3 text-brand-orange font-bold">6.</div>
                 <p className="font-sans text-sm text-gray-700">
-                  After submission, you'll receive a confirmation email. Our team will review your listing, typically within 3-5 business days.
+                  After submission, you’ll receive a confirmation email. Our team will review your listing, typically within 3-5 business days.
                 </p>
               </li>
             </ul>
@@ -88,10 +88,10 @@ export default function SubmitPage() {
         </h2>
         <div className="space-y-4">
           <p className="font-sans text-base text-gray-700">
-            Independent bookshops are vital cultural hubs that foster community, creativity, and intellectual curiosity. By submitting your bookshop to our directory, you'll reach a wider audience of book lovers actively seeking independent bookstores in their area.
+            Independent bookshops are vital cultural hubs that foster community, creativity, and intellectual curiosity. By submitting your bookshop to our directory, you’ll reach a wider audience of book lovers actively seeking independent bookstores in their area.
           </p>
           <p className="font-sans text-base text-gray-700">
-            Our directory helps connect readers with independent bookshops across America. Whether you're a small neighborhood shop, a specialized bookstore, or a community-focused indie retailer, our platform helps you connect with engaged readers searching for unique literary experiences.
+            Our directory helps connect readers with independent bookshops across America. Whether you’re a small neighborhood shop, a specialized bookstore, or a community-focused indie retailer, our platform helps you connect with engaged readers searching for unique literary experiences.
           </p>
         </div>
       </section>

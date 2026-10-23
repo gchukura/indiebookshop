@@ -8,13 +8,14 @@ import { getAllUpcomingEvents, getProcessedBookstoreData } from '@/lib/data/book
 import { eventJsonLd, formatEventDay, groupEventsByDay } from '@/lib/data/events';
 import { getBookstoreSlug } from '@/lib/data/slug';
 import { getStateAbbrev } from '@/lib/state-utils';
+import { BRAND } from '@/lib/seo';
 
 export const revalidate = 3600;
 
 const DESCRIPTION = 'Author readings, signings, book clubs, and more at independent bookshops across the United States.';
 
 export const metadata: Metadata = {
-  title: { absolute: 'Bookshop Events | IndieBookShop' },
+  title: { absolute: `Bookshop Events | ${BRAND}` },
   description: DESCRIPTION,
   alternates: { canonical: 'https://www.indiebookshop.com/events' },
   openGraph: { title: 'Bookshop Events | IndieBookShop', description: DESCRIPTION, url: 'https://www.indiebookshop.com/events', type: 'website' },

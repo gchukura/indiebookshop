@@ -5,7 +5,7 @@ import { Heart, Map, Search, Users, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
-  title: 'About IndieBookshop.com | Supporting Independent Bookshops Worldwide',
+  title: 'About Us',
   description:
     'Learn about IndieBookshop.com and our mission to support independent bookshops around the world. Discover how we connect readers with 3,000+ local indie bookshops through our comprehensive directory.',
   keywords: [
@@ -47,7 +47,7 @@ export default function AboutPage() {
                 IndieBookshop.com features over 3,000 independent bookshops across all 50 U.S. states, Canada, and other countries across the globe. Our searchable and interactive database connects book lovers with local independent booksellers, helping you discover unique literary spaces in your neighborhood or while traveling.
               </p>
               <p>
-                We believe that independent bookshops are vital cultural hubs that foster community, support local economies, and celebrate the diversity of literature. In a world where convenience often trumps community, we're here to help readers find local bookshops that offer something big online retailers can’t: expert curation, personal connection, and community.
+                We believe that independent bookshops are vital cultural hubs that foster community, support local economies, and celebrate the diversity of literature. In a world where convenience often trumps community, we’re here to help readers find local bookshops that offer something big online retailers can’t: expert curation, personal connection, and community.
               </p>
             </div>
           </div>
@@ -73,17 +73,17 @@ export default function AboutPage() {
                 </p>
 
                 <p>
-                  What started as a passion project has grown into the largest independent bookshop directory in America. Through dedicated manual research and compilation, we've built a database of over 3,000 bookshops. We've spent countless hours researching, verifying, and cataloging independent bookshops - from beloved neighborhood shops to hidden gems in small towns.
+                  What started as a passion project has grown into the largest independent bookshop directory in America. Through dedicated manual research and compilation, we’ve built a database of over 3,000 bookshops. We’ve spent countless hours researching, verifying, and cataloging independent bookshops - from beloved neighborhood shops to hidden gems in small towns.
                 </p>
 
                 <div className="bg-brand-cream border-l-4 border-brand-orange p-6 my-8 rounded-r-lg flex items-center">
                   <p className="text-lg md:text-xl italic text-gray-700 mb-0">
-                    "We've spent countless hours researching and cataloging independent bookshops - from beloved neighborhood shops to hidden gems in small towns."
+                    “We’ve spent countless hours researching and cataloging independent bookshops - from beloved neighborhood shops to hidden gems in small towns.”
                   </p>
                 </div>
 
                 <p>
-                  The directory is still very much a work in progress and we hope to have catalogued all indie bookshops around the world one day. While we're proud of our comprehensive coverage, we're continuously improving profiles with better descriptions, photos, and details about what makes each shop special. We're also actively seeking community input, so if you know a bookshop we're missing or have updates about a listing, we want to hear from you.
+                  The directory is still very much a work in progress and we hope to have catalogued all indie bookshops around the world one day. While we’re proud of our comprehensive coverage, we’re continuously improving profiles with better descriptions, photos, and details about what makes each shop special. We’re also actively seeking community input, so if you know a bookshop we’re missing or have updates about a listing, we want to hear from you.
                 </p>
               </div>
             </div>
@@ -197,7 +197,7 @@ export default function AboutPage() {
                       Built by Book Lovers
                     </h3>
                     <p className="text-sm md:text-base text-gray-700">
-                      We're not owned by corporate interests or funded by chains. Our mission is simple: help local independent bookshops thrive.
+                      We’re not owned by corporate interests or funded by chains. Our mission is simple: help local independent bookshops thrive.
                     </p>
                   </div>
                 </div>
@@ -211,7 +211,7 @@ export default function AboutPage() {
                     <p className="text-sm md:text-base text-gray-700">
                       This directory improves because of people like you. Booksellers 
                       update their profiles, readers suggest missing shops, locals share 
-                      insider knowledge. We're building this together.
+                      insider knowledge. We’re building this together.
                     </p>
                   </div>
                 </div>
@@ -230,7 +230,7 @@ export default function AboutPage() {
                 Help Us Grow
               </h2>
               <p className="text-base md:text-lg text-gray-700 mb-8 text-center">
-              Know an independent bookshop we're missing? Notice outdated information? Want to improve a listing? We'd love your help making this directory better.
+              Know an independent bookshop we’re missing? Notice outdated information? Want to improve a listing? We’d love your help making this directory better.
             </p>
             <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4">
               <Link href="/submit" className="w-full sm:w-auto">

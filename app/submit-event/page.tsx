@@ -39,7 +39,7 @@ export default function SubmitEventPage() {
               <li className="flex">
                 <div className="mr-3 text-brand-orange font-bold">2.</div>
                 <p className="font-sans text-sm text-gray-700">
-                  Please provide accurate details including the correct bookshop ID (you can find this in the URL of the bookshop's page on our site).
+                  Please provide accurate details including the correct bookshop ID (you can find this in the URL of the bookshop’s page on our site).
                 </p>
               </li>
               <li className="flex">
@@ -58,7 +58,7 @@ export default function SubmitEventPage() {
 
             <div className="border-t border-gray-200 mt-6 pt-6">
               <p className="font-sans text-sm text-gray-700 mb-4">
-                Don't see your bookshop in our directory yet? Submit it first to be able to add events.
+                Don’t see your bookshop in our directory yet? Submit it first to be able to add events.
               </p>
               <Link href="/submit">
                 <Button className="w-full rounded-md">
@@ -76,10 +76,10 @@ export default function SubmitEventPage() {
         </h2>
         <div className="space-y-4">
           <p className="font-sans text-base text-gray-700">
-            Independent bookshops are cultural hubs that bring communities together through literary events. By submitting your bookshop events to our calendar, you'll reach a wider audience of book lovers actively seeking literary gatherings, author signings, and reading groups in their area.
+            Independent bookshops are cultural hubs that bring communities together through literary events. By submitting your bookshop events to our calendar, you’ll reach a wider audience of book lovers actively seeking literary gatherings, author signings, and reading groups in their area.
           </p>
           <p className="font-sans text-base text-gray-700">
-            Our event directory helps connect readers with independent bookshops across America. Whether you're hosting a major author signing, an intimate book club meeting, a children's storytime, or a writing workshop, our platform helps you promote these events to engaged readers searching for literary experiences.
+            Our event directory helps connect readers with independent bookshops across America. Whether you’re hosting a major author signing, an intimate book club meeting, a children’s storytime, or a writing workshop, our platform helps you promote these events to engaged readers searching for literary experiences.
           </p>
         </div>
       </section>

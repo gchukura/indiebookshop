@@ -31,8 +31,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.indiebookshop.com'),
   title: {
-    default: 'IndiebookShop.com - Discover Independent Bookshops Across America',
-    template: '%s | IndiebookShop.com',
+    default: 'Independent Bookshops Across America | IndieBookShop',
+    template: '%s | IndieBookShop',
   },
   description: 'Find and support over 3,000 independent bookstores across America. Discover unique bookshops, browse by location, and support local businesses.',
   keywords: ['independent bookstores', 'bookshops', 'local bookstores', 'indie bookstores', 'book shops near me'],

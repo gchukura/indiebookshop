@@ -114,7 +114,7 @@ export default function ContactPage() {
               Get in Touch
             </h1>
             <p className="font-sans text-sm md:text-base text-gray-700 leading-relaxed">
-              Have a question, suggestion, or want to help us grow the directory? We'd love to hear from you.
+              Have a question, suggestion, or want to help us grow the directory? We’d love to hear from you.
             </p>
           </div>
         </div>
@@ -181,7 +181,7 @@ export default function ContactPage() {
               {submitStatus === 'success' && (
                 <div className="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
                   <p className="font-sans text-sm md:text-base text-green-800">
-                    <strong>Thank you!</strong> Your message has been sent. We'll get back to you soon.
+                    <strong>Thank you!</strong> Your message has been sent. We’ll get back to you soon.
                   </p>
                 </div>
               )}
@@ -345,7 +345,7 @@ export default function ContactPage() {
                     </h3>
                     <p className="font-sans text-sm md:text-base text-gray-700 leading-relaxed">
                       We typically respond within 2-3 business days. For urgent issues regarding 
-                      incorrect or harmful listing information, please include "URGENT" in your subject line.
+                      incorrect or harmful listing information, please include “URGENT” in your subject line.
                     </p>
                   </div>
                 </div>
@@ -354,8 +354,8 @@ export default function ContactPage() {
 
             <div className="mt-6 md:mt-8 text-center">
               <p className="font-sans text-sm md:text-base text-gray-700 leading-relaxed max-w-2xl mx-auto">
-                We're dedicated to supporting independent bookshops across America. Whether you're a reader 
-                looking for your next literary haven or a bookshop owner wanting to be featured, we're here to help.
+                We’re dedicated to supporting independent bookshops across America. Whether you’re a reader 
+                looking for your next literary haven or a bookshop owner wanting to be featured, we’re here to help.
               </p>
             </div>
           </div>

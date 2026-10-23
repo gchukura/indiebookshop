@@ -14,6 +14,10 @@ import { daysSinceEpoch, pickFeaturedBookstores } from './featured';
 import { nearestBookstores, type NearbyShop } from './nearby';
 import { upcomingEvents } from './events';
 
+// Part of every unstable_cache key, so fixture data (USE_FIXTURE_DATA=1) and Sheet
+// data never share a cache entry (e.g. a local fixture build followed by a real one)
+const DATA_SOURCE = process.env.USE_FIXTURE_DATA === '1' ? 'fixture' : 'sheet';
+
 // In-memory cache for the *processed* result (avoids re-processing on warm Lambda instances)
 let processedDataCache: ProcessedBookstoreData | null = null;
 let cacheTimestamp: number = 0;
@@ -26,19 +30,19 @@ const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
  */
 const getCachedRawBookstores = unstable_cache(
   () => getBookstoresFromSheets(true), // listingOnly=true — strips detail fields
-  ['bookstores-raw'],
+  ['bookstores-raw', DATA_SOURCE],
   { revalidate: 3600 } // 1 hour
 );
 
 /** Features tab (id → name), cached like the listing so pages don't each read the Sheet. */
 export const getFeatures = unstable_cache(
   async (): Promise<Feature[]> => getFeaturesFromSheets(),
-  ['features'],
+  ['features', DATA_SOURCE],
   { revalidate: 3600 }
 );
 
 /** Events tab, cached so detail pages don't each read the Sheet. */
-const getCachedEvents = unstable_cache(async (): Promise<Event[]> => getEventsFromSheets(), ['events'], {
+const getCachedEvents = unstable_cache(async (): Promise<Event[]> => getEventsFromSheets(), ['events', DATA_SOURCE], {
   revalidate: 3600,
 });
 

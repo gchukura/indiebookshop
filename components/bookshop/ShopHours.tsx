@@ -1,40 +1,39 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import type { Bookstore } from '@/shared/schema';
-import { localTime, openStatus, weeklyHours, type OpenStatus } from '@/lib/data/shop-hours';
+import { localTime, openStatus, weeklyHours } from '@/lib/data/shop-hours';
 
 type Opening = Bookstore['openingHoursJson'];
 
-/**
- * The current day/time in the shop's zone, set after mount. Detail pages are
- * statically generated, so "now" must be read in the browser, not at build time.
- */
-function useShopNow(timeZone: string | null) {
-  const [now, setNow] = useState<{ day: number; minutes: number } | null>(null);
-  useEffect(() => {
-    if (!timeZone) return;
-    const update = () => setNow(localTime(new Date(), timeZone));
-    update();
-    const timer = setInterval(update, 60_000);
-    return () => clearInterval(timer);
-  }, [timeZone]);
-  return now;
+// The current minute as an external store. Detail pages are statically
+// generated, so "now" must be read in the browser: the server snapshot is
+// null, which keeps hydration identical to the HTML before the clock kicks in.
+const MINUTE = 60_000;
+function subscribe(onChange: () => void) {
+  const timer = setInterval(onChange, MINUTE / 4);
+  return () => clearInterval(timer);
+}
+const currentMinute = () => Math.floor(Date.now() / MINUTE);
+const serverMinute = () => null;
+
+function useMinute(): number | null {
+  return useSyncExternalStore(subscribe, currentMinute, serverMinute);
+}
+
+/** Today's day (0 = Sunday) and minutes in the shop's zone, or the visitor's day when the zone is unknown. */
+function shopNow(minute: number, timeZone: string | null) {
+  const now = new Date(minute * MINUTE);
+  return timeZone ? localTime(now, timeZone) : { day: now.getDay(), minutes: now.getHours() * 60 + now.getMinutes() };
 }
 
 /** "Open now · closes 5 PM" / "Closed · opens 11 AM"; without a zone, today's hours. */
 export function OpenStatusBadge({ opening, timeZone }: { opening: Opening; timeZone: string | null }) {
-  const now = useShopNow(timeZone);
-  const [todayFallback, setTodayFallback] = useState<string | null>(null);
-  useEffect(() => {
-    if (timeZone) return;
-    // No reliable zone: show today's hours (by the visitor's day) without open/closed
-    const day = new Date().getDay();
-    const row = weeklyHours(opening).find(r => r.dayIndex === day);
-    setTodayFallback(row ? `Today: ${row.hours}` : null);
-  }, [opening, timeZone]);
+  const minute = useMinute();
+  if (minute === null) return null;
+  const now = shopNow(minute, timeZone);
 
-  const status: OpenStatus | null = now ? openStatus(opening?.periods, now) : null;
+  const status = timeZone ? openStatus(opening?.periods, now) : null;
   if (status) {
     return (
       <span
@@ -44,16 +43,15 @@ export function OpenStatusBadge({ opening, timeZone }: { opening: Opening; timeZ
       </span>
     );
   }
-  return todayFallback ? <span className="text-sm text-gray-700">{todayFallback}</span> : null;
+  // No reliable zone: show today's hours (by the visitor's day) without open/closed
+  const today = weeklyHours(opening).find(r => r.dayIndex === now.day);
+  return today ? <span className="text-sm text-gray-700">Today: {today.hours}</span> : null;
 }
 
 /** All seven days, Monday first; today's row is highlighted once mounted. */
 export function HoursTable({ opening, timeZone }: { opening: Opening; timeZone: string | null }) {
-  const now = useShopNow(timeZone);
-  const [today, setToday] = useState<number | null>(null);
-  useEffect(() => {
-    setToday(now ? now.day : timeZone ? null : new Date().getDay());
-  }, [now, timeZone]);
+  const minute = useMinute();
+  const today = minute === null ? null : shopNow(minute, timeZone).day;
 
   const rows = weeklyHours(opening);
   if (!rows.length) return null;

@@ -5,6 +5,7 @@ import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import LocationShops, { ShopGrid } from '@/components/location/LocationShops';
 import { getFeatureIndex } from '@/lib/data/features';
 import { featureIntro, toMetaDescription } from '@/lib/data/location-content';
+import { placeTitle } from '@/lib/seo';
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -26,7 +27,7 @@ async function load(params: Props['params']) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { feature, intro } = await load(params);
-  const title = `Independent Bookshops with ${feature.phrase} (${feature.shops.length}) | IndieBookShop`;
+  const title = placeTitle(feature.phrase, feature.phrase, feature.shops.length, 'Independent Bookshops with');
   const description = toMetaDescription(intro);
   const url = `https://www.indiebookshop.com/bookshops/features/${feature.slug}`;
   return {

@@ -11,11 +11,12 @@ import { getFeatureIndex } from '@/lib/data/features';
 import { OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
 import BookshopCard from '@/components/bookshop/BookshopCard';
 import HeroSearch from '@/components/home/HeroSearch';
+import { BRAND } from '@/lib/seo';
 
 export async function generateMetadata(): Promise<Metadata> {
   const count = await getTotalBookstoreCount().catch(() => 0);
   return {
-    title: 'IndiebookShop.com - Discover Independent Bookshops Across America',
+    title: { absolute: `Independent Bookshops Across America | ${BRAND}` },
     description: `Find and support ${count ? count.toLocaleString('en-US') : 'thousands of'} independent bookstores across America. Discover unique bookshops, browse by location, and support local businesses.`,
     keywords: ['independent bookstores', 'bookshops', 'local bookstores', 'indie bookstores', 'book shops near me'],
   };

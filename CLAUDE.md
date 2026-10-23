@@ -13,7 +13,11 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 - Type-check: `npm run check` (`tsc -p tsconfig.json --noEmit`)
 - `node scripts/fetch-google-photos.mjs` — fetch Google photos into R2 for shops that lack one (see Photos below)
 - `npx tsx scripts/test-interactive-elements.ts [url]` — Playwright smoke test of buttons, search, and forms
-- `npm test` — Vitest unit tests in `tests/` (`vitest.config.ts` maps `@/`). No linter configured yet.
+- `npm test` — Vitest unit tests in `tests/` (`vitest.config.ts` maps `@/`; `tests/setup.ts` turns on fixture data and stubs `unstable_cache`/React `cache`, so tests can import pages, the sitemap, and the data layer)
+- `npm run lint` — ESLint 9 flat config (`eslint.config.mjs`, `eslint-config-next`); `next lint` no longer exists in Next 16. Errors fail CI, warnings don't
+- `npm run test:e2e` — Playwright smoke tests (`e2e/`) against `next start`; run `npm run build` first
+- `npx tsx scripts/export-fixture.ts` — refresh `tests/fixtures/bookstores.json` (200 real rows covering every state and the 50 biggest cities)
+- CI: `.github/workflows/ci.yml` runs lint, check, test, build, and the smoke tests on PRs and pushes to main. It builds from the Sheet when the `GOOGLE_SERVICE_ACCOUNT_CREDENTIALS`/`GOOGLE_SHEETS_ID` repo secrets exist, else from the fixture
 
 ## Env vars (`.env.local`)
 | Var | Used by | Required |
@@ -24,7 +28,7 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 | `SENDGRID_API_KEY`, `SENDGRID_FROM_EMAIL` | contact, submit, events emails | for forms |
 | `R2_PUBLIC_URL` | `next.config.mjs` rewrite `/photos/*` → R2 bucket (build time) | for photos |
 | `GOOGLE_PLACES_API_KEY`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | `scripts/fetch-google-photos.mjs` only (run locally) | no |
-| `NEXT_PUBLIC_BASE_URL` | only `lib/seo-utils.ts` (currently unused) | no |
+| `USE_FIXTURE_DATA=1` | `lib/google-sheets-client.ts` reads `tests/fixtures/bookstores.json` instead of the Sheet (tests, CI without secrets, offline builds). Cache keys include the data source | no |
 
 ## Routes
 | Route | File | Notes |
@@ -99,4 +103,5 @@ Google Sheet (tabs: Bookstores, Features, Events, Newsletter)
 - Once brand tokens exist in `globals.css`/`tailwind.config.ts`, no new hard-coded hex colors. Use the token classes.
 - Mapbox/`mapbox-gl` is ~1.6 MB, so load map components with `next/dynamic({ ssr: false })` — never a static import, or it also loads on every page that prefetches a link to that route.
 - Keep the 2 MB `unstable_cache` limit in mind for anything you cache.
-- Before you finish, run `npm run check`, `npm test`, and `npm run build`.
+- Page titles go through `lib/seo.ts` (`fitTitle`/`placeTitle`): ≤ 60 characters, brand "IndieBookShop". `tests/site.test.ts` checks every generated page.
+- Before you finish, run `npm run lint`, `npm run check`, `npm test`, and `npm run build`.

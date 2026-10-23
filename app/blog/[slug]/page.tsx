@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import { formatPostDate, getAllPosts, getPost } from '@/lib/blog';
+import { BRAND, fitTitle } from '@/lib/seo';
 
 export const dynamicParams = false;
 
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { title, description, date, cover } = post.meta;
   const url = `${SITE}/blog/${slug}`;
   return {
-    title: { absolute: `${title} | IndieBookShop` },
+    title: { absolute: fitTitle([`${title} | ${BRAND}`, title]) },
     description,
     alternates: { canonical: url },
     openGraph: {

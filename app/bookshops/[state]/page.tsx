@@ -7,6 +7,7 @@ import PlaceLinks from '@/components/location/PlaceLinks';
 import { getFeatureNames, getLocationIndex } from '@/lib/data/locations';
 import { getFeatureIndex } from '@/lib/data/features';
 import { stateIntro, toMetaDescription } from '@/lib/data/location-content';
+import { placeTitle } from '@/lib/seo';
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -29,7 +30,7 @@ async function load(params: Props['params']) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { state, intro } = await load(params);
-  const title = `Independent Bookshops in ${state.name} (${state.shops.length}) | IndieBookShop`;
+  const title = placeTitle(state.name, state.abbrev, state.shops.length);
   const description = toMetaDescription(intro);
   const url = `https://www.indiebookshop.com/bookshops/${state.slug}`;
   return {
