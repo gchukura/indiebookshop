@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import EventSubmissionForm from '@/components/EventSubmissionForm';
 import { Button } from '@/components/ui/button';
+import { Providers } from '@/components/Providers';
 
 export default function SubmitEventPage() {
   return (
@@ -20,7 +21,9 @@ export default function SubmitEventPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <EventSubmissionForm />
+            <Providers>
+              <EventSubmissionForm />
+            </Providers>
           </div>
         </div>
 

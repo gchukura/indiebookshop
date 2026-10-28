@@ -4,8 +4,6 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { hasBlogPosts } from '@/lib/blog';
-import { Toaster } from '@/components/ui/toaster';
-import { Providers } from '@/components/Providers';
 import Script from 'next/script';
 import { ADS_ENABLED, ADSENSE_CLIENT } from '@/lib/ads';
 
@@ -88,16 +86,13 @@ export default function RootLayout({
             crossOrigin="anonymous"
           />
         )}
-        <Providers>
-          <div className="flex flex-col min-h-screen">
-            <Header showBlog={hasBlogPosts()} />
-            <main className="flex-grow flex flex-col min-h-0">
-              {children}
-            </main>
-            <Footer showBlog={hasBlogPosts()} />
-            <Toaster />
-          </div>
-        </Providers>
+        <div className="flex flex-col min-h-screen">
+          <Header showBlog={hasBlogPosts()} />
+          <main className="flex-grow flex flex-col min-h-0">
+            {children}
+          </main>
+          <Footer showBlog={hasBlogPosts()} />
+        </div>
       </body>
     </html>
   );

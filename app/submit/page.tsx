@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import BookshopSubmissionForm, { type EditableShop } from '@/components/BookshopSubmissionForm';
 import { Button } from '@/components/ui/button';
+import { Providers } from '@/components/Providers';
 import { getBookstoreBySlugFull } from '@/lib/data/bookstore-data';
 import { getBookstoreSlug } from '@/lib/data/slug';
 import { getStateDisplayName } from '@/lib/state-utils';
@@ -63,7 +64,9 @@ export default async function SubmitPage({ searchParams }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <BookshopSubmissionForm editShop={editShop} />
+            <Providers>
+              <BookshopSubmissionForm editShop={editShop} />
+            </Providers>
           </div>
         </div>
 
