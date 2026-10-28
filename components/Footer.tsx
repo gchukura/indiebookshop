@@ -3,17 +3,18 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 
 /** `showBlog` is false when content/blog has no posts. */
 const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  // Shown under the form (not a toast, so every page doesn't ship the toast library)
+  const [status, setStatus] = useState<{ ok: boolean; message: string } | null>(null);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setStatus(null);
 
     try {
       const res = await fetch("/api/newsletter-signup", {
@@ -24,24 +25,13 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        toast({
-          title: "Subscription failed",
-          description: (data as { error?: string }).error ?? "Please try again later.",
-          variant: "destructive",
-        });
+        setStatus({ ok: false, message: (data as { error?: string }).error ?? "Subscription failed. Please try again later." });
         return;
       }
-      toast({
-        title: "Subscribed!",
-        description: "Thank you for joining our newsletter.",
-      });
+      setStatus({ ok: true, message: "Subscribed! Thank you for joining our newsletter." });
       setEmail("");
-    } catch (error) {
-      toast({
-        title: "Subscription failed",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
+    } catch {
+      setStatus({ ok: false, message: "Subscription failed. Please try again later." });
     } finally {
       setIsSubmitting(false);
     }
@@ -99,6 +89,9 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
                 {isSubmitting ? "Subscribing..." : "Subscribe"}
               </Button>
             </form>
+            <p role="status" aria-live="polite" className={`mt-2 text-sm ${status?.ok === false ? "text-red-700" : "text-brand-brown"}`}>
+              {status?.message}
+            </p>
           </div>
         </div>
       </section>

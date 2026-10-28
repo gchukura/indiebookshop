@@ -42,7 +42,19 @@ The shop page stayed at 85 after the mobile pass. A follow-up (`perf/shop-page-l
 - **Font preload**: Open Sans (body) is no longer preloaded, which keeps 42 KB out of the photo's way. Libre Baskerville (headings) still is. CLS stayed at 0.017.
 - **Inline CSS** made the shop page's HTML 111 KB → 265 KB (the CSS also lands in the RSC payload) for no gain on that page, so it was left off.
 
-What's left on the shop page is ~190 KB of shared React/Next JavaScript loading alongside the photo on simulated slow 4G.
+### Less JavaScript on every page (2026-10-28)
+
+The shop page's JavaScript was ~181 KB gzipped (not counting the legacy polyfills, which modern browsers skip). A source-map build showed ~125 KB of it is the React/Next runtime every page needs; ~33 KB was app code every page loaded but few used. `perf/shop-page-js` removed that:
+
+- React Query and the toast system (`Providers` + `Toaster`) moved from the root layout to the two submission forms, the only users. The footer's newsletter form shows its result inline instead of as a toast.
+- The phone menu (Radix Dialog, focus trap, scroll lock) is `components/MobileMenu.tsx`, loaded on the first tap of the menu button.
+
+| | `/` | City | Shop | Shop LCP | Shop JS (Lighthouse transfer) |
+|---|---|---|---|---|---|
+| Before | 96 | 93 | 90 | 3.7s | 188 KB, 16 files |
+| After | **96** | **96** | **91** | 3.5s | 157 KB, 13 files |
+
+What's left is mostly that runtime (react-dom, the App Router client, the Turbopack runtime) plus `tailwind-merge` (~7 KB, via `cn()` in `Button`).
 
 ## Mobile audit (scripts/mobile-audit.mjs)
 
