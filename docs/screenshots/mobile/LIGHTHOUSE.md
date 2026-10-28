@@ -25,12 +25,24 @@ What moved the numbers:
 - **Shop page LCP**: the hero photo loaded lazily and competed with the 429 KB Mapbox chunk. It now loads eagerly with `fetchpriority="high"` and a `srcset`, and the map loads only when scrolled near.
 - **Accessibility**: the logo link's name no longer contradicts its visible SVG text, star ratings have `role="img"`, and every interactive element is at least 44px (below).
 
-### Not at 90 yet: shop page performance (85)
+### Shop page to 90 (2026-10-28)
 
-The photo now starts loading immediately (no load delay); what remains is ~3.7s of simulated transfer on slow 4G, with render-blocking CSS (~0.7s est.) on top. Lighthouse's emulated phone needs more than 400px, so `srcset` picks the 1200px file — we only have 400 and 1200. Next steps, in order of payoff:
+The shop page stayed at 85 after the mobile pass. A follow-up (`perf/shop-page-lcp`) measured each change on its own, using the same setup (median of 3 runs, Lighthouse 12.8.2, mobile):
 
-1. Add an 800px variant next to each photo in R2 (resize the existing 1200px files — no Google calls) and include it in the `srcset`.
-2. Inline the critical CSS or split it per route (Next's `experimental.inlineCss`), removing the render-blocking request.
+| Step | `/` | City | Shop | Shop LCP | Shop FCP |
+|---|---|---|---|---|---|
+| Baseline (`main`) | 93 | 91 | 85 | 4.4s | 1.5s |
+| 800px photo in the hero `srcset` | 94 | 92 | 86 | 4.1s | 1.5s |
+| `★`/`→` drawn as icons, not text | 94 | 93 | 89 | 3.8s | 0.9s |
+| Open Sans not preloaded | **96** | **93** | **90** | 3.7s | 1.2s |
+| *(tried, not kept)* `experimental.inlineCss` | 95 | 94 | 89 | 3.8s | 1.0s |
+
+- **800px photos**: `scripts/add-photo-800.mjs` made a `-800.webp` next to all 2,055 photos in R2 (63 KB on average against 132 KB at 1200px); new photos get it from `fetch-google-photos.mjs`. The emulated phone now downloads 36 KB for Parnassus instead of the 1200px file.
+- **Glyphs**: `★` on cards and the `→` after links made the browser fetch Open Sans's *symbols* and *math* subsets (69 KB) for one character each, competing with the photo. They're now lucide `Star`/`ArrowRight` icons. Avoid adding those characters (or other arrows, stars, and math symbols) as text.
+- **Font preload**: Open Sans (body) is no longer preloaded, which keeps 42 KB out of the photo's way. Libre Baskerville (headings) still is. CLS stayed at 0.017.
+- **Inline CSS** made the shop page's HTML 111 KB → 265 KB (the CSS also lands in the RSC payload) for no gain on that page, so it was left off.
+
+What's left on the shop page is ~190 KB of shared React/Next JavaScript loading alongside the photo on simulated slow 4G.
 
 ## Mobile audit (scripts/mobile-audit.mjs)
 
