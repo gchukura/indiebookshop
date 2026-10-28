@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { Menu, Search, X } from "lucide-react";
 import SearchBox from "@/components/search/SearchBox";
 import Logo from "@/components/Logo";
+
+const MobileMenu = dynamic(() => import("@/components/MobileMenu"), { ssr: false });
 
 // Optimized NavLink component - uses Next.js Link for efficient navigation
 const NavLink = ({ href, children, className, isActive }: { href: string; children: React.ReactNode; className?: string; isActive: boolean }) => {
@@ -26,6 +28,7 @@ const NavLink = ({ href, children, className, isActive }: { href: string; childr
 const Header = ({ showBlog = true }: { showBlog?: boolean }) => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuLoaded, setMenuLoaded] = useState(false);
 
   // Pre-compute all active states in a single useMemo to avoid function calls during render
   const activeRoutes = useMemo(() => {
@@ -114,87 +117,27 @@ const Header = ({ showBlog = true }: { showBlog?: boolean }) => {
                 </Button>
               </Link>
             </div>
-            {/* Mobile menu control */}
-            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" className="h-11 w-11 text-gray-500 hover:text-brand-teal" aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}>
-                  {isMenuOpen ? (
-                    <X className="h-6 w-6" />
-                  ) : (
-                    <Menu className="h-6 w-6" />
-                  )}
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[250px] sm:w-[300px] overflow-y-auto">
-                <SheetTitle className="sr-only">
-                  Navigation Menu
-                </SheetTitle>
-                <SheetDescription className="sr-only">
-                  Main navigation menu for IndieBookShop.com
-                </SheetDescription>
-                <div className="mt-8 px-1">
-                  <SearchBox variant="compact" onNavigate={() => setIsMenuOpen(false)} />
-                </div>
-                <nav className="flex flex-col gap-2 mt-4">
-                  <Link
-                    href="/directory"
-                    className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Directory
-                  </Link>
-                  <Link
-                    href="/about"
-                    className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    About
-                  </Link>
-                  <Link
-                    href="/events"
-                    className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Events
-                  </Link>
-                  {showBlog && (
-                    <Link
-                      href="/blog"
-                      className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Blog
-                    </Link>
-                  )}
-                  <Link
-                    href="/contact"
-                    className="px-4 py-2 font-sans text-h4 font-semibold hover:bg-gray-100 rounded-md"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Contact
-                  </Link>
-                  <hr />
-                  <Link
-                    href="/submit"
-                    className="w-full mb-2"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Button variant="accent" className="w-full min-h-[44px]">
-                      Add Bookshop
-                    </Button>
-                  </Link>
-                  <Link
-                    href="/submit-event"
-                    className="w-full"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Button className="w-full min-h-[44px]">
-                      Add Event
-                    </Button>
-                  </Link>
-                </nav>
-              </SheetContent>
-            </Sheet>
+            {/* Mobile menu: the sheet's code loads on the first tap (or press) */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden h-11 w-11 text-gray-500 hover:text-brand-teal"
+              aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-haspopup="dialog"
+              aria-expanded={isMenuOpen}
+              onPointerDown={() => setMenuLoaded(true)}
+              onClick={() => {
+                setMenuLoaded(true);
+                setIsMenuOpen(open => !open);
+              }}
+            >
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </Button>
+            {menuLoaded && <MobileMenu open={isMenuOpen} onOpenChange={setIsMenuOpen} showBlog={showBlog} />}
           </div>
         </div>
       </div>
