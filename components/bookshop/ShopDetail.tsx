@@ -1,4 +1,4 @@
-import { Globe, MapPin, Navigation, Pencil, Phone, Star } from 'lucide-react';
+import { ArrowRight, Globe, MapPin, Navigation, Pencil, Phone, Star } from 'lucide-react';
 import Link from 'next/link';
 import type { Bookstore, Event } from '@/shared/schema';
 import LocationBreadcrumbs, { type Crumb } from '@/components/location/LocationBreadcrumbs';
@@ -170,6 +170,7 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
                   {
                     src: photoUrl,
                     thumbSrc: getBookshopPhotoUrl(b, 'thumb') ?? undefined,
+                    mediumSrc: getBookshopPhotoUrl(b, 'medium') ?? undefined,
                     alt: `${b.name} in ${b.city}, ${getStateAbbrev(b.state)}`,
                     credit: b.photoAttribution ? { name: b.photoAttribution, url: b.photoAttributionUrl } : null,
                   },
@@ -304,7 +305,7 @@ export default function ShopDetail({ bookstore: b, canonicalSlug, nearby, events
             {cityCrumb && (
               <p className="mt-6 text-sm">
                 <Link href={cityCrumb.href} className="inline-flex min-h-[44px] items-center text-brand-teal hover:underline">
-                  All bookshops in {b.city} →
+                  All bookshops in {b.city} <ArrowRight className="inline h-4 w-4 align-[-0.125em]" aria-hidden="true" />
                 </Link>
               </p>
             )}

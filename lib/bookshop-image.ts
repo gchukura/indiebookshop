@@ -3,7 +3,7 @@ import type { Bookstore } from '@/shared/schema';
 /**
  * Shop photos live in Cloudflare R2 (scripts/fetch-google-photos.mjs) and are
  * served same-origin at /photos/... via a rewrite in next.config.mjs. Each photo
- * has a 1200px file and a `-400` thumbnail next to it.
+ * has a 1200px file, an `-800` copy, and a `-400` thumbnail next to it.
  *
  * Shops without a photo get a generic book placeholder from public/placeholders/,
  * picked by id so a shop always shows the same one. Placeholders are for display
@@ -11,6 +11,11 @@ import type { Bookstore } from '@/shared/schema';
  */
 
 export type PhotoSize = 'large' | 'thumb';
+
+/** Photo widths in R2. Placeholders only come in large and thumb. */
+export type PhotoWidth = PhotoSize | 'medium';
+
+const PHOTO_SUFFIX: Record<PhotoWidth, string> = { large: '', medium: '-800', thumb: '-400' };
 
 const PLACEHOLDER_COUNT = 18;
 
@@ -27,10 +32,10 @@ export function toPhotoPath(raw: string | null | undefined): string | null {
 }
 
 /** The shop's own photo, or null. */
-export function getBookshopPhotoUrl(bookshop: Pick<Bookstore, 'imageUrl'>, size: PhotoSize = 'large'): string | null {
+export function getBookshopPhotoUrl(bookshop: Pick<Bookstore, 'imageUrl'>, size: PhotoWidth = 'large'): string | null {
   const path = toPhotoPath(bookshop.imageUrl);
   if (!path) return null;
-  return size === 'thumb' ? path.replace(/\.webp$/, '-400.webp') : path;
+  return path.replace(/\.webp$/, `${PHOTO_SUFFIX[size]}.webp`);
 }
 
 /** Generic book placeholder for a shop, stable per id. */

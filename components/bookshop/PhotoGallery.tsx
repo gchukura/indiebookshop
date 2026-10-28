@@ -6,12 +6,18 @@ import BookshopImage from '@/components/BookshopImage';
 export type GalleryPhoto = {
   /** 1200px image. */
   src: string;
-  /** Optional 400px version, offered to small screens via srcset. */
+  /** Optional 400px and 800px versions, offered to smaller screens via srcset. */
   thumbSrc?: string;
+  mediumSrc?: string;
   alt: string;
   /** Photographer credit, shown under the photo as "Photo: {name} via Google". */
   credit?: { name: string; url?: string | null } | null;
 };
+
+function srcSet({ src, thumbSrc, mediumSrc }: GalleryPhoto): string | undefined {
+  const entries = [thumbSrc && `${thumbSrc} 400w`, mediumSrc && `${mediumSrc} 800w`].filter(Boolean);
+  return entries.length ? [...entries, `${src} 1200w`].join(', ') : undefined;
+}
 
 /** Main photo with credit; thumbnails to switch between photos when there's more than one. */
 export default function PhotoGallery({ photos, fallbackSrc }: { photos: GalleryPhoto[]; fallbackSrc: string }) {
@@ -24,7 +30,7 @@ export default function PhotoGallery({ photos, fallbackSrc }: { photos: GalleryP
       <div className="relative aspect-[16/9] rounded-lg overflow-hidden bg-brand-cream">
         <BookshopImage
           src={photo.src}
-          srcSet={photo.thumbSrc ? `${photo.thumbSrc} 400w, ${photo.src} 1200w` : undefined}
+          srcSet={srcSet(photo)}
           sizes="(min-width: 1024px) 760px, 100vw"
           alt={photo.alt}
           className="w-full h-full object-cover"
