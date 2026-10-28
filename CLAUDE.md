@@ -94,7 +94,6 @@ Google Sheet (tabs: Bookstores, Features, Events; forms append to Newsletter, Su
 - `components/BookshopImage.tsx`, forms `BookshopSubmissionForm.tsx`, `EventSubmissionForm.tsx`
 - `components/ui/` — shadcn primitives. `components/Providers.tsx` wraps the app in React Query (`lib/queryClient.ts`); used by the events page and the two forms.
 - Ads: `components/ads/AdSlot.tsx` + `lib/ads.ts`, off unless `NEXT_PUBLIC_ADSENSE_ENABLED=true` (see `docs/ADS.md`).
-- Imported by nothing (candidate for removal): `components/StateFlag.tsx`.
 
 ## Brand
 - Colors: brown `#5F4B32` (headings), teal `#2A6B7C` (primary actions), orange `#E16D3D` (accent/CTAs), cream `#F7F3E8` (section backgrounds), with hover shades for teal and orange.

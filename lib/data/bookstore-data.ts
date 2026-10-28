@@ -6,7 +6,6 @@ import { cache } from 'react';
 import { getBookstoresFromSheets, getEventsFromSheets, getFeaturesFromSheets } from '@/lib/google-sheets-client';
 import { Bookstore, Event, Feature } from '@/shared/schema';
 import { getStateAbbrev, STATE_ABBREV_TO_FULL } from '@/lib/state-utils';
-import { safeMapGet, safeMapKeys } from './cache-utils';
 import { getBookstoreSlug } from './slug';
 import { makeCityKey } from './location-key';
 import { daysSinceEpoch, pickFeaturedBookstores } from './featured';
@@ -220,7 +219,7 @@ export async function getAllBookstores(): Promise<Bookstore[]> {
 export async function getBookstoresByCity(city: string, state: string): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
   const stateAbbrev = getStateAbbrev(state);
-  return safeMapGet(data.byCity, makeCityKey(city, stateAbbrev)) || [];
+  return data.byCity[makeCityKey(city, stateAbbrev)] || [];
 }
 
 /**
@@ -229,7 +228,7 @@ export async function getBookstoresByCity(city: string, state: string): Promise<
 export async function getBookstoresByState(state: string): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
   const stateAbbrev = getStateAbbrev(state);
-  return safeMapGet(data.byState, stateAbbrev.toLowerCase()) || [];
+  return data.byState[stateAbbrev.toLowerCase()] || [];
 }
 
 /**
@@ -238,7 +237,7 @@ export async function getBookstoresByState(state: string): Promise<Bookstore[]> 
 export async function getBookstoresByCounty(county: string, state: string): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
   const stateAbbrev = getStateAbbrev(state);
-  return safeMapGet(data.byCounty, makeCityKey(county, stateAbbrev)) || [];
+  return data.byCounty[makeCityKey(county, stateAbbrev)] || [];
 }
 
 /**
@@ -246,7 +245,7 @@ export async function getBookstoresByCounty(county: string, state: string): Prom
  */
 export async function getBookstoresByFeature(featureId: number): Promise<Bookstore[]> {
   const data = await getProcessedBookstoreData();
-  return safeMapGet(data.byFeature, String(featureId)) || [];
+  return data.byFeature[String(featureId)] || [];
 }
 
 /**
@@ -254,7 +253,7 @@ export async function getBookstoresByFeature(featureId: number): Promise<Booksto
  */
 export async function getBookstoreBySlug(slug: string): Promise<Bookstore | null> {
   const data = await getProcessedBookstoreData();
-  const bookstore = safeMapGet(data.bySlug, slug.toLowerCase());
+  const bookstore = data.bySlug[slug.toLowerCase()];
 
   if (bookstore) return bookstore;
 
@@ -295,8 +294,8 @@ export async function getCitiesWithState(): Promise<Array<{ city: string; state:
   const data = await getProcessedBookstoreData();
   const cities: Array<{ city: string; state: string; count: number }> = [];
 
-  for (const key of safeMapKeys(data.byCity)) {
-    const bookstores = safeMapGet(data.byCity, key) || [];
+  for (const key of Object.keys(data.byCity)) {
+    const bookstores = data.byCity[key] || [];
     if (bookstores.length > 0) {
       // Get proper case from first bookstore
       cities.push({
@@ -317,8 +316,8 @@ export async function getCountiesWithState(): Promise<Array<{ county: string; st
   const data = await getProcessedBookstoreData();
   const counties: Array<{ county: string; state: string; count: number }> = [];
 
-  for (const key of safeMapKeys(data.byCounty)) {
-    const bookstores = safeMapGet(data.byCounty, key) || [];
+  for (const key of Object.keys(data.byCounty)) {
+    const bookstores = data.byCounty[key] || [];
     if (bookstores.length > 0) {
       counties.push({
         county: bookstores[0].county!,
@@ -365,18 +364,18 @@ export async function getFilteredBookstores(filters: {
   if (filters.state) {
     const stateAbbrev = getStateAbbrev(filters.state.trim());
     if (stateAbbrev) {
-      results = safeMapGet(data.byState, stateAbbrev.toLowerCase()) || [];
+      results = data.byState[stateAbbrev.toLowerCase()] || [];
     }
   }
 
   // Filter by city (requires state context; keys use state abbrev)
   if (filters.city && filters.state) {
-    results = safeMapGet(data.byCity, makeCityKey(filters.city, filters.state)) || [];
+    results = data.byCity[makeCityKey(filters.city, filters.state)] || [];
   }
 
   // Filter by county (requires state context; keys use state abbrev)
   if (filters.county && filters.state) {
-    results = safeMapGet(data.byCounty, makeCityKey(filters.county, filters.state)) || [];
+    results = data.byCounty[makeCityKey(filters.county, filters.state)] || [];
   }
 
   // Filter by features
@@ -407,7 +406,7 @@ export async function getTotalBookstoreCount(): Promise<number> {
 export async function getCountByState(state: string): Promise<number> {
   const data = await getProcessedBookstoreData();
   const stateAbbrev = getStateAbbrev(state);
-  const bookstores = safeMapGet(data.byState, stateAbbrev.toLowerCase()) || [];
+  const bookstores = data.byState[stateAbbrev.toLowerCase()] || [];
   return bookstores.length;
 }
 
