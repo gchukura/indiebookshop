@@ -55,7 +55,7 @@ The useful pieces to reuse: the place-ID → fresh-reference → bytes logic in 
 **`scripts/fetch-google-photos.mjs`** (run locally, see the file header for flags):
 1. Reads the live rows in `Bookstores` that have a `google_place_id` and an `imageurl` not already on R2.
 2. Calls Place Details (New) with field mask `photos`. This is the free "IDs Only" SKU. It prefers a landscape photo among the first three, else the first.
-3. Downloads the photo at 1600px and re-encodes it with `sharp` to `photos/<id>-<sha1-10>.webp` (1200px, q72, ~100 KB) and `…-400.webp` (q70, ~15 KB).
+3. Downloads the photo at 1600px and re-encodes it with `sharp` to `photos/<id>-<sha1-10>.webp` (1200px, q72, ~100 KB), `…-800.webp` (q72, ~60 KB; the detail page's srcset picks it on phones), and `…-400.webp` (q70, ~15 KB). `scripts/add-photo-800.mjs` backfilled the `-800` files from the 1200px ones on 2026-10-28.
 4. Uploads both to R2 with `Cache-Control: public, max-age=31536000, s-maxage=31536000, immutable`. The hash in the name means a new photo gets a new URL.
 5. Writes the r2.dev URL to `imageurl`, and the first author's name and profile URL to `photo_attribution` and `photo_attribution_url` (columns AS/AT). Writes are batched every 50 rows.
 - `--dry-run` makes Details calls only: no media downloads, uploads, or Sheet writes. `--limit N`, `--ids a,b`, `--force`, `--report <path>`.

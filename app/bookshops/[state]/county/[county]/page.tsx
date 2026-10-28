@@ -11,6 +11,7 @@ import { getFeatureIndex } from '@/lib/data/features';
 import { countyIntro, toMetaDescription } from '@/lib/data/location-content';
 import { placeTitle } from '@/lib/seo';
 import { cityToSlug } from '@/lib/data/location-slugs';
+import { ArrowRight } from 'lucide-react';
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -76,7 +77,7 @@ export default async function CountyPage({ params }: Props) {
         <PlaceLinks title={`Cities in ${county.displayName}`} links={cityLinks} />
         <p className="text-sm">
           <Link href={`/bookshops/${state.slug}`} className="text-brand-teal hover:underline">
-            All {state.shops.length.toLocaleString('en-US')} bookshops in {state.name} →
+            All {state.shops.length.toLocaleString('en-US')} bookshops in {state.name} <ArrowRight className="inline h-4 w-4 align-[-0.125em]" aria-hidden="true" />
           </Link>
         </p>
       </main>

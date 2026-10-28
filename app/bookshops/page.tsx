@@ -3,6 +3,7 @@ import Link from 'next/link';
 import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import { getLocationIndex } from '@/lib/data/locations';
 import { BRAND, fitTitle, DEFAULT_OG_IMAGE } from '@/lib/seo';
+import { ArrowRight } from 'lucide-react';
 
 export const revalidate = 3600;
 
@@ -43,7 +44,7 @@ export default async function BookshopsIndexPage() {
           <p className="text-gray-700 leading-relaxed">{intro}</p>
           <p className="mt-3 text-sm">
             <Link href="/bookshops/features" className="text-brand-teal hover:underline">
-              Or browse by feature: cafés, used books, children’s sections, and more →
+              Or browse by feature: cafés, used books, children’s sections, and more <ArrowRight className="inline h-4 w-4 align-[-0.125em]" aria-hidden="true" />
             </Link>
           </p>
         </header>

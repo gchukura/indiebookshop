@@ -21,6 +21,9 @@ const openSans = Open_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
+  // Not preloaded: on phones it competed with the shop page's hero photo (LCP); the
+  // size-adjusted fallback keeps the swap from shifting layout
+  preload: false,
 });
 
 // Configure viewport with proper accessibility settings

@@ -4,10 +4,11 @@
  * For each live row in the Bookstores tab that has a google_place_id and no R2
  * photo yet:
  *   1. Place Details (New) with field mask `photos` → photo names + author attributions
- *   2. Photo media at 1600px → re-encode with sharp to two WebPs:
+ *   2. Photo media at 1600px → re-encode with sharp to three WebPs:
  *        photos/<id>-<hash>.webp      1200px wide (detail page, og:image)
+ *        photos/<id>-<hash>-800.webp   800px wide (detail page srcset, phones)
  *        photos/<id>-<hash>-400.webp   400px wide (cards)
- *   3. Upload both to R2 with immutable cache headers
+ *   3. Upload them to R2 with immutable cache headers
  *   4. Write the 1200px URL to `imageurl`, and the author to
  *      `photo_attribution` / `photo_attribution_url` (headers are added if missing)
  *
@@ -55,6 +56,7 @@ const CONCURRENCY = 4;
 const SHEET_FLUSH_SIZE = 50;
 const SIZES = [
   { suffix: '', width: 1200, quality: 72 },
+  { suffix: '-800', width: 800, quality: 72 },
   { suffix: '-400', width: 400, quality: 70 },
 ];
 // s-maxage lets Vercel's CDN cache the /photos rewrite to R2
@@ -289,7 +291,7 @@ async function main() {
   console.log('\n[photos] Summary');
   console.log(`  processed:          ${done}`);
   if (DRY_RUN) console.log(`  would fetch photo:  ${wouldFetch}`);
-  else console.log(`  uploaded:           ${report.uploaded.length} (${(report.bytes / 1024 / 1024).toFixed(1)} MB in R2, both sizes)`);
+  else console.log(`  uploaded:           ${report.uploaded.length} (${(report.bytes / 1024 / 1024).toFixed(1)} MB in R2, all sizes)`);
   console.log(`  no photos on Google: ${report.noPhotos.length}`);
   console.log(`  stale place IDs:    ${report.stale.length}`);
   console.log(`  no place ID:        ${report.noPlaceId.length}`);

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import { formatPostDate, getAllPosts } from '@/lib/blog';
 import { BRAND, DEFAULT_OG_IMAGE } from '@/lib/seo';
+import { ArrowRight } from 'lucide-react';
 
 const DESCRIPTION = 'Guides and stories about independent bookshops across the United States, and how to get the most out of the directory.';
 
@@ -39,7 +40,7 @@ export default async function BlogIndexPage() {
                 </p>
                 <p className="mt-3 text-gray-700">{post.description}</p>
                 <Link href={`/blog/${post.slug}`} className="mt-2 inline-flex min-h-[44px] items-center text-sm font-semibold text-brand-teal hover:underline">
-                  Read more →
+                  Read more <ArrowRight className="inline h-4 w-4 align-[-0.125em]" aria-hidden="true" />
                 </Link>
               </article>
             </li>

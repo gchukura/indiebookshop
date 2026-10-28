@@ -10,6 +10,7 @@ import { getLocationIndex } from '@/lib/data/locations';
 import { stateFeatureIntro, toMetaDescription } from '@/lib/data/location-content';
 import { getStateAbbrev } from '@/lib/state-utils';
 import { BRAND, fitTitle } from '@/lib/seo';
+import { ArrowRight } from 'lucide-react';
 
 export const revalidate = 3600;
 export const dynamicParams = false;
@@ -86,10 +87,10 @@ export default async function StateFeaturePage({ params }: Props) {
 
         <p className="text-sm flex flex-wrap gap-x-6 gap-y-2">
           <Link href={`/bookshops/features/${feature.slug}`} className="text-brand-teal hover:underline">
-            Bookshops with {feature.phrase.toLowerCase()} in every state ({feature.shops.length}) →
+            Bookshops with {feature.phrase.toLowerCase()} in every state ({feature.shops.length}) <ArrowRight className="inline h-4 w-4 align-[-0.125em]" aria-hidden="true" />
           </Link>
           <Link href={`/bookshops/${state.slug}`} className="text-brand-teal hover:underline">
-            All {state.shops.length.toLocaleString('en-US')} bookshops in {state.name} →
+            All {state.shops.length.toLocaleString('en-US')} bookshops in {state.name} <ArrowRight className="inline h-4 w-4 align-[-0.125em]" aria-hidden="true" />
           </Link>
         </p>
       </main>
