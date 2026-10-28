@@ -88,11 +88,11 @@ Google Sheet (tabs: Bookstores, Features, Events; forms append to Newsletter, Su
 `Event` (`Events` tab): `id, bookshopId, title, description, date, time`.
 
 ## Key files
-- `components/Header.tsx`, `Footer.tsx` (client; footer posts the newsletter form), `Logo.tsx`
+- `components/Header.tsx`, `Footer.tsx` (client; footer posts the newsletter form and shows the result inline), `Logo.tsx`. The phone menu is `components/MobileMenu.tsx`, loaded with `next/dynamic` on the first tap so Radix Dialog isn't in every page's JS
 - `components/StructuredData.tsx` — JSON-LD (`LocalBusinessSchema`, `BreadcrumbSchema`, etc.)
 - `components/bookshop/BookshopCard.tsx` — the one shop card (`size="compact"` for lists, optional `distanceMiles`); used by home, directory, location/feature pages, and nearby lists
 - `components/BookshopImage.tsx`, forms `BookshopSubmissionForm.tsx`, `EventSubmissionForm.tsx`
-- `components/ui/` — shadcn primitives. `components/Providers.tsx` wraps the app in React Query (`lib/queryClient.ts`); used by the events page and the two forms.
+- `components/ui/` — shadcn primitives. `components/Providers.tsx` (React Query from `lib/queryClient.ts` + the toast `Toaster`) wraps only the two submission forms in `/submit` and `/submit-event`, not the root layout — keep it that way, or every page ships both libraries.
 - Ads: `components/ads/AdSlot.tsx` + `lib/ads.ts`, off unless `NEXT_PUBLIC_ADSENSE_ENABLED=true` (see `docs/ADS.md`).
 
 ## Brand
