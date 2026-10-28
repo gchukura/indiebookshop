@@ -7,6 +7,7 @@ import { getStateAbbrev } from '@/lib/state-utils';
 import type { FeatureLink } from '@/lib/data/feature-index';
 import { cn } from '@/lib/utils';
 import FeatureChips from './FeatureChips';
+import { Star } from 'lucide-react';
 
 /** The fields a card reads; listing records and the directory's slim records both fit. */
 export type CardBookshop = Pick<
@@ -81,7 +82,7 @@ export default function BookshopCard({
         </p>
         {bookshop.googleRating && (
           <div className="flex items-center gap-1 text-sm">
-            <span className="text-yellow-600" aria-hidden="true">★</span>
+            <Star className="h-4 w-4 shrink-0 text-yellow-600 fill-current" aria-hidden="true" />
             <span className="text-gray-700">{bookshop.googleRating}</span>
             {bookshop.googleReviewCount ? (
               <span className="text-gray-500">

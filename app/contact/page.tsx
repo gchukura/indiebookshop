@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Mail, Clock } from 'lucide-react';
+import { ArrowRight, Clock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -130,7 +130,7 @@ export default function ContactPage() {
               </h2>
               <div className="space-y-3 font-sans text-sm md:text-base text-gray-700">
                 <p className="flex items-start">
-                  <span className="text-brand-orange font-semibold mr-2">→</span>
+                  <ArrowRight className="mt-1 mr-2 h-4 w-4 shrink-0 text-brand-orange" aria-hidden="true" />
                   <span>
                     <strong>Add a bookshop:</strong>{' '}
                     <Link href="/submit" className="text-brand-teal underline hover:text-brand-orange transition-colors">
@@ -139,7 +139,7 @@ export default function ContactPage() {
                   </span>
                 </p>
                 <p className="flex items-start">
-                  <span className="text-brand-orange font-semibold mr-2">→</span>
+                  <ArrowRight className="mt-1 mr-2 h-4 w-4 shrink-0 text-brand-orange" aria-hidden="true" />
                   <span>
                     <strong>Submit an event:</strong>{' '}
                     <Link href="/submit-event" className="text-brand-teal underline hover:text-brand-orange transition-colors">
@@ -149,7 +149,7 @@ export default function ContactPage() {
                 </p>
                 {/* FAQ no longer on site
                 <p className="flex items-start">
-                  <span className="text-brand-orange font-semibold mr-2">→</span>
+                  <ArrowRight className="mt-1 mr-2 h-4 w-4 shrink-0 text-brand-orange" aria-hidden="true" />
                   <span>
                     <strong>Common questions:</strong>{' '}
                     <Link href="/about#faq" className="text-brand-teal underline hover:text-brand-orange transition-colors">

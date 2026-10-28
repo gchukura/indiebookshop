@@ -12,6 +12,7 @@ import { OrganizationSchema, WebSiteSchema } from '@/components/StructuredData';
 import BookshopCard from '@/components/bookshop/BookshopCard';
 import SearchBox from '@/components/search/SearchBox';
 import { BRAND } from '@/lib/seo';
+import { ArrowRight } from 'lucide-react';
 
 export async function generateMetadata(): Promise<Metadata> {
   const count = await getTotalBookstoreCount().catch(() => 0);
@@ -157,7 +158,7 @@ export default async function HomePage() {
               </Link>
               {nextEvents.length > 0 && (
                 <Link href="/events" className="text-sm font-semibold text-brand-teal hover:underline">
-                  All upcoming events →
+                  All upcoming events <ArrowRight className="inline h-4 w-4 align-[-0.125em]" aria-hidden="true" />
                 </Link>
               )}
             </div>

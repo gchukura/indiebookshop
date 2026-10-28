@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { CalendarDays } from 'lucide-react';
+import { ArrowRight, CalendarDays } from 'lucide-react';
 import LocationBreadcrumbs from '@/components/location/LocationBreadcrumbs';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -83,7 +83,7 @@ export default async function EventsPage() {
             ))}
             <p className="text-sm">
               <Link href="/submit-event" className="text-brand-teal hover:underline">
-                Hosting an event? Submit it →
+                Hosting an event? Submit it <ArrowRight className="inline h-4 w-4 align-[-0.125em]" aria-hidden="true" />
               </Link>
             </p>
           </div>
