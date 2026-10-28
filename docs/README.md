@@ -1,48 +1,23 @@
-# IndieBookShop.com Documentation
+# IndieBookShop.com documentation
 
-This directory contains all project documentation organized by category.
+Current docs for the Next.js app. Start with `CLAUDE.md` and `README.md` at the repo root.
 
-## Directory Structure
+## Data and photos
+- [DATA_SOURCE_OPTIONS.md](./DATA_SOURCE_OPTIONS.md) — why the site builds from a Sheet snapshot (option A) and the alternatives considered
+- [setup/PUBLISHING.md](./setup/PUBLISHING.md) — how Sheet edits go live (Apps Script publish, nightly deploy)
+- [PHOTO_PIPELINE.md](./PHOTO_PIPELINE.md) — one Google photo per shop, stored in R2
 
-### `/setup`
-Setup and installation guides:
-- **ADSENSE_SETUP.md** - Google AdSense integration guide
-- **GOOGLE_SHEETS_SETUP.md** - Google Sheets API setup instructions
-- **DEPLOY-VERCEL.md** - Vercel deployment guide
-- **DEPLOYMENT_CHECKLIST.md** - Pre-deployment verification checklist
-- **FORM_SUBMISSIONS.md** - Form submission setup (Supabase + SendGrid)
-- **SENDGRID_CONTACT_FORM_SETUP.md** - SendGrid email configuration
-- **CREATE_EVENTS_TABLE.md** - How to create the events table in Supabase
-- **VERIFY_SUPABASE_ENV.md** - Supabase environment variable verification
-- **RATE_LIMITING.md** - Rate limiting and honeypot on form endpoints
-- **SMOKE_TESTING.md** - Smoke testing procedures
+## Forms and email
+- [setup/FORM_SUBMISSIONS.md](./setup/FORM_SUBMISSIONS.md) — submissions, "Suggest an edit", and the Sheet's `Submissions` tab
+- [setup/RATE_LIMITING.md](./setup/RATE_LIMITING.md) — rate limits and the honeypot on form endpoints
+- [setup/FIX_SENDGRID_EMAIL.md](./setup/FIX_SENDGRID_EMAIL.md) — troubleshooting SendGrid
 
-### `/guides`
-Development guides and best practices:
-- **STYLE_GUIDE.md** - Design system and coding standards
-- **MAPBOX_SECURITY.md** - Mapbox token security best practices
-- **TESTING.md** - Testing instructions for server-side features
-- **BROWSER_TESTING.md** - Browser testing procedures
-- **URL_TESTING.md** - URL pattern and redirect testing guide
+## Ads
+- [ADS.md](./ADS.md) — AdSense slots, where they render, and the env flag
 
-### `/reference`
-Technical reference documentation:
-- **FEATUREIDS_COLUMN_PARSING.md** - How featureIds column parsing works
-- **CATEGORY_FILTERING_ANALYSIS.md** - Category/feature filtering implementation details
-- **FRONTEND_BACKEND_ALIGNMENT.md** - How frontend forms align with backend API
-- **URL_PATTERNS.md** - URL pattern testing and validation
+## Screenshots and audits
+- `screenshots/` — before/after screenshots from the tokens, detail, homepage, and mobile passes
+- [screenshots/mobile/LIGHTHOUSE.md](./screenshots/mobile/LIGHTHOUSE.md) — mobile Lighthouse scores and audit results
 
-### `/reviews`
-Code review artifacts and verification reports:
-- **directory/** - Action plans, code reviews, and verification notes for the unified directory project
-- **form-submissions/** - Code review and fixes for form submission implementation
-- **MERGE_READINESS_REVIEW.md** - Recent merge readiness evaluation
-- **CANONICAL_TAGS_CODE_REVIEW.md** - Code review for canonical tags and URL redirects
-
-## Quick Links
-
-- [Style Guide](./guides/STYLE_GUIDE.md) - Design system and coding standards
-- [Deploy to Vercel](./setup/DEPLOY-VERCEL.md) - Deployment instructions
-- [Google Sheets Setup](./setup/GOOGLE_SHEETS_SETUP.md) - Data source configuration
-- [AdSense Setup](./setup/ADSENSE_SETUP.md) - Ad integration guide
-- [Testing Guide](./guides/TESTING.md) - Testing procedures
+## Archive
+`archive/` holds notes from earlier versions of the site (Vite/Express, Supabase, Edge Middleware). They describe code that no longer exists; don't follow them.
