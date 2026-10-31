@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { hasBlogPosts } from '@/lib/blog';
 import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/next';
 import { ADS_ENABLED, ADSENSE_CLIENT } from '@/lib/ads';
 
 // Brand fonts, exposed as CSS variables consumed by tailwind.config.ts fontFamily
@@ -93,6 +94,7 @@ export default function RootLayout({
           </main>
           <Footer showBlog={hasBlogPosts()} />
         </div>
+        <Analytics />
       </body>
     </html>
   );
