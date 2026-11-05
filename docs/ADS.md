@@ -4,7 +4,7 @@ Ads are **off by default**. With the flag off, pages contain no ad markup and th
 
 ## Turning ads on
 
-1. In AdSense, approve `indiebookshop.com`. `public/ads.txt` already lists publisher `pub-4357894821158922`, and with the flag on every page carries the `google-adsense-account` meta tag and the AdSense script, both of which AdSense accepts for site verification.
+1. In AdSense, verify and approve `indiebookshop.com` with the **Meta tag** method. Every page carries `<meta name="google-adsense-account" content="ca-pub-4357894821158922">` whether or not the flag is on, so the site can be verified before any ad code loads. `public/ads.txt` already lists publisher `pub-4357894821158922`.
 2. Create four display ad units and copy their ids (the `data-ad-slot` numbers):
 
    | Env var | Slot name | Where it renders | Size |
@@ -21,7 +21,7 @@ No ads appear on the homepage, directory, search, near-me, events, blog, or any 
 ## How it works
 
 - `lib/ads.ts` holds the publisher id, `ADS_ENABLED`, the slot ids, and `CARDS_PER_LIST_AD` (10).
-- `app/layout.tsx` loads `adsbygoogle.js` with `next/script` `strategy="lazyOnload"` (after the page is idle) only when `ADS_ENABLED`.
+- `app/layout.tsx` always renders the `google-adsense-account` meta tag (verification only, no script) and loads `adsbygoogle.js` with `next/script` `strategy="lazyOnload"` (after the page is idle) only when `ADS_ENABLED`.
 - `components/ads/AdSlot.tsx` (client) is the one ad component:
   - It draws an "Advertisement" label and a box of **fixed** height (280px, or 300×600 for the rail). A filled, unfilled, or slow ad never changes the layout, so it can't add layout shift.
   - Lazy slots render their `<ins>` and push to `adsbygoogle` only when within 200px of the viewport (IntersectionObserver).

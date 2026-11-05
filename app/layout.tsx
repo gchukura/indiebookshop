@@ -68,8 +68,8 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  // AdSense site verification; only when ads are on (docs/ADS.md)
-  ...(ADS_ENABLED && { other: { 'google-adsense-account': ADSENSE_CLIENT } }),
+  // AdSense site verification; always on so the site can be verified before ads are (docs/ADS.md)
+  other: { 'google-adsense-account': ADSENSE_CLIENT },
 };
 
 export default function RootLayout({
