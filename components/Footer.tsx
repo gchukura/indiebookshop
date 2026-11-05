@@ -172,6 +172,14 @@ const Footer = ({ showBlog = true }: { showBlog?: boolean }) => {
                     Contact
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/privacy"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center font-sans text-sm text-gray-300 hover:text-white hover:underline transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
                 {showBlog && (
                   <li>
                     <Link

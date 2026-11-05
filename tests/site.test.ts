@@ -70,7 +70,7 @@ describe('processed data', () => {
 
 /** Every path the app pre-generates, from each route's generateStaticParams. */
 async function generatedPaths(): Promise<Set<string>> {
-  const paths = new Set(['/', '/directory', '/about', '/contact', '/events', '/submit', '/submit-event', '/bookshops', '/bookshops/features', '/blog']);
+  const paths = new Set(['/', '/directory', '/about', '/contact', '/privacy', '/events', '/submit', '/submit-event', '/bookshops', '/bookshops/features', '/blog']);
   for (const p of await statePage.generateStaticParams()) paths.add(`/bookshops/${p.state}`);
   for (const p of await cityPage.generateStaticParams()) paths.add(`/bookshops/${p.state}/${p.city}`);
   for (const p of await countyPage.generateStaticParams()) paths.add(`/bookshops/${p.state}/county/${p.county}`);
