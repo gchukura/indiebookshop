@@ -32,6 +32,25 @@ export function placeTitle(place: string, placeShort: string, count: number, pre
 }
 
 /**
+ * Location pages with fewer shops than this are `noindex, follow` and left out of
+ * the sitemap: a one-shop city page repeats that shop's own page, and Google
+ * reports such pages as "Crawled - currently not indexed".
+ */
+export const MIN_SHOPS_TO_INDEX = 2;
+
+/** Robots value for pages that should be crawled for links but not indexed. */
+export const NOINDEX_FOLLOW = { index: false, follow: true } as const;
+
+export function isIndexableCity(city: { shops: readonly unknown[] }): boolean {
+  return city.shops.length >= MIN_SHOPS_TO_INDEX;
+}
+
+/** A county page in a single town lists the same shops as that town's page, so it isn't indexed either. */
+export function isIndexableCounty(county: { shops: readonly unknown[]; cityNames: readonly string[] }): boolean {
+  return county.shops.length >= MIN_SHOPS_TO_INDEX && county.cityNames.length >= 2;
+}
+
+/**
  * The site-wide share image (app/opengraph-image.tsx). Pages that set their own
  * `openGraph` replace the inherited image, so general pages pass this explicitly;
  * pages with their own opengraph-image.tsx don't need it.

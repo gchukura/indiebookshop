@@ -4,6 +4,7 @@ import { getBookstoreSlug } from '@/lib/data/slug';
 import { getLocationIndex } from '@/lib/data/locations';
 import { getFeatureIndex } from '@/lib/data/features';
 import { getAllPosts } from '@/lib/blog';
+import { isIndexableCity, isIndexableCounty } from '@/lib/seo';
 
 /**
  * Generate comprehensive sitemap.xml for SEO
@@ -12,8 +13,9 @@ import { getAllPosts } from '@/lib/blog';
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.indiebookshop.com';
-  // One timestamp per sitemap run so entries don't differ by milliseconds
-  const lastModified = new Date();
+  // No <lastmod> except on blog posts: the Sheet has no reliable per-shop edit date, and
+  // stamping every URL with the build time on each (hourly) deploy teaches Google to
+  // ignore the field. Form pages (/submit, /submit-event) are left out on purpose.
 
   try {
     // Use shared processed data (same cache as all pages)
@@ -26,51 +28,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const staticPages: MetadataRoute.Sitemap = [
       {
         url: baseUrl,
-        lastModified,
         changeFrequency: 'daily',
         priority: 1.0,
       },
       {
         url: `${baseUrl}/directory`,
-        lastModified,
         changeFrequency: 'daily',
         priority: 0.9,
       },
       {
         url: `${baseUrl}/about`,
-        lastModified,
         changeFrequency: 'monthly',
         priority: 0.5,
       },
       {
         url: `${baseUrl}/contact`,
-        lastModified,
         changeFrequency: 'monthly',
         priority: 0.5,
       },
       {
         url: `${baseUrl}/privacy`,
-        lastModified,
         changeFrequency: 'yearly',
         priority: 0.3,
       },
       {
         url: `${baseUrl}/events`,
-        lastModified,
         changeFrequency: 'weekly',
         priority: 0.6,
-      },
-      {
-        url: `${baseUrl}/submit`,
-        lastModified,
-        changeFrequency: 'monthly',
-        priority: 0.4,
-      },
-      {
-        url: `${baseUrl}/submit-event`,
-        lastModified,
-        changeFrequency: 'monthly',
-        priority: 0.4,
       },
     ];
 
@@ -82,7 +66,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { states } = await getLocationIndex();
     const page = (path: string, priority: number) => ({
       url: `${baseUrl}${path}`,
-      lastModified,
       changeFrequency: 'weekly' as const,
       priority,
     });
@@ -91,17 +74,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...states.map(s => page(`/bookshops/${s.slug}`, 0.8)),
     ];
     const cityPages: MetadataRoute.Sitemap = states.flatMap(s =>
-      s.cities.map(c => page(`/bookshops/${s.slug}/${c.slug}`, 0.7))
+      s.cities.filter(isIndexableCity).map(c => page(`/bookshops/${s.slug}/${c.slug}`, 0.7))
     );
     const countyPages: MetadataRoute.Sitemap = states.flatMap(s =>
-      s.counties.map(c => page(`/bookshops/${s.slug}/county/${c.slug}`, 0.6))
+      s.counties.filter(isIndexableCounty).map(c => page(`/bookshops/${s.slug}/county/${c.slug}`, 0.6))
     );
 
     // Blog (only when there are posts; /blog 404s otherwise)
     const posts = await getAllPosts();
     const blogPages: MetadataRoute.Sitemap = posts.length
       ? [
-          { url: `${baseUrl}/blog`, lastModified, changeFrequency: 'weekly' as const, priority: 0.6 },
+          { url: `${baseUrl}/blog`, changeFrequency: 'weekly' as const, priority: 0.6 },
           ...posts.map(p => ({ url: `${baseUrl}/blog/${p.slug}`, lastModified: new Date(`${p.date}T12:00:00Z`), changeFrequency: 'monthly' as const, priority: 0.6 })),
         ]
       : [];
@@ -133,7 +116,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
       .map(({ slug }) => ({
         url: `${baseUrl}/bookshop/${slug}`,
-        lastModified,
         changeFrequency: 'monthly' as const,
         priority: 0.7,
       }));
@@ -160,13 +142,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [
       {
         url: baseUrl,
-        lastModified,
         changeFrequency: 'daily',
         priority: 1.0,
       },
       {
         url: `${baseUrl}/directory`,
-        lastModified,
         changeFrequency: 'daily',
         priority: 0.9,
       },

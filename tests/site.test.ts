@@ -23,6 +23,7 @@ import * as shopPage from '@/app/bookshop/[slug]/page';
 import * as blogIndex from '@/app/blog/page';
 import * as blogPost from '@/app/blog/[slug]/page';
 import * as events from '@/app/events/page';
+import * as directoryPage from '@/app/directory/page';
 
 const SITE = 'https://www.indiebookshop.com';
 const TEMPLATE = '%s | IndieBookShop'; // app/layout.tsx title.template
@@ -87,6 +88,40 @@ describe('sitemap', () => {
     expect(entries.length).toBeGreaterThan(200);
     const missing = entries.map(e => e.url.replace(SITE, '') || '/').filter(path => !paths.has(path));
     expect(missing).toEqual([]);
+  });
+
+  it('lists exactly the indexable city and county pages, and no build-time lastmod', async () => {
+    const entries = await sitemap();
+    const listed = new Set(entries.map(e => e.url.replace(SITE, '')));
+    const params = <T,>(p: T) => ({ params: Promise.resolve(p) });
+    let noindexed = 0;
+    for (const p of await cityPage.generateStaticParams()) {
+      const m = await cityPage.generateMetadata(params(p));
+      const indexable = !m.robots;
+      if (!indexable) noindexed++;
+      expect(listed.has(`/bookshops/${p.state}/${p.city}`)).toBe(indexable);
+    }
+    for (const p of await countyPage.generateStaticParams()) {
+      const m = await countyPage.generateMetadata(params(p));
+      expect(listed.has(`/bookshops/${p.state}/county/${p.county}`)).toBe(!m.robots);
+    }
+    expect(noindexed).toBeGreaterThan(0);
+    expect(entries.filter(e => e.lastModified && !e.url.includes('/blog/'))).toEqual([]);
+  });
+});
+
+describe('directory canonical', () => {
+  const canonical = async (q: Record<string, string>) =>
+    (await directoryPage.generateMetadata({ searchParams: Promise.resolve(q) })).alternates?.canonical;
+
+  it('points filtered views at the matching location page', async () => {
+    const { states } = await getLocationIndex();
+    const state = states[0];
+    const city = state.cities[0];
+    expect(await canonical({})).toBe(`${SITE}/directory`);
+    expect(await canonical({ features: '1', q: 'books' })).toBe(`${SITE}/directory`);
+    expect(await canonical({ state: state.abbrev })).toBe(`${SITE}/bookshops/${state.slug}`);
+    expect(await canonical({ state: state.abbrev, city: city.name })).toBe(`${SITE}/bookshops/${state.slug}/${city.slug}`);
   });
 });
 

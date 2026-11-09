@@ -9,7 +9,7 @@ import PlaceLinks from '@/components/location/PlaceLinks';
 import { getFeatureNames, getLocationIndex } from '@/lib/data/locations';
 import { getFeatureIndex } from '@/lib/data/features';
 import { countyIntro, toMetaDescription } from '@/lib/data/location-content';
-import { placeTitle } from '@/lib/seo';
+import { isIndexableCounty, NOINDEX_FOLLOW, placeTitle } from '@/lib/seo';
 import { cityToSlug } from '@/lib/data/location-slugs';
 import { ArrowRight } from 'lucide-react';
 
@@ -41,6 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: { absolute: title },
     description,
     alternates: { canonical: url },
+    ...(isIndexableCounty(county) ? {} : { robots: NOINDEX_FOLLOW }),
     openGraph: { title, description, url, type: 'website' },
   };
 }

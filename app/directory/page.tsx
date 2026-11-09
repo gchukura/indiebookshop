@@ -5,6 +5,7 @@ import { getMapboxToken } from '@/lib/mapbox';
 import { getFeatureIndex } from '@/lib/data/features';
 import { getStateAbbrev, getStateDisplayName } from '@/lib/state-utils';
 import { BRAND, DEFAULT_OG_IMAGE, fitTitle } from '@/lib/seo';
+import { legacyCityPath, legacyCountyPath, legacyStatePath } from '@/lib/data/legacy-location-redirect';
 import DirectoryClient, { DirectoryBookstore } from './DirectoryClient';
 
 type SearchParams = {
@@ -29,6 +30,26 @@ type Props = {
  */
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const resolvedParams = await searchParams;
+  const metadata = await directoryMetadata(resolvedParams);
+  // Every filtered view (?state, ?city, ?q, ?features, ?lat…) is a copy of the directory or of a
+  // /bookshops location page, so it points at that page instead of being indexed on its own.
+  const canonical = `https://www.indiebookshop.com${await directoryCanonicalPath(resolvedParams)}`;
+  return {
+    ...metadata,
+    alternates: { canonical },
+    openGraph: { ...metadata.openGraph, url: canonical },
+  };
+}
+
+/** The indexable page a /directory URL stands for: the matching /bookshops page, else /directory. */
+async function directoryCanonicalPath({ state, city, county }: SearchParams): Promise<string> {
+  if (!state) return '/directory';
+  if (city) return legacyCityPath(city, state);
+  if (county) return legacyCountyPath(state, county);
+  return legacyStatePath(state);
+}
+
+async function directoryMetadata(resolvedParams: SearchParams): Promise<Metadata> {
   const { state, city, county } = resolvedParams;
   const stateName = state ? getStateDisplayName(state) || state : '';
   const stateAbbrev = state ? getStateAbbrev(state) : '';
