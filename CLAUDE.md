@@ -12,6 +12,7 @@ Directory of ~3,000 US independent bookshops. The live app is **Next.js 16 App R
 - `npm run export-sheet` — `scripts/export-sheet.ts`: reads the Sheet once, checks it (`lib/data/sheet-snapshot.ts`), writes `.data/sheet.json` (gitignored). Skipped with `USE_FIXTURE_DATA=1`
 - `npm run start` — serve the build
 - Type-check: `npm run check` (`tsc -p tsconfig.json --noEmit`)
+- `node scripts/enrich-google-places.mjs [--ids a,b] [--dry-run]` — for hand-added rows (no `google_data_updated_at`): finds the shop on Google Places (or uses its `google_place_id`) and writes place ID, rating, reviews, hours, Maps link, status, and, if empty, lat/lng, county, and ZIP. No confident match → reported, nothing written; paste the right place ID and re-run. Run it before the photo script
 - `node scripts/fetch-google-photos.mjs` — fetch Google photos into R2 for shops that lack one (see Photos below)
 - `node scripts/indexnow.mjs [--urls a,b | --diff <file>] [--dry-run]` — submit the live sitemap (or given paths, or only URLs added/removed since `<file>`) to IndexNow (Bing etc.); the key file is `public/acc33ef596bf47359e1aa5cd6b78344d.txt`. `.github/workflows/indexnow.yml` runs the `--diff` mode after every production deploy (and daily at 09:30 UTC), keeping the last URL list in the Actions cache
 - `npx tsx scripts/test-interactive-elements.ts [url]` — Playwright smoke test of buttons, search, and forms
